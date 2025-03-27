@@ -1,4 +1,5 @@
-
+import express from "express";
+import database from "../../database/db.js";
 const chatbotRouter=express.Router();
 
 chatbotRouter.post("/chat-body", (req, res) => {

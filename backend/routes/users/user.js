@@ -1,7 +1,8 @@
+import express from "express";
+import database from "../../database/db.js";
+const router=express.Router();
 
-const userRouter=express.Router();
-
-userRouter.post("/loginuser", (req, res) => {
+router.post("/loginuser", (req, res) => {
     const { emailid, password } = req.body;
 
     const sql = "SELECT * FROM users WHERE emailid=?";
@@ -29,7 +30,7 @@ userRouter.post("/loginuser", (req, res) => {
 });
 
 
-userRouter.post("/adduser", (req, res) => {
+router.post("/adduser", (req, res) => {
     const { username, emailid, password } = req.body;
 
     const hashPassword = bcrypt.hashSync(password, 10);
