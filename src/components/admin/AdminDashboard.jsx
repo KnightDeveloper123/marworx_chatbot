@@ -1,10 +1,11 @@
 import {
-  Box, Flex, Grid, GridItem, SimpleGrid, Text,
+  Box, Button, Flex, Grid, GridItem, SimpleGrid, Text,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MdOutlinePeople, MdOutlineQueryBuilder } from "react-icons/md";
 import { BsPersonFillGear } from "react-icons/bs";
 import { AppContext } from "../context/AppContext";
+import { IoMdAdd } from "react-icons/io";
 
 const AdminDashboard = () => {
   const { showAlert } = useContext(AppContext);
@@ -79,8 +80,21 @@ const AdminDashboard = () => {
       </SimpleGrid>
       {/* )} */}
 
-      <Box pt={'20px'}  >
-        {/* <Leads flag={false} showalert={showalert} /> */}
+
+      <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
+        <Button
+          borderRadius="var(--radius)"
+          leftIcon={<IoMdAdd fontSize={"20px"} />}
+          _hover={{ bgColor: "var(--active-bg)" }}
+          bgColor="var(--active-bg)"
+          color="#fff"
+          h={"35px"}
+          fontSize="var(--mini-text)"
+          fontWeight="var(--big-font-weight)"
+          onClick={() => onOpen()}
+        >
+          Add Documents
+        </Button>
       </Box>
 
 
