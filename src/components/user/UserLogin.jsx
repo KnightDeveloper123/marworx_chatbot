@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useChat } from "../ChatContext";
+import { useChat } from "../../ChatContext";
 import { useToast } from "@chakra-ui/react";
 
 const UserLogin = () => {
@@ -43,7 +43,7 @@ const UserLogin = () => {
             position: "top",
             isClosable: true,
           });
-          navigate(`/admindashboard`);
+          navigate(`/admin/admindashboard`);
         }
       }
       else{

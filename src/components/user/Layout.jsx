@@ -1,7 +1,6 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
-import SideBar from "./components/SideBar";
-import UserLogin from "./components/UserLogin";
+import SideBar from "./SideBar";
 
 const Layout = () => {
   

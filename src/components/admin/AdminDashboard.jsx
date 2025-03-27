@@ -1,6 +1,6 @@
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Heading, IconButton, Menu, MenuButton, MenuItem, MenuList, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { useChat } from "../ChatContext";
+import { useChat } from "../../ChatContext";
 import { useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";

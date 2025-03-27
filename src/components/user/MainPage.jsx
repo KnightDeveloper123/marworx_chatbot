@@ -2,10 +2,9 @@ import { AddIcon, DeleteIcon, ExternalLinkIcon, HamburgerIcon, Search2Icon } fro
 import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Avatar, Box, Button, Card, CardHeader, Center, Flex, Grid, GridItem, Heading, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Radio, RadioGroup, Stack, Text, Textarea, Toast, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import axios from 'axios';
-import "../App.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { TypeAnimation } from 'react-type-animation';
-import { useChat } from "../ChatContext";
+import { useChat } from "../../ChatContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";

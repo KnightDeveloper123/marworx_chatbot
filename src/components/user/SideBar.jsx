@@ -5,7 +5,7 @@ import { FaRobot } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useChat } from "../ChatContext"; 
+import { useChat } from "../../ChatContext"; 
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
