@@ -34,3 +34,33 @@
   }
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+* {
+  font-family: "Nunito", sans-serif !important;
+  font-weight: 600;
+}
+
+:root {
+  --text-12px: 12px !important;
+  --mini-text: 13px;
+  --mini-15px: 15px;
+  --text: 16px;
+  --mini-14px: 14px;
+  --counts: 48px;
+  --count-sm: 26px;
+  --heading: 18px;
+  --big: 40px;
+  --semi-big: 20px;
+  --big-font-weight: 700;
+  --radius: 7px;
+  --shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  --input-h: 35px;
+  --main-bg: #003366;
+  --text-white: #ffffff;
+  --active-bg: #FF5722;
+  /* --table-header-bg: #99D2FF; */
+  --table-header-bg: #eff2f4;
+  
+  --text-black: #000000;
+}

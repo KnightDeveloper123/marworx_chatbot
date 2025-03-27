@@ -14,6 +14,7 @@ const MainPage = lazy(() => import('./components/user/MainPage'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
 const Employee = lazy(() => import('./components/admin/Employee'));
+const User = lazy(() => import('./components/admin/User'));
 const Login = lazy(() => import('./components/admin/Login'));
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
@@ -39,6 +40,7 @@ function App() {
         <Route  path="/admin/*" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="employee" element={<Employee />} />
+          <Route path="user" element={<User />} />
         </Route>
 
         {/* User Routes */}
