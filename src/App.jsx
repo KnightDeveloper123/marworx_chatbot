@@ -35,8 +35,8 @@ function App() {
     <Router>
       <Routes>
         {/* Admin Routes */}
-        <Route path="/admin" element={<Login />} />
-        <Route path="/admin/*" element={<AdminLayout />}>
+        <Route exact path="/admin" element={<Login />} />
+        <Route  path="/admin/*" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="employee" element={<Employee />} />
         </Route>

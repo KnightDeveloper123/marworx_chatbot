@@ -1,5 +1,7 @@
 import { Box, Button, FormControl, FormLabel, Input, TableContainer, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 
 export default function Login() {
 
@@ -14,6 +16,7 @@ export default function Login() {
     setUserData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
+const navigate=useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +35,7 @@ export default function Login() {
     console.log(result);
     
     if (result.success) {
+      navigate('/admin/dashboard')
       setUserData({
         email: "",
         password: ""

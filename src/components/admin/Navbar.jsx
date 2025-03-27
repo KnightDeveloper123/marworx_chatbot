@@ -2,7 +2,6 @@ import React from "react";
 import {
   Box,
   Flex,
-  Link,
   Spacer,
   Button,
   IconButton,
@@ -18,7 +17,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { Link as RouterLink } from "react-router-dom";
+import { Link  } from "react-router-dom";
 
 function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
