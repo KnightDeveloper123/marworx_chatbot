@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { middleware } = require('../../middleware/middleware');
 
-router.post("/addEmployee", middleware, async (req, res) => {
+router.post("/addEmployee", async (req, res) => {
     try {
         const { name, email, mobile_no, role, date_of_birth } = req.body;
 
@@ -31,16 +31,15 @@ router.post("/addEmployee", middleware, async (req, res) => {
             return res.json({ success: "User Added", data })
         })
     } catch (error) {
-        console.log("auth/admin/addUser: ", error.message);
+        console.log("/addEmployee: ", error.message);
         return res.status(500).json({ error: "Internal Server Error." });
     }
 });
 
 router.post("/updateEmployee", middleware, async (req, res) => {
     try {
-        const { user_id, ...rest } = req.body;
-
-        const { error } = updateUserSchema.validate(req.body, { abortEarly: false });
+        const { employee_id, ...rest } = req.body;
+        const { error } = updateEmployeeSchema.validate(req.body, { abortEarly: false });
         if (error) {
             return res.status(400).json({ error: error.details.map(err => err.message) });
         }
@@ -53,9 +52,9 @@ router.post("/updateEmployee", middleware, async (req, res) => {
         }
 
         const setClause = fields.map(field => `${field} = ?`).join(", ");
-        values.push(user_id);
+        values.push(employee_id);
 
-        const query = `UPDATE admins SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        const query = `UPDATE employee SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
 
         connection.execute(query, values, (err, data) => {
             if (err) {
@@ -68,7 +67,7 @@ router.post("/updateEmployee", middleware, async (req, res) => {
             return res.json({ success: "User updated", data })
         });
     } catch (error) {
-        console.error("Error in /updateUser:", error.message);
+        console.error("Error in /updateEmployee :", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -105,7 +104,7 @@ router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const checkEmail = await executeQuery(`select * from admins where email=?`, [email]);
+        const checkEmail = await executeQuery(`select * from employee where email=?`, [email]);
 
         if (!checkEmail[0]?.password) {
             return res.status(400).json({ error: "Please set your password" })
@@ -142,16 +141,16 @@ router.post("/changePassword", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const checkEmail = await executeQuery(`select * from admins where email=?`, [email]);
+        const checkEmail = await executeQuery(`select * from employee where email=?`, [email]);
 
         if (!checkEmail[0]) {
-            return res.status(400).json({ error: "User not fount" })
+            return res.status(400).json({ error: "Employee not fount" })
         }
 
         var salt = bcrypt.genSaltSync(10);
         const secPass = await bcrypt.hash(password, salt);
 
-        connection.execute('update admins set password=? where email=?;', [secPass, email], (err, data) => {
+        connection.execute('update employee set password=? where email=?;', [secPass, email], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
@@ -160,7 +159,7 @@ router.post("/changePassword", async (req, res) => {
         })
 
     } catch (error) {
-        console.log("auth/admin/changePassword: ", error.message);
+        console.log("employee/changePassword: ", error.message);
         return res.status(500).json({ error: "Internal Server Error." });
     }
 });

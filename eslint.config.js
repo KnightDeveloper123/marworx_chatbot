@@ -5,15 +5,17 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   { ignores: ['dist'] },
+
+  // Frontend Configuration (ES Modules)
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['frontend/**/*.{js,jsx}'], // Apply only to frontend
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
-        sourceType: 'module',
+        sourceType: 'module', // Use ES Modules
       },
     },
     plugins: {
@@ -28,6 +30,23 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+    },
+  },
+
+  // Backend Configuration (CommonJS)
+  {
+    files: ['backend/**/*.js'], // Apply only to backend
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script', // CommonJS (not 'module')
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
 ]

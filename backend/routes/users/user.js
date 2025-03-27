@@ -1,6 +1,6 @@
-import express from "express";
-import database from "../../database/db.js";
-const router=express.Router();
+const express = require('express');
+const router = express.Router();
+const connection = require('../../database/db');
 
 router.post("/loginuser", (req, res) => {
     const { emailid, password } = req.body;
@@ -8,7 +8,7 @@ router.post("/loginuser", (req, res) => {
     const sql = "SELECT * FROM users WHERE emailid=?";
     const value = [emailid];
 
-    database.query(sql, value, (err, result) => {
+    connection.query(sql, value, (err, result) => {
 
         const user = result[0];
         if (err) {
@@ -38,7 +38,7 @@ router.post("/adduser", (req, res) => {
     const sql = "INSERT INTO users (username,emailid,password) VALUES (?,?,?)";
     const value = [username, emailid, hashPassword];
 
-    database.query(sql, value, (err, result) => {
+    connection.query(sql, value, (err, result) => {
         if (err) {
             console.error("Error adding user:", err);
             return res.status(500).json({ error: "Database error" });
@@ -48,4 +48,4 @@ router.post("/adduser", (req, res) => {
 
 });
 
-module.exports=userRouter;
+module.exports = router;

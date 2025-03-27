@@ -23,11 +23,9 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// app.use('/course_thumbnail', express.static('course_thumbnail/'));
-
-//Authentication routes
 app.use('/employee', require("./routes/admin/employee"))
-
+app.use('/user', require("./routes/users/user"))
+app.use('/chatbot', require("./routes/users/chatbot"))
 
 const port = 5000;
 app.listen(port, () => {

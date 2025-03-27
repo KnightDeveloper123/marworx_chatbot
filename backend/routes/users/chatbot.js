@@ -1,14 +1,14 @@
-import express from "express";
-import database from "../../database/db.js";
-const chatbotRouter=express.Router();
+const express = require('express');
+const router = express.Router();
+const connection = require('../../database/db');
 
-chatbotRouter.post("/chat-body", (req, res) => {
+router.post("/chat-body", (req, res) => {
     const { message, sender, title_id } = req.body;
 
     query = 'INSERT INTO all_chat (title_id,message,sender) VALUES (?,?,?)'
     values = [title_id, message, sender]
 
-    database.query(query, values, (err, result) => {
+    connection.query(query, values, (err, result) => {
         if (err) {
             console.error("Error inserting chat:", err);
             return res.status(500).json({ error: "Database error" });
@@ -17,7 +17,7 @@ chatbotRouter.post("/chat-body", (req, res) => {
     });
 });
 
-chatbotRouter.post("/newChat/:userid", async (req, res) => {
+router.post("/newChat/:userid", async (req, res) => {
 
     const { allchats } = req.body;
     const { userid } = req.params;
@@ -30,7 +30,7 @@ chatbotRouter.post("/newChat/:userid", async (req, res) => {
     query = 'INSERT INTO chat_titles (message,userid) VALUES (?,?)'
     values = [message, userid]
 
-    database.query(query, values, (err, result) => {
+    connection.query(query, values, (err, result) => {
         if (err) {
             console.error("Error inserting chat:", err);
             return res.status(500).json({ error: "Database error" });
@@ -58,14 +58,14 @@ chatbotRouter.post("/newChat/:userid", async (req, res) => {
 
 });
 
-chatbotRouter.delete("/deleteChat", (req, res) => {
+router.delete("/deleteChat", (req, res) => {
 
     const { id } = req.body;
 
     const sql = "DELETE FROM all_chat WHERE title_id=?";
     const value = [id];
 
-    database.query(sql, value, (err, result) => {
+    connection.query(sql, value, (err, result) => {
         if (err) {
             console.error("Error deleting chat:", err);
             return res.status(500).json({ error: "Database error" });
@@ -75,7 +75,7 @@ chatbotRouter.delete("/deleteChat", (req, res) => {
     const sql2 = "DELETE FROM chat_titles WHERE id=?";
     const value2 = [id];
 
-    database.query(sql2, value2, (err, result) => {
+    connection.query(sql2, value2, (err, result) => {
         if (err) {
             console.error("Error deleting chat:", err);
             return res.status(500).json({ error: "Database error" });
@@ -84,11 +84,11 @@ chatbotRouter.delete("/deleteChat", (req, res) => {
     })
 })
 
-chatbotRouter.get("/getsidebardata/:userid", (req, res) => {
+router.get("/getsidebardata/:userid", (req, res) => {
     const { userid } = req.params;
     const sql = 'select * from chat_titles where userid=?'
     value = [userid];
-    database.query(sql, value, (err, results) => {
+    connection.query(sql, value, (err, results) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
@@ -98,13 +98,13 @@ chatbotRouter.get("/getsidebardata/:userid", (req, res) => {
 
 })
 
-chatbotRouter.get("/getsidebardata/:userid/:id", (req, res) => {
+router.get("/getsidebardata/:userid/:id", (req, res) => {
     const { id } = req.params;
     const { userid } = req.params;
 
     const sql = 'select * from chat_titles where userid=?'
     const value = [userid];
-    database.query(sql, value, (err, results) => {
+    connection.query(sql, value, (err, results) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
@@ -114,7 +114,7 @@ chatbotRouter.get("/getsidebardata/:userid/:id", (req, res) => {
 
     const sql1 = 'select * from all_chat where title_id=?'
     value1 = id;
-    database.query(sql1, value1, (err, results) => {
+    connection.query(sql1, value1, (err, results) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
@@ -124,4 +124,4 @@ chatbotRouter.get("/getsidebardata/:userid/:id", (req, res) => {
 
 })
 
-module.exports=chatbotRouter;
+module.exports = router;
