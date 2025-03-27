@@ -1,4 +1,7 @@
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Heading, IconButton, Menu, MenuButton, MenuItem, MenuList, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
+     AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader,
+      AlertDialogOverlay, Box, Button, Flex, Grid, GridItem, Heading, IconButton, Menu, MenuButton, 
+      MenuItem, MenuList, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "../../ChatContext";
 import { useNavigate } from "react-router-dom";
@@ -6,175 +9,95 @@ import { FaUser } from "react-icons/fa";
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 import { IoLogOut } from "react-icons/io5";
 import axios from "axios";
+import { MdOutlinePeople } from "react-icons/md";
+import { BsPersonFillGear } from "react-icons/bs";
 
 const AdminDashboard = () => {
 
-    const { username, logout } = useChat();
-    const [userData, setUserData] = useState([]);
+    // const { username, logout } = useChat();
+    // const [userData, setUserData] = useState([]);
 
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const cancelRef = useRef();
+    // const { isOpen, onOpen, onClose } = useDisclosure();
+    // const cancelRef = useRef();
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
-    const handleLogout = async () => {
+    // const handleLogout = async () => {
     
-        try {
-            await axios.post("http://localhost:5000/logout",{}, { withCredentials: true });
-            logout();
-            navigate("/");
-        } catch (err) {
-            console.log(err);
-        }
+    //     try {
+    //         await axios.post("http://localhost:5000/logout",{}, { withCredentials: true });
+    //         logout();
+    //         navigate("/");
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
 
-    };
+    // };
 
-    const userdata = async () => {
-        try {
-            const response = await axios.get('http://localhost:5000/getallusers', { withCredentials: true });
-            console.log(response.data);
-            setUserData(response.data);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    useEffect(() => {
-        userdata();
-    }, []);
+    // const userdata = async () => {
+    //     try {
+    //         const response = await axios.get('http://localhost:5000/getallusers', { withCredentials: true });
+    //         console.log(response.data);
+    //         setUserData(response.data);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+    // useEffect(() => {
+    //     userdata();
+    // }, []);
 
 
     return (
-        <Flex h="100vh" bgColor="#1A202C" flexDir="column" alignItems={'center'} gap={4} >
-            <Flex bg={'#171923'} h={'90px'} w={'100%'} >
-                <Flex bg={'#171923'} w={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
-
-                    <Menu >
-                        <MenuButton
-                            as={IconButton}
-                            aria-label='Options'
-                            icon={<FaUser />}
-                            variant='outline'
-                            mr={'10px'}
-                            bgColor={"#1A202C"}
-                            color="white"
-                            border={'none'}
-                            _hover={"none"}
-
-                        />
-                        <Text color={'white'} mr={'20px'}> {username}</Text>
-                        <MenuList bgColor={"#171923"} border={'none'}>
-                            {/* <MenuItem icon={<AddIcon />} onClick={onEditOpen} bgColor={"#171923"} color={"white"}>
-                                            Add File
-                                        </MenuItem> */}
-                            <MenuItem icon={<IoLogOut size={19} />} onClick={onOpen} bgColor={"#171923"} color={"white"}>
-                                Log Out
-                            </MenuItem>
-                        </MenuList>
-                    </Menu>
-
-                    <AlertDialog
-                        isOpen={isOpen}
-                        leastDestructiveRef={cancelRef}
-                        onClose={onClose}
-
-                    >
-                        <AlertDialogOverlay>
-                            <AlertDialogContent bgColor={"#2D3748"} color={"white"}>
-                                <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                                    Log out
-                                </AlertDialogHeader>
-
-                                <AlertDialogBody>
-                                    Are you sure?
-                                </AlertDialogBody>
-
-                                <AlertDialogFooter>
-                                    <Button ref={cancelRef} onClick={onClose}>
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        colorScheme='red'
-                                        onClick={async () => {
-                                            onClose();
-                                            await handleLogout();  // ✅ Ensure async execution
-                                        }}
-                                        ml={3}
-                                    >
-                                        Log Out
-                                    </Button>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialogOverlay>
-                    </AlertDialog>
-
-
-                    {/* <AlertDialog
-                                    motionPreset='slideInBottom'
-                                    leastDestructiveRef={editCancelRef}
-                                    onClose={onEditClose}
-                                    isOpen={isEditOpen}
-                                    isCentered
-                                >
-                                    <AlertDialogOverlay />
+        <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
+        {/* {userDetails.type === "admin" && ( */}
+          <Grid
+            h="max-content"
+            w="100%"
+            templateColumns={{
+              base: "repeat(2, 1fr)",
+              sm: "repeat(3, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+              xl: "repeat(4, 1fr)",
+            }}
+            gap={3}
+          >
+            <GridItem boxShadow=" rgba(149, 157, 165, 0.2) 0px 8px 24px" w="100%" borderRadius="7px" p={{ base: '5px', md: '10px' }} color={'#000'} bgColor="#fff" display={'flex'} flexDir={'column'} justifyContent={'space-between'} gap={{ base: '5px', md: '10px' }}>
+              <Flex w={'100%'} justifyContent={'space-between'}>
+                <Text   fontSize={{ base: '14px', md: "18px" }}>User</Text>
+                <Text h={'max-content'} border={'1px solid black'} p={'3px'} borderRadius={'full'} color="black" fontSize={{ base: '18px', md: '24px' }}><MdOutlinePeople /></Text>
+              </Flex>
+              <Flex w="100%" flexDirection="column">
+                <Text cursor={'default'} py={0} lineHeight={'1'} fontSize={{ base: '12px', md: "16px" }}>
+                  {/* {dashCounts?.lead?.leads} */} 10
+                </Text>
+              </Flex>
+            </GridItem>
+  
+            <GridItem boxShadow=" rgba(149, 157, 165, 0.2) 0px 8px 24px" w="100%" borderRadius="7px" p={{ base: '5px', md: '10px' }} color={'#000'} bgColor="#fff" display={'flex'} flexDir={'column'} justifyContent={'space-between'} gap={{ base: '5px', md: '10px' }}>
+              <Flex w={'100%'} justifyContent={'space-between'}>
+                <Text fontSize={{ base: '14px', md: "18px" }}>Total Employees</Text>
+                <Text h={'max-content'} border={'1px solid black'} p={'3px'} borderRadius={'full'} color="black" fontSize={{ base: '18px', md: '24px' }}><BsPersonFillGear /></Text>
+              </Flex>
+              <Flex w="100%" flexDirection="column">
+                <Text cursor={'default'} py={0} lineHeight={'1'} fontSize={{ base: '12px', md: "16px" }}>
+                  {/* {dashCounts?.employee?.employee} */} 5
+                </Text>
+              </Flex>
+            </GridItem>
+          </Grid>
+        {/* )} */}
+  
+        <Box pt={'20px'}  >
+           {/* <Leads flag={false} showalert={showalert} /> */}
+        </Box>
+  
+  
+  
+          
             
-                                    <AlertDialogContent bgColor={"#2D3748"} color={"white"}>
-                                        <AlertDialogHeader>Upload a file</AlertDialogHeader>
-                                        <AlertDialogCloseButton />
-                                        <AlertDialogBody>
-                                            <input type="file" name="avatar" ref={fileInputRef} onChange={handleFileChange} />
-                                        </AlertDialogBody>
-                                        <AlertDialogFooter>
-                                            <Button ref={editCancelRef} onClick={onEditClose}>
-                                                Cancel
-                                            </Button>
-                                            <Button colorScheme='red'  ml={3} onClick={handleFileSubmit}>
-                                                Submit
-                                            </Button>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog> */}
-
-
-                </Flex>
-            </Flex>
-
-            <Flex w="100%" flexDir={'column'} >
-
-                <Box textAlign="center" w={"50%"}>
-                    <Heading as="h3" size="lg" color="white">
-                        User List
-                    </Heading>
-                </Box>
-
-                <TableContainer w={"50%"} textAlign={'center'}>
-                    <Table variant='simple' color={'white'} border={'1px solid white'} >
-
-                        <Thead  >
-                            <Tr color={'white'}>
-                                <Th color={'white'} textAlign="center">User Name</Th>
-                                <Th color={'white'} textAlign="center">Email </Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {userData.map((user, index) => (
-                                <Tr key={index}>
-                                    <Td textAlign="center"
-                                        cursor="pointer"
-                                        onClick={() => navigate(`/admindashboard/${user.userid}`)}
-                                    >
-                                        {user.username}</Td>
-                                    <Td textAlign="center"
-                                        cursor="pointer"
-                                        onClick={() => navigate(`/admindashboard/${user.userid}`)}
-                                    >{user.emailid}</Td>
-                                </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
-                </TableContainer>
-            </Flex>
-
-        </Flex>
+      </Flex>
     )
 }
 
