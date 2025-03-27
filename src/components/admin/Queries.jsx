@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react'
 import Card from '../../Card'
-import { Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
+import { Avatar, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import { AppContext } from '../context/AppContext'
 import { useContext } from 'react';
 
 function Queries() {
 
-    const { fetchAllQueries,queries,showAlert,loading } = useContext(AppContext);
+    const { fetchAllQueries,queries,formatDate } = useContext(AppContext);
 
     useEffect(()=>{
         fetchAllQueries();
     },[])
+    console.log(queries)
   return (
     <Card>
       <Flex
@@ -47,7 +48,7 @@ function Queries() {
                 borderRadius=""
                 fontSize="var(--mini-text)"
               >
-                Lead
+                query
               </Th>
               <Th
                 fontWeight="var(--big-font-weight)"
@@ -55,57 +56,29 @@ function Queries() {
                 borderRadius=""
                 fontSize="var(--mini-text)"
               >
-                Email
+                query status
               </Th>
+             
               <Th
                 fontWeight="var(--big-font-weight)"
                 color='var(--text-black)'
                 borderRadius=""
                 fontSize="var(--mini-text)"
               >
-                Phone no
+                Assignee
               </Th>
+             
               <Th
                 fontWeight="var(--big-font-weight)"
                 color='var(--text-black)'
                 borderRadius=""
                 fontSize="var(--mini-text)"
-              >
-                Assigned employee
-              </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Source
-              </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                category
-              </Th>
+              >               
+              created at
 
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Next Followup
               </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Status
-              </Th>
+            
+            
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
                 <Th
                   fontWeight="var(--big-font-weight)"
@@ -123,7 +96,7 @@ function Queries() {
             {queries &&
               queries.map((d, index) => (
                 <Tr
-                //   key={index}
+                  key={index}
                   border="0.5px solid #F2F4F8"
                   h="40px"
                   textAlign="start"
@@ -134,8 +107,7 @@ function Queries() {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    1
-                    {/* {d.id} */}
+                    {d.id}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -144,11 +116,8 @@ function Queries() {
                     fontWeight="var(--big-font-weight)"
                     // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                   >
-                    <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
-                        user
-                      {/* <Avatar size={"xs"} name={d.name} />
-                      {d.name} */}
-                    </Flex>
+                   
+                      {d.query}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -156,15 +125,7 @@ function Queries() {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    {/* {d.email} */}
-                  </Td>
-                  <Td
-                    border="0.5px solid #F2F4F8"
-                    color={"#404040"}
-                    fontSize="var(--mini-text)"
-                    fontWeight="var(--big-font-weight)"
-                  >
-                    {/* {d.phone_no} */}
+                    {d.query_status}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -174,11 +135,18 @@ function Queries() {
                     // onClick={() => fetchNextUrl(d.assigen_to)} _hover={{ cursor: "pointer", color: "navy" }}
                   >
                     <Flex display={"flex"} alignItems={"center"} gap={"5px"} >
-                      {/* <Avatar size={"xs"} name={d.emp_name} />
-                      {d.emp_name} */}
+                      <Avatar size={"xs"} name={'animesh'} />
+                      {d.assignee_id}
                     </Flex>
                   </Td>
-
+                  <Td
+                    border="0.5px solid #F2F4F8"
+                    color={"#404040"}
+                    fontSize="var(--mini-text)"
+                    fontWeight="var(--big-font-weight)"
+                  >
+                    {formatDate(d.created_at)}
+                  </Td>
                  
                 
                 </Tr>
