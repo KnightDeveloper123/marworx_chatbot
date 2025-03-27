@@ -1,21 +1,21 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'node_modules'] }, // Ignore build & dependencies
 
-  // Frontend Configuration (ES Modules)
+  // ✅ Frontend Configuration
   {
-    files: ['frontend/**/*.{js,jsx}'], // Apply only to frontend
+    files: ['frontend/**/*.{js,jsx}'], // Apply to frontend
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
-        sourceType: 'module', // Use ES Modules
+        sourceType: 'module',
       },
     },
     plugins: {
@@ -26,22 +26,19 @@ export default [
       ...js.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
 
-  // Backend Configuration (CommonJS)
+  // ✅ Backend Configuration (CommonJS)
   {
-    files: ['backend/**/*.js'], // Apply only to backend
+    files: ['backend/**/*.js'], // Apply to backend
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       globals: globals.node,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'script', // CommonJS (not 'module')
+        sourceType: 'script', // CommonJS
       },
     },
     rules: {
@@ -49,4 +46,4 @@ export default [
       'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
-]
+];

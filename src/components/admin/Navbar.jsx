@@ -65,10 +65,9 @@ function Navbar() {
           alignItems="center"
           gap={{ xl: 3, lg: 3, md: 2, sm: 5, base: 2 }}
         >
-          <Flex mr="0px" gap={2}>
+          <Flex mr="0px" gap={2} alignItems={'center'}>
             <IconButton
               display={{
-                "2xl": "none",
                 xl: "none",
                 lg: "none",
                 md: "block",
@@ -77,7 +76,7 @@ function Navbar() {
               }}
               onClick={onDrawerOpen}
               aria-label="Search database"
-              icon={<HamburgerIcon fontSize="25px" />}
+              icon={<HamburgerIcon fontSize="20px" />}
               size="sm"
               bg="transparent"
               _hover={{
@@ -122,37 +121,40 @@ function Navbar() {
         </Flex>
       </Flex>
 
-      <Drawer isOpen={isDrawerOpen} placement="left" onClose={onDrawerClose}>
+      <Drawer isOpen={isDrawerOpen} placement="left" onClose={onDrawerClose} size={'xs'}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader bgColor="#fafbff">Menu</DrawerHeader>
-          <DrawerBody p="0px" bgColor="#fafbff">
-            <Box
-              w="100%"
-              gap={{ xl: 35, lg: 25, md: 13, sm: 5, base: 2 }}
+          <DrawerBody p="0px 20px" bgColor="#fafbff">
+            <Flex
+              justifyContent="space-evenly"
+              gap={4}
               alignItems="center"
-              justifyContent="space-between"
+              flexDir={'column'}
+              mx={'10px'}
             >
-              <Box
-                w="100%"
-                h="100%"
-                justifyContent="space-between"
-                alignItems="center"
-                gap={{ xl: 3, lg: 3, md: 2, sm: 5, base: 2 }}
-              >
-                <Box
-                  mx="10px"
-                  minW={{
-                    xl: "250px",
-                    lg: "150px",
-                    md: "150px",
-                    sm: "250px",
-                    base: "250px",
-                  }}
-                ></Box>
-              </Box>
-            </Box>
+              {adminNavbar.map((item, index) => (
+                <NavLink
+                  key={index}
+                  to={item.url}
+                  style={({ isActive }) => ({
+                    width: '100%',
+                    textAlign: 'center',
+                    color: isActive ? "#FF5722" : "#000000",
+                    backgroundColor: isActive ? "#FF572215" : "transparent",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                    transition: "0.25s",
+                    textDecoration: "none",
+                  })}
+                >
+                  <Text fontSize="15px" fontWeight="500" cursor="pointer">
+                    {item.title}
+                  </Text>
+                </NavLink>
+              ))}
+            </Flex>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
