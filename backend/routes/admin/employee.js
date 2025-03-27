@@ -99,7 +99,6 @@ router.post("/deleteEmployee", middleware, async (req, res) => {
     }
 });
 
-
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -164,6 +163,35 @@ router.post("/changePassword", async (req, res) => {
     }
 });
 
+router.get("/getAllEmployee", middleware, async (req, res) => {
+    try {
+        connection.query(`select * from employee where status=0`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "Something went wrong" })
+            }
+            return res.json({ success: "success", data: result })
+        })
+    } catch (error) {
+        console.error("Error in /getAllEMployee:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
+router.get("/getEmployeeById", middleware, async (req, res) => {
+    try {
+        const { employee_id } = req.query;
+
+        connection.query(`select * from employee where status=0 and id=?;`, [employee_id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+            return res.json({ success: "success", data: result[0] })
+        })
+    } catch (error) {
+        console.error("Error in /getEmployeeById:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 module.exports = router;
