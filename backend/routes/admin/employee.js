@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { middleware } = require('../../middleware/middleware');
 
-router.post("/addEmployee", async (req, res) => {
+router.post("/addEmployee", middleware, async (req, res) => {
     try {
         const { name, email, mobile_no, role, date_of_birth } = req.body;
 
@@ -23,12 +23,12 @@ router.post("/addEmployee", async (req, res) => {
         }
 
         const insertQuery = 'insert into employee (name, email, mobile_no, role, date_of_birth) values (?, ?, ?, ?, ?);'
-        connection.execute(insertQuery, [name, email, mobile_no, role, date_of_birth], (err, data) => {
+        connection.execute(insertQuery, [name, email, mobile_no, role, date_of_birth ?? null], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
-            return res.json({ success: "User Added", data })
+            return res.json({ success: "Employee Added", data })
         })
     } catch (error) {
         console.log("/addEmployee: ", error.message);
@@ -126,7 +126,7 @@ router.post("/login", async (req, res) => {
                 user_type: checkEmail[0].role
             };
             let auth_token = jwt.sign(payload, process.env.JWT_SECRET);
-            await executeQuery(`update admins set last_login=NOW() where id=${checkEmail[0]?.id};`)
+            await executeQuery(`update employee set last_login=NOW() where id=${checkEmail[0]?.id};`)
             return res.json({ success: `Welcome Back, ${checkEmail[0]?.name}`, data: { name: checkEmail[0]?.name, email: checkEmail[0]?.email, role: checkEmail[0].role, id: checkEmail[0].id }, auth_token })
         } else {
             return res.status(400).json({ error: "Invalid Credentials." });
