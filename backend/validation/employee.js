@@ -52,11 +52,11 @@ const updateEmployeeSchema = Joi.object({
     }),
 
     employee_id: Joi.number().required().messages({
-        'number.base': "User should be int",
-        'any.required': 'User is required'
+        'number.base': "Employee should be int",
+        'any.required': 'Employee is required'
     }),
     status: Joi.number().optional().allow(null, '').messages({
-        'number.base': 'User Status is invalid.',
+        'number.base': 'Employee Status is invalid.',
     }),
 });
 

@@ -64,7 +64,7 @@ router.post("/updateEmployee", middleware, async (req, res) => {
             if (data.affectedRows === 0) {
                 return res.status(404).json({ error: "Record not found" });
             }
-            return res.json({ success: "User updated", data })
+            return res.json({ success: "Employee updated", data })
         });
     } catch (error) {
         console.error("Error in /updateEmployee :", error.message);
@@ -76,7 +76,7 @@ router.post("/deleteEmployee", middleware, async (req, res) => {
     try {
         const { user_id } = req.body;
 
-        const { error } = deleteUserSchema.validate(req.body, { abortEarly: false });
+        const { error } = deleteEmployeeSchema.validate(req.body, { abortEarly: false });
         if (error) {
             return res.status(400).json({ error: error.details.map(err => err.message) });
         }
@@ -105,13 +105,15 @@ router.post("/login", async (req, res) => {
 
         const checkEmail = await executeQuery(`select * from employee where email=?`, [email]);
 
-        if (!checkEmail[0]?.password) {
-            return res.status(400).json({ error: "Please set your password" })
-        }
 
         if (!checkEmail[0] || !password) {
             return res.status(400).json({ error: "Invalid Credentials" });
         }
+
+        if (!checkEmail[0]?.password) {
+            return res.status(400).json({ error: "Please set your password" })
+        }
+
         const pwdCompare = await bcrypt.compare(password, checkEmail[0].password);
 
         if (!pwdCompare) {
