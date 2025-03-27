@@ -152,4 +152,19 @@ router.post("/deleteUser", async (req, res) => {
     }
 });
 
+router.get("/getAllUser", async (req, res) => {
+    try {
+        connection.query(`select * from user where status=0`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "Something went wrong" })
+            }
+            return res.json({ success: "success", data: result })
+        })
+    } catch (error) {
+        console.error("Error in /getAllUser:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports=router;

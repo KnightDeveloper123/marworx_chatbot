@@ -97,13 +97,39 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    const [users, setUsers] = useState([]);
+
+    const fetchAllUser = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch(`${APP_URL}/user/getAllUser`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                }
+            })
+            const result = await response.json();
+            // console.log(result)
+            if (result.success) {
+                // console.log(result.data)
+                setUsers(result.data)
+            } else {
+                showAlert(result.error, "error")
+            }
+        } catch (error) {
+            console.log(error);
+            showAlert("Internal Server Error!", "error")
+        }
+    }
+
 
     return (
         <AppContext.Provider
             value={{
                 showAlert, loading,
                 fetchAllEmployee, employee, 
-                fetchAllQueries,  queries ,formatDate
+                fetchAllQueries,  queries ,formatDate,fetchAllUser,users
             }}
         >
             {children}

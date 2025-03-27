@@ -1,8 +1,18 @@
-import { Button, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
-import React from "react";
+import { Avatar, Button, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
+import React, { useContext, useEffect, useState } from "react";
 import Card from "../../Card";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
 
 function User({flag}) {
+
+  const { users, formatDate,fetchAllUser } = useContext(AppContext);
+  
+  useEffect(() => {
+    fetchAllUser();
+  }, []);
+  
+
   return (
     <Card>
       <Flex
@@ -42,7 +52,7 @@ function User({flag}) {
             <Flex
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
-              <Button
+              {/* <Button
                 borderRadius="var(--radius)"
                 // leftIcon={<IoMdAdd fontSize={"20px"} />}
                 _hover={{ bgColor: "var(--active-bg)" }}
@@ -54,7 +64,7 @@ function User({flag}) {
                 // onClick={addNavigateFun}
               >
                 Add User
-              </Button>
+              </Button> */}
             </Flex>
           </Flex>
           
@@ -82,7 +92,7 @@ function User({flag}) {
                 borderRadius=""
                 fontSize="var(--mini-text)"
               >
-                Lead
+                Name
               </Th>
               <Th
                 fontWeight="var(--big-font-weight)"
@@ -106,41 +116,9 @@ function User({flag}) {
                 borderRadius=""
                 fontSize="var(--mini-text)"
               >
-                Assigned employee
+                Last Login
               </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Source
-              </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                category
-              </Th>
-
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Next Followup
-              </Th>
-              <Th
-                fontWeight="var(--big-font-weight)"
-                color='var(--text-black)'
-                borderRadius=""
-                fontSize="var(--mini-text)"
-              >
-                Status
-              </Th>
+              
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
                 <Th
                   fontWeight="var(--big-font-weight)"
@@ -155,10 +133,10 @@ function User({flag}) {
           </Thead>
 
           <Tbody>
-            {/* {displayedData &&
-              displayedData.map((d, index) => ( */}
+            {users &&
+              users.map((user, index) => (
                 <Tr
-                //   key={index}
+                  key={index}
                   border="0.5px solid #F2F4F8"
                   h="40px"
                   textAlign="start"
@@ -170,7 +148,7 @@ function User({flag}) {
                     fontWeight="var(--big-font-weight)"
                   >
                     1
-                    {/* {d.id} */}
+                    {user.id}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -180,9 +158,8 @@ function User({flag}) {
                     // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                   >
                     <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
-                        user
-                      {/* <Avatar size={"xs"} name={d.name} />
-                      {d.name} */}
+                      <Avatar size={"xs"} name={user.name} />
+                      {user.name}
                     </Flex>
                   </Td>
                   <Td
@@ -191,7 +168,7 @@ function User({flag}) {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    {/* {d.email} */}
+                    {user.email}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -199,7 +176,7 @@ function User({flag}) {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    {/* {d.phone_no} */}
+                    {user.mobile_no}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
@@ -208,16 +185,13 @@ function User({flag}) {
                     fontWeight="var(--big-font-weight)"
                     // onClick={() => fetchNextUrl(d.assigen_to)} _hover={{ cursor: "pointer", color: "navy" }}
                   >
-                    <Flex display={"flex"} alignItems={"center"} gap={"5px"} >
-                      {/* <Avatar size={"xs"} name={d.emp_name} />
-                      {d.emp_name} */}
-                    </Flex>
+                    {formatDate(user.last_login)}
                   </Td>
 
                  
                 
                 </Tr>
-              {/* ))} */}
+              ))} 
           </Tbody>
         </Table>
       </TableContainer>
