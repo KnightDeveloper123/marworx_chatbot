@@ -17,7 +17,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { Link  } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -26,6 +26,15 @@ function Navbar() {
     onOpen: onDrawerOpen,
     onClose: onDrawerClose,
   } = useDisclosure();
+
+
+  const adminNavbar = [
+    { title: "Dashboard", url: "/admin/dashboard" },
+    { title: "Employee", url: "/admin/employee" },
+    { title: "Users", url: "/admin/user" },
+    { title: "Queries", url: "/admin/queries" },
+  ];
+
   return (
     <HStack
       p={{
@@ -83,162 +92,32 @@ function Navbar() {
               }}
               transition="0.25s"
             />
-            {/* <Image
-            src={Logo}
-            alt="logo"
-            // onClick={() => navigate('/admin/dashboard')}
-            cursor='pointer'
-            w={{
-              xl: "200px",
-              lg: "200px",
-              md: "200px",
-              sm: "160px",
-              base: "160px",
-            }}
-            h="auto"
-          /> */}
-            Chat Bot
+            Marworx Chat Bot
           </Flex>
           <Flex
             justifyContent="space-evenly"
-            gap={2}
+            gap={4}
             alignItems="center"
-            display={{
-              xl: "flex",
-              lg: "flex",
-              md: "none",
-              sm: "none",
-              base: "none",
-            }}
+            display={{ xl: "flex", lg: "flex", md: "none", sm: "none", base: "none" }}
           >
-            <Link to="/admin/dashboard">
-              <Box
-                display={{
-                  xl: "block",
-                  lg: "block",
-                  md: "none",
-                  sm: "none",
-                  base: "none",
-                }}
-                //   bgColor={location.pathname === '/admin/dashboard' ? '#007bff29' : 'transparent'}
-                borderRadius="4px"
-                p="4px 12px"
-                _hover={{ bgColor: "#007bff29", color: "#007bff" }}
-                sx={{ "&:hover p": { color: "#007bff" } }}
-                transition="0.25s"
+            {adminNavbar.map((item, index) => (
+              <NavLink
+                key={index}
+                to={item.url}
+                style={({ isActive }) => ({
+                  color: isActive ? "#FF5722" : "#000000",
+                  backgroundColor: isActive ? "#FF572215" : "transparent",
+                  borderRadius: "6px",
+                  padding: "8px 12px",
+                  transition: "0.25s",
+                  textDecoration: "none",
+                })}
               >
-                <Text
-                  // color={location.pathname === '/admin/dashboard' ? '#007bff' : "#000000"}
-                  fontSize={{
-                    xl: "15px",
-                    lg: "13px",
-                    md: "13px",
-                    sm: "15px",
-                    base: "15px",
-                  }}
-                  fontWeight="500"
-                  cursor="pointer"
-                >
-                  Dashboard
+                <Text fontSize="15px" fontWeight="500" cursor="pointer">
+                  {item.title}
                 </Text>
-              </Box>
-            </Link>
-            <Link to="/admin/employee">
-              <Box
-                display={{
-                  xl: "block",
-                  lg: "block",
-                  md: "none",
-                  sm: "none",
-                  base: "none",
-                }}
-                //   bgColor={location.pathname === '/admin/dashboard' ? '#007bff29' : 'transparent'}
-                borderRadius="4px"
-                p="4px 12px"
-                _hover={{ bgColor: "#007bff29", color: "#007bff" }}
-                sx={{ "&:hover p": { color: "#007bff" } }}
-                transition="0.25s"
-              >
-                <Text
-                  // color={location.pathname === '/admin/dashboard' ? '#007bff' : "#000000"}
-                  fontSize={{
-                    xl: "15px",
-                    lg: "13px",
-                    md: "13px",
-                    sm: "15px",
-                    base: "15px",
-                  }}
-                  fontWeight="500"
-                  cursor="pointer"
-                >
-                  Employee
-                </Text>
-              </Box>
-            </Link>
-            <Link to="/admin/user">
-              <Box
-                display={{
-                  xl: "block",
-                  lg: "block",
-                  md: "none",
-                  sm: "none",
-                  base: "none",
-                }}
-                //   bgColor={location.pathname === '/admin/dashboard' ? '#007bff29' : 'transparent'}
-                borderRadius="4px"
-                p="4px 12px"
-                _hover={{ bgColor: "#007bff29", color: "#007bff" }}
-                sx={{ "&:hover p": { color: "#007bff" } }}
-                transition="0.25s"
-              >
-                <Text
-                  // color={location.pathname === '/admin/dashboard' ? '#007bff' : "#000000"}
-                  fontSize={{
-                    xl: "15px",
-                    lg: "13px",
-                    md: "13px",
-                    sm: "15px",
-                    base: "15px",
-                  }}
-                  fontWeight="500"
-                  cursor="pointer"
-                >
-                  User
-                </Text>
-              </Box>
-            </Link>
-            <Link to="/admin/queries">
-              <Box
-                display={{
-                  xl: "block",
-                  lg: "block",
-                  md: "none",
-                  sm: "none",
-                  base: "none",
-                }}
-                //   bgColor={location.pathname === '/admin/dashboard' ? '#007bff29' : 'transparent'}
-                borderRadius="4px"
-                p="4px 12px"
-                _hover={{ bgColor: "#007bff29", color: "#007bff" }}
-                sx={{ "&:hover p": { color: "#007bff" } }}
-                transition="0.25s"
-              >
-                <Text
-                  // color={location.pathname === '/admin/dashboard' ? '#007bff' : "#000000"}
-                  fontSize={{
-                    xl: "15px",
-                    lg: "13px",
-                    md: "13px",
-                    sm: "15px",
-                    base: "15px",
-                  }}
-                  fontWeight="500"
-                  cursor="pointer"
-                >
-                  Queries
-                </Text>
-              </Box>
-            </Link>
+              </NavLink>
+            ))}
           </Flex>
         </Flex>
       </Flex>
