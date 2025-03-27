@@ -1,11 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Card from '../../Card'
 import { Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
-
+import { AppContext } from '../context/AppContext'
+import { useContext } from 'react';
 
 function Queries() {
 
-    
+    const { fetchAllQueries,queries,showAlert,loading } = useContext(AppContext);
+
+    useEffect(()=>{
+        fetchAllQueries();
+    },[])
   return (
     <Card>
       <Flex
@@ -115,8 +120,8 @@ function Queries() {
           </Thead>
 
           <Tbody>
-            {/* {displayedData &&
-              displayedData.map((d, index) => ( */}
+            {queries &&
+              queries.map((d, index) => (
                 <Tr
                 //   key={index}
                   border="0.5px solid #F2F4F8"
@@ -177,7 +182,7 @@ function Queries() {
                  
                 
                 </Tr>
-              {/* ))} */}
+            ))} 
           </Tbody>
         </Table>
       </TableContainer>
