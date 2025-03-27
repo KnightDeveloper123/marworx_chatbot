@@ -207,7 +207,7 @@ function Navbar() {
                 </Text>
               </Box>
             </Link>
-            <Link to="/admin/dashboard">
+            <Link to="/admin/queries">
               <Box
                 display={{
                   xl: "block",
@@ -235,7 +235,7 @@ function Navbar() {
                   fontWeight="500"
                   cursor="pointer"
                 >
-                  Query
+                  Queries
                 </Text>
               </Box>
             </Link>

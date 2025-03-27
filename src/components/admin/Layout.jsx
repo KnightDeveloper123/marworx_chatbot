@@ -11,12 +11,12 @@ const Layout = () => {
       <Navbar />
       
       <Suspense fallback={
-          <Flex w='100%' h='calc(100vh - 83px)' bgColor='#f0f8ff' justifyContent='center' alignItems='center'>
+          <Flex w='100%' h='calc(100vh - 60px)' bgColor='#f0f8ff' justifyContent='center' alignItems='center'>
                   <Spinner size='lg' />
               </Flex>
           }>
 
-              <Flex p={{ xl: '0px 10px', lg: '0px 10px', md: '0px 10px', sm: '0px 5px', base: '0px 5px' }} zIndex='-1' h='calc(100vh - 83px)' bg={'#f0f8ff'} >
+              <Flex p={{ xl: '0px 10px', lg: '0px 10px', md: '0px 10px', sm: '0px 5px', base: '0px 5px' }} zIndex='-1' h='calc(100vh - 60px)' bg={'#f0f8ff'} >
                   <Box w='100%' p='15px 0px'>
                       <Outlet />
                   </Box>
