@@ -20,6 +20,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+const userRouter=require("./routes/users/user");
+const chatbotRouter=require("./routes/users/chatbot");
+
+
+app.use("/",userRouter);
+app.use("/",chatbotRouter)
+
 const verifyToken = (req, res, next) => {
     const token = req.cookies.authToken;
 
