@@ -21,20 +21,18 @@ function App() {
   return (
     <>
     
-        <Router>
+      <Router>
       <Routes>
-      <Route exact path="/admin" element={<Login/>} />
-        <Route path="/admin" element={<AdminLayout />} > 
-        <Route path="/admindashboard" element={<AdminDashboard />} />
-        {/* <Route path="/admindashboard/:userid" element={<UserChat />} /> */}
+      <Route exact path="/admin" element={<Login />} />
+        <Route path="/admin/*" element={<AdminLayout />}>
+          <Route path="admindashboard" element={<AdminDashboard />} />
         </Route>
 
-        <Route path="/" element={<Layout  />}>
-          <Route path="/guestmode" element={<MainPage />} /> 
-          <Route path="/:userid" element={<MainPage />} />
-          <Route path="/:userid/:id" element={<MainPage />} />
-          <Route path="/signup" element={<SignUp />} />  
-          <Route path="/login" element={<UserLogin />} />
+        <Route exact path="/" element={<UserLogin />} />
+        <Route path="/user/*" element={<Layout />}>
+          <Route path="guestmode" element={<MainPage />} />
+          <Route path=":userid" element={<MainPage />} />
+          <Route path=":userid/:id" element={<MainPage />} />
         </Route>
       </Routes>
     </Router>

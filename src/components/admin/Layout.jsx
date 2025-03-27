@@ -6,7 +6,7 @@ const Layout = () => {
   
   return (
     <Flex flexDirection="row" height="100vh">
-      <SideBar />
+      {/* <SideBar /> */}
       
       <Box flex="1">
         <Outlet />
