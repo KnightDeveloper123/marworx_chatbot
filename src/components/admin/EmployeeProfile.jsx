@@ -2,13 +2,7 @@ import {
   Avatar,
   Box,
   Button,
-  CardBody,
-  CardFooter,
-  CardHeader,
   Flex,
-  Heading,
-  Image,
-  Stack,
   Text,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -23,16 +17,30 @@ const UserProfile = () => {
   const { id } = useParams();
   const [user, setUser] = useState({});
   const [queries, setQueries] = useState([]);
-  const { formatDate } = useContext(AppContext);
-
-  const userData = async () => {
+  const { formatDate,showAlert } = useContext(AppContext);
+  const token = localStorage.getItem('token')
+  const fetchAllUser = async () => {
     try {
-      const response = await axios.get(`${APP_URL}/user/getUser/${id}`);
-      setUser(response.data.data[0]);
-    } catch (err) {
-      console.error("Failed to fetch user data");
+       
+        const response = await fetch(`${APP_URL}/employee/getEmployeeById?employee_id=${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+            }
+        })
+        const result = await response.json();
+        if (result.success) {
+            // console.log(result.data)
+            setUser(result.data)
+        }
+    } catch (error) {
+        console.log(error);
+        showAlert("Internal Server Error!", "error")
     }
-  };
+}
+
+
 
   const queryData = async () => {
     try {
@@ -44,7 +52,7 @@ const UserProfile = () => {
       // console.log("Token being sent:", token);
 
       const response = await axios.get(
-        `${APP_URL}/support/getAllQueriesByUser?user_id=${id}`,
+        `${APP_URL}/support/getAllQueriesByEmployee?employee_id=${id}`,
         {
           headers: { Authorization: `${token}` },
         }
@@ -57,7 +65,7 @@ const UserProfile = () => {
 
 
   useEffect(() => {
-    userData();
+    fetchAllUser();
     queryData();
   }, [id]);
 
@@ -117,7 +125,7 @@ const UserProfile = () => {
           <Box display={'flex'} gap='5'>
              <Flex> <Text fontWeight='var(--big-font-weight)' fontSize='var(--mini-text)' mr={1}>Status: </Text> <Text fontSize='var(--mini-text)'> {query.query_status}</Text></Flex>
              <Flex> <Text fontWeight='var(--big-font-weight)' fontSize='var(--mini-text)' mr={1}>Created At: </Text> <Text fontSize='var(--mini-text)'> {formatDate(query.created_at)}</Text></Flex>
-             <Flex> <Text fontWeight='var(--big-font-weight)'fontSize='var(--mini-text)' mr={1}>Assignee: </Text> <Text fontSize='var(--mini-text)'> {query.assignee_id ? query.assignee_name : "Unassigned"}</Text></Flex>
+             {/* <Flex> <Text fontWeight='var(--big-font-weight)' mr={1}>Assignee: </Text> <Text fontSize='var(--mini-15px)'> {query.assignee_id ? query.assignee_name : "Unassigned"}</Text></Flex> */}
           </Box>
         </Flex>
       ))}

@@ -321,7 +321,7 @@ function Queries() {
                     >
                       <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
                         <Avatar size={"xs"} name={d.assignee_name} />
-                        {d.assignee_id}
+                        {d.assignee_name}
                       </Flex>
                     </Td>
                     <Td
@@ -402,7 +402,7 @@ function Queries() {
               flexDirection={"column"}
               gap={"8px"}
               onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader fontSize={"18px"}>Add Employee</ModalHeader>
+          <ModalHeader fontSize={"18px"}>Add Queries</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Box
