@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Select,
   Table,
   TableContainer,
   Tbody,
@@ -17,9 +18,9 @@ import {
   Text,
   Th,
   Thead,
-  Tr,useDisclosure
+  Tr, useDisclosure
 } from "@chakra-ui/react";
-import React, { useContext, useEffect,} from "react";
+import React, { useContext, useEffect, useState, } from "react";
 import { AppContext } from "../context/AppContext";
 import Card from "../../Card";
 import { IoMdAdd } from "react-icons/io";
@@ -36,13 +37,143 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+
+
 function Employee() {
   const { fetchAllEmployee, employee, formatDate } = useContext(AppContext);
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const { register, handleSubmit, formState: { errors } } = useForm();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
+
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [isOpenEditEmp, setIsOpenEditEmp] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const token = localStorage.getItem('token')
+
   useEffect(() => {
     fetchAllEmployee();
   }, []);
+
+
+  const onSubmit = async (values) => {
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/addEmployee`, {
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json',
+          Authorization: token
+        },
+        body: JSON.stringify(values)
+      })
+
+      const result = await response.json();
+
+      console.log('result', result)
+
+    } catch (error) {
+      console.log(error)
+
+    }
+
+  }
+
+  const editEmployee = (empData) => {
+
+    setSelectedEmployee(empData);
+    setIsOpenEditEmp(true);
+   
+    onOpenEdit();
+
+    Object.keys(empData).forEach((key) => {
+      setValue(key, empData[key]); // Pre-fill form fields
+    });
+
+
+
+
+  }
+
+
+
+
+  const onSubmitEdit = async (values) => {
+
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/updateEmployee`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          employee_id: selectedEmployee.id,
+          name: values.name,
+          email: values.email,
+          mobile_no: values.mobile_no,
+          date_of_birth: new Date(values.date_of_birth).toISOString().split("T")[0],
+          role: values.role
+        }), // Sending ID and updated data
+      });
+
+      const result = await response.json();
+      console.log("Update result:", result);
+
+      // if (response.ok) {
+      // alert("Employee updated successfully!");
+      // fetchEmployees(); // Refresh the employee list
+      // onCloseEdit(); // Close modal
+      // } else {
+      //   alert("Failed to update employee.");
+      // }
+    } catch (error) {
+      console.error("Error updating employee:", error);
+    }
+  };
+
+  // Function to close the edit modal
+  const onCloseEditModal = () => {
+    isOpenEditEmp(false);
+    reset(); // Reset form after closing
+  };
+
+
+  const openDeleteModal = (id) => {
+    setSelectedEmployeeId(id);
+    setIsDeleteModalOpen(true);
+  };
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedEmployeeId(null);
+  };
+
+  // Function to delete an employee
+  const deleteEmployee = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/deleteEmployee`, {
+        method: "POST",  // Using POST instead of DELETE
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ user_id: selectedEmployeeId }),
+      });
+
+      const result = await response.json();
+      console.log("Delete result:", result);
+      fetchAllEmployee()
+
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+    } finally {
+      closeDeleteModal();
+    }
+  };
+
 
   return (
     <Card>
@@ -98,7 +229,7 @@ function Employee() {
                 h={"35px"}
                 fontSize="var(--mini-text)"
                 fontWeight="var(--big-font-weight)"
-                onClick={() => onOpen()} 
+                onClick={() => onOpen()}
               >
                 Add Employee
               </Button>
@@ -112,8 +243,8 @@ function Employee() {
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
-          //  maxH={flag ? "unset" : "600px"}
-          // overflowY={flag ? "unset" : "scroll"}
+        //  maxH={flag ? "unset" : "600px"}
+        // overflowY={flag ? "unset" : "scroll"}
         >
           <Table size="sm" className="custom-striped-table">
             <Thead border="0.5px solid #F2F4F8">
@@ -211,7 +342,7 @@ function Employee() {
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
-                      // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
+                    // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                     >
                       {d.name}
                     </Td>
@@ -237,7 +368,7 @@ function Employee() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      {d.date_of_birth}
+                      {formatDate(d.date_of_birth)}
                     </Td>
                     <Td
                       border="0.5px solid #F2F4F8"
@@ -266,14 +397,14 @@ function Employee() {
                           <RxDotsHorizontal />
                         </MenuButton>
                         <MenuList gap={2} >
-                         <MenuItem
+                          <MenuItem
                             w="100%"
                             minW="100px"
                             // onClick={() => editleads(d.id)}
                             display={'flex'} alignItems={'center'} gap={2}
                           >
                             <MdOutlineModeEdit color="green" />
-                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)">
+                            <Text onClick={() => editEmployee(d)} fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
                               Edit
                             </Text>
                           </MenuItem>
@@ -282,14 +413,14 @@ function Employee() {
                             w="100%"
                             minW="100px"
                             cursor="pointer"
-                            // onClick={() => {
-                            //   setSelectLead(d);
-                            //   dellead(d.id);
-                            // }}
+                          // onClick={() => {
+                          //   setSelectLead(d);
+                          //   dellead(d.id);
+                          // }}
                           >
                             <Flex gap={2} alignItems="center">
                               <DeleteIcon color={"red"} />
-                              <Text>Delete</Text>
+                              <Text onClick={() => openDeleteModal(d.id)}>Delete</Text>
                             </Flex>
                           </MenuItem>
                         </MenuList>
@@ -301,7 +432,9 @@ function Employee() {
           </Table>
         </TableContainer>
       </Flex>
-      <Modal  isOpen={isOpen}
+
+      {/* add employee */}
+      <Modal isOpen={isOpen}
         onClose={onClose} >
         <ModalOverlay />
         <ModalContent>
@@ -309,43 +442,116 @@ function Employee() {
           <ModalCloseButton />
           <ModalBody pb={6}>
 
-            <Box  as='form' display={'flex'} flexDirection={'column'} gap={'8px'}>
+            <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   placeholder='Enter your name' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                {errors.name && <Text>{errors.name.message}</Text>}
+                {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Email</FormLabel>
                 <Input type='email' {...register('email', { required: 'Email is required' })}
                   placeholder='Enter email' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                {errors.email && <Text>{errors.email.message}</Text>}
+                {errors.email && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.email.message}</Text>}
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Phone No</FormLabel>
                 <Input type='number' {...register('mobile_no', { required: 'Phone no is required' })}
                   placeholder='Enter Phone no' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                {errors.mobile_no && <Text>{errors.mobile_no.message}</Text>}
+                {errors.mobile_no && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.mobile_no.message}</Text>}
               </FormControl>
 
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >DOB</FormLabel>
                 <Input type='date' {...register('date_of_birth', { required: "DOB is required" })} fontSize="var(--text-12px)"  ></Input>
-                {errors.date_of_birth && <Text>{errors.date_of_birth.message}</Text>}
+                {errors.date_of_birth && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.date_of_birth.message}</Text>}
               </FormControl>
-          </Box>
-          </ModalBody>
 
-          <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
-            <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
-              Save
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Select Role</FormLabel>
+                <Select {...register("role", { required: "Please select a role" })} fontSize='var(--text-12px)'>
+                  <option value='technician'>Technician</option>
+                  <option value='support'>  Help and Suport</option>
+                </Select>
+                {errors.role && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.role.message}</Text>}
+              </FormControl>
+
+              <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
+                <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+                  Save
+                </Button>
+                <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+              </Box>
+            </Box>
+          </ModalBody>
+        </ModalContent>
+
+      </Modal>
+
+
+      <Modal isOpen={isOpenEdit} onClose={onCloseEdit}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontSize={"18px"}>Edit Employee</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <Box as="form" onSubmit={handleSubmit(onSubmitEdit)} display={"flex"} flexDirection={"column"} gap={"8px"}>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Name</FormLabel>
+                <Input type="text" {...register("name", { required: "Name is required" })} fontSize="var(--text-12px)" />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Email</FormLabel>
+                <Input type="email" {...register("email", { required: "Email is required" })}
+                  fontSize="var(--text-12px)" />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Phone No</FormLabel>
+                <Input type="number" {...register("mobile_no", { required: "Phone no is required" })}
+                  fontSize="var(--text-12px)" />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>DOB</FormLabel>
+                <Input type="date" {...register("date_of_birth", { required: "DOB is required" })}
+                  fontSize="var(--text-12px)" />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Select Role</FormLabel>
+                <Select {...register("role", { required: "Please select a role" })} fontSize="var(--text-12px)">
+                  <option value="technician">Technician</option>
+                  <option value="support">Help and Support</option>
+                </Select>
+              </FormControl>
+              <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={"6px"} mt={"10px"}>
+                <Button type="submit" fontSize={"13px"} bgColor={"#FF5722"} textColor={"white"} size={"sm"}>Save</Button>
+                <Button onClick={onCloseEditModal} type="button" size={"sm"} fontSize={"13px"} border={"1px solid #FF5722"} textColor={"#FF5722"} bgColor={"white"}>Cancel</Button>
+              </Box>
+            </Box>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontSize="18px">Confirm Delete</ModalHeader>
+          <ModalBody>
+            <Text>Are you sure you want to delete this employee?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={deleteEmployee}>
+              Yes, Delete
             </Button>
-            <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-              textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+            <Button variant="ghost" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
     </Card>
   );
 }
