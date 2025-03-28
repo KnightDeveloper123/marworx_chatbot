@@ -121,7 +121,10 @@ router.get("/getAllQueries", middleware, async (req, res) => {
 router.get("/getAllQueriesByUser", middleware, async (req, res) => {
     const { user_id } = req.query;
     try {
-        connection.query(`select * from support where status=0 and user_id=${user_id}`, (err, result) => {
+        connection.query(`SELECT support.*, employee.name AS assignee_name
+                FROM support
+                LEFT JOIN employee ON support.assignee_id = employee.id
+                WHERE support.status = 0 and support.user_id=${user_id}`, (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
