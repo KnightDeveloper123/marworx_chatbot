@@ -12,8 +12,6 @@ import { IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 
-
-
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
