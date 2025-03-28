@@ -15,7 +15,7 @@ const Layout = () => {
           </Flex>
         }>
 
-          <Box w='100%' p={{ xl: '10px 10px', lg: '10px 10px', md: '10px 10px', sm: '10px 5px', base: '10px 5px' }} h='calc(100vh - 60px)' bg={'#f0f8ff'}  overflow={'hidden'}>
+          <Box w='100%' p={{ xl: '10px 10px', lg: '10px 10px', md: '10px 10px', sm: '10px 5px', base: '10px 5px' }} h='calc(100vh - 60px)' bg={'#f0f8ff'}  overflow={'auto'}>
             <Outlet />
           </Box>
         </Suspense>
