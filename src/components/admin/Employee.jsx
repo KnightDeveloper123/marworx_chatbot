@@ -177,7 +177,7 @@ function Employee() {
         showAlert("Failed to delete employee.", 'error');
       }
     } catch (error) {
-      console.error("Error deleting employee:");
+      console.error("Error deleting employee:", error);
       showAlert("Failed to delete employee.", 'error');
     } finally {
 
@@ -349,7 +349,7 @@ function Employee() {
                     >
                       E-{d.id}
                     </Td>
-                 
+
                     <Td
                       border="0.5px solid #F2F4F8"
                       color={"#404040"}
@@ -358,10 +358,10 @@ function Employee() {
                       onClick={() => navigate(`/admin/employee/${d.id}`)}
                       cursor={'pointer'}
                     >
-                   <Box display={'flex'} alignItems={'center'} justifyContent={'center'} flexDirection={'row'} gap={'4px'}>
-                   <Avatar size={'xs'} name={d.name}></Avatar>      {d.name}</Box>
+                      <Box display={'flex'} alignItems={'center'} justifyContent={'center'} flexDirection={'row'} gap={'4px'}>
+                        <Avatar size={'xs'} name={d.name}></Avatar>      {d.name}</Box>
                     </Td>
-                  
+
                     <Td
                       border="0.5px solid #F2F4F8"
                       color={"#404040"}
