@@ -20,7 +20,7 @@ router.post("/newChat", async (req, res) => {
 
     const { chats, user_id } = req.body;
 
-    const message = (chats?.userMessage?.data.split(" ").slice(0, 4).join(" "));
+    const message = `New Chat ${new Date().toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' })}`;
     const query = 'INSERT INTO chat_titles (title, user_id) VALUES (?,?)'
     const values = [message, user_id]
 
@@ -31,9 +31,11 @@ router.post("/newChat", async (req, res) => {
         }
         const title_id = result.insertId;
         const query2 = 'INSERT INTO chats (message, sender, title_id) VALUES (?, ?, ?), (?, ?, ?)';
+        console.log(chats);
+
         const values2 = [
             chats?.userMessage?.data, chats?.userMessage?.sender, title_id,
-            chats?.resposne?.data, chats?.resposne?.sender, title_id
+            chats?.response?.data, chats?.response?.sender, title_id
         ];
 
         connection.query(query2, values2, (err, data) => {

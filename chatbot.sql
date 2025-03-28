@@ -32,7 +32,7 @@ CREATE TABLE `chat_titles` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `chat_titles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,6 +41,7 @@ CREATE TABLE `chat_titles` (
 
 LOCK TABLES `chat_titles` WRITE;
 /*!40000 ALTER TABLE `chat_titles` DISABLE KEYS */;
+INSERT INTO `chat_titles` VALUES (1,'New Chat 28 March 2025',1,'2025-03-28 06:27:18',NULL,0);
 /*!40000 ALTER TABLE `chat_titles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,7 +61,7 @@ CREATE TABLE `chats` (
   PRIMARY KEY (`id`),
   KEY `title_id` (`title_id`),
   CONSTRAINT `chats_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `chat_titles` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,6 +70,7 @@ CREATE TABLE `chats` (
 
 LOCK TABLES `chats` WRITE;
 /*!40000 ALTER TABLE `chats` DISABLE KEYS */;
+INSERT INTO `chats` VALUES (1,1,'user','Hello, how can I reset my password?','2025-03-28 06:27:18'),(2,1,'bot','To reset your password, go to settings and click on \'Forgot Password\'.','2025-03-28 06:27:18'),(3,1,'user','What is your name?','2025-03-28 06:29:05'),(4,1,'bot','I dont have any name yet, but you can set a name for me.','2025-03-28 06:29:43');
 /*!40000 ALTER TABLE `chats` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -209,4 +211,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-28 11:29:52
+-- Dump completed on 2025-03-28 12:00:13
