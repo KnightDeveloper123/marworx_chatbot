@@ -2,55 +2,46 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../../database/db');
 
-router.post("/chat-body", (req, res) => {
+router.post("/addChat", (req, res) => {
     const { message, sender, title_id } = req.body;
-
-    query = 'INSERT INTO all_chat (title_id,message,sender) VALUES (?,?,?)'
-    values = [title_id, message, sender]
+    const query = 'INSERT INTO chats (title_id,message,sender) VALUES (?,?,?)'
+    const values = [title_id, message, sender]
 
     connection.query(query, values, (err, result) => {
         if (err) {
             console.error("Error inserting chat:", err);
             return res.status(500).json({ error: "Database error" });
         }
-        res.status(201).json({ message: "Chat created successfully", chat_id: result.insertId });
+        res.status(201).json({ message: "Chat Added", chat_id: result.insertId });
     });
 });
 
-router.post("/newChat/:userid", async (req, res) => {
+router.post("/newChat", async (req, res) => {
 
-    const { allchats } = req.body;
-    const { userid } = req.params;
+    const { chats, user_id } = req.body;
 
-    // console.log(userid,"userid");
-
-
-    const message = (allchats?.userMessage?.data.split(" ").slice(0, 4).join(" "));
-
-    query = 'INSERT INTO chat_titles (message,userid) VALUES (?,?)'
-    values = [message, userid]
+    const message = (chats?.userMessage?.data.split(" ").slice(0, 4).join(" "));
+    const query = 'INSERT INTO chat_titles (title, user_id) VALUES (?,?)'
+    const values = [message, user_id]
 
     connection.query(query, values, (err, result) => {
         if (err) {
             console.error("Error inserting chat:", err);
             return res.status(500).json({ error: "Database error" });
         }
-
         const title_id = result.insertId;
-
-        const query2 = 'INSERT INTO all_chat (message, sender, title_id) VALUES (?, ?, ?), (?, ?, ?)';
+        const query2 = 'INSERT INTO chats (message, sender, title_id) VALUES (?, ?, ?), (?, ?, ?)';
         const values2 = [
-            allchats?.userMessage?.data, allchats?.userMessage?.sender, title_id,
-            allchats?.resposne?.data, allchats?.resposne?.sender, title_id
+            chats?.userMessage?.data, chats?.userMessage?.sender, title_id,
+            chats?.resposne?.data, chats?.resposne?.sender, title_id
         ];
 
-        database.query(query2, values2, (err, result) => {
+        connection.query(query2, values2, (err, data) => {
             if (err) {
                 console.error("Error inserting chat messages:", err);
                 return res.status(500).json({ error: "Database error" });
             }
-
-            res.status(201).json({ message: "Chat created successfully", chat_id: title_id });
+            res.status(201).json({ message: "Chat created successfully", chat_id: title_id, data });
         });
 
 
@@ -58,68 +49,43 @@ router.post("/newChat/:userid", async (req, res) => {
 
 });
 
-router.delete("/deleteChat", (req, res) => {
+router.delete("/deleteChatTitle", (req, res) => {
+    const { title_id } = req.body;
 
-    const { id } = req.body;
+    const sql = "update chat_titles set status=1 WHERE id=?";
+    const value = [title_id];
 
-    const sql = "DELETE FROM all_chat WHERE title_id=?";
-    const value = [id];
-
-    connection.query(sql, value, (err, result) => {
+    connection.query(sql, value, (err, data) => {
         if (err) {
             console.error("Error deleting chat:", err);
             return res.status(500).json({ error: "Database error" });
         }
-    })
-
-    const sql2 = "DELETE FROM chat_titles WHERE id=?";
-    const value2 = [id];
-
-    connection.query(sql2, value2, (err, result) => {
-        if (err) {
-            console.error("Error deleting chat:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.status(201).json({ message: "Chat deleted successfully" });
+        return res.status(201).json({ message: "Chat Title deleted successfully", data });
     })
 })
 
-router.get("/getsidebardata/:userid", (req, res) => {
-    const { userid } = req.params;
-    const sql = 'select * from chat_titles where userid=?'
-    value = [userid];
-    connection.query(sql, value, (err, results) => {
+router.get("/getChatTitle", (req, res) => {
+    const { user_id } = req.query;
+
+    const query = 'select * from chat_titles where user_id=?'
+    const value = [user_id];
+    connection.query(query, value, (err, data) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
-            return res.status(500).json({ error: "Database query failed" });
+            return res.status(400).json({ error: "Database query failed" });
         }
-        res.json(results);
+        return res.json({ success: "success", data });
     });
-
 })
 
-router.get("/getsidebardata/:userid/:id", (req, res) => {
-    const { id } = req.params;
-    const { userid } = req.params;
-
-    const sql = 'select * from chat_titles where userid=?'
-    const value = [userid];
-    connection.query(sql, value, (err, results) => {
+router.get("/getAllChats", (req, res) => {
+    const { title_id } = req.query;
+    connection.query(`select * from chats where title_id=?`, [title_id], (err, data) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
         }
-    });
-
-
-    const sql1 = 'select * from all_chat where title_id=?'
-    value1 = id;
-    connection.query(sql1, value1, (err, results) => {
-        if (err) {
-            console.error("Error fetching sidebar data:", err);
-            return res.status(500).json({ error: "Database query failed" });
-        }
-        res.json(results);
+        res.json({ success: "success", data });
     });
 
 })
