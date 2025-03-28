@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   Divider,
@@ -348,6 +349,7 @@ function Employee() {
                     >
                       E-{d.id}
                     </Td>
+                 
                     <Td
                       border="0.5px solid #F2F4F8"
                       color={"#404040"}
@@ -356,8 +358,10 @@ function Employee() {
                       onClick={() => navigate(`/admin/employee/${d.id}`)}
                       cursor={'pointer'}
                     >
-                      {d.name}
+                   <Box display={'flex'} alignItems={'center'} justifyContent={'center'} flexDirection={'row'} gap={'4px'}>
+                   <Avatar size={'xs'} name={d.name}></Avatar>      {d.name}</Box>
                     </Td>
+                  
                     <Td
                       border="0.5px solid #F2F4F8"
                       color={"#404040"}

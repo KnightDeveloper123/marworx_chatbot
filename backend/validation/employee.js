@@ -61,7 +61,7 @@ const updateEmployeeSchema = Joi.object({
 });
 
 const deleteEmployeeSchema = Joi.object({
-    employee_id: Joi.number().required().messages({
+    user_id: Joi.number().required().messages({
         'number.base': 'Invalid User',
         'any.required': 'User is required'
     })
