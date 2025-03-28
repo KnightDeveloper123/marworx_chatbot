@@ -33,7 +33,7 @@ app.use('/documents', require("./routes/admin/documents"))
 app.use('/user', require("./routes/users/user"))
 app.use('/chatbot', require("./routes/users/chatbot"))
 
-const port = 5000;
+const port = 2500;
 app.listen(port, () => {
     console.log(`http://localhost:${port}`)
 })
