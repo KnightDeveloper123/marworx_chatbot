@@ -16,6 +16,89 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `chat_titles`
+--
+
+DROP TABLE IF EXISTS `chat_titles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chat_titles` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_on` timestamp NULL DEFAULT NULL,
+  `status` int DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `chat_titles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chat_titles`
+--
+
+LOCK TABLES `chat_titles` WRITE;
+/*!40000 ALTER TABLE `chat_titles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chat_titles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `chats`
+--
+
+DROP TABLE IF EXISTS `chats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chats` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title_id` int DEFAULT NULL,
+  `sender` enum('user','bot') DEFAULT NULL,
+  `message` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `title_id` (`title_id`),
+  CONSTRAINT `chats_ibfk_1` FOREIGN KEY (`title_id`) REFERENCES `chat_titles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chats`
+--
+
+LOCK TABLES `chats` WRITE;
+/*!40000 ALTER TABLE `chats` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chats` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `documents`
+--
+
+DROP TABLE IF EXISTS `documents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `documents` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` int DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `documents`
+--
+
+LOCK TABLES `documents` WRITE;
+/*!40000 ALTER TABLE `documents` DISABLE KEYS */;
+INSERT INTO `documents` VALUES (1,'NewDatasets.pdf','2025-03-27 12:29:08',0),(2,'Thermax Datasets .xlsx','2025-03-27 12:29:21',0),(3,'Ecomac Dataset.txt','2025-03-28 05:43:55',0);
+/*!40000 ALTER TABLE `documents` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `employee`
 --
 
@@ -45,7 +128,7 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
-INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminat.06@gmail.com','$2b$10$Y4hJ1yLveTxjJL23vmam5evCyTHDWoSkvhE85q2OCibbJR6LNeBXC','8765789087','admin',0,'2025-03-27 06:57:22','2025-03-27 10:35:50','2025-03-27 10:35:50',NULL);
+INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminati.06@gmail.com','$2b$10$Y4hJ1yLveTxjJL23vmam5evCyTHDWoSkvhE85q2OCibbJR6LNeBXC','8765789087','admin',0,'2025-03-27 06:57:22','2025-03-28 04:57:54','2025-03-28 04:57:54',NULL);
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -126,4 +209,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-27 16:15:58
+-- Dump completed on 2025-03-28 11:29:52
