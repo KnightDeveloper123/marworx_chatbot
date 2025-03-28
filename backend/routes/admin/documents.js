@@ -29,6 +29,9 @@ router.post('/uploadDocument', middleware, upload.single('file'), async (req, re
     try {
         const { fileName } = req.body;
 
+        console.log(fileName);
+        
+
         if (!req.file || !fileName) {
             return res.status(400).json({ error: 'File and fileName are required.' });
         }

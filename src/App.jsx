@@ -8,6 +8,7 @@ import './App.css'
 import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
+import UserProfile from './components/admin/UserProfile';
 
 
 const MainPage = lazy(() => import('./components/user/MainPage'));
@@ -43,6 +44,7 @@ function App() {
           <Route path="employee" element={<Employee />} />
           <Route path="queries" element={<Queries />} />
           <Route path="user" element={<User />} />
+          <Route path="user/:id" element={<UserProfile />} />
         </Route>
 
         {/* User Routes */}

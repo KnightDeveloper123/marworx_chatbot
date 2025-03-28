@@ -167,4 +167,20 @@ router.get("/getAllUser", async (req, res) => {
     }
 });
 
+router.get("/getUser/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        connection.query(`select * from user where id=${id}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "Something went wrong" })
+            }
+            return res.json({ success: "success", data: result })
+        })
+    } catch (error) {
+        console.error("Error in /getAllUser:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports=router;

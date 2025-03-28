@@ -1,5 +1,13 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box, Button, Flex, Grid, GridItem, SimpleGrid, Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MdOutlinePeople, MdOutlineQueryBuilder } from "react-icons/md";
@@ -10,6 +18,16 @@ import { IoMdAdd } from "react-icons/io";
 const AdminDashboard = () => {
   const { showAlert } = useContext(AppContext);
   const [dashboardData, setDashboardData] = useState({});
+  const fileInputRef = useRef(null);
+
+
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose
+  } = useDisclosure();
+
+  const editCancelRef = useRef();
 
   const fetchDashboardData = async () => {
     try {
@@ -40,6 +58,45 @@ const AdminDashboard = () => {
   }, [])
 
   console.log(dashboardData);
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]); // Store the selected file
+  };
+  console.log(file)
+  const handleFileSubmit = async (event) => {
+    event.preventDefault();
+  
+    const formData = new FormData();
+    formData.append("file", file); // File should be in "file" field
+    formData.append("fileName", "akwdnaownd"); // Additional data as fileName
+  
+    try {
+      const response = await fetch("http://localhost:5000/documents/uploadDocument", {
+        method: "POST",
+        headers: {
+          "Authorization": `${localStorage.getItem('token')}`,
+        },
+        body: formData, // body should be here, not in headers
+      });
+  
+      const result = await response.json();
+      if (result.success) {
+        showAlert(result.success, "success");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        setFile(null);
+        onEditClose();
+      } else {
+        showAlert(result.error, "error");
+      }
+    } catch (error) {
+      console.log(error);
+      showAlert("Upload failed", "error");
+    }
+  };
+  
 
 
   return (
@@ -91,11 +148,37 @@ const AdminDashboard = () => {
           h={"35px"}
           fontSize="var(--mini-text)"
           fontWeight="var(--big-font-weight)"
-          onClick={() => onOpen()}
+          onClick={() => onEditOpen()}
         >
           Add Documents
         </Button>
       </Box>
+
+      <AlertDialog
+        motionPreset='slideInBottom'
+        leastDestructiveRef={editCancelRef}
+        onClose={onEditClose}
+        isOpen={isEditOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent bgColor={"#2D3748"} color={"white"}>
+          <AlertDialogHeader>Upload a file</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            <input type="file" name="avatar" ref={fileInputRef} onChange={handleFileChange} />
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={editCancelRef} onClick={onEditClose}>
+              Cancel
+            </Button>
+            <Button colorScheme='red' ml={3} onClick={handleFileSubmit}>
+              Submit
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
 
 

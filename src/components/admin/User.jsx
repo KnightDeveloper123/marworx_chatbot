@@ -3,9 +3,11 @@ import React, { useContext, useEffect, useState } from "react";
 import Card from "../../Card";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router";
 
 function User({flag}) {
 
+  const navigate = useNavigate();
   const { users, formatDate,fetchAllUser } = useContext(AppContext);
   
   useEffect(() => {
@@ -157,7 +159,7 @@ function User({flag}) {
                     fontWeight="var(--big-font-weight)"
                     // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                   >
-                    <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
+                    <Flex display={"flex"} alignItems={"center"} gap={"5px"} onClick={() => navigate(`/admin/user/${user.id}`)}>
                       <Avatar size={"xs"} name={user.name} />
                       {user.name}
                     </Flex>
