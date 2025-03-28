@@ -10,7 +10,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Select,
+
   Table,
   TableContainer,
   Tbody,
@@ -20,13 +20,15 @@ import {
   Thead,
   Tr, useDisclosure
 } from "@chakra-ui/react";
-import React, { useContext, useEffect, useState, } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import Card from "../../Card";
 import { IoMdAdd } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 import {
   Modal,
   ModalOverlay,
@@ -36,20 +38,20 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-
+import { useForm, Controller } from "react-hook-form";
 
 function Employee() {
+
+  const navigate = useNavigate()
+  const { showAlert } = useContext(AppContext)
+
   const { fetchAllEmployee, employee, formatDate } = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
+  const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
+  const { register, handleSubmit, setValue, reset, control, formState: { errors } } = useForm();
 
   const [selectedEmployee, setSelectedEmployee] = useState(null)
-  const [isOpenEditEmp, setIsOpenEditEmp] = useState(false);
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const token = localStorage.getItem('token')
@@ -58,7 +60,7 @@ function Employee() {
     fetchAllEmployee();
   }, []);
 
-const navigate=useNavigate();
+
   const onSubmit = async (values) => {
 
     try {
@@ -72,38 +74,43 @@ const navigate=useNavigate();
       })
 
       const result = await response.json();
-
-      console.log('result', result)
+      if (result.success) {
+        showAlert("Employee added successfully!", 'success');
+        fetchAllEmployee();
+        onClose();
+      } else {
+        showAlert("Failed to add employee.", 'error');
+      }
 
     } catch (error) {
       console.log(error)
-
+      showAlert("Failed to add employee.", 'error');
     }
-
   }
+
+
+  const roleOptions = [
+    {
+      label: "Technician",
+      value: "Technician"
+    },
+    {
+      label: "Help and Support",
+      value: "support"
+    }
+  ];
 
   const editEmployee = (empData) => {
-
     setSelectedEmployee(empData);
-    setIsOpenEditEmp(true);
-   
     onOpenEdit();
-
     Object.keys(empData).forEach((key) => {
-      setValue(key, empData[key]); // Pre-fill form fields
+      setValue(key, empData[key]);
     });
 
-
-
-
   }
-
-
 
 
   const onSubmitEdit = async (values) => {
-
-
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/updateEmployee`, {
         method: "POST",
@@ -118,45 +125,40 @@ const navigate=useNavigate();
           mobile_no: values.mobile_no,
           date_of_birth: new Date(values.date_of_birth).toISOString().split("T")[0],
           role: values.role
-        }), // Sending ID and updated data
+        }),
       });
 
       const result = await response.json();
       console.log("Update result:", result);
+      if (result.success) {
+        showAlert("Employee updated successfully", 'success');
+        fetchAllEmployee();
+        onCloseEdit();
+      } else {
 
-      // if (response.ok) {
-      // alert("Employee updated successfully!");
-      // fetchEmployees(); // Refresh the employee list
-      // onCloseEdit(); // Close modal
-      // } else {
-      //   alert("Failed to update employee.");
-      // }
+        showAlert("Failed to update employee.", 'error');
+      }
     } catch (error) {
       console.error("Error updating employee:", error);
+      showAlert("Failed to update employee.", 'error');
     }
   };
 
-  // Function to close the edit modal
-  const onCloseEditModal = () => {
-    isOpenEditEmp(false);
-    reset(); // Reset form after closing
-  };
 
+  const onCloseEditModal = () => {
+    onCloseEdit();
+    reset();
+  };
 
   const openDeleteModal = (id) => {
     setSelectedEmployeeId(id);
-    setIsDeleteModalOpen(true);
-  };
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setSelectedEmployeeId(null);
+    onOpenDelete();
   };
 
-  // Function to delete an employee
   const deleteEmployee = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/deleteEmployee`, {
-        method: "POST",  // Using POST instead of DELETE
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
@@ -165,13 +167,21 @@ const navigate=useNavigate();
       });
 
       const result = await response.json();
-      console.log("Delete result:", result);
-      fetchAllEmployee()
 
+      if (result.success) {
+        showAlert("Employee deleted successfully", 'success');
+        fetchAllEmployee();
+        onCloseDelete();
+      } else {
+        showAlert("Failed to delete employee.", 'error');
+      }
     } catch (error) {
-      console.error("Error deleting employee:", error);
+      console.error("Error deleting employee:");
+      showAlert("Failed to delete employee.", 'error');
     } finally {
-      closeDeleteModal();
+
+      onCloseDelete();
+
     }
   };
 
@@ -343,7 +353,7 @@ const navigate=useNavigate();
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
-                      onClick={() => navigate(`/admin/employee/${d.id}`)} 
+                      onClick={() => navigate(`/admin/employee/${d.id}`)}
                       cursor={'pointer'}
                     >
                       {d.name}
@@ -403,10 +413,11 @@ const navigate=useNavigate();
                             w="100%"
                             minW="100px"
                             // onClick={() => editleads(d.id)}
+                            onClick={() => editEmployee(d)}
                             display={'flex'} alignItems={'center'} gap={2}
                           >
                             <MdOutlineModeEdit color="green" />
-                            <Text onClick={() => editEmployee(d)} fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
+                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
                               Edit
                             </Text>
                           </MenuItem>
@@ -415,14 +426,12 @@ const navigate=useNavigate();
                             w="100%"
                             minW="100px"
                             cursor="pointer"
-                          // onClick={() => {
-                          //   setSelectLead(d);
-                          //   dellead(d.id);
-                          // }}
+                            onClick={() => openDeleteModal(d.id)}
+
                           >
                             <Flex gap={2} alignItems="center">
                               <DeleteIcon color={"red"} />
-                              <Text onClick={() => openDeleteModal(d.id)}>Delete</Text>
+                              <Text >Delete</Text>
                             </Flex>
                           </MenuItem>
                         </MenuList>
@@ -472,11 +481,33 @@ const navigate=useNavigate();
 
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Select Role</FormLabel>
-                <Select {...register("role", { required: "Please select a role" })} fontSize='var(--text-12px)'>
-                  <option value='technician'>Technician</option>
-                  <option value='support'>  Help and Suport</option>
-                </Select>
-                {errors.role && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.role.message}</Text>}
+
+                <Controller
+                  name="role"
+                  control={control}
+                  rules={{ required: "Please select a role" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={roleOptions}
+                        placeholder="Select Role"
+                        value={roleOptions.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
+
+
               </FormControl>
 
               <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
@@ -521,10 +552,33 @@ const navigate=useNavigate();
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Select Role</FormLabel>
-                <Select {...register("role", { required: "Please select a role" })} fontSize="var(--text-12px)">
-                  <option value="technician">Technician</option>
-                  <option value="support">Help and Support</option>
-                </Select>
+
+                <Controller
+                  name="role"
+                  control={control}
+                  rules={{ required: "Please select a role" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={roleOptions}
+                        placeholder="Select Role"
+                        value={roleOptions.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
+
+
               </FormControl>
               <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={"6px"} mt={"10px"}>
                 <Button type="submit" fontSize={"13px"} bgColor={"#FF5722"} textColor={"white"} size={"sm"}>Save</Button>
@@ -536,18 +590,22 @@ const navigate=useNavigate();
       </Modal>
 
 
-      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+
+
+      <Modal isOpen={isOpenDelete} onClose={onCloseDelete} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize="18px">Confirm Delete</ModalHeader>
-          <ModalBody>
-            <Text>Are you sure you want to delete this employee?</Text>
+          <ModalHeader fontSize="16px" textAlign={'center'}> Delete Employee</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody textAlign={'center'}>
+            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this employee?</Text>
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="red" mr={3} onClick={deleteEmployee}>
-              Yes, Delete
+          <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
+            <Button onClick={deleteEmployee} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              Delete
             </Button>
-            <Button variant="ghost" onClick={closeDeleteModal}>
+            <Button onClick={onCloseDelete} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
+              textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
               Cancel
             </Button>
           </ModalFooter>
