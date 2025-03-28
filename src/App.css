@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-
+body{
+  background: #f0f8ff;
+}
 .loader {
     width: 60px;
     aspect-ratio: 2;
@@ -65,4 +67,24 @@
   --table-header-bg: #eff2f4;
   
   --text-black: #000000;
+}
+
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollcss::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollcss::-webkit-scrollbar-thumb {
+  /* color: rgb(255,75,74); */
+  background-color: rgba(58, 58, 58, 0.375);
+  border-radius: 4px;
+}
+
+.scrollcss::-webkit-scrollbar-track {
+  background-color: rgba(239, 239, 239, 0);
+  border-radius: 4px;
 }

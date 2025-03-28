@@ -16,12 +16,13 @@ function User({flag}) {
   
 
   return (
-    <Card>
+    <Card >
       <Flex
         w="100%"
         justifyContent="space-between"
        flexDirection={'column'}
-        p="5px"
+       pt={'20px'}
+     
       >
          <Flex w="100%" alignItems={'center'} justifyContent="space-between" gap="10px">
           <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">

@@ -1,4 +1,9 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Avatar,
   Box,
   Button,
@@ -11,6 +16,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
@@ -154,7 +160,7 @@ const UserProfile = () => {
       </Card>
 
       <Divider py="2" />
-      <Card>
+      <Card >
         <Box w="100%" overflow="auto">
           <Tabs position="relative" variant="unstyled">
             <Box
@@ -219,17 +225,17 @@ const UserProfile = () => {
             >
               <TabPanels>
                 <TabPanel>
-                  {chatTitle.map((title, index) => (
-                    <Flex
-                      key={index}
+                <Accordion>
+                <AccordionItem>
+                    {chatTitle.map((title, index) => (
+                      <AccordionButton  key={index}
                       direction="column"
                       mt={2}
                       boxShadow="var(--shadow)"
                       p={4}
                       cursor="pointer"
                       onClick={() => handleTitleClick(title.id)}
-                      bg={selectedTitleId === title.id ? "gray.100" : "white"}
-                    >
+                      bg={selectedTitleId === title.id ? "gray.100" : "white"}>
                       <Box p={0}>
                         <Text
                           fontWeight="var(--big-font-weight)"
@@ -239,10 +245,62 @@ const UserProfile = () => {
                           {title.title}
                         </Text>
                       </Box>
-                    </Flex>
+                      {/* <AccordionIcon /> */}
+                    </AccordionButton>
                   ))}
+                 {selectedTitleId && allChat.length > 0 ? (
+                   <AccordionPanel pb={4}  maxH='325px' overflowY={'scroll'} className="scroll">
+                    <Box spacing={4} align="stretch">
+                      {allChat.map((query, index) => (
+                        <Flex
+                          key={index}
+                          direction="column"
+                          mt={2}
+                          boxShadow="var(--shadow)"
+                          p={4}
+                          borderRadius="8px"
+                          width={'max-content'} justifyContent={ "flex-end"}
+                        >
+                          <Flex
+                            justifyContent={ "flex-end"}
+                          >
+                            <Box
+                              p={3}
+                              borderRadius="10px"
+                            >
+                              <Text fontSize="sm" fontWeight="bold" mb={1}>
+                                {query.sender ==="user"  ? "user" : "bot"}
+                              </Text>
+                              <Text fontSize="sm">{query.message}</Text>
+                              <Text
+                                fontSize="xs"
+                                textAlign="right"
+                                mt={1}
+                                opacity={0.6}
+                              >
+                                {/* {query.time} */}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        </Flex>
+                      ))}
+                    </Box> 
+                    </AccordionPanel>
+                  ) : (
+                    selectedTitleId && (
+                      <Text mt={4} color="gray.400">
+                        No queries found for this title.
+                      </Text>
+                    )
+                  )}
+               
+                </AccordionItem>
+                </Accordion>
+                 
 
-                  {selectedTitleId && allChat.length > 0
+                 
+
+                  {/* {selectedTitleId && allChat.length > 0
                     ? allChat.map((query, index) => (
                         <Flex
                           key={index}
@@ -265,7 +323,7 @@ const UserProfile = () => {
                       ))
                     : selectedTitleId && (
                         <Text mt={4}>No queries found for this title.</Text>
-                      )}
+                      )} */}
                 </TabPanel>
 
                 <TabPanel>
