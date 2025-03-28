@@ -196,7 +196,7 @@ router.get("/getEmployeeById", middleware, async (req, res) => {
     }
 });
 
-router.get('/getAllDashboardData', async (req, res) => {
+router.get('/getAllDashboardData', middleware, async (req, res) => {
     try {
         connection.query(`select count(*) as total_employee, (select count(*) from user where status=0) as total_user, (select count(*) from support where query_status="pending") as pending_queries from employee where status=0;`, (err, result) => {
             if (err) {

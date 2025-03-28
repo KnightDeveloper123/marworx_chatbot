@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 require('dotenv').config()
+const path = require("path");
+
 
 const app = express();
 
@@ -20,6 +22,7 @@ app.use(cors({
     credentials: true
 }));
 
+app.use("/documents", express.static(path.join(__dirname, "documents/")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

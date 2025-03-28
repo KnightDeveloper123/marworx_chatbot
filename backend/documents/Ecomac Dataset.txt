@@ -1,0 +1,9 @@
+website: Tenova Layout mapping 
+
+
+models---------------
+
+- Multi Shaft Mixtures
+- Powder Injection Systems
+- Tanks 
+- Screw Conveyor
