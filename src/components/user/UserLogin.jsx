@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import {
   Box,
@@ -14,46 +14,29 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useChat } from "../../ChatContext";
+import { AppContext } from "../context/AppContext";
 import { useToast } from "@chakra-ui/react";
 
 const UserLogin = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { setUsername } = useChat();
+  const {setUsername} = useContext(AppContext);
   const navigate = useNavigate();
   const toast = useToast();
+  const APP_URL = import.meta.env.VITE_BACKEND_URL
 
   const onSubmit = async (data) => {
     try {
-      if (data.email ==="admin@gmail.com"){
-        const response = await axios.post("http://localhost:5000/loginadmin", {
-          emailid: data.email,
-          password: data.password,
-        },{ withCredentials: true } );
-        
-        setUsername(response.data.user.username);
-        // const userid = response.data.user.userid;
 
-        if (response) {
-          toast({
-            title: "Login Successful!",
-            description: "Welcome back!",
-            status: "success",
-            duration: 5000,
-            position: "top",
-            isClosable: true,
-          });
-          navigate(`/admin/admindashboard`);
-        }
-      }
-      else{
-      const response = await axios.post("http://localhost:5000/loginuser", {
-        emailid: data.email,
+      const response = await axios.post(`${APP_URL}/user/login`, {
+        email: data.email,
         password: data.password,
-      });
-
-      setUsername(response.data.user.username);
-      const userid = response.data.user.userid;
+      },{
+        headers: { 'Content-Type': 'application/json' } // Ensure correct content type
+    });
+      
+      setUsername(response.data.data.name);
+      
+      const userid = response.data.data.id;
 
       if (response) {
         toast({
@@ -65,7 +48,7 @@ const UserLogin = () => {
           isClosable: true,
         });
         navigate(`/${userid}`);
-      }}
+      }
     } catch (err) {
       console.log(err);
       toast({

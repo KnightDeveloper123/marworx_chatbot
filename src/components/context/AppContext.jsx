@@ -1,5 +1,5 @@
 import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
-import React, { createContext, useCallback, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 
 export const AppContext = createContext();
 
@@ -8,6 +8,19 @@ const APP_URL = import.meta.env.VITE_BACKEND_URL
 export const AppProvider = ({ children }) => {
 
     const token = localStorage.getItem('token');
+
+    const [clearChat, setClearChat] = useState(false);
+    const [username, setUsername] = useState(localStorage.getItem("username") || "");
+    
+    useEffect(() => {
+        localStorage.setItem("username", username);
+    }, [username]);
+
+    const logout = () => {
+        setUsername("");  // Clear username from state
+        localStorage.removeItem("username"); // Remove username from localStorage
+    };
+
 
     const toast = useToast();
     const statusMap = {
@@ -146,7 +159,8 @@ export const AppProvider = ({ children }) => {
             value={{
                 showAlert, loading,
                 fetchAllEmployee, employee,
-                fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL
+                fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
+                clearChat, setClearChat, username, setUsername, logout
             }}
         >
             {children}

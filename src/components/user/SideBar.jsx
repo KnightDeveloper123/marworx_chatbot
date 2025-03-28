@@ -1,35 +1,49 @@
-import {  useEffect, useState } from "react";
+import {  useContext, useEffect, useState } from "react";
 import { Box, Button, Center, Flex, Heading, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Stack, Text } from "@chakra-ui/react";
 import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { FaRobot } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useChat } from "../../ChatContext"; 
+import { AppContext } from "../context/AppContext";
+const APP_URL = import.meta.env.VITE_BACKEND_URL
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [sideData, setSideData] = useState([]);
 
-  const { setClearChat } = useChat(); 
+  const { setClearChat } = useContext(AppContext);
+
 
   const { id } = useParams();
 
   const { userid } = useParams();
 
+  
+
   const navigate = useNavigate();
 
   const getData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/getsidebardata/${userid}`);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+      const response = await axios.get(`${APP_URL}/chatbot/getChatTitle?user_id=${userid}`,
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
 
-      setSideData(response.data);
+      setSideData(response.data.data);
     } catch (error) {
       console.error("Error fetching chat data", error);
     }
   };
 
- 
+  // console.log(sideData,"sidedata");
+  
 
   useEffect(() => {
 
@@ -42,9 +56,15 @@ const SideBar = () => {
   }
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
     try {
-      await axios.delete(`http://localhost:5000/deleteChat`, {
-        data: { id }
+      await axios.delete(`${APP_URL}/chatbot/deleteChatTitle`, {
+        headers: { Authorization: `${token}` },
+        data: { title_id: id }, 
       });
       setClearChat(true);
       getData();
@@ -113,7 +133,7 @@ const SideBar = () => {
                     fontSize="xs"
                     display={"flex"}
                     justifyContent={"space-between"}
-                    key={data.id}>{data.message}
+                    key={data.id}>{data.title}
                     {/* <DeleteIcon onClick={() => handleDelete(data.id)} cursor="pointer" color={"#FF0000"} /> */}
 
                     <Popover >

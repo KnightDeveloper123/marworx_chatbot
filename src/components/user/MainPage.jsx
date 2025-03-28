@@ -1,24 +1,24 @@
 import { AddIcon, DeleteIcon, ExternalLinkIcon, HamburgerIcon, Search2Icon } from "@chakra-ui/icons";
 import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Avatar, Box, Button, Card, CardHeader, Center, Flex, Grid, GridItem, Heading, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Radio, RadioGroup, Stack, Text, Textarea, Toast, useDisclosure } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { use, useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { TypeAnimation } from 'react-type-animation';
-import { useChat } from "../../ChatContext";
+import { AppContext } from "../context/AppContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 
+const APP_URL = import.meta.env.VITE_BACKEND_URL
+
 const MainPage = () => {
     const [value, setValue] = useState("");
     const [allchats, setAllchats] = useState([]);
-    // const [guest,setGuest] = useState([]);
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [file, setFile] = useState(null);
-    const { clearChat, setClearChat, logout } = useChat();
-    const { username } = useChat();
+    // const [guest,setGuest] = useState([]);
+    // const [file, setFile] = useState(null);
     const bottomRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -33,6 +33,8 @@ const MainPage = () => {
 
     const editCancelRef = useRef();
 
+    const { clearChat, setClearChat, username, setUsername, logout  } = useContext(AppContext);
+
     const navigate = useNavigate();
 
     let { id } = useParams();
@@ -40,54 +42,54 @@ const MainPage = () => {
 
     const toast = useToast();
 
-    const handleFileChange = (event) => {
-        setFile(event.target.files[0]); // Store the selected file
-    };
+    // const handleFileChange = (event) => {
+    //     setFile(event.target.files[0]); // Store the selected file
+    // };
 
-    const handleFileSubmit = async (event) => {
-        event.preventDefault();
+    // const handleFileSubmit = async (event) => {
+    //     event.preventDefault();
 
-        const formData = new FormData();
-        formData.append("avatar", file);
-
-
-
-        try {
-            const response = await axios.post("http://localhost:5000/upload", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            // console.log(response);
+    //     const formData = new FormData();
+    //     formData.append("avatar", file);
 
 
-            if (response) {
-                toast({
-                    title: "File uploaded successfully",
-                    description: "File uploaded",
-                    status: "success",
-                    duration: 5000,
-                    position: "top",
-                    isClosable: true,
-                });
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                }
-                setFile(null);
-                onEditClose();
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast({
-                title: "File upload failed",
-                description: "failed",
-                status: "error",
-                duration: 5000,
-                position: "top",
-                isClosable: true,
-            });
-        }
-    };
+
+    //     try {
+    //         const response = await axios.post("http://localhost:5000/upload", formData, {
+    //             headers: {
+    //                 "Content-Type": "multipart/form-data",
+    //             },
+    //         });
+    //         // console.log(response);
+
+
+    //         if (response) {
+    //             toast({
+    //                 title: "File uploaded successfully",
+    //                 description: "File uploaded",
+    //                 status: "success",
+    //                 duration: 5000,
+    //                 position: "top",
+    //                 isClosable: true,
+    //             });
+    //             if (fileInputRef.current) {
+    //                 fileInputRef.current.value = "";
+    //             }
+    //             setFile(null);
+    //             onEditClose();
+    //         }
+    //     } catch (error) {
+    //         console.error("Upload error:", error);
+    //         toast({
+    //             title: "File upload failed",
+    //             description: "failed",
+    //             status: "error",
+    //             duration: 5000,
+    //             position: "top",
+    //             isClosable: true,
+    //         });
+    //     }
+    // };
 
 
     const handleSubmit = async (event) => {
@@ -112,10 +114,10 @@ const MainPage = () => {
             const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`);
 
             if (res) setLoading(false);
-            // console.log(value,"value");
+            // console.log(res.data.response,"value");
             setAllchats((prevchats) => [
                 ...prevchats,
-                { data: res.data.response || "No response received", sender: "chatbot" }
+                { data: res.data.response || "No response received", sender: "bot" }
             ]);
 
 
@@ -123,12 +125,12 @@ const MainPage = () => {
             if (id) {
                 // console.log("from id is present");
 
-                sendResponse(res?.data?.response, "chatbot");
+                sendResponse(res?.data?.response, "bot");
             } else {
                 // console.log("from id is Absent");
                 const data = {
                     userMessage: userMessage,
-                    resposne: { data: res.data.response || "No response received", sender: "chatbot" }
+                    response: { data: res.data.response || "No response received", sender: "bot" }
                 }
                 sendNewChat(data)
             }
@@ -137,46 +139,46 @@ const MainPage = () => {
             console.error("Error fetching response", error);
             setAllchats((prevchats) => [
                 ...prevchats,
-                { data: "I am not able to find", sender: "chatbot" }
+                { data: "I am not able to find", sender: "bot" }
             ]);
-            sendResponse(error, "chatbot");
+            sendResponse(error, "bot");
         }
     };
 
-    useEffect(() => {
 
-        if (id) {
-            getsidebardata(id);
-        }
-        if (clearChat === true) {
-            setAllchats([]);
-            setClearChat(false);
-        }
-        if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-
-    }, [allchats, clearChat, id, setClearChat, chatHistory, loading]);
 
 
     const sendResponse = async (message, sender) => {
         try {
-            await axios.post('http://localhost:5000/chat-body', {
+            const token = localStorage.getItem("token");
+            if (!token) {
+              console.error("No token found");
+              return;
+            }
+            await axios.post(`${APP_URL}/chatbot/addChat`, {
                 message: message,
                 sender: sender,
                 title_id: id
-            })
+            },  {
+                headers: { Authorization: `${token}` },
+              })
         } catch (error) {
             console.error("Error saving message:", error);
         }
     }
 
     const sendNewChat = async (allchats) => {
-
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
         try {
-            const response = await axios.post(`http://localhost:5000/newChat/${userid}`, {
-                allchats
-            })
+            // console.log(allchats,"allchats");
+            
+            const response = await axios.post(`${APP_URL}/chatbot/newChat`,{user_id:userid,chats:allchats},  {
+                headers: { Authorization: `${token}` },
+              })
             // console.log(response.data.chat_id,"chat_id");
 
             navigate(`/${userid}/${response.data.chat_id}`);
@@ -188,9 +190,16 @@ const MainPage = () => {
 
     const getsidebardata = async (id) => {
         try {
-            const response = await axios.get(`http://localhost:5000/getsidebardata/${userid}/${id}`);
-            // console.log(response.data,"setChatHistory");
-            setChatHistory(response.data)
+            const token = localStorage.getItem("token");
+            if (!token) {
+              console.error("No token found");
+              return;
+            }
+            const response = await axios.get(`${APP_URL}/chatbot/getAllChats?title_id=${id}`, {
+                headers: { Authorization: `${token}` },
+            });
+            // console.log(response.data.data,"setChatHistory");
+            setChatHistory(response.data.data)
         } catch (error) {
             console.error("Error fetching data", error);
         }
@@ -200,48 +209,24 @@ const MainPage = () => {
         logout();
         navigate("/");
     };
+    useEffect(() => {
 
-    // const text = "This is *bold text* and this is normal text.";
+        getsidebardata(id);
+        if (clearChat === true) {
+            setAllchats([]);
+            // setClearChat(false);
+        }
+        if (bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
 
-    // const parts = text.split(/(\*.*?\*)/g);
+    }, [id]);
 
     return (
 
         <Flex h="100vh" bgColor="#1A202C" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
             <Flex bg={'#171923'} h={'90px'} w={'100%'} >
                 <Flex bg={'#171923'} w={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
-                    {/* <Popover placement='bottom-end' >
-                        <PopoverTrigger>
-                            <Avatar size={'sm'} mr={'10px'} src='https://bit.ly/broken-link' />
-                        </PopoverTrigger>
-                        <Text color={'white'} mr={'20px'}> {username}</Text>
-                        <Portal >
-                            <PopoverContent h={'150px'} w={'350px'} bgColor={"#171923"} color="white" border={'none'}>
-                                <PopoverArrow bgColor={"#171923"} />
-                                <PopoverHeader border={'none'}><Flex flexDir={'column'}><Text mb={'10px'}>Upload a file</Text>
-                                    <Flex flex={1} >
-                                        
-                                        <Flex flex={1} as="form" w={"230px"} action="/profile" method="post" encType="multipart/form-data">
-                                            <input type="file" name="avatar" ref={fileInputRef} onChange={handleFileChange} />
-                                        </Flex>
-
-                                        <Flex flex={1} justify="center" align="center">
-                                            <Button colorScheme="blue"onClick={handleFileSubmit}>
-                                                Submit
-                                            </Button>
-                                        </Flex>
-                                    </Flex>
-                                </Flex>
-                                </PopoverHeader>
-                                <PopoverCloseButton />
-                                <PopoverBody>
-                                    <Flex gap={1} alignItems={'center'} justifyContent={'space-between'} >Do you want to logout?
-                                        <Button colorScheme='red' onClick={handleLogout}>Log Out</Button>
-                                    </Flex>
-                                </PopoverBody>
-                            </PopoverContent>
-                        </Portal>
-                    </Popover> */}
                     <Menu >
                         <MenuButton
                             as={IconButton}
@@ -295,7 +280,7 @@ const MainPage = () => {
                     </AlertDialog>
 
 
-                    <AlertDialog
+                    {/* <AlertDialog
                         motionPreset='slideInBottom'
                         leastDestructiveRef={editCancelRef}
                         onClose={onEditClose}
@@ -319,25 +304,11 @@ const MainPage = () => {
                                 </Button>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog>
+                    </AlertDialog> */}
 
 
                 </Flex>
             </Flex>
-            {/* <Text color="white">
-                {parts.map((part, index) =>
-                    part.startsWith("*") && part.endsWith("*") ? (
-                        <Text as="span" key={index} fontWeight="bold">
-                            {part.slice(1, -1)}
-                        </Text>
-                    ) : (
-                        <Text as="span" key={index}>
-                            {part}
-                        </Text>
-                    )
-                )}
-            </Text> */}
-
 
 
 
@@ -378,8 +349,8 @@ const MainPage = () => {
 
                         <Box
                             key={index}
-                            alignSelf={chat.sender === "chatbot" ? "flex-start" : "flex-end"}
-                            bg={chat.sender === "chatbot" ? "#2D3748" : "#4A90E2"}
+                            alignSelf={chat.sender === "bot" ? "flex-start" : "flex-end"}
+                            bg={chat.sender === "bot" ? "#2D3748" : "#4A90E2"}
                             color="white"
                             borderRadius="20px"
                             p="10px"
@@ -388,7 +359,7 @@ const MainPage = () => {
                             boxShadow="md"
 
                         >
-                            {chat.sender === "chatbot" && index === chatHistory.length - 1 ? (
+                            {chat.sender === "bot" && index === chatHistory.length - 1 ? (
                                 <TypeAnimation
                                     sequence={[chat.message]}
                                     wrapper="span"

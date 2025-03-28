@@ -11,42 +11,42 @@ const { addUserSchema, updateUserSchema, deleteUserSchema } = require("../../val
 const router=express.Router();
 
 
-// router.post("/login", async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
+router.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-//         const checkEmail = await executeQuery(`select * from user where email=?`, [email]);
+        const checkEmail = await executeQuery(`select * from user where email=?`, [email]);
 
-//         if (!checkEmail[0]?.password) {
-//             return res.status(400).json({ error: "Please set your password" })
-//         }
+        if (!checkEmail[0]?.password) {
+            return res.status(400).json({ error: "Please set your password" })
+        }
 
-//         if (!checkEmail[0] || !password) {
-//             return res.status(400).json({ error: "Invalid Credentials" });
-//         }
-//         const pwdCompare = await bcrypt.compare(password, checkEmail[0].password);
+        if (!checkEmail[0] || !password) {
+            return res.status(400).json({ error: "Invalid Credentials" });
+        }
+        const pwdCompare = await bcrypt.compare(password, checkEmail[0].password);
 
-//         if (!pwdCompare) {
-//             return res.status(400).json({ error: "Invalid Credentials" })
-//         }
+        if (!pwdCompare) {
+            return res.status(400).json({ error: "Invalid Credentials" })
+        }
 
-//         if (pwdCompare) {
-//             const payload = {
-//                 email: email,
-//                 user_id: checkEmail[0].id,
-//                 user_type: checkEmail[0].role
-//             };
-//             let auth_token = jwt.sign(payload, process.env.JWT_SECRET);
-//             await executeQuery(`update user set last_login=NOW() where id=${checkEmail[0]?.id};`)
-//             return res.json({ success: `Welcome Back, ${checkEmail[0]?.name}`, data: { name: checkEmail[0]?.name, email: checkEmail[0]?.email, role: checkEmail[0].role, id: checkEmail[0].id }, auth_token })
-//         } else {
-//             return res.status(400).json({ error: "Invalid Credentials." });
-//         }
-//     } catch (error) {
-//         console.log("auth/user/login: ", error.message);
-//         return res.status(500).json({ error: "Internal Server Error." });
-//     }
-// });
+        if (pwdCompare) {
+            const payload = {
+                email: email,
+                user_id: checkEmail[0].id,
+                user_type: checkEmail[0].role
+            };
+            let auth_token = jwt.sign(payload, process.env.JWT_SECRET);
+            await executeQuery(`update user set last_login=NOW() where id=${checkEmail[0]?.id};`)
+            return res.json({ success: `Welcome Back, ${checkEmail[0]?.name}`, data: { name: checkEmail[0]?.name, email: checkEmail[0]?.email, role: checkEmail[0].role, id: checkEmail[0].id }, auth_token })
+        } else {
+            return res.status(400).json({ error: "Invalid Credentials." });
+        }
+    } catch (error) {
+        console.log("auth/user/login: ", error.message);
+        return res.status(500).json({ error: "Internal Server Error." });
+    }
+});
 
 router.post("/signUp", async (req, res) => {
     try {
