@@ -96,7 +96,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
     }
 });
 
-router.get("/getAllDocuments", middleware, async (req, res) => {
+router.get("/getAllDocuments", async (req, res) => {
     try {
         connection.query(`select * from documents where status=0`, (err, data) => {
             if (err) {
