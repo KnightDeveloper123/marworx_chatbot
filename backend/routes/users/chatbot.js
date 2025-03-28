@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { middleware } = require('../../middleware/middleware')
 const connection = require('../../database/db');
 
-router.post("/addChat", (req, res) => {
+router.post("/addChat", middleware, (req, res) => {
     const { message, sender, title_id } = req.body;
     const query = 'INSERT INTO chats (title_id,message,sender) VALUES (?,?,?)'
     const values = [title_id, message, sender]
@@ -16,7 +17,7 @@ router.post("/addChat", (req, res) => {
     });
 });
 
-router.post("/newChat", async (req, res) => {
+router.post("/newChat", middleware, async (req, res) => {
 
     const { chats, user_id } = req.body;
 
@@ -51,7 +52,7 @@ router.post("/newChat", async (req, res) => {
 
 });
 
-router.delete("/deleteChatTitle", (req, res) => {
+router.delete("/deleteChatTitle", middleware, (req, res) => {
     const { title_id } = req.body;
 
     const sql = "update chat_titles set status=1 WHERE id=?";
@@ -66,10 +67,10 @@ router.delete("/deleteChatTitle", (req, res) => {
     })
 })
 
-router.get("/getChatTitle", (req, res) => {
+router.get("/getChatTitle", middleware, (req, res) => {
     const { user_id } = req.query;
 
-    const query = 'select * from chat_titles where user_id=?'
+    const query = 'select * from chat_titles where user_id=? and status=0'
     const value = [user_id];
     connection.query(query, value, (err, data) => {
         if (err) {
@@ -80,9 +81,9 @@ router.get("/getChatTitle", (req, res) => {
     });
 })
 
-router.get("/getAllChats", (req, res) => {
+router.get("/getAllChats", middleware, (req, res) => {
     const { title_id } = req.query;
-    connection.query(`select * from chats where title_id=?`, [title_id], (err, data) => {
+    connection.query(`select * from chats where title_id=? and status=0`, [title_id], (err, data) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
