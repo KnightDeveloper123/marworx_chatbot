@@ -37,13 +37,15 @@ router.post("/addQuery", middleware, async (req, res) => {
 router.post("/updateQuery", middleware, async (req, res) => {
     try {
         const { query_id, ...rest } = req.body;
+     
         const { error } = updateQuerySchema.validate(req.body, { abortEarly: false });
         if (error) {
             return res.status(400).json({ error: error.details.map(err => err.message) });
         }
-
         const fields = Object.keys(rest);
         const values = Object.values(rest);
+
+
 
         if (fields.length === 0) {
             return res.status(400).json({ error: "No valid fields provided for update." });
@@ -73,22 +75,24 @@ router.post("/updateQuery", middleware, async (req, res) => {
 router.post("/deleteQuery", middleware, async (req, res) => {
     try {
         const { query_id } = req.body;
+        console.log("Request Body:", req.body);
 
-        if (query_id) {
-            return res.status(400).json({ error: "Query is required" })
+        // Correct condition to check if query_id is missing
+        if (!query_id) {
+            return res.status(400).json({ error: "Query ID is required" });
         }
 
-        const query = `UPDATE support SET status=1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        const query = `UPDATE support SET status = 1, updated_on = CURRENT_TIMESTAMP WHERE id = ?`;
 
         connection.execute(query, [query_id], (err, data) => {
             if (err) {
                 console.log(err);
-                return res.status(400).json({ error: "Something went wrong" })
+                return res.status(400).json({ error: "Something went wrong" });
             }
             if (data.affectedRows === 0) {
                 return res.status(404).json({ error: "Record not found" });
             }
-            return res.json({ success: "User deleted", data })
+            return res.json({ success: "Query deleted successfully!", data });
         });
     } catch (error) {
         console.error("Error in /deleteQuery:", error.message);
@@ -98,7 +102,10 @@ router.post("/deleteQuery", middleware, async (req, res) => {
 
 router.get("/getAllQueries", middleware, async (req, res) => {
     try {
-        connection.query(`select * from support where status=0`, (err, result) => {
+        connection.query(`SELECT support.*, employee.name AS assignee_name
+                FROM support
+                LEFT JOIN employee ON support.assignee_id = employee.id
+                WHERE support.status = 0`, (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })

@@ -1,4 +1,4 @@
-import { useToast } from "@chakra-ui/react";
+import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
 import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
 
 export const AppContext = createContext();
@@ -71,7 +71,24 @@ export const AppProvider = ({ children }) => {
             showAlert("Internal Server Error!", "error")
         }
     }
-
+    const all_employees = [
+        ...employee.map((c, index) => ({
+          label: (
+            <Flex key={index} alignItems={'center'} gap={2}>
+              <Avatar size='xs' name={c.name} />
+              <Text
+                borderRadius="var(--radius)"
+                fontSize="var(--mini-text)"
+                fontWeight="var(--big-font-weight)"
+              >
+                {c.name}
+              </Text>
+            </Flex>
+          ),
+          value: c.id,
+          value1: c.name,
+        })),
+      ];
     const [queries, setQueries] = useState([]);
     const fetchAllQueries = async () => {
         try {
@@ -129,7 +146,7 @@ export const AppProvider = ({ children }) => {
             value={{
                 showAlert, loading,
                 fetchAllEmployee, employee, 
-                fetchAllQueries,  queries ,formatDate,fetchAllUser,users
+                fetchAllQueries,  queries ,formatDate,fetchAllUser,users,all_employees,APP_URL
             }}
         >
             {children}

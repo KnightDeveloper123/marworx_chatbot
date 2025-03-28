@@ -2,9 +2,14 @@ import React, { useEffect } from "react";
 import Card from "../../Card";
 import {
   Avatar,
+  Box,
   Button,
   Divider,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
   Menu,
   MenuButton,
   MenuItem,
@@ -16,7 +21,8 @@ import {
   Text,
   Th,
   Thead,
-  Tr,useDisclosure 
+  Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { AppContext } from "../context/AppContext";
 import { useContext } from "react";
@@ -32,14 +38,160 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import Select from "react-select";
+import { add_querySchema } from "../validation/query";
+import { useState } from "react";
 
 function Queries() {
-    useEffect(() => {
-      fetchAllQueries();
-    }, []);
-  const { fetchAllQueries, queries, formatDate } = useContext(AppContext);
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  useEffect(() => {
+    fetchAllQueries();
+    fetchAllEmployee();
+  }, []);
+  const {
+    fetchAllQueries,
+    fetchAllEmployee,
+    all_employees,
+    queries,
+    formatDate, APP_URL,showAlert ,loading
+  } = useContext(AppContext);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isdeleteOpen,
+    onOpen: ondeleteOpen,
+    onClose: ondeleteClose,
+  } = useDisclosure();
+  const [selectedQuery,setSelectedQuery]=useState({})
+  const token = localStorage.getItem('token');
+  const editleads = (data) => {
+    onOpen(); // Open the modal
+    // console.log("Edit Data:", data);
+    setSelectedQuery({
+        query: data.query,
+        query_status: data.query_status,
+        assignee_id: data.assignee_id,
+        id: data.id,
+        user_id:data.user_id // Store ID if needed during update
+      });
+  };
 
+  const {
+    register,
+    control,
+    setValue,
+    getValues,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      query: "",
+      query_status: "",
+      assignee_id: "",
+      user_id:"" // Add if required
+    },
+    // resolver: yupResolver(add_querySchema),
+  });
+  useEffect(() => {
+    if (selectedQuery) {
+      // Delay to ensure modal is open before resetting values
+      setTimeout(() => {
+        reset({
+          query: selectedQuery.query || "",
+          query_status: selectedQuery.query_status || "",
+          assignee_id: selectedQuery.assignee_id || "",
+          query_id: selectedQuery.id ,
+          user_id:selectedQuery.user_id
+        });
+      }, 100);
+    }
+  }, [selectedQuery, reset]);
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        query: "",
+        query_status: "",
+        assignee_id: "",
+        query_id: "",
+      });
+    }
+  }, [isOpen, reset]);
+
+  const onSubmit = async (data) => {
+    const fetchData={
+        query: data.query,
+        query_status: data.query_status,
+        assignee_id: data.assignee_id,
+        query_id:data.query_id,
+        user_id:data.user_id
+    }
+    try {
+      const response = await fetch(`${APP_URL}/support/updateQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+            Authorization: token,
+         },
+        body: JSON.stringify(fetchData)
+      });
+
+      if (response.ok) {
+        console.log('Query updated successfully!');
+        showAlert('Query updated successfully!', 'success');
+        onClose(); // Close modal after update
+        fetchAllQueries();
+      } else {
+        console.error('Error updating Query');
+        showAlert('Error updating Query!', 'error');
+      }
+    } catch (error) {
+      console.error('API error:', error);
+      showAlert('Failed to update Query!', 'error');
+    }
+  };
+
+  const [selectLeads, setSelectLead] = useState({});
+  const [deleteId, setdeleteId] = useState({});
+  const deteleuery = (id) => {
+    setdeleteId(id);
+    ondeleteOpen();
+  };
+
+  const deleteleads = async (e) => {
+    e.preventDefault();
+    try {
+    //   setloading(true); // Show loader while request is in progress
+   
+      const response = await fetch(`${APP_URL}/support/deleteQuery`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token, // Ensure correct token format
+        },
+        body: JSON.stringify({  query_id:deleteId}),
+      });
+  
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const data = await response.json();
+
+      if (data.success) {
+        showAlert("Query deleted successfully!", "success");
+        fetchAllQueries(); // Refresh the list after deletion
+      } else {
+        showAlert(data.error || "Error deleting query!", "error");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      showAlert("Failed to delete query!", "error");
+    } finally {
+    //   setloading(false); // Hide loader after request
+    }
+  };
+  
 
   return (
     <Card>
@@ -168,7 +320,7 @@ function Queries() {
                       // onClick={() => fetchNextUrl(d.assigen_to)} _hover={{ cursor: "pointer", color: "navy" }}
                     >
                       <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
-                        <Avatar size={"xs"} name={"animesh"} />
+                        <Avatar size={"xs"} name={d.assignee_name} />
                         {d.assignee_id}
                       </Flex>
                     </Td>
@@ -223,10 +375,10 @@ function Queries() {
                             w="100%"
                             minW="100px"
                             cursor="pointer"
-                            // onClick={() => {
-                            //   setSelectLead(d);
-                            //   dellead(d.id);
-                            // }}
+                            onClick={() => {
+                              setSelectLead(d);
+                              deteleuery(d.id);
+                            }}
                           >
                             <Flex gap={2} alignItems="center">
                               <DeleteIcon color={"red"} />
@@ -241,25 +393,175 @@ function Queries() {
             </Tbody>
           </Table>
         </TableContainer>
-
       </Flex>
 
- 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+        <ModalContent as="form"
+              display={"flex"}
+              flexDirection={"column"}
+              gap={"8px"}
+              onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader fontSize={"18px"}>Add Employee</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            {/* <Lorem count={2} /> */}
+          <ModalBody pb={6}>
+            <Box
+              
+            >
+              <FormControl isInvalid={errors.query}>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
+                  Query
+                </FormLabel>
+                <Input
+                  type="text"
+                  {...register("query")}
+                  placeholder="Enter your query"
+                  fontSize="var(--text-12px)"
+                
+                />
+                <FormErrorMessage fontSize="var(--text-12px)" mt={0}>
+                  {errors.query?.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.query_status}>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
+                  Query Status
+                </FormLabel>
+                <Input
+                  type="text"
+                  {...register("query_status")}
+                  placeholder="Enter query status"
+                  fontSize="var(--text-12px)"
+                 
+                />
+
+                <FormErrorMessage mt={0}>
+                  {errors.query_status?.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.assignee_id}>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
+                  Assignee
+                </FormLabel>
+                <Controller
+                  name="assignee_id"
+                    control={control}
+                    render={({ field }) => (
+                        <Select
+                        options={all_employees}
+                        placeholder="Select Assignee"
+                        value={all_employees.find((item) => item.value === field.value)}
+                        onChange={(selectedOption) =>
+                            field.onChange(selectedOption?.value )
+                        }
+                        styles={{
+                            control: (provided) => ({
+                              ...provided, fontSize: '14px',
+                            }),
+                            option: (provided) => ({
+                              ...provided, fontSize: '14px',
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided, fontSize: '14px',
+                            }),
+                            menu: (provided) => ({
+                              ...provided, fontSize: '14px',
+                            }),
+                            placeholder: (provided) => ({
+                              ...provided, fontSize: '14px',
+                            }),
+                          }}
+                        />
+                    )}
+                    />
+
+                <FormErrorMessage fontSize="var(--text-12px)" mt={0}>
+                  {errors.assignee_id?.message}
+                </FormErrorMessage>
+              </FormControl>
+
+            </Box>
           </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
+          <ModalFooter
+            display={"flex"}
+            alignItems={"center"}
+            justifyContent={"center"}
+            gap={"6px"}
+          >
+            <Button
+              type="submit"
+              fontSize={"13px"}
+              bgColor={"#FF5722"}
+              _hover={""}
+              textColor={"white"}
+              size={"sm"}
+            >
+              Save
             </Button>
-            <Button variant='ghost'>Secondary Action</Button>
+            <Button
+              onClick={onClose}
+              type="button"
+              size={"sm"}
+              fontSize={"13px"}
+              border={"1px solid #FF5722 "}
+              textColor={"#FF5722"}
+              bgColor={"white"}
+              mr={3}
+              _hover={""}
+            >
+              Cancel
+            </Button>
           </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isCentered isOpen={isdeleteOpen} onClose={ondeleteClose}>
+        <ModalOverlay />
+        <ModalContent borderRadius="var(--radius)">
+          <ModalHeader textAlign={"center"} fontSize={"16px"}>
+            Delete Query
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody textAlign={"center"}>
+            <Flex
+              gap="1rem"
+              onSubmit={deleteleads}
+              flexDirection="column"
+              as="form"
+            >
+            
+              <Text
+                fontSize="var(--mini-text)"
+                fontWeight="var(--big-font-weight)"
+              >
+                Are you sure you want to Query?
+              </Text>
+              <Flex gap="10px" w="100%" justifyContent={"center"}>
+                <Button
+                  borderRadius="var(--radius)"
+                  w="max-content"
+                  size={'sm'} _hover={{ bgColor: 'var(--active-bg)' }} bgColor='var(--active-bg)' color='var(--text-white)'
+                  fontSize="var(--mini-text)"
+                  fontWeight="var(--big-font-weight)"
+                  type="submit"
+                //   isLoading={loading}
+                >
+                  Delete
+                </Button>
+
+                <Button
+                  borderRadius="var(--radius)"
+                  fontSize="var(--mini-text)"
+                  size={'sm'} bgColor={"var(--text-white)"} color={'var(--active-bg)'} _hover={{ bgColor: 'var(--text-white)' }} border={'1px solid var(--active-bg)'}
+                  onClick={ondeleteClose}
+
+                >
+                  Close
+                </Button>
+              </Flex>
+            </Flex>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </Card>
