@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, '../../documents'));
     },
     filename: (req, file, cb) => {
-        const { fileName } = req.body;
+        const { fileName } = req.query;
         if (!fileName) {
             return cb(new Error('fileName is required'), null);
         }
@@ -27,10 +27,7 @@ const upload = multer({
 
 router.post('/uploadDocument', middleware, upload.single('file'), async (req, res) => {
     try {
-        const { fileName } = req.body;
-
-        console.log(fileName);
-        
+        const { fileName } = req.query;
 
         if (!req.file || !fileName) {
             return res.status(400).json({ error: 'File and fileName are required.' });
@@ -85,7 +82,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                     console.log(err);
                     return res.status(400).json({ error: "Something went wrong" })
                 }
-                return res.json({ success: true, message: "File deleted successfully." });
+                return res.json({ success: "File deleted successfully.", data });
             })
         } catch (unlinkError) {
             if (unlinkError.code === 'ENOENT') {

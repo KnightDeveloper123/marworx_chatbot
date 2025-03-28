@@ -1,16 +1,8 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogCloseButton,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Box, Button, Flex, Grid, GridItem, SimpleGrid, Text,
+  Box, Button, Flex, FormControl, FormLabel, GridItem, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, SimpleGrid, Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useRef, useState } from "react";
-import { MdOutlinePeople, MdOutlineQueryBuilder } from "react-icons/md";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { BsPersonFillGear } from "react-icons/bs";
 import { AppContext } from "../context/AppContext";
 import { IoMdAdd } from "react-icons/io";
@@ -18,18 +10,9 @@ import { IoMdAdd } from "react-icons/io";
 const AdminDashboard = () => {
   const { showAlert } = useContext(AppContext);
   const [dashboardData, setDashboardData] = useState({});
-  const fileInputRef = useRef(null);
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
-
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose
-  } = useDisclosure();
-
-  const editCancelRef = useRef();
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/employee/getAllDashboardData`,
@@ -51,35 +34,37 @@ const AdminDashboard = () => {
       console.log(error);
       showAlert("Internal Server Error", "error")
     }
-  }
+  }, [showAlert])
 
   useEffect(() => {
     fetchDashboardData();
-  }, [])
+  }, [fetchDashboardData])
 
-  console.log(dashboardData);
-  const [file, setFile] = useState(null);
-
+  const [file, setFile] = useState({
+    fileName: "", file: []
+  });
+  const fileInputRef = useRef()
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]); // Store the selected file
+    setFile((prev) => ({ ...prev, file: event.target.files[0] }));
   };
+
   console.log(file)
-  const handleFileSubmit = async (event) => {
-    event.preventDefault();
-  
+
+  const handleFileSubmit = async () => {
     const formData = new FormData();
-    formData.append("file", file); // File should be in "file" field
-    formData.append("fileName", "akwdnaownd"); // Additional data as fileName
-  
+    formData.append("file", file.file);
+    formData.append("fileName", file.fileName);
+
+
     try {
-      const response = await fetch("http://localhost:5000/documents/uploadDocument", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/documents/uploadDocument?fileName=${file.fileName}`, {
         method: "POST",
         headers: {
           "Authorization": `${localStorage.getItem('token')}`,
         },
-        body: formData, // body should be here, not in headers
+        body: formData,
       });
-  
+
       const result = await response.json();
       if (result.success) {
         showAlert(result.success, "success");
@@ -87,7 +72,7 @@ const AdminDashboard = () => {
           fileInputRef.current.value = "";
         }
         setFile(null);
-        onEditClose();
+        onClose();
       } else {
         showAlert(result.error, "error");
       }
@@ -96,8 +81,6 @@ const AdminDashboard = () => {
       showAlert("Upload failed", "error");
     }
   };
-  
-
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
@@ -145,45 +128,41 @@ const AdminDashboard = () => {
           _hover={{ bgColor: "var(--active-bg)" }}
           bgColor="var(--active-bg)"
           color="#fff"
-          h={"35px"}
           fontSize="var(--mini-text)"
           fontWeight="var(--big-font-weight)"
-          onClick={() => onEditOpen()}
+          h={"35px"}
+          onClick={() => onOpen()}
         >
           Add Documents
         </Button>
       </Box>
 
-      <AlertDialog
-        motionPreset='slideInBottom'
-        leastDestructiveRef={editCancelRef}
-        onClose={onEditClose}
-        isOpen={isEditOpen}
-        isCentered
-      >
-        <AlertDialogOverlay />
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Upload Files</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <FormLabel>File Name</FormLabel>
+              <Input name="fileName" type="text" onChange={(e) => setFile((prev) => ({ ...prev, fileName: e.target.value }))} placeholder="File Name" />
+            </FormControl>
 
-        <AlertDialogContent bgColor={"#2D3748"} color={"white"}>
-          <AlertDialogHeader>Upload a file</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>
-            <input type="file" name="avatar" ref={fileInputRef} onChange={handleFileChange} />
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={editCancelRef} onClick={onEditClose}>
-              Cancel
+            <FormControl mt={2}>
+              <Input border={'none'} p={0} type="file" name="file" ref={fileInputRef} onChange={handleFileChange} />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button size={'sm'} mr={3} onClick={onClose}>
+              Close
             </Button>
-            <Button colorScheme='red' ml={3} onClick={handleFileSubmit}>
-              Submit
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-
-
-
-
+            <Button size={'sm'} variant='ghost' onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
+              bgColor="var(--active-bg)"
+              color="#fff">Upload</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   )
 }

@@ -16,7 +16,7 @@ export const AppProvider = ({ children }) => {
         warning: "warning",
         info: "info"
     };
-    const showAlert = (message, type) => {
+    const showAlert = useCallback((message, type) => {
         toast({
             title: message,
             status: statusMap[type] || "error",
@@ -24,28 +24,28 @@ export const AppProvider = ({ children }) => {
             isClosable: true,
             position: 'top'
         })
-    }
+    }, [])
 
     function formatDate(dateInput) {
         const date = new Date(dateInput);
-    
+
         if (isNaN(date.getTime())) {
-          // console.error('Invalid date input');
-          return null;
+            // console.error('Invalid date input');
+            return null;
         }
         const months = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
         ];
-    
-    
+
+
         const day = date.getUTCDate().toString().padStart(2, '0');
         const month = months[date.getUTCMonth()];
         const year = date.getUTCFullYear();
-    
+
         return `${day} ${month} ${year}`;
-      }
-    
+    }
+
 
     const [loading, setLoading] = useState(false)
 
@@ -73,22 +73,22 @@ export const AppProvider = ({ children }) => {
     }
     const all_employees = [
         ...employee.map((c, index) => ({
-          label: (
-            <Flex key={index} alignItems={'center'} gap={2}>
-              <Avatar size='xs' name={c.name} />
-              <Text
-                borderRadius="var(--radius)"
-                fontSize="var(--mini-text)"
-                fontWeight="var(--big-font-weight)"
-              >
-                {c.name}
-              </Text>
-            </Flex>
-          ),
-          value: c.id,
-          value1: c.name,
+            label: (
+                <Flex key={index} alignItems={'center'} gap={2}>
+                    <Avatar size='xs' name={c.name} />
+                    <Text
+                        borderRadius="var(--radius)"
+                        fontSize="var(--mini-text)"
+                        fontWeight="var(--big-font-weight)"
+                    >
+                        {c.name}
+                    </Text>
+                </Flex>
+            ),
+            value: c.id,
+            value1: c.name,
         })),
-      ];
+    ];
     const [queries, setQueries] = useState([]);
     const fetchAllQueries = async () => {
         try {
@@ -145,8 +145,8 @@ export const AppProvider = ({ children }) => {
         <AppContext.Provider
             value={{
                 showAlert, loading,
-                fetchAllEmployee, employee, 
-                fetchAllQueries,  queries ,formatDate,fetchAllUser,users,all_employees,APP_URL
+                fetchAllEmployee, employee,
+                fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL
             }}
         >
             {children}
