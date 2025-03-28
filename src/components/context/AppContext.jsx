@@ -1,5 +1,5 @@
 import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
-import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 
 export const AppContext = createContext();
 
