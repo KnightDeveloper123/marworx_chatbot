@@ -149,7 +149,6 @@ function User({flag}) {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    1
                     {user.id}
                   </Td>
                   <Td

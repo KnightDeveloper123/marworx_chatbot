@@ -37,6 +37,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 
 function Employee() {
@@ -57,7 +58,7 @@ function Employee() {
     fetchAllEmployee();
   }, []);
 
-
+const navigate=useNavigate();
   const onSubmit = async (values) => {
 
     try {
@@ -342,7 +343,8 @@ function Employee() {
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
-                    // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
+                      onClick={() => navigate(`/admin/employee/${d.id}`)} 
+                      cursor={'pointer'}
                     >
                       {d.name}
                     </Td>

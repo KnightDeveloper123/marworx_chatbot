@@ -83,7 +83,7 @@ router.get("/getChatTitle", middleware, (req, res) => {
 
 router.get("/getAllChats", middleware, (req, res) => {
     const { title_id } = req.query;
-    connection.query(`select * from chats where title_id=? and status=0`, [title_id], (err, data) => {
+    connection.query(`select * from chats where title_id=? `, [title_id], (err, data) => {
         if (err) {
             console.error("Error fetching sidebar data:", err);
             return res.status(500).json({ error: "Database query failed" });
