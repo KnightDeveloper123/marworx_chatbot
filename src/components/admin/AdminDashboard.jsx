@@ -262,7 +262,6 @@ const AdminDashboard = () => {
 const FileViewer = ({ selectedFile }) => {
   const [fileContent, setFileContent] = useState("");
   const [fileUrl, setFileUrl] = useState("");
-  const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
     if (!selectedFile) {
