@@ -225,9 +225,10 @@ const UserProfile = () => {
             >
               <TabPanels>
                 <TabPanel>
-                <Accordion>
-                <AccordionItem>
+                
+                  <Accordion>
                     {chatTitle.map((title, index) => (
+                      <AccordionItem>
                       <AccordionButton  key={index}
                       direction="column"
                       mt={2}
@@ -247,7 +248,7 @@ const UserProfile = () => {
                       </Box>
                       {/* <AccordionIcon /> */}
                     </AccordionButton>
-                  ))}
+                 
                  {selectedTitleId && allChat.length > 0 ? (
                    <AccordionPanel pb={4}  maxH='325px' overflowY={'scroll'} className="scroll">
                     <Box spacing={4} align="stretch">
@@ -293,9 +294,9 @@ const UserProfile = () => {
                       </Text>
                     )
                   )}
-               
-                </AccordionItem>
-                </Accordion>
+                  </AccordionItem>
+                  ))}
+                  </Accordion>
                  
 
                  
