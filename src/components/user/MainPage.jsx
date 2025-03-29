@@ -1,6 +1,6 @@
-import { AddIcon, DeleteIcon, ExternalLinkIcon, HamburgerIcon, Search2Icon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Avatar, Box, Button, Card, CardHeader, Center, Flex, Grid, GridItem, Heading, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Radio, RadioGroup, Stack, Text, Textarea, Toast, useDisclosure } from "@chakra-ui/react";
-import { use, useContext, useEffect, useRef, useState } from "react";
+import { AddIcon } from "@chakra-ui/icons";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Avatar, Box, Button, Card, CardHeader, Center, Flex, Grid, GridItem, Heading, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Radio, RadioGroup, Stack, Text, Textarea, Toast, useDisclosure } from "@chakra-ui/react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { TypeAnimation } from 'react-type-animation';
@@ -33,12 +33,16 @@ const MainPage = () => {
 
     const editCancelRef = useRef();
 
-    const { clearChat, setClearChat, username, setUsername, logout  } = useContext(AppContext);
+    const { clearChat, setClearChat, username, setUsername, logout } = useContext(AppContext);
 
     const navigate = useNavigate();
 
     let { id } = useParams();
     const { userid } = useParams();
+
+    console.log("userId", userid);
+    console.log("titleId", id);
+
 
     const toast = useToast();
 
@@ -123,11 +127,11 @@ const MainPage = () => {
 
 
             if (id) {
-                // console.log("from id is present");
+                console.log("from id is present");
 
                 sendResponse(res?.data?.response, "bot");
             } else {
-                // console.log("from id is Absent");
+                console.log("from id is Absent");
                 const data = {
                     userMessage: userMessage,
                     response: { data: res.data.response || "No response received", sender: "bot" }
@@ -141,7 +145,15 @@ const MainPage = () => {
                 ...prevchats,
                 { data: "I am not able to find", sender: "bot" }
             ]);
-            sendResponse(error, "bot");
+            if (id) {
+                sendResponse(error.message, "bot");
+            } else {
+                const data = {
+                    userMessage: userMessage,
+                    response: { data: error.message, sender: "bot" }
+                }
+                sendNewChat(data)
+            }
         }
     };
 
@@ -152,16 +164,18 @@ const MainPage = () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-              console.error("No token found");
-              return;
+                console.error("No token found");
+                return;
             }
+            console.log(message, sender);
+
             await axios.post(`${APP_URL}/chatbot/addChat`, {
                 message: message,
                 sender: sender,
                 title_id: id
-            },  {
+            }, {
                 headers: { Authorization: `${token}` },
-              })
+            })
         } catch (error) {
             console.error("Error saving message:", error);
         }
@@ -170,15 +184,15 @@ const MainPage = () => {
     const sendNewChat = async (allchats) => {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.error("No token found");
-          return;
+            console.error("No token found");
+            return;
         }
         try {
             // console.log(allchats,"allchats");
-            
-            const response = await axios.post(`${APP_URL}/chatbot/newChat`,{user_id:userid,chats:allchats},  {
+
+            const response = await axios.post(`${APP_URL}/chatbot/newChat`, { user_id: userid, chats: allchats }, {
                 headers: { Authorization: `${token}` },
-              })
+            })
             // console.log(response.data.chat_id,"chat_id");
 
             navigate(`/${userid}/${response.data.chat_id}`);
@@ -192,8 +206,8 @@ const MainPage = () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-              console.error("No token found");
-              return;
+                console.error("No token found");
+                return;
             }
             const response = await axios.get(`${APP_URL}/chatbot/getAllChats?title_id=${id}`, {
                 headers: { Authorization: `${token}` },
@@ -237,7 +251,7 @@ const MainPage = () => {
                             bgColor={"#1A202C"}
                             color="white"
                             border={'none'}
-                            _hover={"none"}  
+                            _hover={"none"}
 
                         />
                         <Text color={'white'} mr={'20px'}> {username}</Text>
