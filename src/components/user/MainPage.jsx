@@ -133,6 +133,7 @@ const MainPage = () => {
             } else {
                 console.log("from id is Absent");
                 const data = {
+
                     userMessage: userMessage,
                     response: { data: res.data.response || "No response received", sender: "bot" }
                 }
