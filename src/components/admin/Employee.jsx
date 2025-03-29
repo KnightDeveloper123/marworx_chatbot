@@ -63,7 +63,7 @@ function Employee() {
 
 
   const onSubmit = async (values) => {
-
+    console.log(values)
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/addEmployee`, {
         method: "POST",
@@ -71,16 +71,27 @@ function Employee() {
           "Content-Type": 'application/json',
           Authorization: token
         },
-        body: JSON.stringify(values)
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          mobile_no: values.mobile_no,
+          date_of_birth: values.date_of_birth ? values.date_of_birth.split("T")[0] : "",
+          role: values.role
+
+        })
       })
 
       const result = await response.json();
+      console.log(result.error);
+
       if (result.success) {
         showAlert("Employee added successfully!", 'success');
         fetchAllEmployee();
+        reset();
         onClose();
       } else {
-        showAlert("Failed to add employee.", 'error');
+        console.log(result.error)
+        showAlert(result.error || "Failed to add employee.", 'error');
       }
 
     } catch (error) {
@@ -101,14 +112,21 @@ function Employee() {
     }
   ];
 
+
+
   const editEmployee = (empData) => {
     setSelectedEmployee(empData);
     onOpenEdit();
-    Object.keys(empData).forEach((key) => {
-      setValue(key, empData[key]);
-    });
 
-  }
+    Object.keys(empData).forEach((key) => {
+      if (key === "date_of_birth" && empData[key]) {
+
+        setValue(key, empData[key].split("T")[0]);
+      } else {
+        setValue(key, empData[key]);
+      }
+    });
+  };
 
 
   const onSubmitEdit = async (values) => {
@@ -134,10 +152,11 @@ function Employee() {
       if (result.success) {
         showAlert("Employee updated successfully", 'success');
         fetchAllEmployee();
+     
         onCloseEdit();
       } else {
 
-        showAlert("Failed to update employee.", 'error');
+        showAlert(result.error || "Failed to update employee.", 'error');
       }
     } catch (error) {
       console.error("Error updating employee:", error);
@@ -172,13 +191,14 @@ function Employee() {
       if (result.success) {
         showAlert("Employee deleted successfully", 'success');
         fetchAllEmployee();
+        reset();
         onCloseDelete();
       } else {
         showAlert("Failed to delete employee.", 'error');
       }
     } catch (error) {
       console.error("Error deleting employee:", error);
-      showAlert("Failed to delete employee.", 'error');
+      showAlert(result.error || "Failed to delete employee.", 'error');
     } finally {
 
       onCloseDelete();
@@ -354,11 +374,12 @@ function Employee() {
                       border="0.5px solid #F2F4F8"
                       color={"#404040"}
                       fontSize="var(--mini-text)"
+
                       fontWeight="var(--big-font-weight)"
                       onClick={() => navigate(`/admin/employee/${d.id}`)}
                       cursor={'pointer'}
                     >
-                      <Box display={'flex'} alignItems={'center'} justifyContent={'center'} flexDirection={'row'} gap={'4px'}>
+                      <Box display={'flex'} alignItems={'center'} justifyContent={'flex-start'} flexDirection={'row'} gap={'4px'}>
                         <Avatar size={'xs'} name={d.name}></Avatar>      {d.name}</Box>
                     </Td>
 
@@ -546,9 +567,21 @@ function Employee() {
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Phone No</FormLabel>
-                <Input type="number" {...register("mobile_no", { required: "Phone no is required" })}
-                  fontSize="var(--text-12px)" />
+                <Input
+                  type="number"
+                  {...register("mobile_no", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^\d{10}$/, // Ensures exactly 10 digits
+                      message: "Phone number must be exactly 10 digits"
+                    }
+                  })}
+                  fontSize="var(--text-12px)"
+                />
+                {errors.mobile_no && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.mobile_no.message}</Text>}
               </FormControl>
+
+
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>DOB</FormLabel>
                 <Input type="date" {...register("date_of_birth", { required: "DOB is required" })}

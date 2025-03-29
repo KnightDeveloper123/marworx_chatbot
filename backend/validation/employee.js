@@ -1,14 +1,18 @@
 const Joi = require('joi');
 
 const addEmployeeSchema = Joi.object({
-    name: Joi.string().required().max(255).messages({
+    name: Joi.string().pattern(/^[A-Za-z\s]+$/).required().max(255).messages({
         'string.base': 'Name must be a string.',
+        'string.pattern.base': 'Name must contain only letters and spaces.',
         'any.required': 'Name is required'
     }),
-
-    mobile_no: Joi.string().required().messages({
-        'string.email': 'Email must be a valid email address.',
-        'any.email': 'Name is required'
+ 
+    mobile_no: Joi.string()
+    .pattern(/^\d{10}$/)
+    .required()
+    .messages({
+        'string.pattern.base': 'Phone number must be exactly 10 digits.',
+        'any.required': 'Phone number is required.'
     }),
 
     email: Joi.string().required().email().messages({
@@ -29,17 +33,24 @@ const addEmployeeSchema = Joi.object({
 });
 
 const updateEmployeeSchema = Joi.object({
-    name: Joi.string().optional().max(255).allow(null, '').messages({
+    name: Joi.string().pattern(/^[A-Za-z\s]+$/).required().max(255).messages({
         'string.base': 'Name must be a string.',
+        'string.pattern.base': 'Name must contain only letters and spaces.',
+        'any.required': 'Name is required'
     }),
+   
 
     email: Joi.string().optional().email().allow(null, '').messages({
         'string.email': 'Email must be a valid email address.',
     }),
-    mobile_no: Joi.string().optional().messages({
-        'string.email': 'Email must be a valid email address.',
-        'any.email': 'Name is required'
+    mobile_no: Joi.string()
+    .pattern(/^\d{10}$/) 
+    .required()
+    .messages({
+        'string.pattern.base': 'Phone number must be exactly 10 digits.',
+        'any.required': 'Phone number is required.'
     }),
+
 
     role: Joi.string().optional().allow(null, '').messages({
         'string.base': 'Role must be a string.',
