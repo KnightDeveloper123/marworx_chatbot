@@ -40,8 +40,8 @@ const MainPage = () => {
     let { id } = useParams();
     const { userid } = useParams();
 
-    console.log("userId", userid);
-    console.log("titleId", id);
+    // console.log("userId", userid);
+    // console.log("titleId", id);
 
 
     const toast = useToast();
@@ -115,10 +115,14 @@ const MainPage = () => {
         setLoading(true);
 
         try {
-            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`);
-
+            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`,{
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+                console.log("dhfjdshf")
+            console.log(res.data.response,"value");
             if (res) setLoading(false);
-            // console.log(res.data.response,"value");
             setAllchats((prevchats) => [
                 ...prevchats,
                 { data: res.data.response || "No response received", sender: "bot" }
@@ -229,13 +233,13 @@ const MainPage = () => {
         getsidebardata(id);
         if (clearChat === true) {
             setAllchats([]);
-            // setClearChat(false);
+            // setClearChat(false);C
         }
         if (bottomRef.current) {
             bottomRef.current.scrollIntoView({ behavior: 'smooth' });
         }
 
-    }, [id]);
+    }, [id,allchats]);
 
     return (
 
