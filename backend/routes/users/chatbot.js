@@ -5,6 +5,8 @@ const connection = require('../../database/db');
 
 router.post("/addChat", middleware, (req, res) => {
     const { message, sender, title_id } = req.body;
+    // console.log(message,"addChat");
+    
     const query = 'INSERT INTO chats (title_id,message,sender) VALUES (?,?,?)'
     const values = [title_id, message, sender]
 
@@ -20,6 +22,8 @@ router.post("/addChat", middleware, (req, res) => {
 router.post("/newChat", middleware, async (req, res) => {
 
     const { chats, user_id } = req.body;
+    // console.log(chats.chats,"chats");
+    
 
     const message = `New Chat ${new Date().toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' })}`;
     const query = 'INSERT INTO chat_titles (title, user_id) VALUES (?,?)'
@@ -31,12 +35,12 @@ router.post("/newChat", middleware, async (req, res) => {
             return res.status(500).json({ error: "Database error" });
         }
         const title_id = result.insertId;
-        const query2 = 'INSERT INTO chats (message, sender, title_id) VALUES (?, ?, ?), (?, ?, ?)';
-        console.log(chats);
+        const query2 = 'INSERT INTO chats (message, sender, title_id) VALUES (?, ?, ?)';
+
 
         const values2 = [
-            chats?.userMessage?.message, chats?.userMessage?.sender, title_id,
-            chats?.response?.data, chats?.response?.sender, title_id
+            chats?.chats?.message, chats?.chats?.sender, title_id
+            // chats?.response?.data, chats?.response?.sender, title_id
         ];
 
         connection.query(query2, values2, (err, data) => {
@@ -51,6 +55,9 @@ router.post("/newChat", middleware, async (req, res) => {
     });
 
 });
+
+
+
 
 router.delete("/deleteChatTitle", middleware, (req, res) => {
     const { title_id } = req.body;

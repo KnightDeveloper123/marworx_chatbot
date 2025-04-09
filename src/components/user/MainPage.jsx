@@ -1,15 +1,13 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList,  Text, Textarea, useDisclosure } from "@chakra-ui/react";
-import React, {useContext, useEffect, useRef, useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Text, Textarea, useDisclosure } from "@chakra-ui/react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
-import { TypeAnimation } from 'react-type-animation';
 import { AppContext } from "../context/AppContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
-
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -21,6 +19,7 @@ const MainPage = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
     const bottomRef = useRef(null);
+    
 
     const { username, logout } = useContext(AppContext);
 
@@ -30,53 +29,60 @@ const MainPage = () => {
     const { userid } = useParams();
 
     const toast = useToast();
-   
-console.log(allchats);
+
+    // console.log(allchats);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const message = { message: value, sender: "user" };
+        const updatedChats = [...allchats, message]; 
 
-        const userMessage = { message: value, sender: "user" };
-
-        setAllchats((prevchats) => [...prevchats, userMessage]);
-
+        let title_id = null;
+        setAllchats(updatedChats);
 
         if (id) {
             sendResponse(value, "user");
+        }
+        else {
+            const data = {
+                user_id: userid,
+                chats: updatedChats[0],
+            };
+            const res = await sendNewChat(data);
+            title_id=res.title_id
+            navigate(`/${userid}/${title_id}`);
         }
         setValue("");
         setLoading(true);
 
         try {
-            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`,{
+            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`, {
                 headers: {
                     "Content-Type": "application/json"
                 }
             });
-                console.log("dhfjdshf")
-            console.log(res.data.response,"value");
+  
             if (res) setLoading(false);
             setAllchats((prevchats) => [
                 ...prevchats,
                 { message: res.data.response || "No response received", sender: "bot" }
             ]);
 
-            if (id) {
-                sendResponse(res?.data?.response, "bot");
+            // console.log(allchats, res.data.response, title_id);
+            
+            if(title_id) {
+                await sendResponse(res?.data?.response, "bot", title_id);
+                title_id=null 
             } else {
-                const data = {
-
-                    userMessage: userMessage,
-                    response: { data: res.data.response || "No response received", sender: "bot" }
-                }
-                sendNewChat(data)
+                await sendResponse(res?.data?.response, "bot");
             }
+ 
 
         } catch (error) {
             console.error("Error fetching response", error);
             setAllchats((prevchats) => [
                 ...prevchats,
-                { data: "I am not able to find", sender: "bot" }
+                { message: "I am not able to find", sender: "bot" }
             ]);
             if (id) {
                 // sendResponse(error.message, "bot");
@@ -102,7 +108,7 @@ console.log(allchats);
     };
 
 
-    const sendResponse = async (message, sender) => {
+    const sendResponse = async (message, sender, title_id = null) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -113,7 +119,7 @@ console.log(allchats);
             await axios.post(`${APP_URL}/chatbot/addChat`, {
                 message: message,
                 sender: sender,
-                title_id: id
+                title_id: title_id ? title_id : id
             }, {
                 headers: { Authorization: `${token}` },
             })
@@ -134,8 +140,8 @@ console.log(allchats);
                 headers: { Authorization: `${token}` },
             })
 
-            navigate(`/${userid}/${response.data.chat_id}`);
-
+            // await navigate(`/${userid}/${response.data.chat_id}`);
+            return {title_id: response.data.chat_id};
         } catch (error) {
             console.error("Error saving message:", error);
         }
@@ -152,6 +158,7 @@ console.log(allchats);
                 headers: { Authorization: `${token}` },
             });
             setAllchats(response.data.data)
+
         } catch (error) {
             console.error("Error fetching data", error);
         }
@@ -161,17 +168,20 @@ console.log(allchats);
         logout();
         navigate("/");
     };
-    
+
     useEffect(() => {
-        if (id) {
+
         getsidebardata(id);
-        }
-    
+
     }, [id]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, [allchats]);
+    }, [allchats]);
+
+    // useEffect(() => {
+    //     console.log(allchats, "Updated history");
+    // }, [allchats]);
 
     return (
 
@@ -233,7 +243,7 @@ console.log(allchats);
 
 
             <Button
-                onClick={() => { navigate(`/${userid}`); setAllchats([]) }}
+                onClick={() => { navigate(`/${userid}`); }}
                 alignSelf={'flex-start'} colorScheme='#1A202C'><AddIcon mr={'7px'} /> New Chat
             </Button>
 
@@ -263,13 +273,11 @@ console.log(allchats);
                 }}
             >
 
-                {id && (
+                {allchats.map((chat, index) => (
 
-                    allchats.map((chat, index) => (
-
-                        <Box
-                            key={index}
-                            alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
+                    <Box
+                    key={index}
+                    alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
                             bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
                             color="white"
                             borderRadius="20px"
@@ -277,23 +285,20 @@ console.log(allchats);
                             maxW="60%"
                             my="8px"
                             boxShadow="md"
-
-                        >
-                            {chat.sender === "bot" && index === allchats.length - 1 ? (
-                                <TypeAnimation
-                                    sequence={[chat.message]}
-                                    wrapper="span"
-                                    speed={70}
-                                    cursor={false}
-                                    style={{ display: "inline-block" }}
-                                />
+                            
+                            >
+                            {console.log(chat.message)}
+                            {/* <Text>{chat.message}</Text> |||  */}
+                            {chat.sender === "bot" && index === allchats.length-1 ? (
+                                <Text>{chat.message}</Text>
+                                
                             ) : (
                                 <Text>{chat.message}</Text>
                             )}
 
 
                         </Box>
-                    ))
+                    )
                 )}
 
                 {loading && (

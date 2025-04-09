@@ -50,7 +50,10 @@ router.post("/login", async (req, res) => {
 
 router.post("/signUp", async (req, res) => {
     try {
-        const { name, email,password, mobile_no } = req.body;
+        const { name, email,password } = req.body;
+
+        console.log(req.body);
+        
 
         var salt = bcrypt.genSaltSync(10);
         const secPass = await bcrypt.hash(password, salt);
@@ -60,6 +63,8 @@ router.post("/signUp", async (req, res) => {
 
         const { error } = addUserSchema.validate(req.body, { abortEarly: false });
 
+        console.log(error);
+        
         if (error) {
             return res.status(400).json({ error: error.details[0]?.message });
         }
@@ -69,10 +74,12 @@ router.post("/signUp", async (req, res) => {
             return res.status(400).json({ error: "Email already exist" })
         }
 
-        const insertQuery = 'insert into user (name, email,password, mobile_no) values (?, ?, ?, ?);'
-        connection.execute(insertQuery, [name, email,secPass, mobile_no], (err, data) => {
+        console.log(checkEmail);
+        
+        const insertQuery = 'insert into user (name, email,password) values (?, ?, ?);'
+        connection.execute(insertQuery, [name, email,secPass], (err, data) => {
             if (err) {
-                console.log(err);
+                // console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
             return res.json({ success: "User Added", data })

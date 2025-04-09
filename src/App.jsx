@@ -1,7 +1,8 @@
 import { Flex, Spinner } from '@chakra-ui/react'
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import React,{ lazy, Suspense } from 'react';
 import './App.css'
+
 
 
 
@@ -52,6 +53,7 @@ function App() {
 
         {/* User Routes */}
         <Route path="/" element={<UserLogin />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/*" element={<Layout />}>
           <Route path="guestmode" element={<MainPage />} />
           <Route path=":userid" element={<MainPage />} />

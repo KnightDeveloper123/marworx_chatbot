@@ -6,10 +6,10 @@ const addUserSchema = Joi.object({
         'any.required': 'Name is required'
     }),
 
-    mobile_no: Joi.string().required().messages({
-        'string.email': 'Email must be a valid email address.',
-        'any.email': 'Name is required'
-    }),
+    // mobile_no: Joi.string().required().messages({
+    //     'string.email': 'Email must be a valid email address.',
+    //     'any.email': 'Name is required'
+    // }),
 
     email: Joi.string().required().email().messages({
         'string.email': 'Email must be a valid email address.',
