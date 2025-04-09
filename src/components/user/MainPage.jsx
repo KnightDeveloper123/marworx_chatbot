@@ -48,8 +48,13 @@ console.log(allchats);
         setLoading(true);
 
         try {
-            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`);
-
+            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`,{
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+                console.log("dhfjdshf")
+            console.log(res.data.response,"value");
             if (res) setLoading(false);
             setAllchats((prevchats) => [
                 ...prevchats,
