@@ -4,6 +4,7 @@ import {
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
 const SignUp = () => {
     const { 
@@ -19,9 +20,13 @@ const SignUp = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post("http://localhost:5000/adduser", data);
+            const { confirmPassword, ...payload } = data;
+            
+            const response = await axios.post("http://localhost:2500/user/signUp", payload);
+            console.log(response);
+            
 
-            if (response.data.message === "User added successfully") {
+            if (response.status === 200) {
                 toast({
                     title: "User added successfully",
                     description: "Please login to continue",
@@ -56,20 +61,20 @@ const SignUp = () => {
                     <Heading mb="20px" fontSize="30px">Sign Up</Heading>
 
                     <form onSubmit={handleSubmit(onSubmit)} style={{ width: "60%" }}>
-                        <FormControl isInvalid={errors.username}>
+                        <FormControl isInvalid={errors.name}>
                             <FormLabel>Username</FormLabel>
                             <Input 
                                 placeholder="Username"
-                                {...register("username", { required: "Username is required" })}
+                                {...register("name", { required: "Username is required" })}
                             />
-                            <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
+                            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl mt="4" isInvalid={errors.emailid}>
+                        <FormControl mt="4" isInvalid={errors.email}>
                             <FormLabel>Email</FormLabel>
                             <Input 
                                 placeholder="Email"
-                                {...register("emailid", { 
+                                {...register("email", { 
                                     required: "Email is required",
                                     pattern: {
                                         value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -77,7 +82,7 @@ const SignUp = () => {
                                     }
                                 })}
                             />
-                            <FormErrorMessage>{errors.emailid?.message}</FormErrorMessage>
+                            <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
                         </FormControl>
 
                         <FormControl mt="4" isInvalid={errors.password}>
