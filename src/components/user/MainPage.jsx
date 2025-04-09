@@ -1,6 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Avatar, Box, Button, Card, CardHeader, Center, Flex, Grid, GridItem, Heading, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Radio, RadioGroup, Stack, Text, Textarea, Toast, useDisclosure } from "@chakra-ui/react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList,  Text, Textarea, useDisclosure } from "@chakra-ui/react";
+import React, {useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { TypeAnimation } from 'react-type-animation';
@@ -10,102 +10,35 @@ import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 
+
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
 const MainPage = () => {
     const [value, setValue] = useState("");
     const [allchats, setAllchats] = useState([]);
-    const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(false);
-    // const [guest,setGuest] = useState([]);
-    // const [file, setFile] = useState(null);
-    const bottomRef = useRef(null);
-    const fileInputRef = useRef(null);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
+    const bottomRef = useRef(null);
 
-    const {
-        isOpen: isEditOpen,
-        onOpen: onEditOpen,
-        onClose: onEditClose
-    } = useDisclosure();
-
-    const editCancelRef = useRef();
-
-    const { clearChat, setClearChat, username, setUsername, logout } = useContext(AppContext);
+    const { username, logout } = useContext(AppContext);
 
     const navigate = useNavigate();
 
     let { id } = useParams();
     const { userid } = useParams();
 
-    console.log("userId", userid);
-    console.log("titleId", id);
-
-
     const toast = useToast();
-
-    // const handleFileChange = (event) => {
-    //     setFile(event.target.files[0]); // Store the selected file
-    // };
-
-    // const handleFileSubmit = async (event) => {
-    //     event.preventDefault();
-
-    //     const formData = new FormData();
-    //     formData.append("avatar", file);
-
-
-
-    //     try {
-    //         const response = await axios.post("http://localhost:5000/upload", formData, {
-    //             headers: {
-    //                 "Content-Type": "multipart/form-data",
-    //             },
-    //         });
-    //         // console.log(response);
-
-
-    //         if (response) {
-    //             toast({
-    //                 title: "File uploaded successfully",
-    //                 description: "File uploaded",
-    //                 status: "success",
-    //                 duration: 5000,
-    //                 position: "top",
-    //                 isClosable: true,
-    //             });
-    //             if (fileInputRef.current) {
-    //                 fileInputRef.current.value = "";
-    //             }
-    //             setFile(null);
-    //             onEditClose();
-    //         }
-    //     } catch (error) {
-    //         console.error("Upload error:", error);
-    //         toast({
-    //             title: "File upload failed",
-    //             description: "failed",
-    //             status: "error",
-    //             duration: 5000,
-    //             position: "top",
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
+   
+console.log(allchats);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const userMessage = { data: value, sender: "user" };
-        // const loadingMessage = { data: <div className="loader"></div>, sender: "chatbot" };
+        const userMessage = { message: value, sender: "user" };
 
         setAllchats((prevchats) => [...prevchats, userMessage]);
-        // setGuest((prevchats) => [...prevchats, userMessage, loadingMessage]);
-
-        // console.log(allchats);
 
 
         if (id) {
@@ -118,20 +51,14 @@ const MainPage = () => {
             const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`);
 
             if (res) setLoading(false);
-            // console.log(res.data.response,"value");
             setAllchats((prevchats) => [
                 ...prevchats,
-                { data: res.data.response || "No response received", sender: "bot" }
+                { message: res.data.response || "No response received", sender: "bot" }
             ]);
 
-
-
             if (id) {
-                console.log("from id is present");
-
                 sendResponse(res?.data?.response, "bot");
             } else {
-                console.log("from id is Absent");
                 const data = {
 
                     userMessage: userMessage,
@@ -147,18 +74,27 @@ const MainPage = () => {
                 { data: "I am not able to find", sender: "bot" }
             ]);
             if (id) {
-                sendResponse(error.message, "bot");
+                // sendResponse(error.message, "bot");
+                toast({
+                    title: "Error",
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
+                    position: "top",
+                    isClosable: true,
+                })
             } else {
-                const data = {
-                    userMessage: userMessage,
-                    response: { data: error.message, sender: "bot" }
-                }
-                sendNewChat(data)
+                toast({
+                    title: "Error",
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
+                    position: "top",
+                    isClosable: true,
+                })
             }
         }
     };
-
-
 
 
     const sendResponse = async (message, sender) => {
@@ -168,7 +104,6 @@ const MainPage = () => {
                 console.error("No token found");
                 return;
             }
-            console.log(message, sender);
 
             await axios.post(`${APP_URL}/chatbot/addChat`, {
                 message: message,
@@ -189,12 +124,10 @@ const MainPage = () => {
             return;
         }
         try {
-            // console.log(allchats,"allchats");
 
             const response = await axios.post(`${APP_URL}/chatbot/newChat`, { user_id: userid, chats: allchats }, {
                 headers: { Authorization: `${token}` },
             })
-            // console.log(response.data.chat_id,"chat_id");
 
             navigate(`/${userid}/${response.data.chat_id}`);
 
@@ -213,8 +146,7 @@ const MainPage = () => {
             const response = await axios.get(`${APP_URL}/chatbot/getAllChats?title_id=${id}`, {
                 headers: { Authorization: `${token}` },
             });
-            // console.log(response.data.data,"setChatHistory");
-            setChatHistory(response.data.data)
+            setAllchats(response.data.data)
         } catch (error) {
             console.error("Error fetching data", error);
         }
@@ -224,18 +156,17 @@ const MainPage = () => {
         logout();
         navigate("/");
     };
+    
     useEffect(() => {
-
+        if (id) {
         getsidebardata(id);
-        if (clearChat === true) {
-            setAllchats([]);
-            // setClearChat(false);
         }
-        if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-
+    
     }, [id]);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, [allchats]);
 
     return (
 
@@ -257,9 +188,6 @@ const MainPage = () => {
                         />
                         <Text color={'white'} mr={'20px'}> {username}</Text>
                         <MenuList bgColor={"#171923"} border={'none'}>
-                            <MenuItem icon={<AddIcon />} onClick={onEditOpen} bgColor={"#171923"} color={"white"}>
-                                Add File
-                            </MenuItem>
                             <MenuItem icon={<IoLogOut size={19} />} onClick={onOpen} bgColor={"#171923"} color={"white"}>
                                 Log Out
                             </MenuItem>
@@ -293,34 +221,6 @@ const MainPage = () => {
                             </AlertDialogContent>
                         </AlertDialogOverlay>
                     </AlertDialog>
-
-
-                    {/* <AlertDialog
-                        motionPreset='slideInBottom'
-                        leastDestructiveRef={editCancelRef}
-                        onClose={onEditClose}
-                        isOpen={isEditOpen}
-                        isCentered
-                    >
-                        <AlertDialogOverlay />
-
-                        <AlertDialogContent bgColor={"#2D3748"} color={"white"}>
-                            <AlertDialogHeader>Upload a file</AlertDialogHeader>
-                            <AlertDialogCloseButton />
-                            <AlertDialogBody>
-                                <input type="file" name="avatar" ref={fileInputRef} onChange={handleFileChange} />
-                            </AlertDialogBody>
-                            <AlertDialogFooter>
-                                <Button ref={editCancelRef} onClick={onEditClose}>
-                                    Cancel
-                                </Button>
-                                <Button colorScheme='red'  ml={3} onClick={handleFileSubmit}>
-                                    Submit
-                                </Button>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog> */}
-
 
                 </Flex>
             </Flex>
@@ -360,12 +260,12 @@ const MainPage = () => {
 
                 {id && (
 
-                    chatHistory.map((chat, index) => (
+                    allchats.map((chat, index) => (
 
                         <Box
                             key={index}
-                            alignSelf={chat.sender === "bot" ? "flex-start" : "flex-end"}
-                            bg={chat.sender === "bot" ? "#2D3748" : "#4A90E2"}
+                            alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
+                            bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
                             color="white"
                             borderRadius="20px"
                             p="10px"
@@ -374,7 +274,7 @@ const MainPage = () => {
                             boxShadow="md"
 
                         >
-                            {chat.sender === "bot" && index === chatHistory.length - 1 ? (
+                            {chat.sender === "bot" && index === allchats.length - 1 ? (
                                 <TypeAnimation
                                     sequence={[chat.message]}
                                     wrapper="span"

@@ -1,5 +1,5 @@
-import {  useContext, useEffect, useState } from "react";
-import { Box, Button, Center, Flex, Heading, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Stack, Text } from "@chakra-ui/react";
+import React,{  useContext, useEffect, useState } from "react";
+import { Box, Button,  Flex, Heading, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Stack, Text } from "@chakra-ui/react";
 import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { FaRobot } from "react-icons/fa";
 import axios from "axios";
@@ -12,14 +12,12 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [sideData, setSideData] = useState([]);
 
-  const { setClearChat } = useContext(AppContext);
+  const {clearChat } = useContext(AppContext);
 
 
   const { id } = useParams();
 
   const { userid } = useParams();
-
-  
 
   const navigate = useNavigate();
 
@@ -42,20 +40,12 @@ const SideBar = () => {
     }
   };
 
-  // console.log(sideData,"sidedata");
-  
-
-  useEffect(() => {
-
-    getData();
-
-  }, [id])
 
   const partData = async (value) => {
     navigate(`/${userid}/${value}`)
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (deleteId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found");
@@ -64,19 +54,28 @@ const SideBar = () => {
     try {
       await axios.delete(`${APP_URL}/chatbot/deleteChatTitle`, {
         headers: { Authorization: `${token}` },
-        data: { title_id: id }, 
+        data: { title_id: deleteId }, 
       });
-      setClearChat(true);
+      
+
       getData();
       navigate(`/${userid}`);
+      // if (id && id === deleteId) {
+      //   navigate(`/${userid}`);
+      // }
     } catch (error) {
       console.error("Error fetching chat data", error);
     }
   }
 
-  // console.log(sideData);
+  useEffect(() => {
+
+    getData();
+
+  }, [id,clearChat]);
 
   return (
+    <>
     <Box display="flex" >
       <Box
         h="100vh"
@@ -184,6 +183,7 @@ const SideBar = () => {
         />
       )}
     </Box>
+    </>
   );
 };
 

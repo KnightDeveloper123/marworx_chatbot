@@ -35,7 +35,7 @@ router.post("/newChat", middleware, async (req, res) => {
         console.log(chats);
 
         const values2 = [
-            chats?.userMessage?.data, chats?.userMessage?.sender, title_id,
+            chats?.userMessage?.message, chats?.userMessage?.sender, title_id,
             chats?.response?.data, chats?.response?.sender, title_id
         ];
 
