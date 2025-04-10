@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import React from "react";
 
+const APP_URL = import.meta.env.VITE_BACKEND_URL
+
 const SignUp = () => {
     const { 
         register, 
@@ -22,7 +24,7 @@ const SignUp = () => {
         try {
             const { confirmPassword, ...payload } = data;
             
-            const response = await axios.post("http://localhost:2500/user/signUp", payload);
+            const response = await axios.post(`${APP_URL}/user/signUp`, payload);
             console.log(response);
             
 
