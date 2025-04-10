@@ -33,6 +33,9 @@ const UserLogin = () => {
       },{
         headers: { 'Content-Type': 'application/json' } // Ensure correct content type
     });
+
+    // console.log(response.data.auth_token);
+    
       
       setUsername(response.data.data.name);
       
@@ -47,6 +50,7 @@ const UserLogin = () => {
           position: "top",
           isClosable: true,
         });
+        localStorage.setItem("token", response.data.auth_token);
         navigate(`/${userid}`);
       }
     } catch (err) {

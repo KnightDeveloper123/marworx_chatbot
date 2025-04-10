@@ -19,6 +19,7 @@ export const AppProvider = ({ children }) => {
     const logout = () => {
         setUsername("");  // Clear username from state
         localStorage.removeItem("username"); // Remove username from localStorage
+        localStorage.removeItem('token');
     };
 
 
