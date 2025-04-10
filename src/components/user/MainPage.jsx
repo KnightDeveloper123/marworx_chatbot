@@ -84,6 +84,9 @@ const MainPage = () => {
                 ...prevchats,
                 { message: "I am not able to find", sender: "bot" }
             ]);
+            if(error.message){
+                setLoading(false);
+            }
             if (id) {
                 // sendResponse(error.message, "bot");
                 toast({
@@ -106,6 +109,8 @@ const MainPage = () => {
             }
         }
     };
+
+   
 
 
     const sendResponse = async (message, sender, title_id = null) => {
@@ -172,7 +177,7 @@ const MainPage = () => {
     useEffect(() => {
 
         getsidebardata(id);
-
+        
     }, [id]);
 
     useEffect(() => {
