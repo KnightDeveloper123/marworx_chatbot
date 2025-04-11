@@ -60,17 +60,27 @@ const Guest = () => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [allchats]);
 
-    // console.log(allchats.length);
+
     useEffect(() => {
-        if (allchats.length === 7) {
+
+        const countChats = allchats.length;
+        localStorage.setItem("countChats", countChats);
+
+
+        if (countChats >= 7) {
             onOpen();
+            localStorage.setItem("chatLimitReached", "true");
         }
-        if(allchats.length > 0){
+        if (countChats > 0) {
             setShowHeading(false);
+        }
+        const limitReached = localStorage.getItem("chatLimitReached");
+        if (limitReached === "true") {
+            onOpen(); 
         }
     }, [allchats, onOpen]);
 
-    
+
 
 
     return (
@@ -79,14 +89,14 @@ const Guest = () => {
 
         <Flex zIndex={1} h="100vh" bgColor="#1A202C" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
             <Flex bg={'#171923'} h={'90px'} w={'100%'} >
-                <Flex justifyContent={'center'} alignItems={'center'} ml={{md:'20px' , base:'0px'}}>
-                    <Image src={logo}  h={{md:'30px',base:'20px'}} />
+                <Flex justifyContent={'center'} alignItems={'center'} ml={{ md: '20px', base: '0px' }}>
+                    <Image src={logo} h={{ md: '30px', base: '20px' }} />
                 </Flex>
                 <Flex bg={'#171923'} w={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
                     <Menu >
-                        <FaUser color="white" /> <Text color={'white'} ml={{md:'10px' , base:'5px'}} mr={{md:'30px',base:'10px'}}> Guest </Text>
-                        <IoLogOut color="white" size={19} />  <Text cursor={'pointer'} onClick={() => navigate('/login')} color={'white'} ml={{md:'10px' , base:'5px'}} mr={{md:'30px',base:'10px'}}>Log In</Text>
-                        <RiUserAddFill color="white" size={19} /> <Text color={'white'} ml={{md:'10px' , base:'5px'}} mr={{md:'30px',base:'10px'}} cursor={'pointer'} onClick={() => navigate('/signup')}> Sign Up </Text>
+                        <FaUser color="white" /> <Text color={'white'} ml={{ md: '10px', base: '5px' }} mr={{ md: '30px', base: '10px' }}> Guest </Text>
+                        <IoLogOut color="white" size={19} />  <Text cursor={'pointer'} onClick={() => navigate('/login')} color={'white'} ml={{ md: '10px', base: '5px' }} mr={{ md: '30px', base: '10px' }}>Log In</Text>
+                        <RiUserAddFill color="white" size={19} /> <Text color={'white'} ml={{ md: '10px', base: '5px' }} mr={{ md: '30px', base: '10px' }} cursor={'pointer'} onClick={() => navigate('/signup')}> Sign Up </Text>
                     </Menu>
 
                 </Flex>
@@ -134,22 +144,22 @@ const Guest = () => {
 
 
                 {showHeading && (
-                <Flex justifyContent={'center'} alignItems={'center'} h={"full"}>
-                    <Heading
-                        size="lg"
-                        fontSize={{ base: "30px", md: "50px" }}
-                        color="white"
-                        textAlign="center"
-                        fontWeight="bold"
-                        bgGradient="linear(to-r, teal.300, blue.500)"
-                        bgClip="text"
-                        mb={4}
-                        w={"50%"}
-                    >
-                        Hey there! How can I assist you today?
-                    </Heading>
-                </Flex>
-)}
+                    <Flex justifyContent={'center'} alignItems={'center'} h={"full"}>
+                        <Heading
+                            size="lg"
+                            fontSize={{ base: "30px", md: "50px" }}
+                            color="white"
+                            textAlign="center"
+                            fontWeight="bold"
+                            bgGradient="linear(to-r, teal.300, blue.500)"
+                            bgClip="text"
+                            mb={4}
+                            w={"50%"}
+                        >
+                            Hey there! How can I assist you today?
+                        </Heading>
+                    </Flex>
+                )}
 
                 {allchats.map((chat, index) => (
 
