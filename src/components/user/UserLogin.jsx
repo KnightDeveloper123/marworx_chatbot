@@ -16,6 +16,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { useToast } from "@chakra-ui/react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 const UserLogin = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -71,6 +72,9 @@ const UserLogin = () => {
   return (
     <Box h="100vh" bg="#1A202C">
       <Flex h="100vh" justifyContent="center" alignItems="center">
+        <Flex top={"40px"} left="40px" position="absolute">
+                        <Button colorScheme='blue' onClick={() => navigate("/")}><ArrowBackIcon fontSize={"20px"}   /></Button>
+                        </Flex>
         <Flex
           h="500px"
           w="500px"

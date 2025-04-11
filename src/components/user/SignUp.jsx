@@ -5,6 +5,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import React from "react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -37,7 +38,7 @@ const SignUp = () => {
                     position: "top",
                     isClosable: true,
                 });
-                navigate("/");
+                navigate("/login");
             }
         } catch (err) {
             console.error(err);
@@ -55,6 +56,9 @@ const SignUp = () => {
     return (
         <Box h="100vh" bg="#1A202C">
             <Flex h="100vh" justifyContent="center" alignItems="center">
+                <Flex top={"40px"} left="40px" position="absolute">
+                <Button colorScheme='blue' onClick={() => navigate("/")}><ArrowBackIcon fontSize={"20px"}/></Button>
+                </Flex>
                 <Flex 
                     h="600px" w="500px" bg="#171923" color="white" 
                     justifyContent="center" alignItems="center" 
@@ -113,7 +117,7 @@ const SignUp = () => {
                         </Button>
                     </form>
 
-                    <Text mt="4" color="gray" cursor="pointer" onClick={() => navigate("/")}>
+                    <Text mt="4" color="gray" cursor="pointer" onClick={() => navigate("/login")}>
                         Already have an account? Log in
                     </Text>
                 </Flex>
