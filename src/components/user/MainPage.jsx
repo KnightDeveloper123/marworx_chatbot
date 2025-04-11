@@ -1,5 +1,5 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Text, Textarea, useDisclosure } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, ButtonGroup, Center, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Text, Textarea, Tooltip, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
+import { GoReport } from "react-icons/go";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -15,12 +16,12 @@ const MainPage = () => {
     const [value, setValue] = useState("");
     const [allchats, setAllchats] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [reportData, setReportData] = useState("");
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
     const bottomRef = useRef(null);
-    
-
+    const initRef = React.useRef();
     const { username, logout } = useContext(AppContext);
 
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ const MainPage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const message = { message: value, sender: "user" };
-        const updatedChats = [...allchats, message]; 
+        const updatedChats = [...allchats, message];
 
         let title_id = null;
         setAllchats(updatedChats);
@@ -49,7 +50,7 @@ const MainPage = () => {
                 chats: updatedChats[0],
             };
             const res = await sendNewChat(data);
-            title_id=res.title_id
+            title_id = res.title_id
             navigate(`/${userid}/${title_id}`);
         }
         setValue("");
@@ -61,7 +62,7 @@ const MainPage = () => {
                     "Content-Type": "application/json"
                 }
             });
-  
+
             if (res) setLoading(false);
             setAllchats((prevchats) => [
                 ...prevchats,
@@ -69,14 +70,14 @@ const MainPage = () => {
             ]);
 
             // console.log(allchats, res.data.response, title_id);
-            
-            if(title_id) {
+
+            if (title_id) {
                 await sendResponse(res?.data?.response, "bot", title_id);
-                title_id=null 
+                title_id = null
             } else {
                 await sendResponse(res?.data?.response, "bot");
             }
- 
+
 
         } catch (error) {
             console.error("Error fetching response", error);
@@ -84,7 +85,7 @@ const MainPage = () => {
                 ...prevchats,
                 { message: "I am not able to find", sender: "bot" }
             ]);
-            if(error.message){
+            if (error.message) {
                 setLoading(false);
             }
             if (id) {
@@ -110,7 +111,7 @@ const MainPage = () => {
         }
     };
 
-   
+
 
 
     const sendResponse = async (message, sender, title_id = null) => {
@@ -146,7 +147,7 @@ const MainPage = () => {
             })
 
             // await navigate(`/${userid}/${response.data.chat_id}`);
-            return {title_id: response.data.chat_id};
+            return { title_id: response.data.chat_id };
         } catch (error) {
             console.error("Error saving message:", error);
         }
@@ -169,6 +170,41 @@ const MainPage = () => {
         }
     }
 
+    const handleReport = (data) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found");
+                return;
+            }
+            axios.post(`${APP_URL}/support/addQuery`, {query: data, user_id: userid}, {
+                headers: { Authorization: `${token}` },
+            }).then((res) => {
+                toast({
+                    title: "Success",
+                    description: res.data.success,
+                    status: "success",
+                    duration: 5000,
+                    position: "top",
+                    isClosable: true,
+                })
+
+            }).catch((err) => {
+                console.log(err);
+            })
+        } catch (error) {
+            console.error("Error saving message:", error);
+            toast({
+                title: "Error",
+                description: error.message,
+                status: "error",
+                duration: 5000,
+                position: "top",
+                isClosable: true,
+            })
+        }
+    }
+
     const handleLogout = () => {
         logout();
         navigate("/");
@@ -177,16 +213,12 @@ const MainPage = () => {
     useEffect(() => {
 
         getsidebardata(id);
-        
+
     }, [id]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [allchats]);
-
-    // useEffect(() => {
-    //     console.log(allchats, "Updated history");
-    // }, [allchats]);
 
     return (
 
@@ -281,29 +313,29 @@ const MainPage = () => {
                 {allchats.map((chat, index) => (
 
                     <Box
-                    key={index}
-                    alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
-                            bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
-                            color="white"
-                            borderRadius="20px"
-                            p="10px"
-                            maxW="60%"
-                            my="8px"
-                            boxShadow="md"
-                            
-                            >
-                            {console.log(chat.message)}
-                            {/* <Text>{chat.message}</Text> |||  */}
-                            {chat.sender === "bot" && index === allchats.length-1 ? (
-                                <Text>{chat.message}</Text>
-                                
-                            ) : (
-                                <Text>{chat.message}</Text>
-                            )}
+                        key={index}
+                        alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
+                        bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
+                        color="white"
+                        borderRadius="20px"
+                        p="10px"
+                        maxW="60%"
+                        my="8px"
+                        boxShadow="md"
+
+                    >
+                        {/* {console.log(chat.message)} */}
+                        {/* <Text>{chat.message}</Text> |||  */}
+                        {chat.sender === "bot" && index === allchats.length - 1 ? (
+                            <Text>{chat.message}</Text>
+
+                        ) : (
+                            <Text>{chat.message}</Text>
+                        )}
 
 
-                        </Box>
-                    )
+                    </Box>
+                )
                 )}
 
                 {loading && (
@@ -324,6 +356,8 @@ const MainPage = () => {
 
                 <div ref={bottomRef}></div>
             </Flex>
+
+
 
             <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={'70%'} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
                 <Flex justifyContent="flex-end">
@@ -363,6 +397,52 @@ const MainPage = () => {
                     }}
                 />
             </Flex>
+            <Tooltip label="Report an issue" aria-label='A tooltip'>
+                <Box position={"absolute"} display={"flex"} bottom={{ md: "100px", base: "120px" }} right={{ md: "50px", base: "10px" }} >
+                    <Popover closeOnBlur={false} placement={"top"} initialFocusRef={initRef} >
+                        {({ isOpen, onClose }) => (
+                            <>
+                                <PopoverTrigger>
+
+                                    <Box bgColor="#171923" w="60px" h="60px"
+                                        boxShadow='dark-lg'
+                                        cursor={"pointer"}
+                                        _hover={{ boxShadow: "inner" }}
+                                        borderRadius="100%"
+                                        onClick={() => isOpen ? 'close' : 'open'}
+                                        display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                                        <GoReport color="white" size={30} />
+                                    </Box>
+                                </PopoverTrigger>
+                                <Portal >
+                                    <PopoverContent border={"none"} color="white" >
+                                        <PopoverHeader
+                                            bgColor="#2D3748" border={"none"}
+                                        >Report an issue</PopoverHeader>
+                                        <PopoverCloseButton />
+                                        <PopoverBody bgColor="#2D3748">
+                                            <Box>
+                                                <Textarea placeholder='Describe the issue' value={reportData} onChange={(e) => setReportData(e.target.value)} />
+                                            </Box>
+                                            <Box display={"flex"} justifyContent={"flex-end"}>
+                                                <Button
+                                                    mt={4}
+                                                    colorScheme='blue'
+                                                    onClick={() =>{ handleReport(reportData), onClose()}}
+                                                    ref={initRef}
+                                                >
+                                                    Send
+                                                </Button>
+                                            </Box>
+                                        </PopoverBody>
+                                    </PopoverContent>
+                                </Portal>
+                            </>
+                        )}
+                    </Popover>
+
+                </Box>
+            </Tooltip>
         </Flex>
 
     );

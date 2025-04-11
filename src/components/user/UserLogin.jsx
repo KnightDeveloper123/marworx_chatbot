@@ -54,10 +54,10 @@ const UserLogin = () => {
         navigate(`/${userid}`);
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       toast({
         title: "Login Failed!",
-        description: "Invalid Credentials!",
+        description: err.response.data.error,
         status: "error",
         duration: 5000,
         position: "top",

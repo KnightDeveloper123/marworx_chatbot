@@ -25,13 +25,13 @@ const SignUp = () => {
             const { confirmPassword, ...payload } = data;
             
             const response = await axios.post(`${APP_URL}/user/signUp`, payload);
-            console.log(response);
+            // console.log(response);
             
 
             if (response.status === 200) {
                 toast({
                     title: "User added successfully",
-                    description: "Please login to continue",
+                    description: response.data.success,
                     status: "success",
                     duration: 5000,
                     position: "top",
@@ -43,7 +43,7 @@ const SignUp = () => {
             console.error(err);
             toast({
                 title: "Something went wrong",
-                description: "Please check your credentials",
+                description: err.response.data.error,
                 status: "error",
                 duration: 5000,
                 position: "top",
