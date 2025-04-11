@@ -188,7 +188,7 @@ const MainPage = () => {
                     position: "top",
                     isClosable: true,
                 })
-
+                setReportData("");
             }).catch((err) => {
                 console.log(err);
             })
@@ -222,7 +222,7 @@ const MainPage = () => {
 
     return (
 
-        <Flex h="100vh" bgColor="#1A202C" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
+        <Flex zIndex={1} h="100vh" bgColor="#1A202C" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
             <Flex bg={'#171923'} h={'90px'} w={'100%'} >
                 <Flex bg={'#171923'} w={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
                     <Menu >
@@ -280,6 +280,7 @@ const MainPage = () => {
 
 
             <Button
+            zIndex={1}
                 onClick={() => { navigate(`/${userid}`); }}
                 alignSelf={'flex-start'} colorScheme='#1A202C'><AddIcon mr={'7px'} /> New Chat
             </Button>
@@ -290,7 +291,7 @@ const MainPage = () => {
                 flexDir={"column"}
                 overflowY={"auto"}
 
-                w={"70%"}
+                w={{md:"70%" , base:"100%"}}
                 p={4}
                 sx={{
                     "&::-webkit-scrollbar": {
@@ -359,7 +360,7 @@ const MainPage = () => {
 
 
 
-            <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={'70%'} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
+            <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={{md:'70%', base:'90%'}} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
                 <Flex justifyContent="flex-end">
                     {value.length > 0 ? <Button w="40px" h="40px" color={"white"} bg="#171923" borderRadius="100%" m="5px"
                         _hover={{ bg: "#4A90E2" }}
@@ -422,7 +423,18 @@ const MainPage = () => {
                                         <PopoverCloseButton />
                                         <PopoverBody bgColor="#2D3748">
                                             <Box>
-                                                <Textarea placeholder='Describe the issue' value={reportData} onChange={(e) => setReportData(e.target.value)} />
+                                                <Textarea placeholder='Describe the issue' 
+                                                value={reportData} onChange={(e) => setReportData(e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                        event.preventDefault();
+                                                        if (reportData.trim() !== "") {
+                                                            handleReport(reportData);
+                                                             onClose();
+                                                        }
+                                                    }
+                                                }}
+                                                />
                                             </Box>
                                             <Box display={"flex"} justifyContent={"flex-end"}>
                                                 <Button

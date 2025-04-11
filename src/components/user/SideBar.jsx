@@ -14,9 +14,7 @@ const SideBar = () => {
 
   const {clearChat } = useContext(AppContext);
 
-
   const { id } = useParams();
-
   const { userid } = useParams();
 
   const navigate = useNavigate();
@@ -85,7 +83,8 @@ const SideBar = () => {
         p={isOpen ? "4" : "0"}
         color="white"
         transition="width 0.5s"
-        position="relative"
+        z-index={9999}
+        position={{base: "absolute", md: "unset"}}
         overflowY={"auto"}
         sx={{
           "&::-webkit-scrollbar": {
@@ -105,6 +104,7 @@ const SideBar = () => {
       }}
       >
 
+      
         {isOpen && (
           <IconButton
             icon={<HamburgerIcon boxSize={6} />}
