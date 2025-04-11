@@ -399,7 +399,7 @@ const MainPage = () => {
                 />
             </Flex>
             <Tooltip label="Report an issue" aria-label='A tooltip'>
-                <Box position={"absolute"} display={"flex"} bottom={{ md: "100px", base: "120px" }} right={{ md: "50px", base: "10px" }} >
+                <Box position={"absolute"} display={"flex"} bottom={{ md: "100px", base: "140px" }} right={{ md: "50px", base: "10px" }} >
                     <Popover closeOnBlur={false} placement={"top"} initialFocusRef={initRef} >
                         {({ isOpen, onClose }) => (
                             <>
