@@ -52,6 +52,7 @@ const UserLogin = () => {
           isClosable: true,
         });
         localStorage.setItem("token", response.data.auth_token);
+        localStorage.setItem("chatLimitReached", "false");
         navigate(`/${userid}`);
       }
     } catch (err) {
@@ -134,7 +135,7 @@ const UserLogin = () => {
             cursor="pointer"
             onClick={() => navigate("/signup")}
           >
-            Don't have an account?
+            Don&apos;t have an account?
           </Text>
         </Flex>
       </Flex>
