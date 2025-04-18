@@ -136,42 +136,38 @@ const SideBar = () => {
                       key={data.id}>{data.title}
                       {/* <DeleteIcon onClick={() => handleDelete(data.id)} cursor="pointer" color={"#FF0000"} /> */}
 
-                      <Popover>
+                      <Popover  closeOnBlur={true}>
                         <PopoverTrigger>
                           <DeleteIcon cursor="pointer" color="#FF0000" />
                         </PopoverTrigger>
                         <Portal>
-                          <Box zIndex="99999" position="relative">
-                            <PopoverContent
-                              position="absolute"
-                              zIndex="inherit"
-                              w="250px"
-
-                              ml={'-100px'}
-                              h="120px"
-                              bg="#171923"
-                              color="white"
-                              border="none"
-                              boxShadow="lg"
-                              borderRadius="md"
+                          <PopoverContent
+                            w="250px"
+                            h="120px"
+                            bg="#171923"
+                            zIndex={1000} 
+                            color="white"
+                            border="none"
+                            boxShadow="lg"
+                            borderRadius="md"
+                         >
+                            <PopoverArrow bgColor="#171923" />
+                            <PopoverHeader bgColor="#171923" border="none" />
+                            <PopoverCloseButton color="white" />
+                            <PopoverBody
+                              bgColor="#171923"
+                              display="flex"
+                              flexDirection="column"
                             >
-                              <PopoverArrow bgColor="#171923" />
-                              <PopoverHeader bgColor="#171923" border="none" />
-                              <PopoverCloseButton color="white" />
-                              <PopoverBody
-                                bgColor="#171923"
-                                display="flex"
-                                flexDirection="column"
-                              >
-                                <Text color="white">Do You want to delete?</Text>
-                                <Button colorScheme="red" onClick={() => handleDelete(data.id)}>
-                                  Delete
-                                </Button>
-                              </PopoverBody>
-                            </PopoverContent>
-                          </Box>
+                              <Text color="white">Do you want to delete?</Text>
+                              <Button colorScheme="red" onClick={() => handleDelete(data.id)}>
+                                Delete
+                              </Button>
+                            </PopoverBody>
+                          </PopoverContent>
                         </Portal>
                       </Popover>
+
 
                     </Text>
 
@@ -201,3 +197,41 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
+
+{/* <Popover>
+<PopoverTrigger>
+  <DeleteIcon cursor="pointer" color="#FF0000" />
+</PopoverTrigger>
+<Portal>
+  // {/* <Box zIndex="99999" position="relative"> 
+    <PopoverContent
+      position="absolute"
+      zIndex="inherit"
+      w="250px"
+      // zIndex="99999" 
+      // ml={'-100px'}
+      h="120px"
+      bg="#171923"
+      color="white"
+      border="none"
+      boxShadow="lg"
+      borderRadius="md"
+    >
+      <PopoverArrow bgColor="#171923" />
+      <PopoverHeader bgColor="#171923" border="none" />
+      <PopoverCloseButton color="white" />
+      <PopoverBody
+        bgColor="#171923"
+        display="flex"
+        flexDirection="column"
+      >
+        <Text color="white">Do You want to delete?</Text>
+        <Button colorScheme="red" onClick={() => handleDelete(data.id)}>
+          Delete
+        </Button>
+      </PopoverBody>
+    </PopoverContent>
+  {/* </Box> 
+</Portal>
+</Popover> */}

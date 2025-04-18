@@ -323,6 +323,7 @@ const MainPage = () => {
                         p="10px"
                         maxW="60%"
                         my="8px"
+                    
                         boxShadow="md"
 
                     >
