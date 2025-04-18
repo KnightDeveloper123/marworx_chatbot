@@ -113,7 +113,7 @@ const UserLogin = () => {
               <Input
                 type="password"
                 placeholder="Enter your password"
-                {...register("password", { required: "Password is required", minLength: 6 })}
+                {...register("password", { required: "Password is required" })}
               />
               {errors.password ? (
                 <FormErrorMessage>{errors.password.message}</FormErrorMessage>
