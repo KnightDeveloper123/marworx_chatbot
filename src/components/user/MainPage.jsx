@@ -9,6 +9,7 @@ import { useToast } from "@chakra-ui/react";
 import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 import { GoReport } from "react-icons/go";
+import { TypeAnimation } from "react-type-animation";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -177,7 +178,7 @@ const MainPage = () => {
                 console.error("No token found");
                 return;
             }
-            axios.post(`${APP_URL}/support/addQuery`, {query: data, user_id: userid}, {
+            axios.post(`${APP_URL}/support/addQuery`, { query: data, user_id: userid }, {
                 headers: { Authorization: `${token}` },
             }).then((res) => {
                 toast({
@@ -280,7 +281,7 @@ const MainPage = () => {
 
 
             <Button
-            zIndex={1}
+                zIndex={1}
                 onClick={() => { navigate(`/${userid}`); }}
                 alignSelf={'flex-start'} colorScheme='#1A202C'><AddIcon mr={'7px'} /> New Chat
             </Button>
@@ -291,7 +292,7 @@ const MainPage = () => {
                 flexDir={"column"}
                 overflowY={"auto"}
 
-                w={{md:"70%" , base:"100%"}}
+                w={{ md: "70%", base: "100%" }}
                 p={4}
                 sx={{
                     "&::-webkit-scrollbar": {
@@ -325,11 +326,14 @@ const MainPage = () => {
                         boxShadow="md"
 
                     >
-                        {/* {console.log(chat.message)} */}
-                        {/* <Text>{chat.message}</Text> |||  */}
-                        {chat.sender === "bot" && index === allchats.length - 1 ? (
-                            <Text>{chat.message}</Text>
 
+
+                        {chat.sender === "bot" && index === allchats.length - 1 ? (
+                            <TypeAnimation
+                            sequence={[chat.message, 1000]}
+                            speed={70} // Increase this number for faster typing (default is 40)
+                            cursor={false} 
+                          />
                         ) : (
                             <Text>{chat.message}</Text>
                         )}
@@ -360,7 +364,7 @@ const MainPage = () => {
 
 
 
-            <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={{md:'70%', base:'90%'}} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
+            <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={{ md: '70%', base: '90%' }} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
                 <Flex justifyContent="flex-end">
                     {value.length > 0 ? <Button w="40px" h="40px" color={"white"} bg="#171923" borderRadius="100%" m="5px"
                         _hover={{ bg: "#4A90E2" }}
@@ -423,24 +427,24 @@ const MainPage = () => {
                                         <PopoverCloseButton />
                                         <PopoverBody bgColor="#2D3748">
                                             <Box>
-                                                <Textarea placeholder='Describe the issue' 
-                                                value={reportData} onChange={(e) => setReportData(e.target.value)}
-                                                onKeyDown={(event) => {
-                                                    if (event.key === "Enter" && !event.shiftKey) {
-                                                        event.preventDefault();
-                                                        if (reportData.trim() !== "") {
-                                                            handleReport(reportData);
-                                                             onClose();
+                                                <Textarea placeholder='Describe the issue'
+                                                    value={reportData} onChange={(e) => setReportData(e.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === "Enter" && !event.shiftKey) {
+                                                            event.preventDefault();
+                                                            if (reportData.trim() !== "") {
+                                                                handleReport(reportData);
+                                                                onClose();
+                                                            }
                                                         }
-                                                    }
-                                                }}
+                                                    }}
                                                 />
                                             </Box>
                                             <Box display={"flex"} justifyContent={"flex-end"}>
                                                 <Button
                                                     mt={4}
                                                     colorScheme='blue'
-                                                    onClick={() =>{ handleReport(reportData), onClose()}}
+                                                    onClick={() => { handleReport(reportData), onClose() }}
                                                     ref={initRef}
                                                 >
                                                     Send
