@@ -10,7 +10,7 @@ const Layout = () => {
   return (
     <Flex h="100vh" w="100%">
     {/* Sidebar on the left */}
-    <Box w="240px" bg="gray.800" color="white">
+    <Box w="240px" bg="gray.800" color="white" display={{base:"none" ,sm:"none", md:"none", lg:"block" ,xl:"block"}}>
       <Sidebar />
     </Box>
 

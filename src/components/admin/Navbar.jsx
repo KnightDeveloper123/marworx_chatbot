@@ -15,9 +15,14 @@ import {
   DrawerHeader,
   DrawerBody,
   Text,
+  Icon,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { FaTachometerAlt,FaUser ,FaUserPlus } from "react-icons/fa";
+import { SiGooglebigquery } from "react-icons/si";
+import { FaCircleUser } from "react-icons/fa6";
 import { Link, NavLink } from "react-router-dom";
+import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
 
 function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,11 +34,11 @@ function Navbar() {
 
 
   const adminNavbar = [
-    { title: "Dashboard", url: "/admin/dashboard" },
-    { title: "Employee", url: "/admin/employee" },
-    { title: "Users", url: "/admin/user" },
-    { title: "Queries", url: "/admin/queries" },
-  ];
+     { title: "Dashboard", url: "/admin/dashboard" , icon: <Icon as={ FaTachometerAlt } mr={2} />   },
+     { title: "Employee", url: "/admin/employee",  icon: <Icon as={ FaCircleUser } mr={2} />  },
+     { title: "Users", url: "/admin/user",  icon: <Icon as={ FaUser } mr={2} />  },
+     { title: "Queries", url: "/admin/queries",  icon: <Icon as={ SiGooglebigquery } mr={2} />  },
+   ];
 
   return (
     <HStack
@@ -91,7 +96,6 @@ function Navbar() {
               }}
               transition="0.25s"
             />
-            Marworx Chat Bot
           </Flex>
           <Flex
             justifyContent="space-evenly"
@@ -99,24 +103,13 @@ function Navbar() {
             alignItems="center"
             display={{ xl: "flex", lg: "flex", md: "none", sm: "none", base: "none" }}
           >
-            {adminNavbar.map((item, index) => (
-              <NavLink
-                key={index}
-                to={item.url}
-                style={({ isActive }) => ({
-                  color: isActive ? "#FF5722" : "#000000",
-                  backgroundColor: isActive ? "#FF572215" : "transparent",
-                  borderRadius: "6px",
-                  padding: "8px 12px",
-                  transition: "0.25s",
-                  textDecoration: "none",
-                })}
-              >
-                <Text fontSize="15px" fontWeight="500" cursor="pointer">
-                  {item.title}
-                </Text>
-              </NavLink>
-            ))}
+
+            <Box>
+            <IoNotifications />
+            </Box>
+            <Box>
+            <IoSettingsSharp />
+            </Box>
           </Flex>
         </Flex>
       </Flex>
