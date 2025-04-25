@@ -15,13 +15,13 @@ import Guest from './components/user/Guest';
 
 const MainPage = lazy(() => import('./components/user/MainPage'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
-const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
-const Employee = lazy(() => import('./components/admin/Employee'));
-const User = lazy(() => import('./components/admin/User'));
-const Queries = lazy(() => import('./components/admin/Queries'));
-const Login = lazy(() => import('./components/admin/Login'));
-const UserProfile = lazy(() => import('./components/admin/UserProfile'));
-const EmployeeProfile = lazy(() => import('./components/admin/EmployeeProfile'));
+const AdminDashboard = lazy(() => import('./components/admin/Pages/AdminDashboard'));
+const Employee = lazy(() => import('./components/admin/Pages/Employee'));
+const User = lazy(() => import('./components/admin/Pages/User'));
+const Queries = lazy(() => import('./components/admin/Pages/Queries'));
+const Login = lazy(() => import('./components/admin/Pages/Login'));
+const UserProfile = lazy(() => import('./components/admin/Pages/UserProfile'));
+const EmployeeProfile = lazy(() => import('./components/admin/Pages/EmployeeProfile'));
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
 

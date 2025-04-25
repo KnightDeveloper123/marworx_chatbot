@@ -4,9 +4,9 @@ import {
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 
-import { encrypt } from "../utils/security"
+import { encrypt } from "../../utils/security"
 
 export default function Login() {
   const navigate = useNavigate();

@@ -22,8 +22,8 @@ import {
   Tr, useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useContext } from "react";
-import { AppContext } from "../context/AppContext";
-import Card from "../../Card";
+import { AppContext } from "../../context/AppContext";
+import Card from "../../../Card";
 import { IoMdAdd } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { MdOutlineModeEdit } from "react-icons/md";

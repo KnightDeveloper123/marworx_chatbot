@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Card from "../../Card";
+import Card from "../../../Card";
 import {
   Avatar,
   Box,
@@ -24,7 +24,7 @@ import {
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { useContext } from "react";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { MdOutlineModeEdit } from "react-icons/md";
@@ -41,7 +41,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Select from "react-select";
-import { add_querySchema } from "../validation/query";
+// import { add_querySchema } from "../validation/query";
 import { useState } from "react";
 
 function Queries() {

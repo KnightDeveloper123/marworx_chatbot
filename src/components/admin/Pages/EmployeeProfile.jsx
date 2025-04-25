@@ -8,8 +8,8 @@ import {
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { AppContext } from "../context/AppContext";
-import Card from "../../Card";
+import { AppContext } from "../../context/AppContext";
+import Card from "../../../Card";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL;
 

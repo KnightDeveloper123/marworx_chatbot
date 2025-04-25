@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { BsPersonFillGear } from "react-icons/bs";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
