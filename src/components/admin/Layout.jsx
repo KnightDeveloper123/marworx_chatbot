@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import React, { Suspense } from "react";
 import Sidebar from "./Sidebar";
+import BreadCrumb from "./Breadcrumb";
 
 const Layout = () => {
 
@@ -29,7 +30,7 @@ const Layout = () => {
         pt={4}
       >
         {/* Uncomment this if you want breadcrumb above */}
-        {/* <BreadcrumbBar /> */}
+      <BreadCrumb></BreadCrumb>
 
         <Suspense
           fallback={
