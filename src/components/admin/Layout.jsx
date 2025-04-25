@@ -27,7 +27,7 @@ const Layout = () => {
         overflow="auto"
         bg="#f0f8ff"
         px={{ base: 3, md: 5 }}
-        pt={4}
+        pt={2}
       >
         {/* Uncomment this if you want breadcrumb above */}
       <BreadCrumb></BreadCrumb>

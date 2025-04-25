@@ -1,8 +1,9 @@
 
 
 
-import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react";
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Icon } from "@chakra-ui/react";
 import { useLocation, Link } from "react-router-dom";
+import { FaTachometerAlt, FaFileAlt } from 'react-icons/fa';
 
 const BreadCrumb = () => {
   const location = useLocation();
@@ -13,9 +14,9 @@ const BreadCrumb = () => {
 
   return (
     <Box px="6" py="4">
-      <Breadcrumb fontSize="sm" separator=">">
+      <Breadcrumb fontSize="sm" separator="/">
         <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/admin/dashboard">Dashboard</BreadcrumbLink>
+          <Icon as={FaTachometerAlt} mr={2} />  <BreadcrumbLink as={Link} to="/admin/dashboard">Dashboard</BreadcrumbLink>
         </BreadcrumbItem>
 
         {segments.map((seg, idx) => {
