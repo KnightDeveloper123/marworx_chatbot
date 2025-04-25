@@ -10,6 +10,11 @@ import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
 import Guest from './components/user/Guest';
+import Sector from './components/admin/Pages/Sector';
+import ProductService from './components/admin/Pages/ProductService';
+import BotBuilder from './components/admin/Pages/BotBuilder';
+import Campaign from './components/admin/Pages/Campaign';
+import GenerativeBot from './components/admin/Pages/GenerativeBot';
 // import UserProfile from './components/admin/UserProfile';
 
 
@@ -46,6 +51,11 @@ function App() {
           <Route path="/admin/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="employee" element={<Employee />} />
+            <Route path='sector' element={<Sector />} />
+            <Route path='product_service' element={<ProductService />} />
+            <Route path='bot_builder' element={<BotBuilder />} />
+            <Route path='campaign' element={<Campaign />} />
+            <Route path='gen_bot' element={<GenerativeBot />} />
             <Route path="queries" element={<Queries />} />
             <Route path="user" element={<User />} />
             <Route path="user/:id" element={<UserProfile />} />

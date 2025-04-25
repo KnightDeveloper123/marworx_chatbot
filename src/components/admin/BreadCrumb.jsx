@@ -13,10 +13,11 @@ const BreadCrumb = () => {
   const segments = isAdminRoute ? pathnames.slice(1) : pathnames;
 
   return (
-    <Box px="6" py="4">
-      <Breadcrumb fontSize="sm" separator="/">
+    <Box px={'1'} py="4">
+      <Breadcrumb fontSize="sm" separator="/" spacing="1"> 
         <BreadcrumbItem>
-          <Icon as={FaTachometerAlt} mr={2} />  <BreadcrumbLink as={Link} to="/admin/dashboard">Dashboard</BreadcrumbLink>
+          <Icon as={FaTachometerAlt} mr={2} />  
+          <BreadcrumbLink as={Link} to="/admin/dashboard">Admin</BreadcrumbLink>
         </BreadcrumbItem>
 
         {segments.map((seg, idx) => {

@@ -30,7 +30,7 @@ const Layout = () => {
         pt={2}
       >
         {/* Uncomment this if you want breadcrumb above */}
-      <BreadCrumb></BreadCrumb>
+      <BreadCrumb />
 
         <Suspense
           fallback={
@@ -44,7 +44,7 @@ const Layout = () => {
             </Flex>
           }
         >
-          <Box pb={8}>
+          <Box pb={8} bgColor={'white'}>
             <Outlet />
           </Box>
         </Suspense>
