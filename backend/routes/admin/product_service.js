@@ -50,6 +50,41 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
     }
 });
 
+router.post('/update', middleware, upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, product_id } = req.body;
+
+        let query = 'UPDATE product_service SET name = ?, description = ?';
+        const values = [name, description];
+
+        if (req.file) {
+            const file_name = req.file.filename;
+            query += ', image = ?';
+            values.push(file_name);
+        }
+
+        query += ' WHERE id = ?';
+        values.push(product_id);
+
+        connection.query(query, values, (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(400).json({ error: 'Update failed.' });
+            }
+
+            return res.status(200).json({
+                success: 'Product updated successfully.',
+                result
+            });
+        });
+
+    } catch (error) {
+        console.error('/update Error:', error.message);
+        return res.status(500).json({ error: 'Internal Server Error.' });
+    }
+});
+
+
 
 
 router.post('/delete_product', middleware, (req, res) => {
