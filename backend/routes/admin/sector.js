@@ -194,9 +194,7 @@ router.get('/sectort_by_id', middleware, async (req, res) => {
 // GET ALL PRODUCT
 router.get('/get_all_sector', middleware, async (req, res) => {
     try {
-        //  (`select * from product`)
-        const data = await executeQuery(`select * from  sector where  status = 0 order by id desc;
-    `)
+        const data = await executeQuery(`select * from  sector where  status = 0 order by id desc; `)
         return res.json({ data, })
     } catch (error) {
         console.log(error);
@@ -204,6 +202,21 @@ router.get('/get_all_sector', middleware, async (req, res) => {
     }
 })
 
+router.get('/get_all_product_sector', middleware, async (req, res)=> {
+    try{
+        const {sector_id}=req.query
+    const data= await executeQuery(`select sector.*, 
+        p.name as product_name,
+        p.description as product_description, p.id as product_id,
+        p.image from sector
+         left join product_sector as ps on ps.sector_id=sector.id
+         left join product_service as p on p.id=ps.product_id   where sector.id=${sector_id}`)
+         return res.json({data})
+
+    }catch(error){
+        return res.status(500).json({error:"Internal server error!"})
+    }
+})
 
 
 
