@@ -42,7 +42,12 @@ function Navbar() {
   const adminNavbar = [
     { title: "Dashboard", url: "/admin/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
     { title: "Employee", url: "/admin/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Sector", url: "/admin/sector", icon: <Icon as={FaCircleUser} mr={2} /> },
     { title: "Users", url: "/admin/user", icon: <Icon as={FaUser} mr={2} /> },
+    { title: "Product Services ", url: "/admin/product_service", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Bot Builder", url: "/admin/bot_builder", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Campaign", url: "/admin/campaign", icon: <Icon as={FaUser} mr={2} /> },
+    { title: "Genarative Bot", url: "/admin/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
 
@@ -114,24 +119,24 @@ function Navbar() {
               <IoNotifications />
             </Box>
             <Box>
-           
+
               <Menu>
-                <MenuButton as={Button} backgroundColor={'white'} _hover={" "}  _focus={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
-                <IoSettingsSharp />
+                <MenuButton as={Button} backgroundColor={'white'} _hover={" "} _focus={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
+                  <IoSettingsSharp />
                 </MenuButton>
                 <MenuList padding={'2'}>
                   <MenuItem>
-                  <Box display={'flex'} flexDirection={'row'} gap={'10px'}>
-                  <Avatar name='Dan Abrahmov' src='https://bit.ly/dan-abramov' />
-                  <Box display={'flex'} flexDirection={'column'}>
-                    <Text fontSize="var( --mini-14px)">Sayali</Text>
-                    <Text fontSize="var( --mini-14px)">sayali@gmail.com</Text>
-                  </Box>
-                  </Box>
+                    <Box display={'flex'} flexDirection={'row'} gap={'10px'}>
+                      <Avatar name='Dan Abrahmov' src='https://bit.ly/dan-abramov' />
+                      <Box display={'flex'} flexDirection={'column'}>
+                        <Text fontSize="var( --mini-14px)">Sayali</Text>
+                        <Text fontSize="var( --mini-14px)">sayali@gmail.com</Text>
+                      </Box>
+                    </Box>
                   </MenuItem>
-                <MenuDivider />
+                  <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)">Profile</MenuItem>
-                  <MenuItem  fontSize="var(--mini-14px)"> Password</MenuItem>
+                  <MenuItem fontSize="var(--mini-14px)"> Password</MenuItem>
                   <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)">Log Out</MenuItem>
                 </MenuList>
@@ -150,7 +155,7 @@ function Navbar() {
           <DrawerBody p="0px 20px" bgColor="#fafbff">
             <Flex
               justifyContent="space-evenly"
-              gap={4}
+              gap={1}
               alignItems="center"
               flexDir={'column'}
               mx={'10px'}
@@ -161,7 +166,7 @@ function Navbar() {
                   to={item.url}
                   style={({ isActive }) => ({
                     width: '100%',
-                    textAlign: 'center',
+                    textAlign: 'left',
                     color: isActive ? "#FF5722" : "#000000",
                     backgroundColor: isActive ? "#FF572215" : "transparent",
                     borderRadius: "6px",
@@ -171,7 +176,7 @@ function Navbar() {
                   })}
                 >
                   <Text fontSize="15px" fontWeight="500" cursor="pointer">
-                    {item.title}
+                    {item.icon}{item.title}
                   </Text>
                 </NavLink>
               ))}

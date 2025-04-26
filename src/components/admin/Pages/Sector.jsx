@@ -1,35 +1,92 @@
 import { DeleteIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Divider, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@chakra-ui/react'
-import React from 'react'
-import { useForm } from 'react-hook-form'
+import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@chakra-ui/react'
+import React, { useContext, useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
+import Select from "react-select"
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { RxDotsHorizontal } from 'react-icons/rx'
+import { AppContext } from '../../context/AppContext'
 
 const Sector = () => {
+  const token = localStorage.getItem('token')
+  const { showAlert, fetchProductService, productService, sectors, fetchSector } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { isOpen:isEditOpen, onOpen:onEditOpen, onClose:onEditClose } = useDisclosure()
-  const { isOpen:isDeleteOpen, onOpen:onDeleteOpen, onClose:onDeleteClose } = useDisclosure()
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const {
     register,
     handleSubmit,
-    formState: { errors }
-  } = useForm();
+    formState: { errors }, control
+  } = useForm({
+    defaultValues: {
+      products: []
+    }
+  });
 
-  const onSubmit=async(data)=>{
+  const all_productServices = productService.map(product => ({
+    value: product.id,
+    label: product.name,
+    customLabel: (
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <img src={product.iconUrl} alt="" width="20" height="20" /> {/* if product has icon */}
+        <span>{product.name}</span>
+      </div>
+    )
+  }));
+  useEffect(() => {
+    fetchSector();
+  }, [])
+
+  useEffect(() => {
+    fetchProductService()
+  }, [])
+
+
+
+  const onSubmit = async (data) => {
     console.log(data)
-    // const data=await fetch('')
+    const formData = new FormData();
+
+
+    formData.append("name", data.name);
+    formData.append("category", data.category);
+    formData.append("icon", data.icon[0]);
+    formData.append("description", data.description);
+    formData.append("products", JSON.stringify(data.products));
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/add`, {
+        method: "POST",
+        headers: {
+
+          Authorization: token
+        },
+        body: formData
+      })
+      const result = await response.json();
+      console.log(result)
+      if (result.success) {
+        showAlert("Product Service added successfully", 'success')
+        fetchProductService()
+        reset();
+        onClose();
+      }
+    } catch (error) {
+      showAlert("Failed to add product service", 'error')
+      console.log(error)
+    }
   }
 
-  const editEmployee=()=>{
+  const editSector = () => {
     onEditOpen();
   }
 
-  const openDeleteModal=()=>{
+  const openDeleteModal = () => {
     onDeleteOpen()
   }
+
   return (
-    <Box>
+    <Card>
       <Flex
         w="100%"
         justifyContent="space-between"
@@ -116,7 +173,7 @@ const Sector = () => {
                   borderRadius=""
                   fontSize="var(--mini-text)"
                 >
-                  Product
+                  Icon
                 </Th>
 
                 <Th
@@ -134,102 +191,65 @@ const Sector = () => {
             </Thead>
 
             <Tbody>
+              {
+                sectors.map((sector) => (
+                  <Tr key={sector.id}>
+                    <Td>{sector.id}</Td>
+                    <Td>{sector.name}</Td>
+                    <Td>{sector.category}</Td>
+                    <Td>{sector.description}</Td>
 
-              <Tr
+                    <Td color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)">
+                      <img
+                        src={`${import.meta.env.VITE_BACKEND_URL}/sector/${sector.image}`}
+                        alt={sector.name}
+                        style={{ width: '30px', height: '30px', objectFit: 'cover' }}
+                      />
+                    </Td>
+                    <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
+                      <Menu>
+                        <MenuButton
+                          bgColor="transparent"
+                          _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
+                          _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
+                          as={Button}
+                        >
+                          <RxDotsHorizontal />
+                        </MenuButton>
+                        <MenuList gap={2} >
+                          <MenuItem
+                            w="100%"
+                            minW="100px"
 
-                border="0.5px solid #F2F4F8"
-                h="40px"
-                textAlign="start"
-              >
-                <Td
-                  border="0.5px solid #F2F4F8"
-                  color={"#404040"}
-                  fontSize="var(--mini-text)"
-                  fontWeight="var(--big-font-weight)"
-                >
-                  E-
-                </Td>
+                            onClick={() => editSector(sector)}
+                            display={'flex'} alignItems={'center'} gap={2}
+                          >
+                            <MdOutlineModeEdit color="green" />
+                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
+                              Edit
+                            </Text>
+                          </MenuItem>
+                          <Divider />
+                          <MenuItem
+                            w="100%"
+                            minW="100px"
+                            cursor="pointer"
+                          onClick={() => openDeleteModal(sector.id)}
 
-                <Td
-                  border="0.5px solid #F2F4F8"
-                  color={"#404040"}
-                  fontSize="var(--mini-text)"
-
-                  fontWeight="var(--big-font-weight)"
-                  // onClick={() => navigate(`/admin/employee/${d.id}`)}
-                  cursor={'pointer'}
-                >
-                  <Box display={'flex'} alignItems={'center'} justifyContent={'flex-start'} flexDirection={'row'} gap={'4px'}>
-                    <Avatar size={'xs'} ></Avatar>  abc  </Box>
-                </Td>
-
-                <Td
-                  border="0.5px solid #F2F4F8"
-                  color={"#404040"}
-                  fontSize="var(--mini-text)"
-                  fontWeight="var(--big-font-weight)"
-                >
-                  abc
-                </Td>
-                <Td
-                  border="0.5px solid #F2F4F8"
-                  color={"#404040"}
-                  fontSize="var(--mini-text)"
-                  fontWeight="var(--big-font-weight)"
-                >abc
-
-                </Td>
-                <Td
-                  border="0.5px solid #F2F4F8"
-                  color={"#404040"}
-                  fontSize="var(--mini-text)"
-                  fontWeight="var(--big-font-weight)"
-                >
-                  abc
-                </Td>
-
-
-                <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
-                  <Menu >
-                    <MenuButton
-                      bgColor="transparent"
-                      _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                      _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                      as={Button}
-                    >
-                      <RxDotsHorizontal />
-                    </MenuButton>
-                    <MenuList gap={2} >
-                      <MenuItem
-                        w="100%"
-                        minW="100px"
-
-                        onClick={() => editEmployee()}
-                        display={'flex'} alignItems={'center'} gap={2}
-                      >
-                        <MdOutlineModeEdit color="green" />
-                        <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
-                          Edit
-                        </Text>
-                      </MenuItem>
-                      <Divider />
-
-                      <MenuItem
-                        w="100%"
-                        minW="100px"
-                        cursor="pointer"
-                      onClick={() => openDeleteModal()}
-
-                      >
-                        <Flex gap={2} alignItems="center">
-                          <DeleteIcon color={"red"} />
-                          <Text >Delete</Text>
-                        </Flex>
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </Td>
-              </Tr>
+                          >
+                            <Flex gap={2} alignItems="center">
+                              <DeleteIcon color={"red"} />
+                              <Text >Delete</Text>
+                            </Flex>
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </Td>
+                  </Tr>
+                ))
+              }
 
             </Tbody>
           </Table>
@@ -267,46 +287,33 @@ const Sector = () => {
 
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Icon</FormLabel>
-                <Input type='file' fontSize="var(--text-12px)"  ></Input>
+                <Input type='file' {...register('icon')} fontSize="var(--text-12px)"  ></Input>
 
               </FormControl>
 
-              <FormControl>
-                <FormLabel>
-                  <Select placeholder=' select product'>
-                    <option>1</option>
-                    <option>2</option>
-                  </Select>
-                </FormLabel>
-              </FormControl>
 
-
-
-              {/* <Controller
-                      name="role"
-                      control={control}
-                      rules={{ required: "Please select a role" }}
-                      render={({ field, fieldState: { error } }) => (
-                        <>
-                          <Select
-                            {...field}
-                            options={roleOptions}
-                            placeholder="Select Role"
-                            value={roleOptions.find(option => option.value === field.value)}
-                            onChange={selectedOption => field.onChange(selectedOption?.value)}
-                            styles={{
-                              control: (provided) => ({ ...provided, fontSize: "12px" }),
-                              option: (provided) => ({ ...provided, fontSize: "12px" }),
-                              singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                              menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                              placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                            }}
-                          />
-                          {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                        </>
-                      )}
-                    /> */}
-
+              <Controller
+                name="products"
+                control={control}
+                rules={{ required: "Please select at least one product" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Select
+                      isMulti
+                      options={all_productServices}
+                      placeholder="Select Products"
+                      value={all_productServices.filter(option => field.value?.includes(option.value))}
+                      onChange={(selectedOptions) => {
+                        const selectedValues = selectedOptions.map(option => option.value);
+                        field.onChange(selectedValues);
+                      }}
+                      getOptionLabel={(e) => e.customLabel || e.label}
+                      getOptionValue={(e) => e.value}
+                    />
+                    {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                  </>
+                )}
+              />
 
 
 
@@ -358,44 +365,28 @@ const Sector = () => {
 
               </FormControl>
 
-              <FormControl>
-                <FormLabel>
-                  <Select placeholder=' select product'>
-                    <option>1</option>
-                    <option>2</option>
-                  </Select>
-                </FormLabel>
-              </FormControl>
-
-
-
-              {/* <Controller
-                      name="role"
-                      control={control}
-                      rules={{ required: "Please select a role" }}
-                      render={({ field, fieldState: { error } }) => (
-                        <>
-                          <Select
-                            {...field}
-                            options={roleOptions}
-                            placeholder="Select Role"
-                            value={roleOptions.find(option => option.value === field.value)}
-                            onChange={selectedOption => field.onChange(selectedOption?.value)}
-                            styles={{
-                              control: (provided) => ({ ...provided, fontSize: "12px" }),
-                              option: (provided) => ({ ...provided, fontSize: "12px" }),
-                              singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                              menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                              placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                            }}
-                          />
-                          {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                        </>
-                      )}
-                    /> */}
-
-
-
+              <Controller
+                name="products"
+                control={control}
+                rules={{ required: "Please select at least one product" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Select
+                      isMulti
+                      options={all_productServices}
+                      placeholder="Select Products"
+                      value={all_productServices.filter(option => field.value?.includes(option.value))}
+                      onChange={(selectedOptions) => {
+                        const selectedValues = selectedOptions.map(option => option.value);
+                        field.onChange(selectedValues);
+                      }}
+                      getOptionLabel={(e) => e.customLabel || e.label}
+                      getOptionValue={(e) => e.value}
+                    />
+                    {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                  </>
+                )}
+              />
 
               <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                 <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
@@ -413,26 +404,26 @@ const Sector = () => {
 
 
 
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteOpen} isCentered>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader fontSize="16px" textAlign={'center'}> Delete Sector</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody textAlign={'center'}>
-                <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Sector?</Text>
-              </ModalBody>
-              <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
-                <Button onClick={()=>onDeleteClose()} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
-                  Delete
-                </Button>
-                <Button type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
-                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-    </Box>
+      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontSize="16px" textAlign={'center'}> Delete Sector</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody textAlign={'center'}>
+            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Sector?</Text>
+          </ModalBody>
+          <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
+            <Button  fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              Delete
+            </Button>
+            <Button onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
+              textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Card>
   )
 }
 

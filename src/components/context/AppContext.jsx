@@ -154,14 +154,61 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+     const [productService, setProductService] = useState([]);
+    
+        const fetchProductService = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/get_all_product`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": 'application/json',
+                        Authorization: token
+                    },
+    
+                })
+                const result = await response.json();
+                console.log(result)
+                setProductService(result.product)
+    
+            } catch (error) {
+                console.log(error)
+                showAlert('Internal server error', 'error')
+            }
+        }
 
+       
+          
+          const[sectors,setSectors]=useState([])
+
+          const fetchSector= async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_sector`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": 'application/json',
+                        Authorization: token
+                    },
+    
+                })
+                const result = await response.json();
+                console.log(result)
+                setSectors(result.data)
+    
+            } catch (error) {
+                console.log(error)
+                showAlert('Internal server error', 'error')
+            }
+        }
+         
+        
     return (
         <AppContext.Provider
             value={{
                 showAlert, loading,
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
-                clearChat, setClearChat, username, setUsername, logout
+                clearChat, setClearChat, username, setUsername, logout,productService
+                ,fetchProductService,sectors,fetchSector
             }}
         >
             {children}

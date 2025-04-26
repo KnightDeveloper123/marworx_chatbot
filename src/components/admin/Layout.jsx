@@ -44,7 +44,7 @@ const Layout = () => {
             </Flex>
           }
         >
-          <Box pb={8} bgColor={'white'}>
+          <Box pb={8} >
             <Outlet />
           </Box>
         </Suspense>
