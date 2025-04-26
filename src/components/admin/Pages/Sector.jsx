@@ -7,6 +7,7 @@ import Select from "react-select"
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { RxDotsHorizontal } from 'react-icons/rx'
 import { AppContext } from '../../context/AppContext'
+import { useNavigate } from 'react-router-dom'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -23,6 +24,7 @@ const Sector = () => {
       products: []
     }
   });
+  const navigate = useNavigate();
 
   const all_productServices = productService.map(product => ({
     value: product.id,
@@ -194,10 +196,10 @@ const Sector = () => {
               {
                 sectors.map((sector) => (
                   <Tr key={sector.id}>
-                    <Td>{sector.id}</Td>
-                    <Td>{sector.name}</Td>
-                    <Td>{sector.category}</Td>
-                    <Td>{sector.description}</Td>
+                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.id}</Td>
+                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.name}</Td>
+                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.category}</Td>
+                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.description}</Td>
 
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"

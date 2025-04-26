@@ -15,6 +15,7 @@ import ProductService from './components/admin/Pages/ProductService';
 import BotBuilder from './components/admin/Pages/BotBuilder';
 import Campaign from './components/admin/Pages/Campaign';
 import GenerativeBot from './components/admin/Pages/GenerativeBot';
+import SectorProfile from './components/admin/Pages/SectorProfile';
 // import UserProfile from './components/admin/UserProfile';
 
 
@@ -52,6 +53,7 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="employee" element={<Employee />} />
             <Route path='sector' element={<Sector />} />
+            <Route path='sector/:id' element={<SectorProfile />} />
             <Route path='product_service' element={<ProductService />} />
             <Route path='bot_builder' element={<BotBuilder />} />
             <Route path='campaign' element={<Campaign />} />

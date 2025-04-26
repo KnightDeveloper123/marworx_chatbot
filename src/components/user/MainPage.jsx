@@ -1,5 +1,5 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, ButtonGroup, Center, Flex, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Text, Textarea, Tooltip, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Switch, Text, Textarea, Tooltip, useDisclosure } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,6 +18,7 @@ const MainPage = () => {
     const [allchats, setAllchats] = useState([]);
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState("");
+    const [withDocumentation, setWithDocumentation] = useState(false);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
@@ -63,6 +64,20 @@ const MainPage = () => {
                     "Content-Type": "application/json"
                 }
             });
+            // if(withDocumentation){
+            // const res="With Documentation";
+            // console.log(res);
+            // }
+            // else{
+            //     const res="Without Documentation";
+            //     console.log(res);
+            // }
+            //     const url = withDocumentation
+            // ? `http://216.10.251.154:5000/get_info?query=${value}`
+            // : `http://216.10.251.154:5000/get_info_no_doc?query=${value}`;
+
+
+
 
             if (res) setLoading(false);
             setAllchats((prevchats) => [
@@ -241,6 +256,21 @@ const MainPage = () => {
                         />
                         <Text color={'white'} mr={'20px'}> {username}</Text>
                         <MenuList bgColor={"#171923"} border={'none'}>
+                            <Box px={4} py={2} _hover={{ bg: "#2D3748" }} cursor="pointer">
+                                <FormControl display='flex' alignItems='center' color={'white'}>
+                                    <FormLabel htmlFor='email-alerts' mb='0'>
+                                        {withDocumentation ? "With Documentation" : "Without Documentation"}
+                                    </FormLabel>
+                                    <Switch
+                                        id='email-alerts'
+                                        isChecked={withDocumentation}
+                                        onChange={(e) => {
+                                            e.stopPropagation(); // stop menu from closing
+                                            setWithDocumentation(e.target.checked);
+                                        }}
+                                    />
+                                </FormControl>
+                            </Box>
                             <MenuItem icon={<IoLogOut size={19} />} onClick={onOpen} bgColor={"#171923"} color={"white"}>
                                 Log Out
                             </MenuItem>
@@ -323,7 +353,7 @@ const MainPage = () => {
                         p="10px"
                         maxW="60%"
                         my="8px"
-                    
+
                         boxShadow="md"
 
                     >
@@ -331,10 +361,10 @@ const MainPage = () => {
 
                         {chat.sender === "bot" && index === allchats.length - 1 ? (
                             <TypeAnimation
-                            sequence={[chat.message, 1000]}
-                            speed={70} // Increase this number for faster typing (default is 40)
-                            cursor={false} 
-                          />
+                                sequence={[chat.message, 1000]}
+                                speed={70} // Increase this number for faster typing (default is 40)
+                                cursor={false}
+                            />
                         ) : (
                             <Text>{chat.message}</Text>
                         )}
