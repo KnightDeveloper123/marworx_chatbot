@@ -78,64 +78,98 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
 
 
 
-router.post('/update_batch', middleware,upload.single('icon'), async (req, res) => {
-    const { name, category, description, products } = req.body;
-    const updateQuoteQuery = `
-        UPDATE secotr 
-        SET name = ?, category = ?, description = ? 
-        WHERE id = ?;
-    `;
-
+router.post('/update', middleware, upload.single('icon'), async (req, res) => {
     try {
-        connection.query(updateQuoteQuery, [name, category, description, sector_id], async (err, result) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).json({ error: "Error updating batch" });
+      
+    //   console.log(req.body);
+  
+      let { name, category, description, products,sector_id } = req.body;
+  
+      if (typeof products === 'string') {
+        try {
+          products = JSON.parse(products);
+        } catch (err) {
+          return res.status(400).json({ error: "Invalid products format" });
+        }
+      }
+  
+      if (!Array.isArray(products) || products.length === 0) {
+        return res.status(400).json({ error: "Products must be a non-empty array" });
+      }
+  
+      let updateFields = [];
+      let updateValues = [];
+  
+      if (name) {
+        updateFields.push("name = ?");
+        updateValues.push(name);
+      }
+      if (category) {
+        updateFields.push("category = ?");
+        updateValues.push(category);
+      }
+      if (description) {
+        updateFields.push("description = ?");
+        updateValues.push(description);
+      }
+      if (req.file) {
+        updateFields.push("icon = ?");
+        updateValues.push(req.file.filename);
+      }
+  
+      if (updateFields.length === 0) {
+        return res.status(400).json({ error: "No fields to update" });
+      }
+  
+      const updateSql = `UPDATE sector SET ${updateFields.join(', ')} WHERE id = ?`;
+      updateValues.push(sector_id);
+  
+      connection.query(updateSql, updateValues, (updateErr) => {
+        if (updateErr) {
+          console.error(updateErr);
+          return res.status(400).json({ error: "Error updating sector" });
+        }
+  
+        // Delete old product_sector relations
+        const deleteSql = `DELETE FROM product_sector WHERE sector_id = ?`;
+        connection.query(deleteSql, [sector_id], (deleteErr) => {
+          if (deleteErr) {
+            console.error(deleteErr);
+            return res.status(400).json({ error: "Error clearing old product-sector mappings" });
+          }
+  
+          // Insert new product_sector relations
+          const insertSql = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
+          const productValues = products.map(p => [sector_id, p.product_id || p]);
+  
+          connection.query(insertSql, [productValues], (insertErr) => {
+            if (insertErr) {
+              console.error(insertErr);
+              return res.status(400).json({ error: "Error updating products in sector" });
             }
-
-            const assigneeObjects = products.map(id => ({
-                product_id: id,
-            }));
-            if (assigneeObjects && assigneeObjects.length > 0) {
-                const deleteQuery = `DELETE FROM batch_assignees WHERE batch_id = ?`;
-                connection.query(deleteQuery, [batch_id], (err, result) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(500).json({ error: "Error deleting existing batch assignees" });
-                    }
-            
-                    const insertQuery = `INSERT INTO batch_assignees (batch_id, assignee_id) VALUES ?`;
-                    const values = assigneeObjects.map(assignee => [batch_id, assignee.assignee_id]);
-            
-                    connection.query(insertQuery, [values], (err, result) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(500).json({ error: "Error inserting new batch assignees" });
-                        }
-                        res.json({ success: "Batch assignees updated successfully." });
-                    });
-                });
-            } else {
-                res.json({ success: "Batch updated, but no assignees were provided." });
-            }
+  
+            return res.send({ success: "Sector updated successfully" });
+          });
         });
+      });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Internal server error!" });
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
     }
-});
+  });
+  
 
 
 
-router.post('/delete_product', middleware, (req, res) => {
+router.post('/delete', middleware, (req, res) => {
     try {
-        const { product_id } = req.body
-        connection.query(`update product_service set status='1', updated_on=NOW() where id=?`, [product_id], (err, data) => {
+        const { sector_id } = req.body
+        connection.query(`update sector set status='1', updated_on=NOW() where id=?`, [sector_id], (err, data) => {
             if (err) {
                 console.log(err);
                 res.status(400).json({ error: "Something went wrong!" })
             } else {
-                res.json({ data, success: "Product Deleted!" })
+                res.json({ data, success: "Sector Deleted!" })
             }
         })
     } catch (error) {
@@ -146,11 +180,11 @@ router.post('/delete_product', middleware, (req, res) => {
 
 // GET BY PRODUCT
 
-router.get('/product_by_id', middleware, async (req, res) => {
+router.get('/sectort_by_id', middleware, async (req, res) => {
     try {
-        const { product_id } = req.query
-        const product = await executeQuery(`select  * from product_service where id=${product_id}`)
-        return res.json({ product: product[0], })
+        const { sector_id } = req.query
+        const data = await executeQuery(`select  * from sector where id=${sector_id}`)
+        return res.json({ data: data[0], })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Internal server error!" })
@@ -158,12 +192,12 @@ router.get('/product_by_id', middleware, async (req, res) => {
 })
 
 // GET ALL PRODUCT
-router.get('/get_all_product', middleware, async (req, res) => {
+router.get('/get_all_sector', middleware, async (req, res) => {
     try {
         //  (`select * from product`)
-        const product = await executeQuery(`select * from  product_service where  status = 0 order by id desc;
+        const data = await executeQuery(`select * from  sector where  status = 0 order by id desc;
     `)
-        return res.json({ product, })
+        return res.json({ data, })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Internal server error!" })
