@@ -6,6 +6,27 @@ const { addEmployeeSchema, updateEmployeeSchema, deleteEmployeeSchema } = requir
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { middleware } = require('../../middleware/middleware');
+const fs = require('fs');
+const multer = require('multer')
+const path = require('path')
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../../profile'));
+    },
+    filename: (req, file, cb) => {
+        console.log(file.originalname)
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
+    },
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+
 
 router.post("/addEmployee", middleware, async (req, res) => {
     try {
@@ -81,7 +102,7 @@ router.post("/deleteEmployee", middleware, async (req, res) => {
             return res.status(400).json({ error: error.details.map(err => err.message) });
         }
 
-        const query = `UPDATE admins SET status=1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        const query = `UPDATE employee SET status=1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
 
         connection.execute(query, [user_id], (err, data) => {
             if (err) {
@@ -98,6 +119,60 @@ router.post("/deleteEmployee", middleware, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+router.get('/getEmployeeId', middleware, async(req, res)=>{
+    try{
+    const { user_id } = req.query;
+    const data=await executeQuery(`select * from employee where id=${user_id}`) 
+    return res.json({data:data[0]})
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:"Internal Server Error"})
+    }
+});
+router.post("/update", middleware, upload.single('profile'), async (req, res) => {
+    try {
+        const { employee_id, ...rest } = req.body;
+ 
+        const fields = Object.keys(rest);
+        let values = Object.values(rest).map(val => val === undefined ? null : val);
+
+        // If a profile picture is uploaded
+        if (req.file) {
+            fields.push('profile');
+            console.log(req.file.filename)
+            values.push(req.file.filename);
+        }
+
+        if (fields.length === 0) {
+            return res.status(400).json({ error: "No valid fields provided for update." });
+        }
+
+        const setClause = fields.map(field => `${field} = ?`).join(", ");
+        console.log(setClause)
+      
+        values = values.map(val => val === undefined ? null : val);
+        console.log(values)
+        values.push(employee_id); // add employee_id at end
+
+        const query = `UPDATE employee SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+
+        connection.execute(query, values, (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "Something went wrong" });
+            }
+            if (data.affectedRows === 0) {
+                return res.status(404).json({ error: "Record not found" });
+            }
+            return res.json({ success: "Employee updated", data });
+        });
+    } catch (error) {
+        console.error("Error in /update:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 router.post("/login", async (req, res) => {
     try {
@@ -210,5 +285,10 @@ router.get('/getAllDashboardData', middleware, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 })
+
+
+
+
+
 
 module.exports = router;

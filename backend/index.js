@@ -25,6 +25,7 @@ app.use(cors({
 app.use("/documents", express.static(path.join(__dirname, "documents/")));
 app.use("/products", express.static(path.join(__dirname, "products/")));
 app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
+app.use("/profile", express.static(path.join(__dirname, "profile/")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
