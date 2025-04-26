@@ -65,7 +65,7 @@ CREATE TABLE `chats` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chats`
+-- 
 --
 
 LOCK TABLES `chats` WRITE;
