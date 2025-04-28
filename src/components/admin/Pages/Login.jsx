@@ -52,6 +52,8 @@ export default function Login() {
   };
 
   const handleLogin = async (values) => {
+    console.log(values)
+    
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/employee/login`,
@@ -126,7 +128,7 @@ export default function Login() {
               },
             })}
           />
-          <FormErrorMessage>{loginForm.formState.errors.email?.message}</FormErrorMessage>
+          <FormErrorMessage>{loginForm.formState.errors.password?.message}</FormErrorMessage>
         </FormControl>
 
         {/* Forgot Password & Submit Button */}

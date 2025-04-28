@@ -47,8 +47,7 @@ function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token')
   const { showAlert } = useContext(AppContext)
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+ 
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
@@ -58,6 +57,8 @@ function Navbar() {
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure()
   const { isOpen: isPasswordOpen, onOpen: onPasswordOpen, onClose: onPasswordClose } = useDisclosure()
 
+  const encryptedUser = localStorage.getItem('user');
+  const user = encryptedUser ? decrypt(encryptedUser) : null;
 
   const adminNavbar = [
     { title: "Dashboard", url: "/admin/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
@@ -71,13 +72,14 @@ function Navbar() {
     { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
 
-
-
-  const encryptedUser = localStorage.getItem('user');
-  const user = encryptedUser ? decrypt(encryptedUser) : null;
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const { register : registerPass, handleSubmit : handleSubmitPass } = useForm({
+    defaultValues:{
+      email:user.email
+    }
+  });
 
   const [empData, setEmpData] = useState(null);
-
   const getEmpById = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getEmployeeId?user_id=${user.id}`, {
@@ -100,7 +102,7 @@ function Navbar() {
 
   useEffect(() => {
     getEmpById();
-  }, [onProfileOpen]);
+  }, [onProfileOpen, ]);
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -134,9 +136,8 @@ function Navbar() {
     }
   }
 
-
   const onPasswordSubmit = async (data) => {
-    console.log("data")
+    
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/changePassword`, {
         method: "POST",
@@ -150,7 +151,8 @@ function Navbar() {
         })
       })
       const result = await response.json();
-      console.log(result)
+      onPasswordClose();
+      // console.log(result)
 
     } catch (error) {
       console.log(error)
@@ -261,9 +263,8 @@ function Navbar() {
                   </MenuItem>
                   <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)" onClick={onProfileOpen}>Profile</MenuItem>
-                  <MenuItem fontSize="var(--mini-14px)" onClick={() => onPasswordOpen()}> Password</MenuItem>
+                  <MenuItem fontSize="var(--mini-14px)" onClick={onPasswordOpen}> Password</MenuItem>
                   <MenuDivider />
-
                   <MenuItem fontSize="var(--mini-14px)" onClick={() => logout()}>Log Out</MenuItem>
                 </MenuList>
 
@@ -275,86 +276,58 @@ function Navbar() {
             <Modal isOpen={isProfileOpen} onClose={onProfileClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Update Profile</ModalHeader>
+                <Box padding={'5px 10px'}>Update Profile</Box>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box as="form" id="updateProfileForm" onSubmit={handleSubmit(onSubmit)}>
                     <FormControl>
-                      <FormLabel htmlFor="name">Name</FormLabel>
+                      <FormLabel htmlFor="name" fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                       <Input
                         id="name"
                         type="text"
                         {...register('name', { required: "Name is required" })}
-                        defaultValue={empData?.name}
+                        defaultValue={empData?.name} fontSize="var(--text-12px)"
                       />
                       {errors.name && <Text color="red.500">{errors.name.message}</Text>}
                     </FormControl>
 
                     <FormControl mt={4}>
-                      <FormLabel htmlFor="mobile_no">Mobile No:</FormLabel>
+                      <FormLabel htmlFor="mobile_no" fontSize="var(--mini-text)" mb={'2px'}>Mobile No:</FormLabel>
                       <Input
                         id="mobile_no"
                         type="mobile_no"
                         {...register('mobile_no', { required: "Mobile No. is required" })}
-                        defaultValue={empData?.mobile_no}
+                        defaultValue={empData?.mobile_no} fontSize="var(--text-12px)"
                       />
                       {errors.mobile_no && <Text color="red.500">{errors.mobile_no.message}</Text>}
                     </FormControl>
 
                     <FormControl mt={4}>
-                      <FormLabel htmlFor="profile">Profile Picture</FormLabel>
+                      <FormLabel htmlFor="profile" fontSize="var(--mini-text)" mb={'2px'}>Profile Picture</FormLabel>
                       <Input
                         id="profile"
                         type="file"
-                        {...register('profile')}
+                        {...register('profile')} fontSize="var(--text-12px)"
                       />
                     </FormControl>
                   </Box>
                 </ModalBody>
 
-                <ModalFooter>
-                  <Button variant='ghost' _hover={{ bgColor: "blue.500", color: "white" }} mr={3} onClick={onProfileClose}>
+                <ModalFooter justifyContent={'center'} gap={'5px'}>
+                  <Button type="submit" form="updateProfileForm" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} 
+                  textColor={'white'} size={'sm'} >Update</Button>
+                   <Button size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                      textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} onClick={onProfileClose}>
                     Close
                   </Button>
-                  <Button type="submit" form="updateProfileForm" colorScheme='blue' >Update</Button>
                 </ModalFooter>
               </ModalContent>
             </Modal>
 
           </Flex>
-          <Modal isOpen={isPasswordOpen} onClose={onPasswordClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <Box padding={'5px 10px'}>Change Password</Box>
-              <ModalCloseButton />
-              <ModalBody>
-                <Box as="form" onSubmit={handleSubmit(onPasswordSubmit)} display={'flex'} flexDirection={'column'} gap={'5px'}>
-                  <FormControl>
-                    <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Email</FormLabel>
-                    <Input type="email" value={user.email} {...register('email')} fontSize="var(--text-12px)" autoComplete='off'></Input>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>New Password</FormLabel>
-                    <Input type="password"   {...register('password')}  ></Input>
-                  </FormControl>
-                  <Box mt={'6px'} display={'flex'} gap={'5px'}>
-                    <Button type="submit" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >Save</Button>
-                    <Button onClick={onPasswordClose} size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                      textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
-                      Close
-                    </Button>
-                  </Box>
-                </Box>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
+        
         </Flex>
       </Flex>
-
-
-
-
-
 
       <Drawer isOpen={isDrawerOpen} placement="left" onClose={onDrawerClose} size={'xs'}>
         <DrawerOverlay />
@@ -393,7 +366,32 @@ function Navbar() {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-
+      <Modal isOpen={isPasswordOpen} onClose={onPasswordClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <Box padding={'5px 10px'}>Change Password</Box>
+              <ModalCloseButton />
+              <ModalBody>
+                <Box as="form" onSubmit={handleSubmitPass(onPasswordSubmit)} display={'flex'} flexDirection={'column'} gap={'5px'}>
+                  <FormControl>
+                    <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Email</FormLabel>
+                    <Input type="email"  {...registerPass('email')} fontSize="var(--text-12px)" autoComplete='off'></Input>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>New Password</FormLabel>
+                    <Input type="password"   {...registerPass('password')} fontSize="var(--text-12px)"  ></Input>
+                  </FormControl>
+                  <Box mt={'6px'} display={'flex'} gap={'5px'} justifyContent={'center'}>
+                    <Button type="submit" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >Save</Button>
+                    <Button onClick={onPasswordClose} size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                      textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
+                      Close
+                    </Button>
+                  </Box>
+                </Box>
+              </ModalBody>
+            </ModalContent>
+       </Modal>
 
     </HStack>
   );
