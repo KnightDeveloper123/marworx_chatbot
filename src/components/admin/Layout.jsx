@@ -4,14 +4,19 @@ import Navbar from "./Navbar";
 import React, { Suspense } from "react";
 import Sidebar from "./Sidebar";
 import BreadCrumb from "./Breadcrumb";
+import { decrypt } from "../utils/security";
+import UserSidebar from "../admin/userTab/Sidebar";
+
 
 const Layout = () => {
+
+  const user=decrypt(localStorage.getItem('user'))
 
   return (
     <Flex h="100vh" w="100%">
     {/* Sidebar on the left */}
     <Box w="240px" bg="gray.800" color="white" display={{base:"none" ,sm:"none", md:"none", lg:"block" ,xl:"block"}}>
-      <Sidebar />
+      {user.role === "Super-Admin" ?  <Sidebar /> : <UserSidebar/>}
     </Box>
 
     {/* Main Content Area */}

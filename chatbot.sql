@@ -120,9 +120,10 @@ CREATE TABLE `employee` (
   `last_login` timestamp NULL DEFAULT NULL,
   `date_of_birth` timestamp NULL DEFAULT NULL,
   `profile` varchar(255) DEFAULT NULL,
+  `is_active` int DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +132,7 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
-INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminati.06@gmail.com','$2b$10$Y4hJ1yLveTxjJL23vmam5evCyTHDWoSkvhE85q2OCibbJR6LNeBXC','1234567898','admin',0,'2025-03-27 06:57:22','2025-04-28 06:30:10','2025-04-28 05:21:23','2025-02-24 18:30:00','1745821810087-846477157.png');
+INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminati.06@gmail.com','$2b$10$Y4hJ1yLveTxjJL23vmam5evCyTHDWoSkvhE85q2OCibbJR6LNeBXC','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-04-28 10:46:46','2025-04-28 10:46:46','2025-02-23 18:30:00','1745829965180-889415992.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-04-28 10:37:20','2025-04-28 10:25:17','2025-04-15 18:30:00','1745836640644-101652830.jpg',0);
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -300,4 +301,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-28 12:25:32
+-- Dump completed on 2025-04-28 16:38:06

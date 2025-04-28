@@ -27,10 +27,9 @@ const upload = multer({
 });
 
 
-
 router.post("/addEmployee", middleware, async (req, res) => {
     try {
-        const { name, email, mobile_no, role, date_of_birth } = req.body;
+        const { name, email, mobile_no, date_of_birth } = req.body;
 
         const { error } = addEmployeeSchema.validate(req.body, { abortEarly: false });
 
@@ -43,8 +42,8 @@ router.post("/addEmployee", middleware, async (req, res) => {
             return res.status(400).json({ error: "Email already exist" })
         }
 
-        const insertQuery = 'insert into employee (name, email, mobile_no, role, date_of_birth) values (?, ?, ?, ?, ?);'
-        connection.execute(insertQuery, [name, email, mobile_no, role, date_of_birth ?? null], (err, data) => {
+        const insertQuery = 'insert into employee (name, email, mobile_no, date_of_birth) values (?, ?, ?, ?);'
+        connection.execute(insertQuery, [name, email, mobile_no, date_of_birth ?? null], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
@@ -211,6 +210,38 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error." });
     }
 });
+router.post("/signUp", async (req, res) => {
+    try {
+        const { name, email,password } = req.body;
+
+        var salt = bcrypt.genSaltSync(10);
+        const secPass = await bcrypt.hash(password, salt);
+        // const { error } = addUserSchema.validate(req.body, { abortEarly: false });
+        
+        // if (error) {
+        //     return res.status(400).json({ error: error.details[0]?.message });
+        // }
+
+        const [checkEmail] = await executeQuery(`select * from employee where email=?`, [email])
+        if (checkEmail) {
+            return res.status(400).json({ error: "Email already exist" })
+        }
+
+        
+        const insertQuery = 'insert into employee (name, email,password, role) values (?, ?, ?, ?);'
+        connection.execute(insertQuery, [name, email,secPass,'Admin'], (err, data) => {
+            if (err) {
+                // console.log(err);
+                return res.status(400).json({ error: "Something went wrong" })
+            }
+            return res.json({ success: "Registration successfully", data })
+        })
+    } catch (error) {
+        return res.status(500).json({ error: "Internal Server Error." });
+    }
+});
+
+
 
 router.post("/changePassword", async (req, res) => {
     try {

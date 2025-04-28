@@ -44,17 +44,17 @@ return (
           <Route exact path="/admin" element={<Login />} />
           <Route path="/admin/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="employee" element={<Employee />} />
+            <Route path="user" element={<Employee />} />
             <Route path='sector' element={<Sector />} />
             <Route path='sector/:id' element={<SectorProfile />} />
-            <Route path='product_service' element={<ProductService />} />
+            <Route path='product' element={<ProductService />} />
             <Route path='bot_builder' element={<BotBuilder />} />
             <Route path='campaign' element={<Campaign />} />
             <Route path='gen_bot' element={<GenerativeBot />} />
             <Route path="queries" element={<Queries />} />
-            <Route path="user" element={<User />} />
-            <Route path="user/:id" element={<UserProfile />} />
-            <Route path="employee/:id" element={<EmployeeProfile />} />
+            {/* <Route path="user" element={<User />} />
+            <Route path="user/:id" element={<UserProfile />} /> */}
+            <Route path="user/:id" element={<EmployeeProfile />} />
           </Route>
 
           {/* User Routes */}

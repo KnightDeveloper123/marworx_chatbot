@@ -11,6 +11,7 @@ import { AppContext } from "../../context/AppContext";
 import { IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
+import { useLocation } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext);
@@ -18,7 +19,7 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState({});
   const [documents, setDocuments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-
+  const location=useLocation();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -83,14 +84,12 @@ const AdminDashboard = () => {
     setFile((prev) => ({ ...prev, file: event.target.files[0] }));
   };
 
-  console.log(documents)
+
 
   const handleFileSubmit = async () => {
     const formData = new FormData();
     formData.append("file", file.file);
     formData.append("fileName", file.fileName);
-
-
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/documents/uploadDocument?fileName=${file.fileName}`, {
         method: "POST",
@@ -142,7 +141,7 @@ const AdminDashboard = () => {
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
-      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+    {location.pathname === '/admin/dashboard' &&  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
         <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
           <Flex flexDir={'column'}>
             <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
@@ -175,9 +174,7 @@ const AdminDashboard = () => {
             <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><BsPersonFillGear /></Text>
           </Box>
         </GridItem>
-      </SimpleGrid>
-      {/* )} */}
-
+      </SimpleGrid> }
 
       <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
         <Button

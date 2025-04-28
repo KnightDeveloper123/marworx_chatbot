@@ -63,7 +63,6 @@ function Employee() {
 
 
   const onSubmit = async (values) => {
-    console.log(values)
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/addEmployee`, {
         method: "POST",
@@ -82,8 +81,6 @@ function Employee() {
       })
 
       const result = await response.json();
-      console.log(result.error);
-
       if (result.success) {
         showAlert("Employee added successfully!", 'success');
         fetchAllEmployee();
@@ -102,6 +99,14 @@ function Employee() {
 
 
   const roleOptions = [
+    {
+      label: "Super Admin",
+      value: "Super-Admin"
+    },
+    {
+      label: "Admin",
+      value: "-Admin"
+    },
     {
       label: "Technician",
       value: "Technician"
@@ -148,7 +153,6 @@ function Employee() {
       });
 
       const result = await response.json();
-      console.log("Update result:", result);
       if (result.success) {
         showAlert("Employee updated successfully", 'success');
         fetchAllEmployee();
@@ -222,7 +226,7 @@ function Employee() {
           gap="10px"
         >
           <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
-            Employee
+            Users
           </Text>
           <Flex gap={2}>
             {/* <InputGroup alignItems="center">
@@ -248,10 +252,7 @@ function Employee() {
             </InputRightElement>
           </InputGroup> */}
 
-            <Flex
-            // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
-            >
-              {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
+            <Flex>
               <Button
                 borderRadius="var(--radius)"
                 leftIcon={<IoMdAdd fontSize={"20px"} />}
@@ -263,12 +264,8 @@ function Employee() {
                 fontWeight="var(--big-font-weight)"
                 onClick={() => onOpen()}
               >
-                Add Employee
+                Add User
               </Button>
-              {/* 
-            ) : (
-              ""
-            )} */}
             </Flex>
           </Flex>
         </Flex>
@@ -367,7 +364,7 @@ function Employee() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      E-{d.id}
+                      U-{d.id}
                     </Td>
 
                     <Td
@@ -376,7 +373,7 @@ function Employee() {
                       fontSize="var(--mini-text)"
 
                       fontWeight="var(--big-font-weight)"
-                      onClick={() => navigate(`/admin/employee/${d.id}`)}
+                      onClick={() => navigate(`/admin/user/${d.id}`)}
                       cursor={'pointer'}
                     >
                       <Box display={'flex'} alignItems={'center'} justifyContent={'flex-start'} flexDirection={'row'} gap={'4px'}>
@@ -474,7 +471,7 @@ function Employee() {
         onClose={onClose} >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize={'18px'}>Add Employee</ModalHeader>
+          <ModalHeader fontSize={'18px'}>Add User</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
 
@@ -504,9 +501,8 @@ function Employee() {
                 {errors.date_of_birth && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.date_of_birth.message}</Text>}
               </FormControl>
 
-              <FormControl>
+              {/* <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Select Role</FormLabel>
-
                 <Controller
                   name="role"
                   control={control}
@@ -531,9 +527,7 @@ function Employee() {
                     </>
                   )}
                 />
-
-
-              </FormControl>
+              </FormControl> */}
 
               <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                 <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
@@ -552,7 +546,7 @@ function Employee() {
       <Modal isOpen={isOpenEdit} onClose={onCloseEdit}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize={"18px"}>Edit Employee</ModalHeader>
+          <ModalHeader fontSize={"18px"}>Edit User</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Box as="form" onSubmit={handleSubmit(onSubmitEdit)} display={"flex"} flexDirection={"column"} gap={"8px"}>
@@ -587,9 +581,9 @@ function Employee() {
                 <Input type="date" {...register("date_of_birth", { required: "DOB is required" })}
                   fontSize="var(--text-12px)" />
               </FormControl>
-              <FormControl>
-                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Select Role</FormLabel>
 
+              {/* <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={"2px"}>Select Role</FormLabel>
                 <Controller
                   name="role"
                   control={control}
@@ -614,9 +608,8 @@ function Employee() {
                     </>
                   )}
                 />
+              </FormControl> */}
 
-
-              </FormControl>
               <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={"6px"} mt={"10px"}>
                 <Button type="submit" fontSize={"13px"} bgColor={"#FF5722"} textColor={"white"} size={"sm"}>Save</Button>
                 <Button onClick={onCloseEditModal} type="button" size={"sm"} fontSize={"13px"} border={"1px solid #FF5722"} textColor={"#FF5722"} bgColor={"white"}>Cancel</Button>
@@ -632,10 +625,10 @@ function Employee() {
       <Modal isOpen={isOpenDelete} onClose={onCloseDelete} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize="16px" textAlign={'center'}> Delete Employee</ModalHeader>
+          <ModalHeader fontSize="16px" textAlign={'center'}> Delete User</ModalHeader>
           <ModalCloseButton />
           <ModalBody textAlign={'center'}>
-            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this employee?</Text>
+            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this User?</Text>
           </ModalBody>
           <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
             <Button onClick={deleteEmployee} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>

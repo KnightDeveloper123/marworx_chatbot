@@ -6,18 +6,18 @@ import { FaCircleUser } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { RiTelegram2Line } from "react-icons/ri";
 import { MdProductionQuantityLimits } from "react-icons/md";
-import { LuBot  } from "react-icons/lu";
+import { LuBot } from "react-icons/lu";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { LuSection } from "react-icons/lu";
 
 const Sidebar = () => {
   const adminNavbar = [
     { title: "Dashboard", url: "/admin/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
-    { title: "Users", url: "/admin/user", icon: <Icon as={FaCircleUser} mr={2} /> },
+    // { title: "Employee", url: "/admin/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
     { title: "Sector", url: "/admin/sector", icon: <Icon as={LuSection} mr={2} /> },
     // { title: "Users", url: "/admin/user", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Product Services ", url: "/admin/product", icon: <Icon as={MdProductionQuantityLimits } mr={2} /> },
-    { title: "Bot Builder", url: "/admin/bot_builder", icon: <Icon as={LuBot} mr={2} /> },
+    { title: "Bot Builder", url: "/admin/bot_builder", icon: <Icon as={LuBot } mr={2} /> },
     { title: "Campaign", url: "/admin/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
     { title: "Genarative Bot", url: "/admin/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
     // { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
