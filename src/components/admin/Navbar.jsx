@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -29,6 +29,9 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Input,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
@@ -37,8 +40,12 @@ import { FaCircleUser } from "react-icons/fa6";
 import { Link, NavLink } from "react-router-dom";
 import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
 import { decrypt } from "../utils/security";
+import { useForm } from "react-hook-form";
+import { AppContext } from "../context/AppContext";
 
 function Navbar() {
+  const token = localStorage.getItem('token')
+  const { showAlert } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isDrawerOpen,
@@ -60,8 +67,67 @@ function Navbar() {
     { title: "Genarative Bot", url: "/admin/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
+
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+
   const encryptedUser = localStorage.getItem('user');
   const user = encryptedUser ? decrypt(encryptedUser) : null;
+  const [empData, setEmpData] = useState(null);
+
+  const getEmpById = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getEmployeeId?user_id=${user.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: token
+        },
+      })
+      const data = await response.json();
+      setEmpData(data.data);
+      console.log(data.data);
+      
+
+
+    } catch (error) {
+      console.log(error);
+
+    }
+  }
+
+  useEffect(() => {
+    getEmpById();
+  }, []);
+
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+
+    formData.append('name', data.name);
+    formData.append('mobile_no', data.mobile_no);
+    formData.append('employee_id', user.id);
+
+    if (data.profile && data.profile[0]) {
+      formData.append('profile', data.profile[0]);
+    }
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/update`, {
+        method: "POST",
+        headers: {
+          Authorization: token
+        },
+        body: formData
+      })
+      const result = await response.json();
+      console.log(register);
+
+      if (result.success) {
+        showAlert("Sector added successfully", 'success')
+        onProfileClose();
+      }
+    } catch (error) {
+      showAlert("Failed to add sector ", 'error')
+      console.log(error)
+    }
+  }
 
   return (
     <HStack
@@ -150,10 +216,10 @@ function Navbar() {
                 <MenuList padding={'2'}>
                   <MenuItem>
                     <Box display={'flex'} flexDirection={'row'} gap={'10px'}>
-                      <Avatar name={user?.name} bgColor={"#FF5722"} color={"white"} />
+                    <Avatar  src={`${import.meta.env.VITE_BACKEND_URL}/profile/${empData?.profile}`} />
                       <Box display={'flex'} flexDirection={'column'}>
-                        <Text fontSize="var( --mini-14px)">{user?.name}</Text>
-                        <Text fontSize="var( --mini-14px)">{user?.email}</Text>
+                        <Text fontSize="var( --mini-14px)">{empData?.name}</Text>
+                        <Text fontSize="var( --mini-14px)">{empData?.email}</Text>
                       </Box>
                     </Box>
 
@@ -164,25 +230,57 @@ function Navbar() {
                   <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)">Log Out</MenuItem>
                 </MenuList>
-                
+
               </Menu>
             </Box>
             <Modal isOpen={isProfileOpen} onClose={onProfileClose}>
-                  <ModalOverlay />
-                  <ModalContent>
-                    <ModalHeader>Modal Title</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                    </ModalBody>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Update Profile</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Box as="form" id="updateProfileForm" onSubmit={handleSubmit(onSubmit)}>
+                    <FormControl>
+                      <FormLabel htmlFor="name">Name</FormLabel>
+                      <Input
+                        id="name"
+                        type="text"
+                        {...register('name', { required: "Name is required" })}
+                        defaultValue={empData?.name}
+                      />
+                      {errors.name && <Text color="red.500">{errors.name.message}</Text>}
+                    </FormControl>
 
-                    <ModalFooter>
-                      <Button colorScheme='blue' mr={3} onClick={onProfileClose}>
-                        Close
-                      </Button>
-                      <Button variant='ghost'>Secondary Action</Button>
-                    </ModalFooter>
-                  </ModalContent>
-                </Modal>
+                    <FormControl mt={4}>
+                      <FormLabel htmlFor="mobile_no">Mobile No:</FormLabel>
+                      <Input
+                        id="mobile_no"
+                        type="mobile_no"
+                        {...register('mobile_no', { required: "Mobile No. is required" })}
+                        defaultValue={empData?.mobile_no}
+                      />
+                      {errors.mobile_no && <Text color="red.500">{errors.mobile_no.message}</Text>}
+                    </FormControl>
+
+                    <FormControl mt={4}>
+                      <FormLabel htmlFor="profile">Profile Picture</FormLabel>
+                      <Input
+                        id="profile"
+                        type="file"
+                        {...register('profile')}
+                      />
+                    </FormControl>
+                  </Box>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button colorScheme='blue' mr={3} onClick={onProfileClose}>
+                    Close
+                  </Button>
+                  <Button type="submit" form="updateProfileForm" variant='ghost' _hover={{ bgColor: "blue.500", color: "white" }}>Update</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
 
           </Flex>
         </Flex>
