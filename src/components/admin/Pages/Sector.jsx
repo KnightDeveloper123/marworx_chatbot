@@ -15,6 +15,7 @@ const Sector = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+  const [filteredSectors, setFilteredSectors] = useState("");
   const {
     register,
     handleSubmit, reset, setValue,
@@ -175,6 +176,10 @@ const Sector = () => {
       showAlert("Internal server error", 'error')
     }
   }
+
+  const filteredData = sectors.filter(item =>
+    item.name.toLowerCase().includes(filteredSectors.toLowerCase())
+  );
   return (
     <Card>
       <Flex
@@ -194,10 +199,13 @@ const Sector = () => {
           </Text>
           <Flex gap={2}>
 
-            <Flex
+            <Flex gap={3}
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
+              <Input h={"35px"} htmlSize={20} width='auto'
+              placeholder="Search Name"
+              value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
               <Button
                 borderRadius="var(--radius)"
                 leftIcon={<IoMdAdd fontSize={"20px"} />}
@@ -282,7 +290,7 @@ const Sector = () => {
 
             <Tbody>
               {
-                sectors.map((sector) => (
+                filteredData && filteredData.map((sector) => (
                   <Tr key={sector.id}>
                     <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.id}</Td>
                     <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.name}</Td>

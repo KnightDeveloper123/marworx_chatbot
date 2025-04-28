@@ -22,6 +22,13 @@ import {
   MenuItem,
   MenuDivider,
   Avatar,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
@@ -29,6 +36,7 @@ import { SiGooglebigquery } from "react-icons/si";
 import { FaCircleUser } from "react-icons/fa6";
 import { Link, NavLink } from "react-router-dom";
 import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
+import { decrypt } from "../utils/security";
 
 function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +45,8 @@ function Navbar() {
     onOpen: onDrawerOpen,
     onClose: onDrawerClose,
   } = useDisclosure();
+  const { isOpen: isNotificationOpen, onOpen: onNotificationOpen, onClose: onNotificationClose } = useDisclosure()
+  const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure()
 
 
   const adminNavbar = [
@@ -50,6 +60,8 @@ function Navbar() {
     { title: "Genarative Bot", url: "/admin/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
+  const encryptedUser = localStorage.getItem('user');
+  const user = encryptedUser ? decrypt(encryptedUser) : null;
 
   return (
     <HStack
@@ -115,33 +127,62 @@ function Navbar() {
             display={{ xl: "flex", lg: "flex", md: "none", sm: "none", base: "none" }}
           >
 
-            <Box>
-              <IoNotifications />
+            <Box _hover={{ cursor: "pointer" }}>
+              <IoNotifications onClick={onNotificationOpen} />
+              <Drawer placement={"right"} onClose={onNotificationClose} isOpen={isNotificationOpen}>
+                <DrawerOverlay />
+                <DrawerContent>
+                  <DrawerHeader borderBottomWidth='1px'>Notification</DrawerHeader>
+                  <DrawerBody>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                  </DrawerBody>
+                </DrawerContent>
+              </Drawer>
             </Box>
-            <Box>
 
+            <Box>
               <Menu>
-                <MenuButton as={Button} backgroundColor={'white'} _hover={" "} _focus={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
+                <MenuButton as={Button} backgroundColor={'white'} _focus={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
                   <IoSettingsSharp />
                 </MenuButton>
                 <MenuList padding={'2'}>
                   <MenuItem>
                     <Box display={'flex'} flexDirection={'row'} gap={'10px'}>
-                      <Avatar name='Dan Abrahmov' src='https://bit.ly/dan-abramov' />
+                      <Avatar name={user?.name} bgColor={"#FF5722"} color={"white"} />
                       <Box display={'flex'} flexDirection={'column'}>
-                        <Text fontSize="var( --mini-14px)">Sayali</Text>
-                        <Text fontSize="var( --mini-14px)">sayali@gmail.com</Text>
+                        <Text fontSize="var( --mini-14px)">{user?.name}</Text>
+                        <Text fontSize="var( --mini-14px)">{user?.email}</Text>
                       </Box>
                     </Box>
+
                   </MenuItem>
                   <MenuDivider />
-                  <MenuItem fontSize="var(--mini-14px)">Profile</MenuItem>
+                  <MenuItem fontSize="var(--mini-14px)" onClick={onProfileOpen}>Profile</MenuItem>
                   <MenuItem fontSize="var(--mini-14px)"> Password</MenuItem>
                   <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)">Log Out</MenuItem>
                 </MenuList>
+                
               </Menu>
             </Box>
+            <Modal isOpen={isProfileOpen} onClose={onProfileClose}>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader>Modal Title</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                    </ModalBody>
+
+                    <ModalFooter>
+                      <Button colorScheme='blue' mr={3} onClick={onProfileClose}>
+                        Close
+                      </Button>
+                      <Button variant='ghost'>Secondary Action</Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
 
           </Flex>
         </Flex>
