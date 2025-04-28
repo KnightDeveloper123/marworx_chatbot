@@ -1,6 +1,6 @@
 import { DeleteIcon } from '@chakra-ui/icons'
 import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@chakra-ui/react'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
@@ -17,7 +17,7 @@ const Sector = () => {
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const {
     register,
-    handleSubmit,
+    handleSubmit, reset, setValue,
     formState: { errors }, control
   } = useForm({
     defaultValues: {
@@ -31,11 +31,12 @@ const Sector = () => {
     label: product.name,
     customLabel: (
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <img src={product.iconUrl} alt="" width="20" height="20" /> {/* if product has icon */}
+        <img src={product.iconUrl} alt="" width="20" height="20" />
         <span>{product.name}</span>
       </div>
     )
   }));
+
   useEffect(() => {
     fetchSector();
   }, [])
@@ -44,13 +45,28 @@ const Sector = () => {
     fetchProductService()
   }, [])
 
+  const allCategory = [{
+    value: "energy",
+    label: "Energy"
+  },
+  {
+    value: "industrial",
+    label: "Industrial"
+  },
+  {
+    value: "manufacturing",
+    label: "Manufacturing"
+  },
+  {
+    value: "chemicals",
+    label: "Chemicals"
+  },
+  ]
 
 
   const onSubmit = async (data) => {
     console.log(data)
     const formData = new FormData();
-
-
     formData.append("name", data.name);
     formData.append("category", data.category);
     formData.append("icon", data.icon[0]);
@@ -60,7 +76,6 @@ const Sector = () => {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/add`, {
         method: "POST",
         headers: {
-
           Authorization: token
         },
         body: formData
@@ -68,25 +83,98 @@ const Sector = () => {
       const result = await response.json();
       console.log(result)
       if (result.success) {
-        showAlert("Product Service added successfully", 'success')
+        showAlert("Sector added successfully", 'success')
         fetchProductService()
         reset();
         onClose();
       }
     } catch (error) {
-      showAlert("Failed to add product service", 'error')
+      showAlert("Failed to add sector ", 'error')
       console.log(error)
     }
   }
 
-  const editSector = () => {
+  const [sectorUpdate, setSectorUpdate] = useState({});
+  const editSector = (data) => {
     onEditOpen();
+    console.log(data)
+    setSectorUpdate(data);
+    setValue("name", data.name);
+    if (data.category) {
+      setValue("category", data.category);
+    } else {
+      setValue("category", null);
+    }
+
+    setValue('description', data.description);
+    setValue('products', data.product_ids)
+
+  };
+
+  const onEditSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append('sector_id', sectorUpdate.id)
+    formData.append("name", data.name);
+    formData.append("category", data.category);
+    if (data.icon && data.icon.length > 0) {
+      formData.append("icon", data.icon[0]);
+    }
+    formData.append("description", data.description);
+    formData.append("products", JSON.stringify(data.products));
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/update`, {
+        method: "POST",
+        headers: {
+
+          Authorization: token
+        },
+        body: formData
+      })
+      const result = await response.json();
+
+      if (result.success) {
+
+        showAlert("sector updated successfully", 'success')
+        fetchSector()
+        
+        onEditClose();
+      }
+    } catch (error) {
+      showAlert("Failed to update sector", 'error')
+      console.log(error)
+    }
+
   }
 
-  const openDeleteModal = () => {
+  const [sectorId, setSectorId] = useState(null)
+  const openDeleteModal = (id) => {
     onDeleteOpen()
+    setSectorId(id)
   }
+  const deleteSector = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json',
+          Authorization: token
+        },
+        body: JSON.stringify({
+          sector_id: sectorId
+        })
+      })
+      const result = await response.json();
+      if (result.success) {
+        showAlert("Sector deleted successfully", 'success')
+        fetchSector();
 
+        onDeleteClose();
+      }
+    } catch (error) {
+      console.log(error)
+      showAlert("Internal server error", 'error')
+    }
+  }
   return (
     <Card>
       <Flex
@@ -205,7 +293,7 @@ const Sector = () => {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)">
                       <img
-                        src={`${import.meta.env.VITE_BACKEND_URL}/sector/${sector.image}`}
+                        src={`${import.meta.env.VITE_BACKEND_URL}/sectors/${sector.icon}`}
                         alt={sector.name}
                         style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                       />
@@ -238,7 +326,7 @@ const Sector = () => {
                             w="100%"
                             minW="100px"
                             cursor="pointer"
-                          onClick={() => openDeleteModal(sector.id)}
+                            onClick={() => openDeleteModal(sector.id)}
 
                           >
                             <Flex gap={2} alignItems="center">
@@ -276,9 +364,30 @@ const Sector = () => {
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Category</FormLabel>
-                <Input type='text' {...register('category', { required: 'category is required' })}
-                  placeholder='Enter category' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                {errors.category && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.category.message}</Text>}
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: "Please select a category" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={allCategory}
+                        placeholder="Select Category"
+                        value={allCategory.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
@@ -292,33 +401,38 @@ const Sector = () => {
                 <Input type='file' {...register('icon')} fontSize="var(--text-12px)"  ></Input>
 
               </FormControl>
-
-
-              <Controller
-                name="products"
-                control={control}
-                rules={{ required: "Please select at least one product" }}
-                render={({ field, fieldState: { error } }) => (
-                  <>
-                    <Select
-                      isMulti
-                      options={all_productServices}
-                      placeholder="Select Products"
-                      value={all_productServices.filter(option => field.value?.includes(option.value))}
-                      onChange={(selectedOptions) => {
-                        const selectedValues = selectedOptions.map(option => option.value);
-                        field.onChange(selectedValues);
-                      }}
-                      getOptionLabel={(e) => e.customLabel || e.label}
-                      getOptionValue={(e) => e.value}
-                    />
-                    {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                  </>
-                )}
-              />
-
-
-
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
+                <Controller
+                  name="products"
+                  control={control}
+                  rules={{ required: "Please select at least one product" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        isMulti
+                        options={all_productServices}
+                        placeholder="Select Products"
+                        value={all_productServices.filter(option => field.value?.includes(option.value))}
+                        onChange={(selectedOptions) => {
+                          const selectedValues = selectedOptions.map(option => option.value);
+                          field.onChange(selectedValues);
+                        }}
+                        getOptionLabel={(e) => e.customLabel || e.label}
+                        getOptionValue={(e) => e.value}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
+              </FormControl>
               <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                 <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
@@ -341,7 +455,7 @@ const Sector = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
 
-            <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+            <Box as='form' onSubmit={handleSubmit(onEditSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
@@ -349,10 +463,31 @@ const Sector = () => {
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Category</FormLabel>
-                <Input type='text' {...register('category', { required: 'category is required' })}
-                  placeholder='Enter category' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                {errors.category && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.category.message}</Text>}
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Category</FormLabel>
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: "Please select a category" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={allCategory}
+                        placeholder="Select Role"
+                        value={allCategory.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
@@ -363,38 +498,77 @@ const Sector = () => {
 
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Icon</FormLabel>
-                <Input type='file' fontSize="var(--text-12px)"  ></Input>
+                <Input type='file' {...register('icon')} fontSize="var(--text-12px)"  ></Input>
 
               </FormControl>
+              <FormControl>
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
+                {/* <Controller
+                  name="products"
+                  control={control}
+                  rules={{ required: "Please select at least one product" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        isMulti
+                        options={all_productServices}
+                        placeholder="Select Products"
+                        value={all_productServices.filter(option => field.value?.includes(option.value))}
+                        onChange={(selectedOptions) => {
+                          const selectedValues = selectedOptions.map(option => option.value);
+                          field.onChange(selectedValues);
+                        }}
+                        getOptionLabel={(e) => e.customLabel || e.label}
+                        getOptionValue={(e) => e.value}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                /> */}
 
-              <Controller
-                name="products"
-                control={control}
-                rules={{ required: "Please select at least one product" }}
-                render={({ field, fieldState: { error } }) => (
-                  <>
-                    <Select
-                      isMulti
-                      options={all_productServices}
-                      placeholder="Select Products"
-                      value={all_productServices.filter(option => field.value?.includes(option.value))}
-                      onChange={(selectedOptions) => {
-                        const selectedValues = selectedOptions.map(option => option.value);
-                        field.onChange(selectedValues);
-                      }}
-                      getOptionLabel={(e) => e.customLabel || e.label}
-                      getOptionValue={(e) => e.value}
-                    />
-                    {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                  </>
-                )}
-              />
+                <Controller
+                  name="products"
+                  control={control}
+                  rules={{ required: "Please select at least one product" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        isMulti
+                        options={all_productServices}
+                        placeholder="Select Products"
+                        value={all_productServices.filter(option => field.value?.includes(option.value))}
+                        onChange={(selectedOptions) => {
+                          const selectedValues = selectedOptions.map(option => option.value);
+                          field.onChange(selectedValues);
+                        }}
+                        getOptionLabel={(e) => e.customLabel || e.label}
+                        getOptionValue={(e) => e.value}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
 
+              </FormControl>
               <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                 <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
                 </Button>
-                <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                <Button onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                   textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
               </Box>
             </Box>
@@ -402,9 +576,6 @@ const Sector = () => {
         </ModalContent>
 
       </Modal>
-
-
-
 
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
         <ModalOverlay />
@@ -415,7 +586,7 @@ const Sector = () => {
             <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Sector?</Text>
           </ModalBody>
           <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
-            <Button  fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+            <Button onClick={() => deleteSector()} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
               Delete
             </Button>
             <Button onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}

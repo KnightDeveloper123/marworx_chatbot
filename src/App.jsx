@@ -2,10 +2,6 @@ import { Flex, Spinner } from '@chakra-ui/react'
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import React, { lazy, Suspense } from 'react';
 import './App.css'
-
-
-
-
 import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
@@ -34,10 +30,7 @@ const EmployeeProfile = lazy(() => import('./components/admin/Pages/EmployeeProf
 
 function App() {
 
-
-
-
-  return (
+return (
     <Suspense
       fallback={
         <Flex h="calc(100vh - 60px)" w="100%" alignItems="center" justifyContent="center">

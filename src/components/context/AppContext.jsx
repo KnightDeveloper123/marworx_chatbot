@@ -167,7 +167,7 @@ export const AppProvider = ({ children }) => {
     
                 })
                 const result = await response.json();
-                console.log(result)
+               
                 setProductService(result.product)
     
             } catch (error) {
@@ -191,8 +191,8 @@ export const AppProvider = ({ children }) => {
     
                 })
                 const result = await response.json();
-                console.log(result)
-                setSectors(result.data)
+            
+                setSectors(result.formattedData)
     
             } catch (error) {
                 console.log(error)
