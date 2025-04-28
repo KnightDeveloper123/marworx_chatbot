@@ -1,4 +1,4 @@
-import React, { use, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -37,16 +37,18 @@ import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
 import { SiGooglebigquery } from "react-icons/si";
 import { FaCircleUser } from "react-icons/fa6";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
 import { decrypt } from "../utils/security";
 import { useForm } from "react-hook-form";
 import { AppContext } from "../context/AppContext";
 
 function Navbar() {
+  const navigate = useNavigate();
   const token = localStorage.getItem('token')
   const { showAlert } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
@@ -54,6 +56,7 @@ function Navbar() {
   } = useDisclosure();
   const { isOpen: isNotificationOpen, onOpen: onNotificationOpen, onClose: onNotificationClose } = useDisclosure()
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure()
+  const { isOpen: isPasswordOpen, onOpen: onPasswordOpen, onClose: onPasswordClose } = useDisclosure()
 
 
   const adminNavbar = [
@@ -68,10 +71,11 @@ function Navbar() {
     { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+
 
   const encryptedUser = localStorage.getItem('user');
   const user = encryptedUser ? decrypt(encryptedUser) : null;
+
   const [empData, setEmpData] = useState(null);
 
   const getEmpById = async () => {
@@ -85,7 +89,7 @@ function Navbar() {
       const data = await response.json();
       setEmpData(data.data);
       // console.log(data.data);
-      
+
 
 
     } catch (error) {
@@ -128,6 +132,36 @@ function Navbar() {
       showAlert("Failed to add sector ", 'error')
       console.log(error)
     }
+  }
+
+
+  const onPasswordSubmit = async (data) => {
+    console.log("data")
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/changePassword`, {
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json',
+          Authorization: token
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        })
+      })
+      const result = await response.json();
+      console.log(result)
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    navigate('/admin')
   }
 
   return (
@@ -217,7 +251,7 @@ function Navbar() {
                 <MenuList padding={'2'}>
                   <MenuItem>
                     <Box display={'flex'} flexDirection={'row'} gap={'10px'}>
-                    <Avatar  src={`${import.meta.env.VITE_BACKEND_URL}/profile/${empData?.profile}`} />
+                      <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/profile/${empData?.profile}`} />
                       <Box display={'flex'} flexDirection={'column'}>
                         <Text fontSize="var( --mini-14px)">{empData?.name}</Text>
                         <Text fontSize="var( --mini-14px)">{empData?.email}</Text>
@@ -227,13 +261,17 @@ function Navbar() {
                   </MenuItem>
                   <MenuDivider />
                   <MenuItem fontSize="var(--mini-14px)" onClick={onProfileOpen}>Profile</MenuItem>
-                  <MenuItem fontSize="var(--mini-14px)"> Password</MenuItem>
+                  <MenuItem fontSize="var(--mini-14px)" onClick={() => onPasswordOpen()}> Password</MenuItem>
                   <MenuDivider />
-                  <MenuItem fontSize="var(--mini-14px)">Log Out</MenuItem>
+
+                  <MenuItem fontSize="var(--mini-14px)" onClick={() => logout()}>Log Out</MenuItem>
                 </MenuList>
 
               </Menu>
             </Box>
+
+
+
             <Modal isOpen={isProfileOpen} onClose={onProfileClose}>
               <ModalOverlay />
               <ModalContent>
@@ -278,14 +316,45 @@ function Navbar() {
                   <Button variant='ghost' _hover={{ bgColor: "blue.500", color: "white" }} mr={3} onClick={onProfileClose}>
                     Close
                   </Button>
-                  <Button type="submit" form="updateProfileForm"  colorScheme='blue' >Update</Button>
+                  <Button type="submit" form="updateProfileForm" colorScheme='blue' >Update</Button>
                 </ModalFooter>
               </ModalContent>
             </Modal>
 
           </Flex>
+          <Modal isOpen={isPasswordOpen} onClose={onPasswordClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <Box padding={'5px 10px'}>Change Password</Box>
+              <ModalCloseButton />
+              <ModalBody>
+                <Box as="form" onSubmit={handleSubmit(onPasswordSubmit)} display={'flex'} flexDirection={'column'} gap={'5px'}>
+                  <FormControl>
+                    <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Email</FormLabel>
+                    <Input type="email" value={user.email} {...register('email')} fontSize="var(--text-12px)" autoComplete='off'></Input>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>New Password</FormLabel>
+                    <Input type="password"   {...register('password')}  ></Input>
+                  </FormControl>
+                  <Box mt={'6px'} display={'flex'} gap={'5px'}>
+                    <Button type="submit" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >Save</Button>
+                    <Button onClick={onPasswordClose} size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                      textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
+                      Close
+                    </Button>
+                  </Box>
+                </Box>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
         </Flex>
       </Flex>
+
+
+
+
+
 
       <Drawer isOpen={isDrawerOpen} placement="left" onClose={onDrawerClose} size={'xs'}>
         <DrawerOverlay />
@@ -324,6 +393,8 @@ function Navbar() {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+
     </HStack>
   );
 }
