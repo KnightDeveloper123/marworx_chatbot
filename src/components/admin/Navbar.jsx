@@ -84,7 +84,7 @@ function Navbar() {
       })
       const data = await response.json();
       setEmpData(data.data);
-      console.log(data.data);
+      // console.log(data.data);
       
 
 
@@ -96,7 +96,7 @@ function Navbar() {
 
   useEffect(() => {
     getEmpById();
-  }, []);
+  }, [onProfileOpen]);
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -117,11 +117,12 @@ function Navbar() {
         body: formData
       })
       const result = await response.json();
-      console.log(register);
+      // console.log(register);
 
       if (result.success) {
         showAlert("Sector added successfully", 'success')
         onProfileClose();
+        getEmpById();
       }
     } catch (error) {
       showAlert("Failed to add sector ", 'error')
@@ -274,10 +275,10 @@ function Navbar() {
                 </ModalBody>
 
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={onProfileClose}>
+                  <Button variant='ghost' _hover={{ bgColor: "blue.500", color: "white" }} mr={3} onClick={onProfileClose}>
                     Close
                   </Button>
-                  <Button type="submit" form="updateProfileForm" variant='ghost' _hover={{ bgColor: "blue.500", color: "white" }}>Update</Button>
+                  <Button type="submit" form="updateProfileForm"  colorScheme='blue' >Update</Button>
                 </ModalFooter>
               </ModalContent>
             </Modal>
