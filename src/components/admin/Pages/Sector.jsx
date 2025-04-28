@@ -84,7 +84,7 @@ const Sector = () => {
       console.log(result)
       if (result.success) {
         showAlert("Sector added successfully", 'success')
-        fetchProductService()
+        fetchSector();
         reset();
         onClose();
       }
