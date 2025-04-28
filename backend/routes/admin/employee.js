@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, '../../profile'));
     },
     filename: (req, file, cb) => {
-        console.log(file.originalname)
+      
         const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
         cb(null, uniqueName);
     },
@@ -130,17 +130,17 @@ router.get('/getEmployeeId', middleware, async(req, res)=>{
         return res.status(500).json({error:"Internal Server Error"})
     }
 });
+
 router.post("/update", middleware, upload.single('profile'), async (req, res) => {
     try {
         const { employee_id, ...rest } = req.body;
- 
+
         const fields = Object.keys(rest);
         let values = Object.values(rest).map(val => val === undefined ? null : val);
 
         // If a profile picture is uploaded
         if (req.file) {
-            fields.push('profile');
-            console.log(req.file.filename)
+            fields.push('profile'); // <-- VERY IMPORTANT
             values.push(req.file.filename);
         }
 
@@ -149,19 +149,17 @@ router.post("/update", middleware, upload.single('profile'), async (req, res) =>
         }
 
         const setClause = fields.map(field => `${field} = ?`).join(", ");
-        console.log(setClause)
-      
-        values = values.map(val => val === undefined ? null : val);
-        console.log(values)
-        values.push(employee_id); // add employee_id at end
+
+        values.push(employee_id); // employee_id is added last, for WHERE id = ?
 
         const query = `UPDATE employee SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
 
-        connection.execute(query, values, (err, data) => {
+        connection.query(query, values, (err, data) => {
             if (err) {
-                console.log(err);
+                console.log('MYSQL ERROR:', err);
                 return res.status(400).json({ error: "Something went wrong" });
             }
+            console.log('MYSQL SUCCESS:', data);
             if (data.affectedRows === 0) {
                 return res.status(404).json({ error: "Record not found" });
             }
@@ -172,6 +170,7 @@ router.post("/update", middleware, upload.single('profile'), async (req, res) =>
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 
 router.post("/login", async (req, res) => {
