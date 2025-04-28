@@ -316,8 +316,28 @@ router.get('/getAllDashboardData', middleware, async (req, res) => {
     }
 })
 
-
-
+    router.post("/getActiveStatus", middleware, async (req, res) => {
+        try {
+            const { user_id } = req.body;
+    
+         
+            const query = `UPDATE employee SET is_active=1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    
+            connection.execute(query, [user_id], (err, data) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).json({ error: "Something went wrong" })
+                }
+                if (data.affectedRows === 0) {
+                    return res.status(404).json({ error: "Record not found" });
+                }
+                return res.json({ success: "User is Active", data })
+            });
+        } catch (error) {
+            console.error("Error in /getActiveStatus:", error.message);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
 
 
 
