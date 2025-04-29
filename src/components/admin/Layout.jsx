@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import React, { Suspense } from "react";
 import Sidebar from "./Sidebar";
-import BreadCrumb from "./Breadcrumb";
+import BreadCrumb from "./BreadCrumb";
 import { decrypt } from "../utils/security";
 import UserSidebar from "../admin/userTab/Sidebar";
 
