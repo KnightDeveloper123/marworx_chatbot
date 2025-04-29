@@ -12,6 +12,8 @@ import {
   MenuItem,
   MenuList,
 
+  Switch,
+
   Table,
   TableContainer,
   Tbody,
@@ -40,6 +42,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
 
 function Employee() {
 
@@ -55,11 +58,13 @@ function Employee() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [activeData, setActiveData] = useState([]);
   const token = localStorage.getItem('token')
 
   useEffect(() => {
     fetchAllEmployee();
-  }, []);
+    
+  }, [activeData]);
 
 
   const onSubmit = async (values) => {
@@ -79,7 +84,6 @@ function Employee() {
 
         })
       })
-
       const result = await response.json();
       if (result.success) {
         showAlert("Employee added successfully!", 'success');
@@ -96,7 +100,7 @@ function Employee() {
       showAlert("Failed to add employee.", 'error');
     }
   }
-
+  // console.log(employee, "eef");
 
   const roleOptions = [
     {
@@ -156,7 +160,7 @@ function Employee() {
       if (result.success) {
         showAlert("Employee updated successfully", 'success');
         fetchAllEmployee();
-     
+
         onCloseEdit();
       } else {
 
@@ -209,6 +213,30 @@ function Employee() {
 
     }
   };
+  const updateStatus = async(id, isChecked) => {
+    const newStatus = isChecked ? 0 : 1;
+    setActiveData(prevData =>
+      prevData.map(item =>
+        item.id === id ? { ...item, is_active: newStatus } : item
+      )
+    );
+    
+    try{
+        const response =await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getActiveStatus`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({ user_id: id , is_active: newStatus, }),
+        })
+        const data = await response.json();
+        // console.log(data);
+        
+    }catch(error){
+      console.log(error)
+    }
+  };
 
 
   return (
@@ -237,7 +265,7 @@ function Employee() {
               type="text"
               placeholder="Name, Lead status, Source..."
               fontSize="var(--mini-text)"
-              fontWeight="var(--big-font-weight)"
+              fo    ntWeight="var(--big-font-weight)"
               // height={{ base: "28px", md: "30px", lg: "40px", xl: "40px" }}
               size='sm'
               name="currency"
@@ -334,6 +362,14 @@ function Employee() {
                 >
                   Last login
                 </Th>
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  borderRadius=""
+                  fontSize="var(--mini-text)"
+                >
+                  Active
+                </Th>
                 {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
                 <Th
                   fontWeight="var(--big-font-weight)"
@@ -420,6 +456,16 @@ function Employee() {
                     >
                       {formatDate(d.last_login)}
                     </Td>
+                    <Td
+                      border="0.5px solid #F2F4F8"
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      <Switch
+                         isChecked={d.is_active === 0}
+                        onChange={(e) => updateStatus(d.id, e.target.checked)}
+                      />                    </Td>
                     <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
                       <Menu >
                         <MenuButton
