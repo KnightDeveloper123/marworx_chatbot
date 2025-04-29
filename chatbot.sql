@@ -16,6 +16,43 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `campaign`
+--
+
+DROP TABLE IF EXISTS `campaign`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `campaign` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `channel_name` varchar(255) DEFAULT NULL,
+  `campaign_name` varchar(255) DEFAULT NULL,
+  `message_content` varchar(255) DEFAULT NULL,
+  `template_name` varchar(255) DEFAULT NULL,
+  `sector` int DEFAULT NULL,
+  `template_type` varchar(255) DEFAULT NULL,
+  `template_lang` varchar(255) DEFAULT NULL,
+  `header` varchar(255) DEFAULT NULL,
+  `body` varchar(300) DEFAULT NULL,
+  `button` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `status` int DEFAULT '0',
+  `is_status` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign`
+--
+
+LOCK TABLES `campaign` WRITE;
+/*!40000 ALTER TABLE `campaign` DISABLE KEYS */;
+INSERT INTO `campaign` VALUES (1,'marworx1','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:05:20','2025-04-29 06:15:07',1,NULL),(2,'marworx2','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:15:03','2025-04-29 09:04:59',1,NULL),(3,'marworx3','Advertsie','Sales all product','sales',1,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 07:38:53','2025-04-29 09:05:57',1,'Sent'),(4,'marworx3','Advertsie','Sales all product','sales',1,'department','marathi','sales','all sales done?',NULL,'2025-04-29 07:40:29',NULL,0,'Sent');
+/*!40000 ALTER TABLE `campaign` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `chat_titles`
 --
 
@@ -132,7 +169,7 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
-INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminati.06@gmail.com','$2b$10$Y4hJ1yLveTxjJL23vmam5evCyTHDWoSkvhE85q2OCibbJR6LNeBXC','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-04-28 10:46:46','2025-04-28 10:46:46','2025-02-23 18:30:00','1745829965180-889415992.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-04-28 10:37:20','2025-04-28 10:25:17','2025-04-15 18:30:00','1745836640644-101652830.jpg',0);
+INSERT INTO `employee` VALUES (1,'Animesh Pradhan','dr.illuminati.06@gmail.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-04-29 10:00:12','2025-04-29 10:00:12','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-04-28 10:37:20','2025-04-28 10:25:17','2025-04-15 18:30:00','1745836640644-101652830.jpg',0);
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -301,4 +338,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-28 16:38:06
+-- Dump completed on 2025-04-29 15:40:27

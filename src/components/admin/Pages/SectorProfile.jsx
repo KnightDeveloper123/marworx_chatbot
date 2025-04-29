@@ -183,7 +183,7 @@ const SectorProfile = () => {
                                     >
                                         {/* <ImProfile fontSize="20px" /> */}
                                         <Text textAlign="center" fontSize="13px" fontWeight="500">
-                                            products
+                                            Bots
                                         </Text>
                                     </Box>
                                 </Tab>

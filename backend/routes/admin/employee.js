@@ -3,6 +3,7 @@ const router = express.Router();
 const connection = require('../../database/db');
 const executeQuery = require('../../utils/executeQuery');
 const { addEmployeeSchema, updateEmployeeSchema, deleteEmployeeSchema } = require("../../validation/employee");
+const { sendOtp } =require('../../utils/mail')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { middleware } = require('../../middleware/middleware');

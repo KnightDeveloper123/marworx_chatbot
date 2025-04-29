@@ -66,7 +66,7 @@ const Sector = () => {
 
 
   const onSubmit = async (data) => {
-    console.log(data)
+ 
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("category", data.category);
@@ -82,7 +82,7 @@ const Sector = () => {
         body: formData
       })
       const result = await response.json();
-      console.log(result)
+   
       if (result.success) {
         showAlert("Sector added successfully", 'success')
         fetchSector();
@@ -98,7 +98,6 @@ const Sector = () => {
   const [sectorUpdate, setSectorUpdate] = useState({});
   const editSector = (data) => {
     onEditOpen();
-    console.log(data)
     setSectorUpdate(data);
     setValue("name", data.name);
     if (data.category) {
@@ -203,7 +202,8 @@ const Sector = () => {
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
-              <Input h={"35px"} htmlSize={20} width='auto'
+              <Input h={"35px"} htmlSize={20} width='auto'  fontSize="var(--mini-text)"
+                fontWeight="var(--big-font-weight)"
               placeholder="Search Name"
               value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
               <Button

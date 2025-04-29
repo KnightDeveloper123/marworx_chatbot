@@ -199,6 +199,28 @@ export const AppProvider = ({ children }) => {
                 showAlert('Internal server error', 'error')
             }
         }
+
+        const[campaign,setCampaign]=useState([])
+
+        const fetchCampaign= async () => {
+          try {
+              const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/getAllCampaign`, {
+                  method: "GET",
+                  headers: {
+                      "Content-Type": 'application/json',
+                      Authorization: token
+                  },
+  
+              })
+              const result = await response.json();
+          
+              setCampaign(result.data)
+  
+          } catch (error) {
+              console.log(error)
+              showAlert('Internal server error', 'error')
+          }
+      }
          
         
     return (
@@ -208,7 +230,7 @@ export const AppProvider = ({ children }) => {
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
-                ,fetchProductService,sectors,fetchSector
+                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign
             }}
         >
             {children}

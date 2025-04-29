@@ -33,6 +33,7 @@ app.use('/employee', require("./routes/admin/employee"))
 app.use('/support', require("./routes/admin/support"))
 app.use('/documents', require("./routes/admin/documents"))
 app.use('/product_service', require("./routes/admin/product_service"))
+app.use('/campaign', require("./routes/admin/campaign"))
 app.use('/sector', require("./routes/admin/sector"))
 
 app.use('/user', require("./routes/users/user"))
