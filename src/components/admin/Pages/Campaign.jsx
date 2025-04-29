@@ -1,4 +1,5 @@
 import { ArrowBackIcon, DeleteIcon } from "@chakra-ui/icons";
+import React from "react";
 import {
   Box,
   Button,
@@ -435,10 +436,10 @@ const Campaign = () => {
       </Flex>
       <Box>
         {isOpen && (
-          <Modal isOpen={isStepOpen} onClose={onStepClose} size="6xl">
-            <ModalOverlay />
-            <ModalContent p={6}>
-              <ModalCloseButton onClick={() => onStepClose()} />
+          <Modal isOpen={isStepOpen} onClose={{onClose, onStepClose}} size="6xl">
+          <ModalOverlay />
+          <ModalContent p={6}>
+            <ModalCloseButton onClick={() =>onClose()} /> 
 
               {/* Chakra Stepper */}
               {/* <Stepper index={activeStep} mb={6} size="sm" colorScheme="purple">
