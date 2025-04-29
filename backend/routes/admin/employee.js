@@ -318,10 +318,9 @@ router.get('/getAllDashboardData', middleware, async (req, res) => {
 
     router.post("/getActiveStatus", middleware, async (req, res) => {
         try {
-            const { user_id } = req.body;
-    
+            const { user_id ,is_active} = req.body;
          
-            const query = `UPDATE employee SET is_active=1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+            const query = `UPDATE employee SET is_active=${is_active}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     
             connection.execute(query, [user_id], (err, data) => {
                 if (err) {
