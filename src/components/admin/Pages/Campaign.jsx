@@ -193,7 +193,7 @@ const Campaign = () => {
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
         fetchCampaign();
-        onStepClose ();
+        onStepClose();
       }
     } catch (error) {
       console.log(error)
@@ -210,7 +210,7 @@ const Campaign = () => {
     name: 'Education',
     value: 1
   },
- 
+
   {
     name: "Healthcare",
     value: 2
@@ -219,8 +219,11 @@ const Campaign = () => {
     name: "Retail",
     value: 3
   }]
+  const [isSwitchOn, setIsSwitchOn] = useState(false)
 
-
+  const handleSwitchChange = (e) => {
+    setIsSwitchOn(e.target.checked);
+  };
   return (
     <Card>
       <Flex
@@ -479,26 +482,26 @@ const Campaign = () => {
               ))}
             </Stepper> */}
 
-                {activeStep===0 &&(
-                 <> 
+              {activeStep === 0 && (
+                <>
                   <Text fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
-                <Divider  my={3} borderColor="gray.300" borderWidth="1px"></Divider>
+                  <Divider my={3} borderColor="gray.300" borderWidth="1px"></Divider>
                 </>
-                )}
+              )}
               <Text fontSize={'18px'}></Text>
               {/* Step Content */}
               <ModalBody>
                 {activeStep === 0 && (
-                  
+
                   <Box>
-                    
+
                     <Text fontWeight="bold" mb={3}>Standard</Text>
                     <Text fontSize="sm" color="gray.600" mb={4}>
                       Create a one-off campaign from scratch.
                     </Text>
-                    
+
                     <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={8} paddingLeft={"70px"}>
-                  
+
                       <Box borderWidth="1px" borderRadius="md" textAlign="center" cursor="pointer">
                         <Box bgColor={'lightcyan'}>
                           <Image src="https://img.icons8.com/color/96/000000/secured-letter.png" mx="auto" mb={2} />
@@ -712,9 +715,9 @@ const Campaign = () => {
                           <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
                             <Select fontSize="var(--text-12px)" name="sector" placeholder="select sector" value={campaignData.sector} onChange={handleChange}>
-                            {sectors.map((sector)=>(
-                              <option value={sector.value} key={sector.value}>{sector.name}</option>
-                            ))}
+                              {sectors.map((sector) => (
+                                <option value={sector.value} key={sector.value}>{sector.name}</option>
+                              ))}
                             </Select>
                           </FormControl>
                           <FormControl mt={5} isRequired>
@@ -784,11 +787,29 @@ const Campaign = () => {
                       <Divider borderColor={"black"} />
                       <Flex w={"100%"} >
                         <Flex flexDirection={"column"} w={"30%"} borderRight={'1px solid black'}>
-                          <Flex justifyContent={"space-between"} alignItems={"center"} mt={5} mb={5}>
+                          <Flex mt={5} mb={5} direction={'column'} >
+                            <Flex alignItems={'center'} justifyContent={'space-evenly'} w={'full'}>
+                              <Heading fontSize={"20px"}>Header</Heading>
+                              <Switch id="email-alerts" isChecked={isSwitchOn} onChange={handleSwitchChange} />
+                            </Flex>
+                            <Flex>
+
+                              {isSwitchOn && (
+                                <Input
+                                  type="text"
+                                  name="header"
+                                  value={campaignData.header}
+                                  onChange={handleChange}
+                                  ml={4}
+                                />
+                              )}
+                            </Flex>
+                          </Flex>
+                          {/* <Flex justifyContent={"space-between"} alignItems={"center"} mt={5} mb={5}>
                             <Heading fontSize={"20px"}>Header</Heading>
                             <Input type="text" name="header" value={campaignData.header} onChange={handleChange}></Input>
                             <Switch id='email-alerts' />
-                          </Flex>
+                          </Flex> */}
                           <Divider borderColor={"black"} />
                           <Flex alignItems={"center"} mt={5} mb={5} flexDirection={"column"}>
                             <Heading alignSelf={"flex-start"} fontSize={"20px"}>Body</Heading>
