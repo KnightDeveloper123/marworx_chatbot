@@ -152,9 +152,9 @@ const Campaign = () => {
 
   const [campaignData, setCampaignData] = useState({
     channel_name: 'WhatsApp',
-    campaign_name: "marworx",
+    campaign_name: "",
     message_content: "",
-    sector: 1,
+    sector: '',
     template_name: "",
     template_type: "",
     template_lang: "",
@@ -193,7 +193,7 @@ const Campaign = () => {
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
         fetchCampaign();
-        onDeleteClose();
+        onStepClose ();
       }
     } catch (error) {
       console.log(error)
@@ -201,6 +201,24 @@ const Campaign = () => {
     }
   }
 
+
+  const editCampaign = () => {
+
+  }
+
+  const sectors = [{
+    name: 'Education',
+    value: 1
+  },
+ 
+  {
+    name: "Healthcare",
+    value: 2
+  },
+  {
+    name: "Retail",
+    value: 3
+  }]
 
 
   return (
@@ -404,7 +422,7 @@ const Campaign = () => {
                           <MenuItem
                             w="100%"
                             minW="100px"
-                            // onClick={() => editEmployee(d)}
+                            onClick={() => editCampaign(d)}
                             display={'flex'} alignItems={'center'} gap={2}
                           >
                             <MdOutlineModeEdit color="green" />
@@ -436,10 +454,10 @@ const Campaign = () => {
       </Flex>
       <Box>
         {isOpen && (
-          <Modal isOpen={isStepOpen} onClose={{onClose, onStepClose}} size="6xl">
-          <ModalOverlay />
-          <ModalContent p={6}>
-            <ModalCloseButton onClick={() =>onClose()} /> 
+          <Modal isOpen={isStepOpen} onClose={{ onClose, onStepClose }} size="6xl">
+            <ModalOverlay />
+            <ModalContent p={6}>
+              <ModalCloseButton onClick={() => onClose()} />
 
               {/* Chakra Stepper */}
               {/* <Stepper index={activeStep} mb={6} size="sm" colorScheme="purple">
@@ -461,18 +479,26 @@ const Campaign = () => {
               ))}
             </Stepper> */}
 
-
+                {activeStep===0 &&(
+                 <> 
+                  <Text fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
+                <Divider  my={3} borderColor="gray.300" borderWidth="1px"></Divider>
+                </>
+                )}
               <Text fontSize={'18px'}></Text>
               {/* Step Content */}
               <ModalBody>
                 {activeStep === 0 && (
+                  
                   <Box>
+                    
                     <Text fontWeight="bold" mb={3}>Standard</Text>
                     <Text fontSize="sm" color="gray.600" mb={4}>
                       Create a one-off campaign from scratch.
                     </Text>
-
+                    
                     <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={8} paddingLeft={"70px"}>
+                  
                       <Box borderWidth="1px" borderRadius="md" textAlign="center" cursor="pointer">
                         <Box bgColor={'lightcyan'}>
                           <Image src="https://img.icons8.com/color/96/000000/secured-letter.png" mx="auto" mb={2} />
@@ -537,6 +563,7 @@ const Campaign = () => {
                       name="campaign_name"
                       value={campaignData.campaign_name}
                       onChange={handleChange}
+                      borderRadius={'16px'}
                     />
                     <Flex justifyContent="end" gap="4">
                       <Button onClick={goToPrevious} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
@@ -684,10 +711,10 @@ const Campaign = () => {
                         <Box display={'flex'} flexDirection={'column'}>
                           <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
-                            <Select fontSize="var(--text-12px)" name="sector" value={campaignData.sector} onChange={handleChange}>
-                              <option value='1'>Utility</option>
-                              <option value='2'>Option 2</option>
-                              <option value='3'>Option 3</option>
+                            <Select fontSize="var(--text-12px)" name="sector" placeholder="select sector" value={campaignData.sector} onChange={handleChange}>
+                            {sectors.map((sector)=>(
+                              <option value={sector.value} key={sector.value}>{sector.name}</option>
+                            ))}
                             </Select>
                           </FormControl>
                           <FormControl mt={5} isRequired>
@@ -698,8 +725,8 @@ const Campaign = () => {
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Template type</FormLabel>
                             <Select fontSize="var(--text-12px)" name="template_type" value={campaignData.template_type} onChange={handleChange} >
                               <option value='utility'>Utility</option>
-                              <option value='marketting'>Marketting</option>
-                              <option value='option3'>Option 3</option>
+                              <option value='marketing '>Marketting</option>
+                              <option value='option3'>alert </option>
                             </Select>
                             <FormHelperText>Choose Marketing for promotional communication and Utility for informational messages.</FormHelperText>
                           </FormControl>
@@ -712,7 +739,15 @@ const Campaign = () => {
                             </Select>
                           </FormControl>
                           <Flex justifyContent="end" gap="4" mt={'10px'}>
-                            <Button onClick={goToPrevious} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                            <Button onClick={() => {
+                              setCampaignData({
+                                sector: "",
+                                template_name: '',
+                                template_type: '',
+                                template_lang: '',
+                              }),
+                                onModalClose();
+                            }} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                               textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
                               Discard
                             </Button>
@@ -740,15 +775,15 @@ const Campaign = () => {
                           <FcBiohazard size={30} />
                           Sales
                         </Flex>
-                        <Flex>
+                        <Flex mb='2'>
                           {/* <Button color={"#805ad5"} variant='ghost' gap={1}>Settings</Button> */}
-                          <Button type="button" color={"#805ad5"} variant='ghost'>Discard</Button>
-                          <Button onClick={saveCampaign} bgColor={"#805ad5"} color={"white"} _hover={{ bgColor: "gray.500" }} variant='solid'> Save</Button>
+                          <Button type="button" size={'sm'} color={"#805ad5"} variant='ghost'>Discard</Button>
+                          <Button onClick={saveCampaign} size={'sm'} bgColor={"#805ad5"} color={"white"} _hover={{ bgColor: "gray.500" }} variant='solid'> Save</Button>
                         </Flex>
                       </Flex>
                       <Divider borderColor={"black"} />
-                      <Flex w={"100%"}>
-                        <Flex flexDirection={"column"} w={"30%"}>
+                      <Flex w={"100%"} >
+                        <Flex flexDirection={"column"} w={"30%"} borderRight={'1px solid black'}>
                           <Flex justifyContent={"space-between"} alignItems={"center"} mt={5} mb={5}>
                             <Heading fontSize={"20px"}>Header</Heading>
                             <Input type="text" name="header" value={campaignData.header} onChange={handleChange}></Input>
