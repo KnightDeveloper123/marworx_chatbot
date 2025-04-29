@@ -70,6 +70,7 @@ export default function Login() {
   };
 
   const handleLogin = async (values) => {
+    // console.log(values)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/employee/login`,
@@ -101,8 +102,7 @@ export default function Login() {
   };
 
   const handleOtpVerify = async () => {
-    console.log(otpEmail)
-    console.log(otp)
+  
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/verify-otp`,
         {
@@ -113,7 +113,6 @@ export default function Login() {
       );
 
       const result = await response.json();
-      console.log(result)
 
       if (result?.success) {
         const encryptedData = await encrypt(result.data);

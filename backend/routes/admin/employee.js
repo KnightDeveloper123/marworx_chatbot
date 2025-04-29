@@ -230,15 +230,19 @@ router.post("/login", async (req, res) => {
 router.post('/verify-otp', async (req, res) => {
 
     const { email, otp } = req.body;
-console.log(req.body)
-console.log(!otpStore[email])
+
+    // if (!email || !otp) {
+    //     return res.status(400).json({ error: "Email and OTP are required" });
+    //   }
+
     if (!otpStore[email]) return res.status(400).json({ error: "OTP  not requested" })
 
     const { otp: storedOtp, expiry } = otpStore[email];
 
     if (Date.now() > expiry) return res.status(400).json({ error: "OTP expired" })
     if (otp === storedOtp) {
-        const rows = await executeQuery(`SELECT * FROM employee WHERE email = ${email}`);
+
+        const rows = await executeQuery(`SELECT * FROM employee WHERE email = ?`,[email]);
         const user = rows[0];
 
         if (!user) {
