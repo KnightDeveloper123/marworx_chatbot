@@ -63,3 +63,7 @@ function executeQuery(query) {
       }
     });
   };
+
+  module.exports = {
+    sendOtp
+  }
