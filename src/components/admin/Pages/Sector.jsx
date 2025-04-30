@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, fetchProductService, productService, sectors, fetchSector } = useContext(AppContext)
+  const { showAlert, fetchProductService, productService, sectors, fetchSector,admin_id } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -68,6 +68,7 @@ const Sector = () => {
   const onSubmit = async (data) => {
  
     const formData = new FormData();
+    formData.append("admin_id", admin_id);
     formData.append("name", data.name);
     formData.append("category", data.category);
     formData.append("icon", data.icon[0]);

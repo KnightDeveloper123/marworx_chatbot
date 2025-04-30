@@ -1,5 +1,6 @@
 import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
 import React, { createContext, useCallback, useEffect, useState } from "react";
+import { decrypt, encrypt } from "../utils/security";
 
 export const AppContext = createContext();
 
@@ -222,12 +223,15 @@ export const AppProvider = ({ children }) => {
           }
       }
          
+        const user=localStorage.getItem('user')
+        const admin_id=decrypt(user).id
+        // console.log(adminId,"fdffs");
         
     return (
         <AppContext.Provider
             value={{
                 showAlert, loading,
-                fetchAllEmployee, employee,
+                fetchAllEmployee, employee,admin_id,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
                 ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign

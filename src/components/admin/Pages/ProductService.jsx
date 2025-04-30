@@ -1,4 +1,4 @@
-import { Box, Button, Card, Divider, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, Flex, FormControl, FormErrorMessage, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { AppContext } from '../../context/AppContext';
@@ -8,7 +8,7 @@ import { MdOutlineModeEdit } from 'react-icons/md';
 import { DeleteIcon } from '@chakra-ui/icons';
 
 const ProductService = () => {
-    const { showAlert ,fetchProductService,productService} = useContext(AppContext)
+    const { showAlert, fetchProductService, productService, admin_id } = useContext(AppContext)
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
@@ -46,6 +46,7 @@ const ProductService = () => {
     const onSubmit = async (data) => {
         console.log(data)
         const formData = new FormData();
+        formData.append("admin_id", admin_id);
         formData.append("name", data.name);
         formData.append("description", data.description);
         formData.append("image", data.image[0]);
@@ -87,7 +88,7 @@ const ProductService = () => {
         formData.append("name", data.name);
         formData.append("description", data.description);
         if (data.image && data.image.length > 0) {
-          formData.append("image", data.image[0]); 
+            formData.append("image", data.image[0]);
         }
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/update`, {
@@ -97,17 +98,17 @@ const ProductService = () => {
                 },
                 body: formData
             })
-            const result=await response.json();
+            const result = await response.json();
             console.log(result)
-            if(result.success){
-                showAlert("Product updated successfully",'success')
+            if (result.success) {
+                showAlert("Product updated successfully", 'success')
                 fetchProductService();
                 onEditClose();
             }
-            
+
         } catch (error) {
             console.log(error)
-            showAlert("Internal server error",'error')
+            showAlert("Internal server error", 'error')
         }
     }
 
@@ -304,21 +305,30 @@ const ProductService = () => {
                     onClose={onClose} >
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader fontSize={'18px'}>Add Sector</ModalHeader>
+                        <ModalHeader fontSize={'18px'}>Add Product</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
                             <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-                                <FormControl>
+                                <FormControl isInvalid={errors.name}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                                     <Input type='text' {...register("name", { required: "Product name is required" })} placeholder='enter product name' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                                    {errors.name && (
+                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.name.message}</FormErrorMessage>
+                                    )}
                                 </FormControl>
-                                <FormControl>
+                                <FormControl isInvalid={errors.description}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
                                     <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                                    {errors.description && (
+                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>
+                                    )}
                                 </FormControl>
-                                <FormControl>
+                                <FormControl isInvalid={errors.file}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Image</FormLabel>
                                     <Input type='file' {...register("image")} fontSize="var(--text-12px)" autoComplete='off'></Input>
+                                    {errors.file && (
+                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.image.message}</FormErrorMessage>
+                                    )}
                                 </FormControl>
                                 <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                                     <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>

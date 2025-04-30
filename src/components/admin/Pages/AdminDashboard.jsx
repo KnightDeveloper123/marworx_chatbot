@@ -6,7 +6,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { RiRobot2Fill } from "react-icons/ri"; import { AppContext } from "../../context/AppContext";
+import { RiRobot2Fill } from "react-icons/ri"; 
+import { AppContext } from "../../context/AppContext";
 import { IoIosSend, IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
@@ -16,7 +17,7 @@ import ApexCharts from 'apexcharts'
 import ReactApexChart from "react-apexcharts";
 
 const AdminDashboard = () => {
-  const { showAlert, formatDate } = useContext(AppContext);
+  const { showAlert, formatDate,admin_id } = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [dashboardData, setDashboardData] = useState({});
   const [documents, setDocuments] = useState([]);
@@ -90,6 +91,7 @@ const AdminDashboard = () => {
 
   const handleFileSubmit = async () => {
     const formData = new FormData();
+    formData.append("admin_id", admin_id);
     formData.append("file", file.file);
     formData.append("fileName", file.fileName);
     try {

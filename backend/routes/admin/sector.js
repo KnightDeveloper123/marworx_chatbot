@@ -25,7 +25,7 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('icon'), async (req, res) => { 
     try {
-        let { name, category, description, products } = req.body;
+        let { name, category, description, products,admin_id } = req.body;
         if (typeof products === 'string') {
             try {
                 products = JSON.parse(products);
@@ -44,8 +44,8 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
 
         const file_name = req.file.filename;
 
-        const sql = `INSERT INTO sector (name, category, description, icon) VALUES (?, ?, ?, ?)`;
-        const values = [name, category, description, file_name];
+        const sql = `INSERT INTO sector (name, category, description, icon,admin_id) VALUES (?, ?, ?, ?,?)`;
+        const values = [name, category, description, file_name,admin_id];
 
         connection.query(sql, values, (err, result) => {
             if (err) {

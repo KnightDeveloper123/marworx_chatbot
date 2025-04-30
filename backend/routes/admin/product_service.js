@@ -24,7 +24,7 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('image'), async (req, res) => {
     try {
-        const { name, description } = req.body;
+        const { name, description, admin_id } = req.body;
 
         if (!req.file) {
             return res.status(400).json({ error: 'Image file is required.' });
@@ -32,8 +32,8 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
 
         const file_name = req.file.filename;
 
-        const query = 'INSERT INTO product_service (name, description, image) VALUES (?, ?, ?)';
-        connection.query(query, [name, description, file_name], (err, data) => {
+        const query = 'INSERT INTO product_service (name, description, image,admin_id) VALUES (?, ?, ?,?)';
+        connection.query(query, [name, description, file_name,admin_id], (err, data) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({ error: "Something went wrong" });

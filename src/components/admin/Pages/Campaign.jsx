@@ -76,7 +76,7 @@ import { IoCallOutline } from "react-icons/io5";
 const Campaign = () => {
 
   const token = localStorage.getItem('token')
-  const { showAlert, fetchCampaign, campaign, formatDate } = useContext(AppContext)
+  const { showAlert, fetchCampaign, campaign, formatDate ,admin_id} = useContext(AppContext)
   const [filteredSectors, setFilteredSectors] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -184,7 +184,8 @@ const Campaign = () => {
           template_type: campaignData.template_type,
           template_lang: campaignData.template_lang,
           header: campaignData.header,
-          body: campaignData.body
+          body: campaignData.body,
+          admin_id:admin_id
         })
 
       })
