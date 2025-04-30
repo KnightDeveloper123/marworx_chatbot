@@ -1,17 +1,19 @@
 import {
-  Box, Button, Flex, FormControl, FormLabel, GridItem, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, SimpleGrid, Table, TableCaption, TableContainer, Tbody, Td, Text,
+  Box, Button, Divider, Flex, FormControl, FormLabel, GridItem, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, SimpleGrid, Table, TableCaption, TableContainer, Tbody, Td, Text,
   Th,
   Thead,
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { BsPersonFillGear } from "react-icons/bs";
-import { AppContext } from "../../context/AppContext";
-import { IoMdAdd } from "react-icons/io";
+import { RiRobot2Fill } from "react-icons/ri"; import { AppContext } from "../../context/AppContext";
+import { IoIosSend, IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import { useLocation } from "react-router-dom";
+import { MdSocialDistance } from "react-icons/md";
+import ApexCharts from 'apexcharts'
+import ReactApexChart from "react-apexcharts";
 
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext);
@@ -19,7 +21,7 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState({});
   const [documents, setDocuments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-  const location=useLocation();
+  const location = useLocation();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -138,43 +140,168 @@ const AdminDashboard = () => {
       showAlert("Upload failed", "error");
     }
   }
+  const [state, setState] = useState({
+
+    series: [
+      {
+        name: "Bots",
+        data: [28, 29, 33, 36, 32, 32, 33]
+      },
+      {
+        name: "Campaigns",
+        data: [12, 11, 14, 18, 17, 13, 13]
+      }
+    ],
+    options: {
+      chart: {
+        height: 350,
+        type: 'line',
+        dropShadow: {
+          enabled: true,
+          color: '#000',
+          top: 18,
+          left: 7,
+          blur: 10,
+          opacity: 0.5
+        },
+        zoom: {
+          enabled: false
+        },
+        toolbar: {
+          show: false
+        }
+      },
+      colors: ['#77B6EA', '#545454'],
+      dataLabels: {
+        enabled: true,
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+      title: {
+        text: 'Top performing bots and campaigns',
+        align: 'left'
+      },
+      grid: {
+        borderColor: '#e7e7e7',
+        row: {
+          colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+          opacity: 0.5
+        },
+      },
+      markers: {
+        size: 1
+      },
+      xaxis: {
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        title: {
+          text: 'Month'
+        }
+      },
+      yaxis: {
+        title: {
+          text: ''
+        },
+        min: 5,
+        max: 40
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'right',
+        floating: true,
+        offsetY: -25,
+        offsetX: -5
+      }
+    },
+  });
+  const [activeUser, setActiveUser] = useState({
+
+    series: [{
+      data: [400, 430, 448, 470, 540, 580, 690]
+    }],
+    options: {
+      chart: {
+        type: 'bar',
+        height: 350
+      },
+      annotations: {
+        xaxis: [{
+          x: 500,
+          borderColor: '#00E396',
+        }],
+        yaxis: [{
+          y: 'July',
+          y2: 'September'
+        }]
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+        }
+      },
+      dataLabels: {
+        enabled: true
+      },
+      xaxis: {
+        categories: ['June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      },
+      grid: {
+        xaxis: {
+          lines: {
+            show: true
+          }
+        }
+      },
+      yaxis: {
+        reversed: true,
+        axisTicks: {
+          show: true
+        }
+      }
+    },
+
+  });
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
-    {location.pathname === '/admin/dashboard' &&  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-        <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-          <Flex flexDir={'column'}>
-            <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
-            <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Total Employees</Text>
-          </Flex>
+      {location.pathname === '/admin/dashboard' &&
+      <Box>
+        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+            <Flex flexDir={'column'}>
+              <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of active bots</Text>
+            </Flex>
+            <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
+              <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><RiRobot2Fill /></Text>
+            </Box>
+          </GridItem>
 
-          <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
-            <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><BsPersonFillGear /></Text>
+          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+            <Flex flexDir={'column'}>
+              <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of campaigns sent</Text>
+            </Flex>
+            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+            </Box>
+          </GridItem>
+        </SimpleGrid>
+        <Flex id="chart" mt={10} w={"100%"} gap={4} h={"auto"} flexDir={{ base: 'column', md: 'row' }}>
+          <Box w={{ base: '100%', md: '50%'}}>
+            <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
           </Box>
-        </GridItem>
-
-        <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-          <Flex flexDir={'column'}>
-            <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
-            <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Total Users</Text>
-          </Flex>
-
-          <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-            <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><BsPersonFillGear /></Text>
+          <Divider h={"auto"} borderWidth="1px" borderColor="black" orientation='vertical' />
+          <Box w={{ base: '100%', md: '50%'}}>
+            <Text>Active Users</Text>
+            <ReactApexChart options={activeUser.options} series={activeUser.series} type="bar" height={350} />
           </Box>
-        </GridItem>
+        </Flex>
+        </Box>
+      }
 
-        <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-          <Flex flexDir={'column'}>
-            <Text fontSize={'20px'}>{dashboardData.pending_queries}</Text>
-            <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Pending Queries</Text>
-          </Flex>
 
-          <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
-            <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><BsPersonFillGear /></Text>
-          </Box>
-        </GridItem>
-      </SimpleGrid> }
+
 
       <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
         <Button
