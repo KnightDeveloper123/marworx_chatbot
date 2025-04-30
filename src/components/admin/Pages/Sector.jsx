@@ -293,10 +293,10 @@ const Sector = () => {
               {
                 filteredData && filteredData.map((sector) => (
                   <Tr key={sector.id}>
-                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.id}</Td>
-                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.name}</Td>
-                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.category}</Td>
-                    <Td onClick={() => navigate(`/admin/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.description}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.id}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.name}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.category}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.description}</Td>
 
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"

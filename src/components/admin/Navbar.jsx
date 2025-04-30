@@ -61,15 +61,15 @@ function Navbar() {
   const user = encryptedUser ? decrypt(encryptedUser) : null;
 
   const adminNavbar = [
-    { title: "Dashboard", url: "/admin/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
-    { title: "Employee", url: "/admin/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Sector", url: "/admin/sector", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Users", url: "/admin/user", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Product Services ", url: "/admin/product_service", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Bot Builder", url: "/admin/bot_builder", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Campaign", url: "/admin/campaign", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Genarative Bot", url: "/admin/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Queries", url: "/admin/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
+    { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
+    { title: "Employee", url: "/home/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Sector", url: "/home/sector", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
+    { title: "Product Services ", url: "/home/product_service", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Bot Builder", url: "/home/bot_builder", icon: <Icon as={FaCircleUser} mr={2} /> },
+    { title: "Campaign", url: "/home/campaign", icon: <Icon as={FaUser} mr={2} /> },
+    { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
+    { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -82,7 +82,7 @@ function Navbar() {
   const [empData, setEmpData] = useState(null);
   const getEmpById = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getEmployeeId?user_id=${user.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getEmployeeId?user_id=${user.id}`, {
         method: "GET",
         headers: {
           Authorization: token
@@ -115,7 +115,7 @@ function Navbar() {
       formData.append('profile', data.profile[0]);
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/update`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/update`, {
         method: "POST",
         headers: {
           Authorization: token
@@ -139,7 +139,7 @@ function Navbar() {
   const onPasswordSubmit = async (data) => {
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/changePassword`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/changePassword`, {
         method: "POST",
         headers: {
           "Content-Type": 'application/json',
@@ -163,7 +163,7 @@ function Navbar() {
 
   const logout = () => {
     localStorage.removeItem('token')
-    navigate('/admin')
+    navigate('/home')
   }
 
   return (

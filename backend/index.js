@@ -29,7 +29,7 @@ app.use("/profile", express.static(path.join(__dirname, "profile/")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/employee', require("./routes/admin/employee"))
+app.use('/admin', require("./routes/admin/admin"))
 app.use('/support', require("./routes/admin/support"))
 app.use('/documents', require("./routes/admin/documents"))
 app.use('/product_service', require("./routes/admin/product_service"))

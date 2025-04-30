@@ -69,7 +69,7 @@ function Employee() {
 
   const onSubmit = async (values) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/addEmployee`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/add`, {
         method: "POST",
         headers: {
           "Content-Type": 'application/json',
@@ -80,7 +80,7 @@ function Employee() {
           email: values.email,
           mobile_no: values.mobile_no,
           date_of_birth: values.date_of_birth ? values.date_of_birth.split("T")[0] : "",
-          role: values.role
+          role: "Admin"
 
         })
       })
@@ -140,7 +140,7 @@ function Employee() {
 
   const onSubmitEdit = async (values) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/updateEmployee`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +152,7 @@ function Employee() {
           email: values.email,
           mobile_no: values.mobile_no,
           date_of_birth: new Date(values.date_of_birth).toISOString().split("T")[0],
-          role: values.role
+          role: "Admin"
         }),
       });
 
@@ -164,7 +164,7 @@ function Employee() {
         onCloseEdit();
       } else {
 
-        showAlert(result.error || "Failed to update employee.", 'error');
+        showAlert(result.error || "Failed to update Admin.", 'error');
       }
     } catch (error) {
       console.error("Error updating employee:", error);
@@ -185,7 +185,7 @@ function Employee() {
 
   const deleteEmployee = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/deleteEmployee`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -222,7 +222,7 @@ function Employee() {
     );
     
     try{
-        const response =await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getActiveStatus`, {
+        const response =await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getActiveStatus`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -254,7 +254,7 @@ function Employee() {
           gap="10px"
         >
           <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
-            Users
+            Admin
           </Text>
           <Flex gap={2}>
             {/* <InputGroup alignItems="center">
@@ -409,7 +409,7 @@ function Employee() {
                       fontSize="var(--mini-text)"
 
                       fontWeight="var(--big-font-weight)"
-                      onClick={() => navigate(`/admin/user/${d.id}`)}
+                      onClick={() => navigate(`/home/admin/${d.id}`)}
                       cursor={'pointer'}
                     >
                       <Box display={'flex'} alignItems={'center'} justifyContent={'flex-start'} flexDirection={'row'} gap={'4px'}>

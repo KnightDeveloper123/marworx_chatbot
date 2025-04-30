@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const fetchDashboardData = useCallback(async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/employee/getAllDashboardData`,
+        `${import.meta.env.VITE_BACKEND_URL}/admin/getAllDashboardData`,
         {
           method: "GET",
           headers: {
@@ -266,7 +266,7 @@ const AdminDashboard = () => {
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
-      {location.pathname === '/admin/dashboard' &&
+      {location.pathname === '/home/dashboard' &&
       <Box>
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
           <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>

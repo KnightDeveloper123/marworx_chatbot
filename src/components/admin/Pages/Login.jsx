@@ -48,7 +48,7 @@ export default function Login() {
   const handleRegister = async (values) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/employee/signUp`,
+        `${import.meta.env.VITE_BACKEND_URL}/admin/signUp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ export default function Login() {
     // console.log(values)
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/employee/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/admin/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export default function Login() {
         localStorage.setItem("token", result.auth_token);
         localStorage.setItem("user", encryptedData);
         showAlert(result.success, "success");
-        navigate("/admin/dashboard");
+        navigate("/home/dashboard");
       } else {
         
         showAlert(result.error || "Login failed", "error");
@@ -104,7 +104,7 @@ export default function Login() {
   const handleOtpVerify = async () => {
   
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/verify-otp`,
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -119,7 +119,7 @@ export default function Login() {
         localStorage.setItem("token", result.auth_token);
         localStorage.setItem("user", encryptedData);
         showAlert(result.success, "success");
-        navigate("/admin/dashboard");
+        navigate("/home/dashboard");
       } else {
         showAlert(result.error || "OTP verification failed", "error");
       }

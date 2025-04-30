@@ -68,7 +68,7 @@ export const AppProvider = ({ children }) => {
     const fetchAllEmployee = async () => {
         try {
             setLoading(true)
-            const response = await fetch(`${APP_URL}/employee/getAllEmployee`, {
+            const response = await fetch(`${APP_URL}/admin/getAllEmployee`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

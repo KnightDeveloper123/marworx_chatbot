@@ -9,7 +9,7 @@ const BreadCrumb = () => {
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter(Boolean);
 
-  const isAdminRoute = pathnames[0] === "admin";
+  const isAdminRoute = pathnames[0] === "home";
   const segments = isAdminRoute ? pathnames.slice(1) : pathnames;
 
   return (
@@ -17,11 +17,11 @@ const BreadCrumb = () => {
       <Breadcrumb fontSize="sm" separator="/" spacing="1"> 
         <BreadcrumbItem>
           <Icon as={FaTachometerAlt} mr={2} />  
-          <BreadcrumbLink as={Link} to="/admin/dashboard">Admin</BreadcrumbLink>
+          <BreadcrumbLink as={Link} to="/home/dashboard">Admin</BreadcrumbLink>
         </BreadcrumbItem>
 
         {segments.map((seg, idx) => {
-          const path = `/admin/${segments.slice(0, idx + 1).join("/")}`;
+          const path = `/home/${segments.slice(0, idx + 1).join("/")}`;
           const label = seg.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 
           return (

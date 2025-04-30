@@ -18,12 +18,12 @@ import SectorProfile from './components/admin/Pages/SectorProfile';
 const MainPage = lazy(() => import('./components/user/MainPage'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/Pages/AdminDashboard'));
-const Employee = lazy(() => import('./components/admin/Pages/Employee'));
+const Admin = lazy(() => import('./components/admin/Pages/Admin'));
 const User = lazy(() => import('./components/admin/Pages/User'));
 const Queries = lazy(() => import('./components/admin/Pages/Queries'));
 const Login = lazy(() => import('./components/admin/Pages/Login'));
 const UserProfile = lazy(() => import('./components/admin/Pages/UserProfile'));
-const EmployeeProfile = lazy(() => import('./components/admin/Pages/EmployeeProfile'));
+const AdminProfile = lazy(() => import('./components/admin/Pages/AdminProfile'));
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
 
@@ -41,10 +41,10 @@ return (
       <Router>
         <Routes>
           {/* Admin Routes */}
-          <Route exact path="/admin" element={<Login />} />
-          <Route path="/admin/*" element={<AdminLayout />}>
+          <Route exact path="/home" element={<Login />} />
+          <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="user" element={<Employee />} />
+            <Route path="admin" element={<Admin />} />
             <Route path='sector' element={<Sector />} />
             <Route path='sector/:id' element={<SectorProfile />} />
             <Route path='product' element={<ProductService />} />
@@ -54,7 +54,7 @@ return (
             <Route path="queries" element={<Queries />} />
             {/* <Route path="user" element={<User />} />
             <Route path="user/:id" element={<UserProfile />} /> */}
-            <Route path="user/:id" element={<EmployeeProfile />} />
+            <Route path="admin/:id" element={<AdminProfile />} />
           </Route>
 
           {/* User Routes */}

@@ -22,7 +22,7 @@ const UserProfile = () => {
   const fetchAllUser = async () => {
     try {
        
-        const response = await fetch(`${APP_URL}/employee/getEmployeeById?employee_id=${id}`, {
+        const response = await fetch(`${APP_URL}/admin/getEmployeeById?employee_id=${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
