@@ -292,7 +292,7 @@ function Employee() {
                 fontWeight="var(--big-font-weight)"
                 onClick={() => onOpen()}
               >
-                Add User
+                Add Admin
               </Button>
             </Flex>
           </Flex>
@@ -400,7 +400,7 @@ function Employee() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      U-{d.id}
+                      A-{d.id}
                     </Td>
 
                     <Td
@@ -517,7 +517,7 @@ function Employee() {
         onClose={onClose} >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize={'18px'}>Add User</ModalHeader>
+          <ModalHeader fontSize={'18px'}>Add Admin</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
 
@@ -592,7 +592,7 @@ function Employee() {
       <Modal isOpen={isOpenEdit} onClose={onCloseEdit}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize={"18px"}>Edit User</ModalHeader>
+          <ModalHeader fontSize={"18px"}>Edit Admin</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Box as="form" onSubmit={handleSubmit(onSubmitEdit)} display={"flex"} flexDirection={"column"} gap={"8px"}>
@@ -671,10 +671,10 @@ function Employee() {
       <Modal isOpen={isOpenDelete} onClose={onCloseDelete} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize="16px" textAlign={'center'}> Delete User</ModalHeader>
+          <ModalHeader fontSize="16px" textAlign={'center'}> Delete Admin</ModalHeader>
           <ModalCloseButton />
           <ModalBody textAlign={'center'}>
-            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this User?</Text>
+            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Admin?</Text>
           </ModalBody>
           <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
             <Button onClick={deleteEmployee} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>

@@ -413,7 +413,7 @@ const Campaign = () => {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      C-{d.id}
+                      C-{index+1}
                     </Td>
 
                     <Td

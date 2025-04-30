@@ -4,6 +4,7 @@
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Icon } from "@chakra-ui/react";
 import { useLocation, Link } from "react-router-dom";
 import { FaTachometerAlt, FaFileAlt } from 'react-icons/fa';
+import { decrypt } from "../utils/security";
 
 const BreadCrumb = () => {
   const location = useLocation();
@@ -12,12 +13,15 @@ const BreadCrumb = () => {
   const isAdminRoute = pathnames[0] === "home";
   const segments = isAdminRoute ? pathnames.slice(1) : pathnames;
 
+  const encryptedUser = localStorage.getItem('user');
+  const user = encryptedUser ? decrypt(encryptedUser) : null;
+
   return (
     <Box px={'1'} py="4">
       <Breadcrumb fontSize="sm" separator="/" spacing="1"> 
         <BreadcrumbItem>
           <Icon as={FaTachometerAlt} mr={2} />  
-          <BreadcrumbLink as={Link} to="/home/dashboard">Admin</BreadcrumbLink>
+          <BreadcrumbLink as={Link} to="/home/dashboard">{user.role}</BreadcrumbLink>
         </BreadcrumbItem>
 
         {segments.map((seg, idx) => {

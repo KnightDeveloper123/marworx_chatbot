@@ -54,8 +54,8 @@ return (
             <Route path='campaign' element={<Campaign />} />
             <Route path='gen_bot' element={<GenerativeBot />} />
             <Route path="queries" element={<Queries />} />
-            {/* <Route path="user" element={<User />} />
-            <Route path="user/:id" element={<UserProfile />} /> */}
+            <Route path="user" element={<User />} />
+            <Route path="user/:id" element={<UserProfile />} />
             <Route path="admin/:id" element={<AdminProfile />} />
           </Route>
 
