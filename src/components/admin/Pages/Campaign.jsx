@@ -158,6 +158,7 @@ const Campaign = () => {
   const [campaignData, setCampaignData] = useState({
     channel_name: 'WhatsApp',
     campaign_name: "",
+    to:"",
     message_content: "",
     sector: '',
     template_name: "",
@@ -190,12 +191,13 @@ const Campaign = () => {
           template_lang: campaignData.template_lang,
           header: campaignData.header,
           body: campaignData.body,
-          admin_id: admin_id
+          admin_id: admin_id,
+          to:campaignData.to
         })
 
       })
       const result = await response.json();
-
+        console.log("rer",result)
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
         fetchCampaign();
@@ -418,7 +420,7 @@ const Campaign = () => {
 
           <TabPanels>
             <TabPanel>
-              <p>one!</p>
+             
 
 
               <Flex
@@ -939,7 +941,14 @@ const Campaign = () => {
                       <Flex p="4" justifyContent="space-between" borderBottom="1px solid #E2E8F0">
                         <Box>
                           <Text fontWeight="bold">To</Text>
-                          <Text fontSize="sm" color="gray.500">Select a list of recipients</Text>
+                          <Select name="to"  value={campaignData.to} onChange={handleChange} placeholder="select contact" >
+                            {
+                             documents.map((d)=>(
+                        <option value={d.contact_name}>{d.contact_name}</option>
+                             ))
+                            }
+                          </Select>
+                          {/* <Text fontSize="sm" color="gray.500">Select a list of recipients</Text> */}
                         </Box>
                         <Button variant="outline" size="sm" borderRadius="full">Edit</Button>
                       </Flex>

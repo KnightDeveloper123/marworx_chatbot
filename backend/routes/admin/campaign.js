@@ -10,8 +10,8 @@ const { Parser } = require('json2csv');
 router.post("/add", middleware, async (req, res) => {
     try {
         const {  channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id ,to} = req.body;
-        // console.log(req.body)
-        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, is_status,admin_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?);'
+        console.log(req.body)
+        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?);'
         connection.execute(insertQuery, [channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id, to ], (err, data) => {
             if (err) {
                 console.log(err);

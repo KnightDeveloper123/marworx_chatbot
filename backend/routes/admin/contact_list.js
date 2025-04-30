@@ -143,7 +143,7 @@ router.post("/delete", middleware, async (req, res) => {
 router.get("/getAllcontacts", async (req, res) => {
     try {
         const {admin_id}=req.query;
-        console.log(admin_id)
+      
         connection.query(`select * from contacts where status=0 AND admin_id=${admin_id}`, (err, data) => {
             if (err) {
                 console.log(err);
