@@ -9,10 +9,13 @@ import { MdProductionQuantityLimits } from "react-icons/md";
 import { LuBot } from "react-icons/lu";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { LuSection } from "react-icons/lu";
+import React from "react";
+import { PiBagSimpleFill } from "react-icons/pi";
 
 const Sidebar = () => {
   const adminNavbar = [
     { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
+    { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
     // { title: "Employee", url: "/home/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
     { title: "Sector", url: "/home/sector", icon: <Icon as={LuSection} mr={2} /> },
     // { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
