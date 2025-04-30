@@ -15,7 +15,7 @@ const BreadCrumb = () => {
 
   const encryptedUser = localStorage.getItem('user');
   const user = encryptedUser ? decrypt(encryptedUser) : null;
-  console.log(user)
+
   return (
     <Box px={'1'} py="4">
       <Breadcrumb fontSize="sm" separator="/" spacing="1"> 
