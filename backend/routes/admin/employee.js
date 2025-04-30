@@ -177,54 +177,57 @@ router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const checkEmail = await executeQuery(`select * from employee where email=?`, [email]);
+        const user = await executeQuery(`select * from employee where email=?`, [email]);
 
-
-        if (!checkEmail[0] || !password) {
+        if (!user[0] || !password) {
             return res.status(400).json({ error: "Invalid Credentials" });
         }
 
-        if (!checkEmail[0]?.password) {
-            return res.status(400).json({ error: "Please set your password" })
+        if (!user[0]?.password) {
+            return res.status(400).json({ error: "Please set your password" });
         }
 
-        const pwdCompare = await bcrypt.compare(password, checkEmail[0].password);
+        const pwdCompare = await bcrypt.compare(password, user[0].password);
 
         if (!pwdCompare) {
-            return res.status(400).json({ error: "Invalid Credentials" })
+            return res.status(400).json({ error: "Invalid Credentials" });
         }
 
-        const otp = crypto.randomInt(100000, 999999).toString();
-        const expiry = Date.now() + 5 * 60 * 1000;
-        otpStore[email] = { otp, expiry };
-        // const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        // const expires = Date.now() + 5 * 60 * 1000; // 5 mins
+        if (user[0].role === 'Admin') {
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const expiry = Date.now() + 5 * 60 * 1000;
+            otpStore[email] = { otp, expiry };
 
-        // otpStore.set(email, { otp, expires });
+            await sendOtp(otp, email, user[0].name);
 
-        await sendOtp(otp, email, checkEmail[0].name);
+            return res.json({ step: "otp-verification", message: "OTP sent to email", email });
+        } else {
+            // Proceed directly to token generation for non-admin users
+            const payload = {
+                email: email,
+                user_id: user[0].id,
+                user_type: user[0].role
+            };
+            let auth_token = jwt.sign(payload, process.env.JWT_SECRET);
+            await executeQuery(`update employee set last_login=NOW() where id=?`, [user[0].id]);
 
-        return res.json({ step: "otp-verification", message: "OTP sent to email", email });
+            return res.json({
+                success: `Welcome Back, ${user[0].name}`,
+                data: {
+                    name: user[0].name,
+                    email: user[0].email,
+                    role: user[0].role,
+                    id: user[0].id
+                },
+                auth_token
+            });
+        }
 
-        // if (pwdCompare) {
-        //     const payload = {
-        //         email: email,
-        //         user_id: checkEmail[0].id,
-        //         user_type: checkEmail[0].role
-        //     };
-        //     let auth_token = jwt.sign(payload, process.env.JWT_SECRET);
-        //     await executeQuery(`update employee set last_login=NOW() where id=${checkEmail[0]?.id};`)
-        //     return res.json({ success: `Welcome Back, ${checkEmail[0]?.name}`, data: { name: checkEmail[0]?.name, email: checkEmail[0]?.email, role: checkEmail[0].role, id: checkEmail[0].id }, auth_token })
-        // } else {
-        //     return res.status(400).json({ error: "Invalid Credentials." });
-        // }
     } catch (error) {
         console.log("/login: ", error.message);
         return res.status(500).json({ error: "Internal Server Error." });
     }
 });
-
-
 
 
 router.post('/verify-otp', async (req, res) => {
