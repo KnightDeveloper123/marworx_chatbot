@@ -1,5 +1,5 @@
 import { ArrowBackIcon, DeleteIcon } from "@chakra-ui/icons";
-import React from "react";
+import React, { useRef } from "react";
 import {
   Box,
   Button,
@@ -61,6 +61,9 @@ import {
   Switch,
   Textarea,
   Avatar,
+  SimpleGrid,
+  GridItem,
+  TableCaption,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import Card from "../../../Card";
@@ -73,6 +76,7 @@ import { FcBiohazard } from "react-icons/fc";
 import { CiVideoOn } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
+import { useParams } from "react-router-dom";
 
 const Campaign = () => {
 
@@ -276,6 +280,124 @@ const Campaign = () => {
   const handleSwitchChange = (e) => {
     setIsSwitchOn(e.target.checked);
   };
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const { isOpen: isFileOpen, onOpen: onFileOpen, onClose: onFileClose } = useDisclosure()
+  const [documents, setDocuments] = useState([]);
+  const [file, setFile] = useState({
+    fileName: "", file: []
+  });
+  const fileInputRef = useRef()
+  const handleFileChange = (event) => {
+    setFile((prev) => ({ ...prev, file: event.target.files[0] }));
+  };
+
+
+  const FileViewer = ({ selectedFile }) => {
+    const [fileContent, setFileContent] = useState("");
+    const [fileUrl, setFileUrl] = useState("");
+
+    useEffect(() => {
+      if (!selectedFile) {
+        setFileContent("");
+        setFileUrl("");
+        return;
+      }
+
+      const filePath = `${import.meta.env.VITE_BACKEND_URL}/documents/${selectedFile.name}`;
+
+      if (selectedFile.name.endsWith(".pdf")) {
+        // Download and show PDF
+        fetch(filePath)
+          .then(res => res.blob())
+          .then(blob => setFileUrl(URL.createObjectURL(blob)))
+          .catch(() => setFileUrl(""));
+      } else if (selectedFile.name.endsWith(".csv") || selectedFile.name.endsWith(".txt")) {
+        // Fetch and show text-based files
+        fetch(filePath)
+          .then(res => res.ok ? res.text() : Promise.reject("Failed to fetch"))
+          .then(setFileContent)
+          .catch(() => setFileContent("Error loading file."));
+      }
+    }, [selectedFile]);
+  }
+
+  // /getAllcontacts
+
+  const handleFileSubmit = async () => {
+    const formData = new FormData();
+    formData.append("admin_id", admin_id);
+    formData.append("fileName", file.fileName);
+    formData.append("file", file.file)
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact/upload?fileName=${file.fileName}`, {
+        method: "POST",
+        headers: {
+          "Authorization": token,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        showAlert(result.success, "success");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        setFile(null);
+        // fetchAllDocuments()
+        onFileClose();
+      } else {
+        showAlert(result.error, "error");
+      }
+    } catch (error) {
+      console.log(error);
+      showAlert("Upload failed", "error");
+    }
+  };
+
+  const getContacts = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact/getAllcontacts?admin_id=${admin_id}`, {
+        method: "GET",
+        headers: {
+          Authorization: token
+        }
+      })
+      const result = await response.json()
+      console.log("result", result)
+      setDocuments(result.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    getContacts()
+  }, [])
+
+  // const[contactId,setContactId]=useState(null)
+
+  const deleteContacts = async (contact_id) => {
+
+    // try {
+    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact/delete?contact_id=${contact_id}`, {
+    //     method: "POST",
+    //     headers: {
+    //       Authorization: token,
+    //       "Content-Type": 'application/json'
+    //     }
+
+    //   })
+    //   const result = await response.json()
+    //   console.log("result", result)
+    //   setDocuments(result.data)
+    // } catch (error) {
+    //   console.log(error)
+    // }
+  }
+
+
+
   return (
     <Card>
       <Flex
@@ -284,230 +406,356 @@ const Campaign = () => {
         flexDirection={"column"}
         p="5px"
       >
-        <Flex
-          w="100%"
-          alignItems={"center"}
-          justifyContent="space-between"
-          gap="10px"
-        >
-          <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
-            Campaign
-          </Text>
-          <Flex gap={2}>
 
-            <Flex gap='5px' alignItems={'center'}>
-              <Input h={"35px"} htmlSize={20} width='auto' fontSize="var(--mini-text)"
-                fontWeight="var(--big-font-weight)"
-                placeholder="Search type"
-                value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
-              <Button
-                borderRadius="var(--radius)"
-                leftIcon={<IoMdAdd fontSize={"20px"} />}
-                _hover={{ bgColor: "var(--active-bg)" }}
-                bgColor="var(--active-bg)"
-                color="#fff"
-                h={"35px"}
-                fontSize="var(--mini-text)"
-                fontWeight="var(--big-font-weight)"
-                onClick={onOpen}
+
+
+        <Tabs>
+          <TabList>
+            <Tab>Campaign</Tab>
+            <Tab>Contact List</Tab>
+
+          </TabList>
+
+          <TabPanels>
+            <TabPanel>
+              <p>one!</p>
+
+
+              <Flex
+                w="100%"
+                alignItems={"center"}
+                justifyContent="space-between"
+                gap="10px"
               >
-                Create Campaign
-              </Button>
-              {/* <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
+                <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
+                  Campaign
+                </Text>
+                <Flex gap={2}>
+
+                  <Flex gap='5px' alignItems={'center'}>
+                    <Input h={"35px"} htmlSize={20} width='auto' fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                      placeholder="Search type"
+                      value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
+                    <Button
+                      borderRadius="var(--radius)"
+                      leftIcon={<IoMdAdd fontSize={"20px"} />}
+                      _hover={{ bgColor: "var(--active-bg)" }}
+                      bgColor="var(--active-bg)"
+                      color="#fff"
+                      h={"35px"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                      onClick={onOpen}
+                    >
+                      Create Campaign
+                    </Button>
+                    {/* <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
               <TbFileExport fontSize={'25px'}  />
               </Box> */}
-            </Flex>
-          </Flex>
-        </Flex>
+                  </Flex>
+                </Flex>
+              </Flex>
 
 
-        <TableContainer
-          mt="20px"
-          borderRadius="5px 5px 0px 0px"
-        //  maxH={flag ? "unset" : "600px"}
-        // overflowY={flag ? "unset" : "scroll"}
-        >
-          <Table size="sm" className="custom-striped-table">
-            <Thead border="0.5px solid #F2F4F8">
-              <Tr h="40px" bgColor="var(--table-header-bg)">
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius="5px 0px 0px 0px"
-                  fontSize="var(--mini-text)"
-                >
-                  ID
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  channel
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  Campaign name
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  Template name
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  Template type
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  Start date
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius=""
-                  fontSize="var(--mini-text)"
-                >
-                  Status
-                </Th>
-                <Th
-                  fontWeight="var(--big-font-weight)"
-                  color="var(--text-black)"
-                  borderRadius="0px 5px 0px 0px"
-                  fontSize="var(--mini-text)"
-                >
-                  Actions
-                </Th>
+              <TableContainer
+                mt="20px"
+                borderRadius="5px 5px 0px 0px"
+              //  maxH={flag ? "unset" : "600px"}
+              // overflowY={flag ? "unset" : "scroll"}
+              >
+                <Table size="sm" className="custom-striped-table">
+                  <Thead border="0.5px solid #F2F4F8">
+                    <Tr h="40px" bgColor="var(--table-header-bg)">
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius="5px 0px 0px 0px"
+                        fontSize="var(--mini-text)"
+                      >
+                        ID
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        channel
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        Campaign name
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        Template name
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        Template type
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        Start date
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius=""
+                        fontSize="var(--mini-text)"
+                      >
+                        Status
+                      </Th>
+                      <Th
+                        fontWeight="var(--big-font-weight)"
+                        color="var(--text-black)"
+                        borderRadius="0px 5px 0px 0px"
+                        fontSize="var(--mini-text)"
+                      >
+                        Actions
+                      </Th>
 
-              </Tr>
-            </Thead>
+                    </Tr>
+                  </Thead>
 
-            <Tbody>
-              {filteredData &&
-                filteredData.map((d, index) => (
-                  <Tr
-                    key={index}
-                    border="0.5px solid #F2F4F8"
-                    h="40px"
-                    textAlign="start"
-                  >
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      C-{index+1}
-                    </Td>
-
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {d.channel_name}
-                    </Td>
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {d.campaign_name}
-                    </Td>
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {d.template_name}
-                    </Td>
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {d.template_type}
-                    </Td>
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {formatDate(d.created_at)}
-                    </Td>
-                    <Td
-                      border="0.5px solid #F2F4F8"
-                      color={"#404040"}
-                      fontSize="var(--mini-text)"
-                      fontWeight="var(--big-font-weight)"
-                    >
-                      {d.is_status}
-                    </Td>
-
-                    <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
-                      <Menu>
-                        <MenuButton
-                          bgColor="transparent"
-                          _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          as={Button}
+                  <Tbody>
+                    {filteredData &&
+                      filteredData.map((d, index) => (
+                        <Tr
+                          key={index}
+                          border="0.5px solid #F2F4F8"
+                          h="40px"
+                          textAlign="start"
                         >
-                          <RxDotsHorizontal />
-                        </MenuButton>
-                        <MenuList gap={2} >
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-                            onClick={() => editCampaign(d)}
-                            display={'flex'} alignItems={'center'} gap={2}
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
                           >
-                            <MdOutlineModeEdit color="green" />
-                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
-                              Edit
-                            </Text>
-                          </MenuItem>
-                          <Divider />
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-                            cursor="pointer"
-                            onClick={() => openDeleteModal(d.id)}
+                            C-{d.id}
+                          </Td>
 
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
                           >
-                            <Flex gap={2} alignItems="center">
-                              <DeleteIcon color={"red"} />
-                              <Text >Delete</Text>
-                            </Flex>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                    </Td>
-                  </Tr>
-                ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+                            {d.channel_name}
+                          </Td>
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
+                          >
+                            {d.campaign_name}
+                          </Td>
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
+                          >
+                            {d.template_name}
+                          </Td>
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
+                          >
+                            {d.template_type}
+                          </Td>
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
+                          >
+                            {formatDate(d.created_at)}
+                          </Td>
+                          <Td
+                            border="0.5px solid #F2F4F8"
+                            color={"#404040"}
+                            fontSize="var(--mini-text)"
+                            fontWeight="var(--big-font-weight)"
+                          >
+                            {d.is_status}
+                          </Td>
+
+                          <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
+                            <Menu>
+                              <MenuButton
+                                bgColor="transparent"
+                                _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
+                                _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
+                                as={Button}
+                              >
+                                <RxDotsHorizontal />
+                              </MenuButton>
+                              <MenuList gap={2} >
+                                <MenuItem
+                                  w="100%"
+                                  minW="100px"
+                                  onClick={() => editCampaign(d)}
+                                  display={'flex'} alignItems={'center'} gap={2}
+                                >
+                                  <MdOutlineModeEdit color="green" />
+                                  <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
+                                    Edit
+                                  </Text>
+                                </MenuItem>
+                                <Divider />
+                                <MenuItem
+                                  w="100%"
+                                  minW="100px"
+                                  cursor="pointer"
+                                  onClick={() => openDeleteModal(d.id)}
+
+                                >
+                                  <Flex gap={2} alignItems="center">
+                                    <DeleteIcon color={"red"} />
+                                    <Text >Delete</Text>
+                                  </Flex>
+                                </MenuItem>
+                              </MenuList>
+                            </Menu>
+                          </Td>
+                        </Tr>
+                      ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+
+
+            </TabPanel>
+            <TabPanel>
+              <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
+                <Button
+                  borderRadius="var(--radius)"
+                  leftIcon={<IoMdAdd fontSize={"20px"} />}
+                  _hover={{ bgColor: "var(--active-bg)" }}
+                  bgColor="var(--active-bg)"
+                  color="#fff"
+                  fontSize="var(--mini-text)"
+                  fontWeight="var(--big-font-weight)"
+                  h={"35px"}
+                  onClick={() => onFileOpen()}
+                >
+                  Add Documents
+                </Button>
+                <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
+                  <GridItem colSpan={{ base: 1, md: 2 }}>
+                    <TableContainer>
+                      <Table variant='striped' size={'sm'} borderRadius={'10px'}>
+                        <TableCaption>DATA SETS UPLOADED FOR MODEL TRAINING</TableCaption>
+                        <Thead>
+                          {documents.length === 0 ? <Tr><Th border={'1px solid #b4b4b4'} colSpan={'4'} textAlign={'center'} fontSize={'12px'}>No Documents Uploaded</Th></Tr> : <Tr>
+                            <Th>ID</Th>
+                            <Th>File Name</Th>
+                            <Th>Created At</Th>
+                            <Th>Action</Th>
+                          </Tr>}
+                        </Thead>
+                        <Tbody>
+                          {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} onClick={() => setSelectedFile(item)}>
+                            <Td>{item?.id}</Td>
+                            <Td>{item?.name}</Td>
+                            <Td>{formatDate(item?.created_at)}</Td>
+                            <Td>
+                              <Flex onClick={(e) => { e.stopPropagation(); deleteContacts(item.id) }} cursor={'pointer'} _hover={{ color: 'white', bg: 'red' }} color={'red'} justifyContent={'center'} alignItems={'center'} h={'20px'} w={'20px'} border={'1px solid red'} borderRadius={'full'}>
+                                <DeleteIcon />
+                              </Flex>
+                            </Td>
+                          </Tr>)}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  </GridItem>
+
+                  <FileViewer selectedFile={selectedFile} />
+                </SimpleGrid>
+              </Box>
+
+
+              <Modal isOpen={isFileOpen} onClose={onFileClose} motionPreset='slideInBottom' isCentered>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Upload Files</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <FormControl>
+                      <FormLabel>File Name</FormLabel>
+                      <Input name="fileName" type="text" onChange={(e) => setFile((prev) => ({ ...prev, fileName: e.target.value }))} placeholder="File Name" />
+                    </FormControl>
+
+                    <FormControl mt={2}>
+                      <Input border={'none'} p={0} type="file" name="file" ref={fileInputRef} onChange={handleFileChange} />
+                    </FormControl>
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button size={'sm'} mr={3} onClick={onFileClose}>
+                      Close
+                    </Button>
+                    <Button size={'sm'} variant='ghost' onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
+                      bgColor="var(--active-bg)"
+                      color="#fff">Upload</Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+
+              <GridItem colSpan={{ base: 1, md: 3 }} p={4} borderRadius="md" minH="300px" maxH="450px" overflowY="auto">
+                {selectedFile ? (
+                  <>
+                    <Text fontWeight="bold" mb={2}>{selectedFile.name}</Text>
+
+                    {selectedFile.name.endsWith(".pdf") ? (
+                      fileUrl ? (
+                        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+                          <Viewer fileUrl={fileUrl} />
+                        </Worker>
+                      ) : (
+                        <Text>Loading PDF...</Text>
+                      )
+                    ) : [".csv", ".txt"].some(ext => selectedFile.name.endsWith(ext)) ? (
+                      <Box as="pre" whiteSpace="pre-wrap" wordBreak="break-word">
+                        {fileContent || "Loading file content..."}
+                      </Box>
+                    ) : (
+                      <Text>Preview not available for this file type.</Text>
+                    )}
+                  </>
+                ) : (
+                  <Text>Select a file to view its content.</Text>
+                )}
+              </GridItem>
+
+
+
+            </TabPanel>
+
+          </TabPanels>
+        </Tabs>
       </Flex>
 
 
@@ -984,6 +1232,8 @@ const Campaign = () => {
           </ModalContent>
         </Modal>
       </Box>
+
+
     </Card>
   );
 };
