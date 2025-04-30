@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../../database/db');
 const executeQuery = require('../../utils/executeQuery');
+const csv = require('csv-parser');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 const multer = require('multer')
@@ -25,36 +26,81 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 },
 });
 
+
+// router.post('/upload', middleware, upload.single('file'), async (req, res) => {
+//     try {
+//         const { fileName } = req.query;
+//         const { admin_id } = req.body
+
+//         if (!req.file || !fileName) {
+//             return res.status(400).json({ error: 'File and fileName are required.' });
+//         }
+
+//         const fileExtension = path.extname(req.file.originalname);
+//         const file_name = fileName + fileExtension;
+
+//         connection.query('INSERT INTO contacts (name,contact_name,email,phone,admin_id) VALUES (?, ?, ?, ?, ?)', [file_name,admin_id], (err, data) => {
+//             if (err) {
+//                 console.log(err);
+//                 return res.status(400).json({ error: "Something went wrong" })
+//             }
+//             return res.status(200).json({
+//                 success: 'File uploaded successfully.',
+//                 data
+//             });
+
+//         });
+
+//     } catch (error) {
+//         console.error('/upload Error:', error.message);
+//         return res.status(500).json({ error: 'Internal Server Error.' });
+//     }
+// });
+
 router.post('/upload', middleware, upload.single('file'), async (req, res) => {
     try {
-        const { fileName } = req.query;
-        const { admin_id } = req.body
+        const { admin_id, fileName } = req.body;
 
-        if (!req.file || !fileName) {
-            return res.status(400).json({ error: 'File and fileName are required.' });
+        if (!req.file || !admin_id || !fileName) {
+            return res.status(400).json({ error: 'File, admin_id, and fileName are required.' });
         }
 
         const fileExtension = path.extname(req.file.originalname);
-        const file_name = fileName + fileExtension;
+        const file_name = `${fileName}${fileExtension}`;
+        const results = [];
 
-        connection.query('INSERT INTO contacts (name,admin_id) VALUES (?, ?)', [file_name,admin_id], (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.status(400).json({ error: "Something went wrong" })
-            }
-            return res.status(200).json({
-                success: 'File uploaded successfully.',
-                data
+        fs.createReadStream(req.file.path)
+            .pipe(csv())
+            .on('data', (row) => {
+                const { contact_name, phone, email } = row;
+                if (contact_name && phone && email) {
+                    results.push([file_name, contact_name, phone, email, admin_id]);
+                }
+            })
+            .on('end', () => {
+                if (results.length === 0) {
+                    return res.status(400).json({ error: 'No valid data found in CSV.' });
+                }
+
+                const sql = 'INSERT INTO contacts (file_name, contact_name, phone, email, admin_id) VALUES ?';
+                connection.query(sql, [results], (err, data) => {
+                    if (err) {
+                        console.error('Insert error:', err);
+                        return res.status(500).json({ error: 'Error inserting contacts.' });
+                    }
+
+                    return res.status(200).json({
+                        success: 'Contacts uploaded successfully.',
+                        inserted: data.affectedRows
+                    });
+                });
             });
 
-        });
-
     } catch (error) {
-        console.error('/upload Error:', error.message);
+        console.error('/upload Error:', error);
         return res.status(500).json({ error: 'Internal Server Error.' });
     }
 });
-
 router.post("/delete", middleware, async (req, res) => {
     try {
         const { contact_id } = req.query;
