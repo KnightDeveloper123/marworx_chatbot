@@ -72,11 +72,12 @@ import { TbFileExport } from "react-icons/tb";
 import { FcBiohazard } from "react-icons/fc";
 import { CiVideoOn } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
+import { HiOutlineArrowSmLeft } from "react-icons/hi";
 
 const Campaign = () => {
 
   const token = localStorage.getItem('token')
-  const { showAlert, fetchCampaign, campaign, formatDate ,admin_id} = useContext(AppContext)
+  const { showAlert, fetchCampaign, campaign, formatDate, admin_id } = useContext(AppContext)
   const [filteredSectors, setFilteredSectors] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -176,7 +177,7 @@ const Campaign = () => {
           Authorization: token
         },
         body: JSON.stringify({
-          channel_name: campaignData.channel_name,
+          channel_name: 'Whatsapp',
           campaign_name: campaignData.campaign_name,
           message_content: campaignData.message_content,
           sector: campaignData.sector,
@@ -185,12 +186,12 @@ const Campaign = () => {
           template_lang: campaignData.template_lang,
           header: campaignData.header,
           body: campaignData.body,
-          admin_id:admin_id
+          admin_id: admin_id
         })
 
       })
       const result = await response.json();
-      console.log(result)
+
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
         fetchCampaign();
@@ -202,10 +203,60 @@ const Campaign = () => {
     }
   }
 
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
 
-  const editCampaign = () => {
+  // console.log(selectedCampaign.id)
+
+
+  const editCampaign = (data) => {
+
+    setSelectedCampaign(data);
+
+    setCampaignData({
+      channel_name: data.channel_name || 'WhatsApp',
+      campaign_name: data.campaign_name || "",
+      message_content: data.message_content || "",
+      sector: data.sector || '',
+      template_name: data.template_name || "",
+      template_type: data.template_type || "",
+      template_lang: data.template_lang || "",
+      header: data.header || "",
+      body: data.body || ""
+    });
+    setIsStepOpen(true);
+    onOpen();
 
   }
+
+  const updateCampaign = async () => {
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/update`, {
+        method: "POST",
+        headers: {
+          "Content-type": 'application/json',
+          Authorization: token
+        },
+        body: JSON.stringify({
+          campaign_id: selectedCampaign.id,
+          ...campaignData
+        })
+      })
+      const result = await response.json();
+
+      if (result.success) {
+        showAlert("Campaign updated successfully", 'success')
+        fetchCampaign();
+        onStepClose();
+
+      }
+
+    } catch (error) {
+      console.log(error)
+      showAlert('failed to update campaign', 'error')
+    }
+  }
+
 
   const sectors = [{
     name: 'Education',
@@ -268,6 +319,8 @@ const Campaign = () => {
             </Flex>
           </Flex>
         </Flex>
+
+
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
@@ -456,14 +509,16 @@ const Campaign = () => {
           </Table>
         </TableContainer>
       </Flex>
+
+
       <Box>
         {isOpen && (
-          <Modal isOpen={isStepOpen} onClose={{ onClose, onStepClose }} size="6xl">
+          <Modal isOpen={isStepOpen} onClose={{ onClose, onStepClose }} size={"3xl"} >
             <ModalOverlay />
-            <ModalContent p={6}>
+            <ModalContent pt={'2'}>
               <ModalCloseButton onClick={() => onClose()} />
 
-              {/* Chakra Stepper */}
+
               {/* <Stepper index={activeStep} mb={6} size="sm" colorScheme="purple">
               {steps.map((step, index) => (
                 <Step key={index}>
@@ -485,12 +540,12 @@ const Campaign = () => {
 
               {activeStep === 0 && (
                 <>
-                  <Text fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
+                  <Text paddingLeft={'20px'} fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
                   <Divider my={3} borderColor="gray.300" borderWidth="1px"></Divider>
                 </>
               )}
               <Text fontSize={'18px'}></Text>
-              {/* Step Content */}
+
               <ModalBody>
                 {activeStep === 0 && (
 
@@ -501,7 +556,7 @@ const Campaign = () => {
                       Create a one-off campaign from scratch.
                     </Text>
 
-                    <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={8} paddingLeft={"70px"}>
+                    <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={8} >
 
                       <Box borderWidth="1px" borderRadius="md" textAlign="center" cursor="pointer">
                         <Box bgColor={'lightcyan'}>
@@ -517,9 +572,12 @@ const Campaign = () => {
 
                         position="relative"
                         cursor="pointer"
-                        onClick={goToNext}
-                      // name='channel_name'
-                      // value={campaignData.channel_name}
+
+                        onClick={() => {
+                          setCampaignData(prev => ({ ...prev, channel_name: 'WhatsApp' }));
+                          goToNext(); // move to next step after setting value
+                        }}
+
                       >
                         <Box bgColor={'lightcyan'}>
                           <Image src="https://img.icons8.com/color/96/000000/whatsapp--v1.png" mx="auto" mb={2} />
@@ -547,7 +605,7 @@ const Campaign = () => {
                 )}
 
                 {activeStep === 1 && (
-                  <Box width="100%" maxW="500px" mx="auto" textAlign="left">
+                  <Box width="100%" maxW="600px" mx="auto" textAlign="left">
                     <Box fontSize="24px" fontWeight="bold" mb="3">
                       Create a WhatsApp campaign
                     </Box>
@@ -566,6 +624,7 @@ const Campaign = () => {
                       borderColor="gray.300"
                       name="campaign_name"
                       value={campaignData.campaign_name}
+
                       onChange={handleChange}
                       borderRadius={'16px'}
                     />
@@ -577,8 +636,11 @@ const Campaign = () => {
                       <Button
                         fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}
                         onClick={goToNext}
+
                       >
-                        Start
+                        {selectedCampaign ? "Update" : "Start"}
+
+
                       </Button>
                     </Flex>
                   </Box>
@@ -591,6 +653,10 @@ const Campaign = () => {
                   <Box width="100%" maxW="600px" mx="auto" position={'relative'} zIndex={10}>
                     <Flex justifyContent="space-between" alignItems="center" mb="6">
                       <Flex alignItems="center" gap="2">
+                        <Text onClick={goToPrevious}>
+                          <HiOutlineArrowSmLeft />
+                        </Text>
+
                         <Text fontSize="20px" fontWeight="bold">
                           marworx
                         </Text>
@@ -632,18 +698,7 @@ const Campaign = () => {
                         <Button colorScheme="gray" borderRadius="full" onClick={onDrawerOpen} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                           textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} >Start Creating</Button>
                       </Flex>
-
-
                     </Box>
-
-                    <Flex justifyContent="start" gap="4" mt={'8px'}>
-                      <Button onClick={goToPrevious} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} >
-                        Back
-                      </Button>
-
-                    </Flex>
-
                   </Box>
                 )
                 }
@@ -655,6 +710,62 @@ const Campaign = () => {
 
                     <DrawerBody>
                       <Box>
+                        <Tabs isFitted variant="enclosed">
+                          <TabList bg="gray.200" p="2px" borderRadius="md" width="100%" mx="auto">
+                            <Tab
+                              _selected={{ bg: "white", fontWeight: "bold", borderRadius: "md" }}
+                              fontSize="14px"
+                            >
+                              Use Template
+                            </Tab>
+                            <Tab
+                              _selected={{ bg: "white", fontWeight: "bold", borderRadius: "md" }}
+                              fontSize="14px"
+                            >
+                              Start from Scratch
+                            </Tab>
+                          </TabList>
+
+                          <TabPanels>
+                            {/* Tab 1 Panel */}
+                            <TabPanel>
+                              <Flex direction="column" gap={3}>
+                                <Text fontSize="sm" >
+                                  Choose the template that you want to reuse. Note that the templates
+                                  that were already approved cannot be edited.
+                                </Text>
+                                <FormControl>
+                                  <Select placeholder="Select a template" borderRadius="full">
+                                    <option value="template">abc</option>
+                                  </Select>
+                                </FormControl>
+                              </Flex>
+                            </TabPanel>
+
+                            {/* Tab 2 Panel */}
+                            <TabPanel>
+                              <Flex direction="column" justify="space-between" height="370px">
+                                <Text fontSize="14px">
+                                  Meta will review new messages before you can send them.
+                                </Text>
+                                <Flex justify="flex-end">
+                                  <Button
+                                    onClick={onModalOpen}
+                                    fontSize="13px"
+                                    bgColor="#FF5722"
+                                    _hover={{ bgColor: "#e64a19" }}
+                                    textColor="white"
+                                    size="sm"
+                                  >
+                                    Start Creating
+                                  </Button>
+                                </Flex>
+                              </Flex>
+                            </TabPanel>
+                          </TabPanels>
+                        </Tabs>
+                      </Box>
+                      {/* <Box>
                         <Tabs>
                           <TabList bg="gray.200" p="2px" borderRadius="md" width={'70%'}>
 
@@ -676,7 +787,7 @@ const Campaign = () => {
                             </TabPanel>
                             <TabPanel>
                               <Flex direction="column" height="400px" justify="space-between">
-                                <Text>
+                                <Text fontSize={'14px'}>
                                   Meta will review new messages before you can send them
                                 </Text>
 
@@ -696,26 +807,26 @@ const Campaign = () => {
                           </TabPanels>
                         </Tabs>
 
-                      </Box>
+                      </Box> */}
                     </DrawerBody>
 
 
                   </DrawerContent>
                 </Drawer>
 
-                <Modal isOpen={isModalOpen} onClose={onModalClose} size={'4xl'}>
+                <Modal isOpen={isModalOpen} onClose={onModalClose} size={'2xl'}>
                   <ModalOverlay />
                   <ModalContent>
                     <ModalHeader></ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                      <Box width="100%" maxW="500px" mx="auto" textAlign="left">
+                      <Box width="100%" maxW="500px" mx="auto" textAlign="left" mb={'14px'}>
                         <Heading fontSize="20px" mb={4}>Create a WhatsApp template</Heading>
                         <Text color={"gray.600"} fontSize={'15px'}>Design a WhatsApp message template that can be used for your WhatsApp campaigns or Transactional sendings. A template needs to be submitted for approval to Meta before it can be sent.</Text>
-                        <Box display={'flex'} flexDirection={'column'}>
+                        <Box display={'flex'} flexDirection={'column'} >
                           <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
-                            <Select fontSize="var(--text-12px)" name="sector" placeholder="select sector" value={campaignData.sector} onChange={handleChange}>
+                            <Select fontSize="var(--text-12px)" name="sector" placeholder="Select sector" value={campaignData.sector} onChange={handleChange}>
                               {sectors.map((sector) => (
                                 <option value={sector.value} key={sector.value}>{sector.name}</option>
                               ))}
@@ -742,7 +853,7 @@ const Campaign = () => {
                               <option value='marathi'>Marathi</option>
                             </Select>
                           </FormControl>
-                          <Flex justifyContent="end" gap="4" mt={'10px'}>
+                          <Flex justifyContent="end" gap="4" mt={'12px'}>
                             <Button onClick={() => {
                               setCampaignData({
                                 sector: "",
@@ -768,56 +879,57 @@ const Campaign = () => {
                   </ModalContent>
                 </Modal>
 
-
-
-
                 {activeStep === 3 && (
-                  <Box width="100%" textAlign="left">
-                    <Box width="100%" mx="auto">
-                      <Flex w={"100%"} justifyContent="space-between" alignItems="center" mb="1" >
+                  <Box ml={'-28px'} >
+                    <Box width="100%" p={'5px'} mx="auto">
+                      <Flex w={"100%"} justifyContent="space-between" alignItems="start" mb="1" mt={'24px'}>
                         <Flex alignItems="center" gap="2">
                           <FcBiohazard size={30} />
                           Sales
                         </Flex>
                         <Flex mb='2'>
                           {/* <Button color={"#805ad5"} variant='ghost' gap={1}>Settings</Button> */}
-                          <Button type="button" size={'sm'} color={"#805ad5"} variant='ghost'>Discard</Button>
-                          <Button onClick={saveCampaign} size={'sm'} bgColor={"#805ad5"} color={"white"} _hover={{ bgColor: "gray.500" }} variant='solid'> Save</Button>
+                          <Button type="button" onClick={goToPrevious} fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
+                            textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} >Discard</Button>
+
+                          <Button onClick={selectedCampaign ? updateCampaign : saveCampaign} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >   {selectedCampaign ? "Update" : "Save"}</Button>
                         </Flex>
                       </Flex>
+
                       <Divider borderColor={"black"} />
                       <Flex w={"100%"} >
-                        <Flex flexDirection={"column"} w={"30%"} borderRight={'1px solid black'}>
+                        <Flex flexDirection={"column"} borderRight={'1px solid black'}>
                           <Flex mt={5} mb={5} direction={'column'} >
-                            <Flex alignItems={'center'} justifyContent={'space-evenly'} w={'full'}>
-                              <Heading fontSize={"20px"}>Header</Heading>
-                              <Switch id="email-alerts" isChecked={isSwitchOn} onChange={handleSwitchChange} />
-                            </Flex>
-                            <Flex>
+                            <Box display={'flex'} px={'5px'}>
+                              <Box alignItems={'center'} justifyContent={'space-evenly'} w={'full'}>
+                                <Heading fontSize={"20px"}>Header</Heading>
 
+                              </Box>
+                              <Box>
+                                <Switch id="email-alerts" isChecked={isSwitchOn} onChange={handleSwitchChange} />
+                              </Box>
+                            </Box>
+                            <Flex>
                               {isSwitchOn && (
                                 <Input
                                   type="text"
                                   name="header"
                                   value={campaignData.header}
                                   onChange={handleChange}
-                                  ml={4}
+                                  mx={'6px'}
+                                  mt={'3'}
                                 />
                               )}
                             </Flex>
                           </Flex>
-                          {/* <Flex justifyContent={"space-between"} alignItems={"center"} mt={5} mb={5}>
-                            <Heading fontSize={"20px"}>Header</Heading>
-                            <Input type="text" name="header" value={campaignData.header} onChange={handleChange}></Input>
-                            <Switch id='email-alerts' />
-                          </Flex> */}
+
                           <Divider borderColor={"black"} />
-                          <Flex alignItems={"center"} mt={5} mb={5} flexDirection={"column"}>
+                          <Flex alignItems={"center"} mt={5} mb={5} px={'5px'} flexDirection={"column"}>
                             <Heading alignSelf={"flex-start"} fontSize={"20px"}>Body</Heading>
                             <Textarea name="body" value={campaignData.body} onChange={handleChange} mt={5} placeholder='Enter body text here'></Textarea>
                           </Flex>
                           <Divider borderColor={"black"} />
-                          <Flex justifyContent={"space-between"} alignItems={"center"} mt={5} mb={5}>
+                          <Flex justifyContent={"space-between"} px={'5px'} alignItems={"center"} mt={5} mb={5}>
                             <Heading fontSize={"20px"}>Buttons</Heading>
                             <Switch id='email-alerts' />
                           </Flex>
@@ -851,9 +963,6 @@ const Campaign = () => {
             </ModalContent>
           </Modal>
         )}
-
-
-
 
         <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
           <ModalOverlay />
