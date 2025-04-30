@@ -12,6 +12,7 @@ import BotBuilder from './components/admin/Pages/BotBuilder';
 import Campaign from './components/admin/Pages/Campaign';
 import GenerativeBot from './components/admin/Pages/GenerativeBot';
 import SectorProfile from './components/admin/Pages/SectorProfile';
+import Employee from './components/admin/Pages/Employee';
 // import UserProfile from './components/admin/UserProfile';
 
 
@@ -45,6 +46,7 @@ return (
           <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="admin" element={<Admin />} />
+            <Route path="employee" element={<Employee />} />
             <Route path='sector' element={<Sector />} />
             <Route path='sector/:id' element={<SectorProfile />} />
             <Route path='product' element={<ProductService />} />

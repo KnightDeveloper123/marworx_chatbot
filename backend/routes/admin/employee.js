@@ -14,7 +14,10 @@ const crypto = require('crypto')
 
 router.post("/add", middleware, async (req, res) => {
     try {
-        const { name, email, mobile_no, date_of_birth ,admin_id} = req.body;
+        const { name, email, mobile_no, date_of_birth } = req.body;
+        const { admin_id } = req.query;
+        console.log(req.query,req.body);
+        
 
         const [checkEmail] = await executeQuery(`select * from employee where email=?`, [email])
         if (checkEmail) {
@@ -22,7 +25,7 @@ router.post("/add", middleware, async (req, res) => {
         }
 
         const insertQuery = 'insert into employee (name, email, mobile_no, date_of_birth, admin_id) values (?, ?, ?, ?, ?);'
-        connection.execute(insertQuery, [name, email, mobile_no, date_of_birth ?? null, admin_id], (err, data) => {
+        connection.execute(insertQuery, [name, email, mobile_no, date_of_birth, admin_id], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
@@ -38,6 +41,8 @@ router.post("/add", middleware, async (req, res) => {
 router.post("/update", middleware, async (req, res) => {
     try {
         const { employee_id, ...rest } = req.body;
+        console.log(req.body);
+        
         const { error } = updateEmployeeSchema.validate(req.body, { abortEarly: false });
         if (error) {
             return res.status(400).json({ error: error.details.map(err => err.message) });
@@ -111,8 +116,10 @@ router.get('/getEmployeeId', middleware, async (req, res) => {
 router.get('/getAllEmployee', middleware, async (req, res) => {
     try {
         const { admin_id } = req.query;
-        const data = await executeQuery(`select * from employee where admin_id=${admin_id}`)
-        return res.json({ data: data[0] })
+        const data = await executeQuery(`select * from employee where status=0 AND admin_id=${admin_id}`)
+        // console.log(data);
+        
+        return res.json({ success: "success", data })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Internal Server Error" })

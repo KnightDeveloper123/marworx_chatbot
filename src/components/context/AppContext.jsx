@@ -154,6 +154,33 @@ export const AppProvider = ({ children }) => {
             showAlert("Internal Server Error!", "error")
         }
     }
+    
+    const [employees, setEmployees] = useState([]);
+
+    const fetchAllEmployees = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch(`${APP_URL}/employee/getAllEmployee?admin_id=${admin_id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                }
+            })
+            const result = await response.json();
+            console.log(result.data,"adfasdf")
+            if (result.success) {
+                console.log(result.data,"adfasdf")
+                setEmployees(result.data)
+            } else {
+                showAlert(result.error, "error")
+            }
+        } catch (error) {
+            console.log(error);
+            showAlert("Internal Server Error!", "error")
+        }
+    }
+    
 
      const [productService, setProductService] = useState([]);
     
@@ -231,6 +258,7 @@ export const AppProvider = ({ children }) => {
         <AppContext.Provider
             value={{
                 showAlert, loading,
+                fetchAllEmployees, employees,
                 fetchAllEmployee, employee,admin_id,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
