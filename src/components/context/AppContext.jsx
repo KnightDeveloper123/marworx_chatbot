@@ -159,7 +159,7 @@ export const AppProvider = ({ children }) => {
     
         const fetchProductService = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/get_all_product`, {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/get_all_product?admin_id=${admin_id}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": 'application/json',
@@ -183,7 +183,7 @@ export const AppProvider = ({ children }) => {
 
           const fetchSector= async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_sector`, {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_sector?admin_id=${admin_id}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": 'application/json',
@@ -205,7 +205,7 @@ export const AppProvider = ({ children }) => {
 
         const fetchCampaign= async () => {
           try {
-              const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/getAllCampaign`, {
+              const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/getAllCampaign?admin_id=${admin_id}`, {
                   method: "GET",
                   headers: {
                       "Content-Type": 'application/json',

@@ -194,10 +194,11 @@ router.get('/sectort_by_id', middleware, async (req, res) => {
 // GET ALL PRODUCT
 router.get('/get_all_sector', middleware, async (req, res) => {
     try {
+      const { admin_id } = req.query
         const data = await executeQuery(`select s.id,s.name,s.status, s.created_on,s.category,s.description, s.icon,
             GROUP_CONCAT(ps.product_id) as psId  from sector as s
              left join product_sector as ps on ps.sector_id=s.id
-              where  s.status = 0  
+              where  s.status = 0  AND s.admin_id=${admin_id}
              group by s.id
              order by s.id desc; `)
 

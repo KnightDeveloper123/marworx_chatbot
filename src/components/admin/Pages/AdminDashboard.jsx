@@ -52,7 +52,7 @@ const AdminDashboard = () => {
   const fetchAllDocuments = useCallback(async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/documents/getAllDocuments`,
+        `${import.meta.env.VITE_BACKEND_URL}/documents/getAllDocuments?admin_id=${admin_id}`,
         {
           method: "GET",
           headers: {

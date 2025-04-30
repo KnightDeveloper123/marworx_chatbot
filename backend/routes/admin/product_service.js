@@ -120,8 +120,8 @@ router.get('/product_by_id', middleware, async (req, res) => {
 // GET ALL PRODUCT
 router.get('/get_all_product', middleware, async (req, res) => {
     try {
-        //  (`select * from product`)
-        const product = await executeQuery(`select * from  product_service where  status = 0 order by id desc;
+        const { admin_id } = req.query
+        const product = await executeQuery(`select * from  product_service where  status = 0 AND admin_id=${admin_id} order by id desc;
     `)
         return res.json({ product, })
     } catch (error) {
