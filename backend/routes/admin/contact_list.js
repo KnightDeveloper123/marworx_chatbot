@@ -72,6 +72,7 @@ router.post('/upload', middleware, upload.single('file'), async (req, res) => {
         fs.createReadStream(req.file.path)
             .pipe(csv())
             .on('data', (row) => {
+                console.log(row)
                 const { contact_name, phone, email } = row;
                 if (contact_name && phone && email) {
                     results.push([file_name, contact_name, phone, email, admin_id]);
@@ -79,10 +80,11 @@ router.post('/upload', middleware, upload.single('file'), async (req, res) => {
             })
             .on('end', () => {
                 if (results.length === 0) {
+                    console.log(results)
                     return res.status(400).json({ error: 'No valid data found in CSV.' });
                 }
 
-                const sql = 'INSERT INTO contacts (file_name, contact_name, phone, email, admin_id) VALUES ?';
+                const sql = 'INSERT INTO contacts (name, contact_name, phone, email, admin_id) VALUES ?';
                 connection.query(sql, [results], (err, data) => {
                     if (err) {
                         console.error('Insert error:', err);
@@ -141,11 +143,13 @@ router.post("/delete", middleware, async (req, res) => {
 router.get("/getAllcontacts", async (req, res) => {
     try {
         const {admin_id}=req.query;
+        console.log(admin_id)
         connection.query(`select * from contacts where status=0 AND admin_id=${admin_id}`, (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
+            console.log(data)
             return res.json({ success: "success", data })
         })
     } catch (error) {

@@ -663,8 +663,8 @@ const Campaign = () => {
                 >
                   Add Documents
                 </Button>
-                <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
-                  <GridItem colSpan={{ base: 1, md: 2 }}>
+                {/* <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
+                  <GridItem colSpan={{ base: 1, md: 2 }}> */}
                     <TableContainer>
                       <Table variant='striped' size={'sm'} borderRadius={'10px'}>
                         <TableCaption>DATA SETS UPLOADED FOR MODEL TRAINING</TableCaption>
@@ -672,28 +672,34 @@ const Campaign = () => {
                           {documents.length === 0 ? <Tr><Th border={'1px solid #b4b4b4'} colSpan={'4'} textAlign={'center'} fontSize={'12px'}>No Documents Uploaded</Th></Tr> : <Tr>
                             <Th>ID</Th>
                             <Th>File Name</Th>
+                            <Th>name</Th>
+                            <Th>phone</Th>
+                            <Th>email</Th>
                             <Th>Created At</Th>
-                            <Th>Action</Th>
+                            {/* <Th>Action</Th> */}
                           </Tr>}
                         </Thead>
                         <Tbody>
-                          {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} onClick={() => setSelectedFile(item)}>
+                          {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} >
                             <Td>{item?.id}</Td>
                             <Td>{item?.name}</Td>
+                            <Td>{item?.contact_name}</Td>
+                            <Td>{item?.email}</Td>
+                            <Td>{item?.phone}</Td>
                             <Td>{formatDate(item?.created_at)}</Td>
-                            <Td>
+                            {/* <Td>
                               <Flex onClick={(e) => { e.stopPropagation(); deleteContacts(item.id) }} cursor={'pointer'} _hover={{ color: 'white', bg: 'red' }} color={'red'} justifyContent={'center'} alignItems={'center'} h={'20px'} w={'20px'} border={'1px solid red'} borderRadius={'full'}>
                                 <DeleteIcon />
                               </Flex>
-                            </Td>
+                            </Td> */}
                           </Tr>)}
                         </Tbody>
                       </Table>
                     </TableContainer>
-                  </GridItem>
+                  {/* </GridItem> */}
 
-                  <FileViewer selectedFile={selectedFile} />
-                </SimpleGrid>
+                  {/* <FileViewer selectedFile={selectedFile} /> */}
+                {/* </SimpleGrid> */}
               </Box>
 
 
@@ -724,7 +730,7 @@ const Campaign = () => {
                 </ModalContent>
               </Modal>
 
-              <GridItem colSpan={{ base: 1, md: 3 }} p={4} borderRadius="md" minH="300px" maxH="450px" overflowY="auto">
+              {/* <GridItem colSpan={{ base: 1, md: 3 }} p={4} borderRadius="md" minH="300px" maxH="450px" overflowY="auto">
                 {selectedFile ? (
                   <>
                     <Text fontWeight="bold" mb={2}>{selectedFile.name}</Text>
@@ -748,7 +754,7 @@ const Campaign = () => {
                 ) : (
                   <Text>Select a file to view its content.</Text>
                 )}
-              </GridItem>
+              </GridItem> */}
 
 
 
