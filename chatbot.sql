@@ -47,7 +47,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-04-30 09:45:26','2025-04-30 09:45:26','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-04-30 09:46:19','2025-04-30 09:05:47','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0);
+INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-04-30 09:45:26','2025-04-30 09:45:26','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-04-30 11:07:20','2025-04-30 11:07:20','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0);
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -75,6 +75,8 @@ CREATE TABLE `campaign` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `status` int DEFAULT '0',
   `is_status` varchar(25) DEFAULT NULL,
+  `to` varchar(255) DEFAULT NULL,
+  `from` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -85,7 +87,7 @@ CREATE TABLE `campaign` (
 
 LOCK TABLES `campaign` WRITE;
 /*!40000 ALTER TABLE `campaign` DISABLE KEYS */;
-INSERT INTO `campaign` VALUES (1,NULL,'marworx1','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:05:20','2025-04-29 06:15:07',1,NULL),(2,NULL,'marworx2','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:15:03','2025-04-29 09:04:59',1,NULL),(3,NULL,'marworx3','Advertsie','Sales all product','sales',1,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 07:38:53','2025-04-29 09:05:57',1,'Sent'),(4,NULL,'marworx3','Advertsie','Sales all product','sales',1,'department','marathi','sales','all sales done?',NULL,'2025-04-29 07:40:29',NULL,0,'Sent');
+INSERT INTO `campaign` VALUES (1,2,'marworx1','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:05:20','2025-04-29 06:15:07',1,NULL,NULL,NULL),(2,2,'marworx2','Advertsie','Sales all product','sales',NULL,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 06:15:03','2025-04-29 09:04:59',1,NULL,NULL,NULL),(3,2,'marworx3','Advertsie','Sales all product','sales',1,'marketing','marathi','sales','all sales done?',NULL,'2025-04-29 07:38:53','2025-04-29 09:05:57',0,'Sent',NULL,NULL),(4,NULL,'marworx3','Advertsie','Sales all product','sales',1,'department','marathi','sales','all sales done?',NULL,'2025-04-29 07:40:29',NULL,0,'Sent',NULL,NULL);
 /*!40000 ALTER TABLE `campaign` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -161,8 +163,11 @@ CREATE TABLE `contacts` (
   `name` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `status` int DEFAULT '0',
+  `contact_name` varchar(255) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -171,6 +176,7 @@ CREATE TABLE `contacts` (
 
 LOCK TABLES `contacts` WRITE;
 /*!40000 ALTER TABLE `contacts` DISABLE KEYS */;
+INSERT INTO `contacts` VALUES (1,2,'conatct.csv','2025-04-30 12:55:55',0,'Sheryl','229.077.5154','zunigavanessa@smith.info'),(2,2,'conatct.csv','2025-04-30 12:55:55',0,'Preston','5153435776','vmata@colon.com'),(3,2,'conatct.csv','2025-04-30 12:55:55',0,'Roy','-1199','beckycarr@hogan.com'),(4,2,'conatct.csv','2025-04-30 12:55:55',0,'Linda','001-808-617-6467x12895','stanleyblackwell@benson.org'),(5,2,'conatct.csv','2025-04-30 12:55:55',0,'Joanna','001-234-203-0635x76146','colinalvarado@miles.net'),(6,2,'conatct.csv','2025-04-30 12:55:55',0,'Aimee','(283)437-3886x88321','louis27@gilbert.com'),(7,2,'conatct.csv','2025-04-30 12:55:55',0,'Darren','(496)452-6181x3291','tgates@cantrell.com'),(8,2,'conatct.csv','2025-04-30 12:55:55',0,'Brett','001-583-352-7197x297','asnow@colon.com'),(9,2,'conatct.csv','2025-04-30 12:55:55',0,'Sheryl','854-138-4911x5772','mariokhan@ryan-pope.org');
 /*!40000 ALTER TABLE `contacts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -188,7 +194,7 @@ CREATE TABLE `documents` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `status` int DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -197,7 +203,7 @@ CREATE TABLE `documents` (
 
 LOCK TABLES `documents` WRITE;
 /*!40000 ALTER TABLE `documents` DISABLE KEYS */;
-INSERT INTO `documents` VALUES (1,NULL,'NewDatasets.pdf','2025-03-27 12:29:08',0),(2,NULL,'Thermax Datasets .xlsx','2025-03-27 12:29:21',0),(3,NULL,'Ecomac Dataset.txt','2025-03-28 05:43:55',0);
+INSERT INTO `documents` VALUES (1,NULL,'NewDatasets.pdf','2025-03-27 12:29:08',0),(2,NULL,'Thermax Datasets .xlsx','2025-03-27 12:29:21',0),(3,NULL,'Ecomac Dataset.txt','2025-03-28 05:43:55',0),(4,2,'contacts.csv','2025-04-30 12:48:28',0),(5,2,'fileone.csv','2025-04-30 12:49:16',0);
 /*!40000 ALTER TABLE `documents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -292,7 +298,7 @@ CREATE TABLE `product_service` (
 
 LOCK TABLES `product_service` WRITE;
 /*!40000 ALTER TABLE `product_service` DISABLE KEYS */;
-INSERT INTO `product_service` VALUES (1,NULL,'thermax pro1','dumy text','1745647829370-256756583.webp','2025-04-25 12:59:42',NULL,0),(2,NULL,'Thermax 1','Thermax Ltd is an Indian multinational engineering conglomerate, involved in clean air, clean energy and clean water, headquartered in Pune.','1745650438580-168009331.jpg','2025-04-26 06:53:58',NULL,0);
+INSERT INTO `product_service` VALUES (1,2,'thermax pro1','dumy text','1745647829370-256756583.webp','2025-04-25 12:59:42',NULL,0),(2,NULL,'Thermax 1','Thermax Ltd is an Indian multinational engineering conglomerate, involved in clean air, clean energy and clean water, headquartered in Pune.','1745650438580-168009331.jpg','2025-04-26 06:53:58',NULL,0);
 /*!40000 ALTER TABLE `product_service` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -323,7 +329,7 @@ CREATE TABLE `sector` (
 
 LOCK TABLES `sector` WRITE;
 /*!40000 ALTER TABLE `sector` DISABLE KEYS */;
-INSERT INTO `sector` VALUES (1,NULL,'Dermatology','Healthcare','Bots for Dermatologyclinics','1745652248426-467745167.ico','2025-04-26 06:59:32',NULL,0);
+INSERT INTO `sector` VALUES (1,2,'Dermatology','Healthcare','Bots for Dermatologyclinics','1745652248426-467745167.ico','2025-04-26 06:59:32',NULL,0);
 /*!40000 ALTER TABLE `sector` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -404,4 +410,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-30 15:57:32
+-- Dump completed on 2025-04-30 18:36:33
