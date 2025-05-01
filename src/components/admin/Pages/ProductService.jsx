@@ -6,16 +6,18 @@ import { IoMdAdd } from 'react-icons/io';
 import { RxDotsHorizontal } from 'react-icons/rx';
 import { MdOutlineModeEdit } from 'react-icons/md';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { decrypt } from '../../utils/security';
 
 const ProductService = () => {
-    const { showAlert, fetchProductService, productService, admin_id } = useContext(AppContext)
+    const { showAlert, fetchProductService, productService } = useContext(AppContext)
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const token = localStorage.getItem('token')
-
+  const user=localStorage.getItem('user')
+        const admin_id=decrypt(user).id
     // const [productService, setProductService] = useState([]);
 
     // const fetchProductService = async () => {

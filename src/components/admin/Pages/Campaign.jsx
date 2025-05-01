@@ -77,11 +77,12 @@ import { CiVideoOn } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
 import { useParams } from "react-router-dom";
+import { decrypt } from "../../utils/security";
 
 const Campaign = () => {
 
   const token = localStorage.getItem('token')
-  const { showAlert, fetchCampaign, campaign, formatDate, admin_id } = useContext(AppContext)
+  const { showAlert, fetchCampaign, campaign, formatDate } = useContext(AppContext)
   const [filteredSectors, setFilteredSectors] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -91,7 +92,8 @@ const Campaign = () => {
   } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
-
+  const user=localStorage.getItem('user')
+   const admin_id=decrypt(user).id
   const steps = [
     {
       title: "Select Channel",

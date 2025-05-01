@@ -250,8 +250,8 @@ export const AppProvider = ({ children }) => {
           }
       }
          
-        const user=localStorage.getItem('user')
-        const admin_id=decrypt(user).id
+        // const user=localStorage.getItem('user')
+        // const admin_id=decrypt(user).id
         // console.log(adminId,"fdffs");
         
     return (
@@ -259,7 +259,7 @@ export const AppProvider = ({ children }) => {
             value={{
                 showAlert, loading,
                 fetchAllEmployees, employees,
-                fetchAllEmployee, employee,admin_id,
+                fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
                 ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign

@@ -8,14 +8,17 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 import { RxDotsHorizontal } from 'react-icons/rx'
 import { AppContext } from '../../context/AppContext'
 import { useNavigate } from 'react-router-dom'
+import { decrypt } from '../../utils/security'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, fetchProductService, productService, sectors, fetchSector,admin_id } = useContext(AppContext)
+  const { showAlert, fetchProductService, productService, sectors, fetchSector } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
+    const user=localStorage.getItem('user')
+          const admin_id=decrypt(user).id
   const {
     register,
     handleSubmit, reset, setValue,
