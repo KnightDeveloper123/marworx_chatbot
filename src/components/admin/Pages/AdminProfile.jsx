@@ -119,10 +119,8 @@ const UserProfile = () => {
         }
       );
       const result = await response.json();
-console.log(result)
       setCampaign(result.data);
     } catch (error) {
-      console.log(error);
       showAlert("Internal server error", "error");
     }
   };

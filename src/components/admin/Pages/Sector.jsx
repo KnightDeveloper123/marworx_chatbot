@@ -18,7 +18,8 @@ const Sector = () => {
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
     const user=localStorage.getItem('user')
-          const admin_id=decrypt(user).id
+    const admin_id=decrypt(user).id
+
   const {
     register,
     handleSubmit, reset, setValue,
@@ -42,11 +43,8 @@ const Sector = () => {
   }));
 
   useEffect(() => {
-    fetchSector();
-  }, [])
-
-  useEffect(() => {
-    fetchProductService()
+    fetchSector(admin_id);
+    fetchProductService(admin_id)
   }, [])
 
   const allCategory = [{
@@ -89,7 +87,7 @@ const Sector = () => {
    
       if (result.success) {
         showAlert("Sector added successfully", 'success')
-        fetchSector();
+        fetchSector(admin_id);
         reset();
         onClose();
       }

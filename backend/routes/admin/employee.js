@@ -125,6 +125,17 @@ router.get('/getAllEmployee', middleware, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" })
     }
 });
+router.get('/getAllEmployeeQUery', middleware, async (req, res) => {
+    try {
+        
+        const data = await executeQuery(`select * from employee where status=0 `)
+      
+        return res.json({ success: "success", data })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Internal Server Error" })
+    }
+});
 
 
 

@@ -10,43 +10,20 @@ import { decrypt } from '../../utils/security';
 
 const ProductService = () => {
     const { showAlert, fetchProductService, productService } = useContext(AppContext)
-
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const token = localStorage.getItem('token')
   const user=localStorage.getItem('user')
-        const admin_id=decrypt(user).id
-    // const [productService, setProductService] = useState([]);
-
-    // const fetchProductService = async () => {
-    //     try {
-    //         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/get_all_product`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": 'application/json',
-    //                 Authorization: token
-    //             },
-
-    //         })
-    //         const result = await response.json();
-    //         console.log(result)
-    //         setProductService(result.product)
-
-    //     } catch (error) {
-    //         console.log(error)
-    //         showAlert('Internal server error', 'error')
-    //     }
-    // }
-
+  const admin_id=decrypt(user).id
+    
     useEffect(() => {
-        fetchProductService()
-    }, [])
+        fetchProductService(admin_id)
+    }, [admin_id])
 
 
     const onSubmit = async (data) => {
-        console.log(data)
         const formData = new FormData();
         formData.append("admin_id", admin_id);
         formData.append("name", data.name);
@@ -62,10 +39,9 @@ const ProductService = () => {
                 body: formData
             })
             const result = await response.json();
-            console.log(result)
             if (result.success) {
                 showAlert("Product Service added successfully", 'success')
-                fetchProductService()
+                fetchProductService(admin_id)
                 reset();
                 onClose();
             }
@@ -104,7 +80,7 @@ const ProductService = () => {
             console.log(result)
             if (result.success) {
                 showAlert("Product updated successfully", 'success')
-                fetchProductService();
+                fetchProductService(admin_id);
                 onEditClose();
             }
 
@@ -137,7 +113,7 @@ const ProductService = () => {
             console.log(result)
             if (result.success) {
                 showAlert("Product deleted successfully", 'success')
-                fetchProductService();
+                fetchProductService(admin_id);
                 onDeleteClose();
             }
         } catch (error) {

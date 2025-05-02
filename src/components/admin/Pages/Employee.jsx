@@ -17,8 +17,8 @@ const Employee = () => {
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
-    const user=localStorage.getItem('user')
-          const admin_id=decrypt(user).id
+   const user=localStorage.getItem('user')
+    const admin_id=decrypt(user).id
   const {
     register,
     handleSubmit, reset, setValue,
@@ -29,12 +29,9 @@ const Employee = () => {
     }
   });
   const navigate = useNavigate();
-console.log(employees);
-
-
   useEffect(() => {
-    fetchAllEmployees();
-  }, [])
+    fetchAllEmployees(admin_id);
+  }, [admin_id])
 
   const allCategory = [{
     value: "energy",
@@ -75,7 +72,7 @@ console.log(employees);
    
       if (result.success) {
         showAlert("Employee added successfully", 'success')
-        fetchAllEmployees();
+        fetchAllEmployees(admin_id);
         reset();
         onClose();
       }
@@ -118,7 +115,7 @@ console.log(employees);
       if (result.success) {
 
         showAlert("employee updated successfully", 'success')
-        fetchAllEmployees();
+        fetchAllEmployees(admin_id);
         
         onEditClose();
       }
@@ -149,7 +146,7 @@ console.log(employees);
       const result = await response.json();
       if (result.success) {
         showAlert("Employee deleted successfully", 'success')
-        fetchAllEmployees();
+        fetchAllEmployees(admin_id);
 
         onDeleteClose();
       }

@@ -43,19 +43,25 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Select from "react-select";
 // import { add_querySchema } from "../validation/query";
 import { useState } from "react";
+import { decrypt } from "../../utils/security";
 
 function Queries() {
+
+
   useEffect(() => {
     fetchAllQueries();
-    fetchAllEmployee();
+    fetchAllEmployeeQuery();
   }, []);
   const {
     fetchAllQueries,
-    fetchAllEmployee,
+    fetchAllEmployeeQuery,
     all_employees,
     queries,
     formatDate, APP_URL,showAlert ,loading
   } = useContext(AppContext);
+
+  
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isdeleteOpen,
@@ -66,7 +72,6 @@ function Queries() {
   const token = localStorage.getItem('token');
   const editleads = (data) => {
     onOpen(); // Open the modal
-    // console.log("Edit Data:", data);
     setSelectedQuery({
         query: data.query,
         query_status: data.query_status,
@@ -136,12 +141,10 @@ function Queries() {
       });
 
       if (response.ok) {
-        console.log('Query updated successfully!');
         showAlert('Query updated successfully!', 'success');
         onClose(); // Close modal after update
         fetchAllQueries();
       } else {
-        console.error('Error updating Query');
         showAlert('Error updating Query!', 'error');
       }
     } catch (error) {

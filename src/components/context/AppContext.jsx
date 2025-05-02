@@ -64,7 +64,7 @@ export const AppProvider = ({ children }) => {
 
     const [loading, setLoading] = useState(false)
 
-    const [employee, setEmployee] = useState([]);
+    const [employee, setEmployee] = useState([]); // add
     const fetchAllEmployee = async () => {
         try {
             setLoading(true)
@@ -86,24 +86,7 @@ export const AppProvider = ({ children }) => {
             showAlert("Internal Server Error!", "error")
         }
     }
-    const all_employees = [
-        ...employee.map((c, index) => ({
-            label: (
-                <Flex key={index} alignItems={'center'} gap={2}>
-                    <Avatar size='xs' name={c.name} />
-                    <Text
-                        borderRadius="var(--radius)"
-                        fontSize="var(--mini-text)"
-                        fontWeight="var(--big-font-weight)"
-                    >
-                        {c.name}
-                    </Text>
-                </Flex>
-            ),
-            value: c.id,
-            value1: c.name,
-        })),
-    ];
+  
     const [queries, setQueries] = useState([]);
     const fetchAllQueries = async () => {
         try {
@@ -157,7 +140,7 @@ export const AppProvider = ({ children }) => {
     
     const [employees, setEmployees] = useState([]);
 
-    const fetchAllEmployees = async () => {
+    const fetchAllEmployees = async (admin_id) => {
         try {
             setLoading(true)
             const response = await fetch(`${APP_URL}/employee/getAllEmployee?admin_id=${admin_id}`, {
@@ -168,9 +151,8 @@ export const AppProvider = ({ children }) => {
                 }
             })
             const result = await response.json();
-            console.log(result.data,"adfasdf")
+       
             if (result.success) {
-                console.log(result.data,"adfasdf")
                 setEmployees(result.data)
             } else {
                 showAlert(result.error, "error")
@@ -180,11 +162,54 @@ export const AppProvider = ({ children }) => {
             showAlert("Internal Server Error!", "error")
         }
     }
-    
+   
+    const [employeesQuery, setEmployeeQuery] = useState([]);
+
+    const fetchAllEmployeeQuery = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch(`${APP_URL}/employee/getAllEmployeeQUery`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                }
+            })
+            const result = await response.json();
+       
+            if (result.success) {
+                setEmployeeQuery(result.data)
+            } else {
+                showAlert(result.error, "error")
+            }
+        } catch (error) {
+            console.log(error);
+            showAlert("Internal Server Error!", "error")
+        }
+    }
+    const all_employees = [
+        ...employeesQuery.map((c, index) => ({
+            label: (
+                <Flex key={index} alignItems={'center'} gap={2}>
+                    <Avatar size='xs' name={c.name} />
+                    {console.log(c)}
+                    <Text
+                        borderRadius="var(--radius)"
+                        fontSize="var(--mini-text)"
+                        fontWeight="var(--big-font-weight)"
+                    >
+                        {c.name}
+                    </Text>
+                </Flex>
+            ),
+            value: c.id,
+            value1: c.name,
+        })),
+    ];
 
      const [productService, setProductService] = useState([]);
     
-        const fetchProductService = async () => {
+        const fetchProductService = async (admin_id) => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/get_all_product?admin_id=${admin_id}`, {
                     method: "GET",
@@ -204,11 +229,9 @@ export const AppProvider = ({ children }) => {
             }
         }
 
-       
-          
           const[sectors,setSectors]=useState([])
 
-          const fetchSector= async () => {
+          const fetchSector= async (admin_id) => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_sector?admin_id=${admin_id}`, {
                     method: "GET",
@@ -262,7 +285,7 @@ export const AppProvider = ({ children }) => {
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
-                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign
+                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery
             }}
         >
             {children}

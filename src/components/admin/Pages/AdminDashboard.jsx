@@ -15,14 +15,18 @@ import { useLocation } from "react-router-dom";
 import { MdSocialDistance } from "react-icons/md";
 import ApexCharts from 'apexcharts'
 import ReactApexChart from "react-apexcharts";
+import { decrypt } from "../../utils/security";
 
 const AdminDashboard = () => {
-  const { showAlert, formatDate,admin_id } = useContext(AppContext);
+  const { showAlert, formatDate } = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [dashboardData, setDashboardData] = useState({});
   const [documents, setDocuments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const location = useLocation();
+  const user=localStorage.getItem('user')
+  const admin_id=decrypt(user).id
+
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -49,7 +53,7 @@ const AdminDashboard = () => {
     }
   }, [showAlert])
 
-  const fetchAllDocuments = useCallback(async () => {
+  const fetchAllDocuments = useCallback(async (admin_id) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/documents/getAllDocuments?admin_id=${admin_id}`,
@@ -76,8 +80,8 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-    fetchAllDocuments();
-  }, [fetchDashboardData, fetchAllDocuments])
+    fetchAllDocuments(admin_id);
+  }, [fetchDashboardData, fetchAllDocuments, admin_id])
 
   const [file, setFile] = useState({
     fileName: "", file: []
@@ -110,7 +114,7 @@ const AdminDashboard = () => {
           fileInputRef.current.value = "";
         }
         setFile(null);
-        fetchAllDocuments()
+        fetchAllDocuments(admin_id)
         onClose();
       } else {
         showAlert(result.error, "error");
@@ -133,7 +137,7 @@ const AdminDashboard = () => {
       const result = await response.json();
       if (result.success) {
         showAlert(result.success, "success");
-        fetchAllDocuments()
+        fetchAllDocuments(admin_id)
       } else {
         showAlert(result.error, "error");
       }
