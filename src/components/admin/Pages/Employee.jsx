@@ -165,7 +165,7 @@ const Employee = () => {
         w="100%"
         justifyContent="space-between"
         flexDirection={"column"}
-        p="5px"
+        p="15px"
       >
         <Flex
           w="100%"
