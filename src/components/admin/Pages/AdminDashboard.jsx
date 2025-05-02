@@ -24,9 +24,14 @@ const AdminDashboard = () => {
   const [documents, setDocuments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const location = useLocation();
-  const user=localStorage.getItem('user')
-  const admin_id=decrypt(user).id
 
+  const user=localStorage.getItem('user')
+  
+  // console.log(decrypt(user))
+
+  const admin_id=decrypt(user).id
+  const user_role=decrypt(user).role
+console.log(user_role)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -42,6 +47,7 @@ const AdminDashboard = () => {
       );
 
       const result = await response.json();
+      console.log(result)
       if (result.success) {
         setDashboardData(result.counts)
       } else {
@@ -270,10 +276,12 @@ const AdminDashboard = () => {
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
-      {location.pathname === '/home/dashboard' &&
+      {location.pathname === '/home/dashboard' &&(
       <Box>
         
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+          {user_role==="Admin" && (
+        <>
           <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
             <Flex flexDir={'column'}>
               <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
@@ -293,6 +301,40 @@ const AdminDashboard = () => {
               <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
             </Box>
           </GridItem>
+          </>
+          )}
+          
+          {user_role==="Super-Admin" &&  ( 
+            <>
+          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+            <Flex flexDir={'column'}>
+              <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
+            </Flex>
+            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+            </Box>
+          </GridItem>
+          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+            <Flex flexDir={'column'}>
+              <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Employee</Text>
+            </Flex>
+            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+            </Box>
+          </GridItem>
+          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+            <Flex flexDir={'column'}>
+              <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of User</Text>
+            </Flex>
+            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+            </Box>
+          </GridItem> 
+          </>
+        )}
         </SimpleGrid>
 
         {/* // charts */}
@@ -307,7 +349,7 @@ const AdminDashboard = () => {
           </Box>
         </Flex>
         </Box>
-      }
+     ) }
 
 
 
@@ -358,6 +400,7 @@ const AdminDashboard = () => {
           <FileViewer selectedFile={selectedFile} />
         </SimpleGrid>
       </Box>
+      
 
 
       <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' isCentered>
