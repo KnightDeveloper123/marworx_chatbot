@@ -42,6 +42,10 @@ import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
 import { decrypt } from "../utils/security";
 import { useForm } from "react-hook-form";
 import { AppContext } from "../context/AppContext";
+import { PiBagSimpleFill } from "react-icons/pi";
+import { LuBot, LuSection } from "react-icons/lu";
+import { MdProductionQuantityLimits } from "react-icons/md";
+import { RiAiGenerate2, RiTelegram2Line } from "react-icons/ri";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -62,20 +66,27 @@ function Navbar() {
 
   const adminNavbar = [
     { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
-    { title: "Employee", url: "/home/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Sector", url: "/home/sector", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Product Services ", url: "/home/product_service", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Bot Builder", url: "/home/bot_builder", icon: <Icon as={FaCircleUser} mr={2} /> },
-    { title: "Campaign", url: "/home/campaign", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={FaUser} mr={2} /> },
-    { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
-  ];
+    { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
+    { title: "Sector", url: "/home/sector", icon: <Icon as={LuSection} mr={2} /> },
+    { title: "Product Services ", url: "/home/product", icon: <Icon as={MdProductionQuantityLimits } mr={2} /> },
+    { title: "Bot Builder", url: "/home/bot_builder", icon: <Icon as={LuBot } mr={2} /> },
+    { title: "Campaign", url: "/home/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
+    { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
+  ]; // admin
+
+   const superAdminNavbar = [
+      { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
+      { title: "Admin", url: "/home/admin", icon: <Icon as={FaCircleUser} mr={2} /> },
+      { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
+      { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
+      { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
+      { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
+    ]; // super_admin
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const { register : registerPass, handleSubmit : handleSubmitPass } = useForm({
     defaultValues:{
-      email:user.email
+    email:user.email
     }
   });
 
@@ -90,10 +101,6 @@ function Navbar() {
       })
       const data = await response.json();
       setEmpData(data.data);
-      // console.log(data.data);
-
-
-
     } catch (error) {
       console.log(error);
 
@@ -137,7 +144,6 @@ function Navbar() {
   }
 
   const onPasswordSubmit = async (data) => {
-    
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/changePassword`, {
         method: "POST",
@@ -158,8 +164,6 @@ function Navbar() {
       console.log(error)
     }
   }
-
-
 
   const logout = () => {
     localStorage.removeItem('token')
@@ -335,6 +339,7 @@ function Navbar() {
           <DrawerCloseButton />
           <DrawerHeader bgColor="#fafbff">Menu</DrawerHeader>
           <DrawerBody p="0px 20px" bgColor="#fafbff">
+            {user.role==='Admin' ? 
             <Flex
               justifyContent="space-evenly"
               gap={1}
@@ -362,7 +367,34 @@ function Navbar() {
                   </Text>
                 </NavLink>
               ))}
-            </Flex>
+            </Flex> :  <Flex
+              justifyContent="space-evenly"
+              gap={1}
+              alignItems="center"
+              flexDir={'column'}
+              mx={'10px'}
+            >
+              {superAdminNavbar.map((item, index) => (
+                <NavLink
+                  key={index}
+                  to={item.url}
+                  style={({ isActive }) => ({
+                    width: '100%',
+                    textAlign: 'left',
+                    color: isActive ? "#FF5722" : "#000000",
+                    backgroundColor: isActive ? "#FF572215" : "transparent",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                    transition: "0.25s",
+                    textDecoration: "none",
+                  })}
+                >
+                  <Text fontSize="15px" fontWeight="500" cursor="pointer">
+                    {item.icon}{item.title}
+                  </Text>
+                </NavLink>
+              ))}
+            </Flex>}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

@@ -192,7 +192,6 @@ export const AppProvider = ({ children }) => {
             label: (
                 <Flex key={index} alignItems={'center'} gap={2}>
                     <Avatar size='xs' name={c.name} />
-                    {console.log(c)}
                     <Text
                         borderRadius="var(--radius)"
                         fontSize="var(--mini-text)"
