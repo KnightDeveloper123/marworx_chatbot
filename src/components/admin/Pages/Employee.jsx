@@ -270,9 +270,9 @@ const Employee = () => {
 
             <Tbody>
               {
-                filteredData && filteredData.map((employee) => (
-                  <Tr key={employee.id}>
-                    <Td _hover={{ cursor: "pointer" }}>{employee.id}</Td>
+                filteredData && filteredData.map((employee, i) => (
+                  <Tr key={i+1}>
+                    <Td _hover={{ cursor: "pointer" }}>E-{employee.id}</Td>
                     <Td _hover={{ cursor: "pointer" }}>{employee.name}</Td>
                     <Td _hover={{ cursor: "pointer" }}>{employee.email}</Td>
                     <Td _hover={{ cursor: "pointer" }}>{employee.mobile_no}</Td>

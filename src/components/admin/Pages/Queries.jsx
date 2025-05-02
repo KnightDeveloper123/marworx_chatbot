@@ -285,7 +285,7 @@ function Queries() {
               {queries &&
                 queries.map((d, index) => (
                   <Tr
-                    key={index}
+                    key={index+1}
                     border="0.5px solid #F2F4F8"
                     h="40px"
                     textAlign="start"

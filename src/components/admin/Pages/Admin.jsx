@@ -280,7 +280,7 @@ function Employee() {
             </InputRightElement>
           </InputGroup> */}
 
-            <Flex>
+            {/* <Flex>
               <Button
                 borderRadius="var(--radius)"
                 leftIcon={<IoMdAdd fontSize={"20px"} />}
@@ -294,7 +294,7 @@ function Employee() {
               >
                 Add Admin
               </Button>
-            </Flex>
+            </Flex> */}
           </Flex>
         </Flex>
         <TableContainer

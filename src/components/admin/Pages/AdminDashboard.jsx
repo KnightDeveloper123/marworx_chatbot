@@ -272,11 +272,12 @@ const AdminDashboard = () => {
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
       {location.pathname === '/home/dashboard' &&
       <Box>
+        
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
           <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
             <Flex flexDir={'column'}>
               <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of active bots</Text>
+              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
             </Flex>
             <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
               <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><RiRobot2Fill /></Text>
@@ -293,6 +294,8 @@ const AdminDashboard = () => {
             </Box>
           </GridItem>
         </SimpleGrid>
+
+        {/* // charts */}
         <Flex id="chart" mt={10} w={"100%"} gap={4} h={"auto"} flexDir={{ base: 'column', md: 'row' }}>
           <Box w={{ base: '100%', md: '50%'}}>
             <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
@@ -330,7 +333,7 @@ const AdminDashboard = () => {
                 <TableCaption>DATA SETS UPLOADED FOR MODEL TRAINING</TableCaption>
                 <Thead>
                   {documents.length === 0 ? <Tr><Th border={'1px solid #b4b4b4'} colSpan={'4'} textAlign={'center'} fontSize={'12px'}>No Documents Uploaded</Th></Tr> : <Tr>
-                    <Th>ID</Th>
+                    {/* <Th>ID</Th> */}
                     <Th>File Name</Th>
                     <Th>Created At</Th>
                     <Th>Action</Th>
@@ -338,7 +341,7 @@ const AdminDashboard = () => {
                 </Thead>
                 <Tbody>
                   {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} onClick={() => setSelectedFile(item)}>
-                    <Td>{item?.id}</Td>
+                    {/* <Td>{item?.id}</Td> */}
                     <Td>{item?.name}</Td>
                     <Td>{formatDate(item?.created_at)}</Td>
                     <Td>

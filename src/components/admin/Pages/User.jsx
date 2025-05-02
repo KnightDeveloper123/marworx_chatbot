@@ -139,7 +139,7 @@ function User({flag}) {
             {users &&
               users.map((user, index) => (
                 <Tr
-                  key={index}
+                  key={index+1}
                   border="0.5px solid #F2F4F8"
                   h="40px"
                   textAlign="start"
@@ -150,7 +150,7 @@ function User({flag}) {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                    {user.id}
+                   U-{user.id}
                   </Td>
                   <Td
                     border="0.5px solid #F2F4F8"

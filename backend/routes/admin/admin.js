@@ -367,11 +367,20 @@ router.get("/getEmployeeById", middleware, async (req, res) => {
 
 router.get('/getAllDashboardData', middleware, async (req, res) => {
     try {
-        connection.query(`select count(*) as total_employee, (select count(*) from user where status=0) as total_user, (select count(*) from support where query_status="pending") as pending_queries from admin where status=0;`, (err, result) => {
+        connection.query(`SELECT 
+                COUNT(*) AS total_employee,
+                (SELECT COUNT(*) FROM admin WHERE is_active = 0) AS total_admin,
+                (SELECT COUNT(*) FROM user WHERE status = 0) AS total_user,
+                (SELECT COUNT(*) FROM support WHERE query_status = 'pending') AS pending_queries
+            FROM employee
+            WHERE status = 0;
+            `,
+             (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
+            // console.log(result)
             return res.json({ success: "success", counts: result[0] })
         })
     } catch (error) {
@@ -401,6 +410,8 @@ router.post("/getActiveStatus", middleware, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+
 
 
 
