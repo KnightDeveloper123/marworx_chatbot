@@ -252,7 +252,7 @@ export const AppProvider = ({ children }) => {
 
         const[campaign,setCampaign]=useState([])
 
-        const fetchCampaign= async () => {
+        const fetchCampaign= async (admin_id) => {
           try {
               const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/getAllCampaign?admin_id=${admin_id}`, {
                   method: "GET",

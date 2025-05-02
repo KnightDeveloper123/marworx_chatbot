@@ -92,8 +92,9 @@ const Campaign = () => {
   } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
-  const user=localStorage.getItem('user')
-   const admin_id=decrypt(user).id
+
+  const user = localStorage.getItem('user')
+  const admin_id = decrypt(user).id
   const steps = [
     {
       title: "Select Channel",
@@ -121,7 +122,7 @@ const Campaign = () => {
   }
 
   useEffect(() => {
-    fetchCampaign();
+    fetchCampaign(admin_id);
   }, [])
 
   const filteredData = campaign.filter(item =>
@@ -148,7 +149,7 @@ const Campaign = () => {
       const result = await response.json();
       if (result.success) {
         showAlert("Campaign deleted successfully", 'success')
-        fetchCampaign();
+        fetchCampaign(admin_id);
         onDeleteClose();
       }
     } catch (error) {
@@ -160,7 +161,7 @@ const Campaign = () => {
   const [campaignData, setCampaignData] = useState({
     channel_name: 'WhatsApp',
     campaign_name: "",
-    to:"",
+    to: "",
     message_content: "",
     sector: '',
     template_name: "",
@@ -175,7 +176,7 @@ const Campaign = () => {
   }
 
   const saveCampaign = async () => {
-    console.log("hello")
+   
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/add`, {
         method: "POST",
@@ -194,15 +195,15 @@ const Campaign = () => {
           header: campaignData.header,
           body: campaignData.body,
           admin_id: admin_id,
-          to:campaignData.to
+          to: campaignData.to
         })
 
       })
       const result = await response.json();
-        console.log("rer",result)
+      console.log("rer", result)
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
-        fetchCampaign();
+        fetchCampaign(admin_id);
         onStepClose();
       }
     } catch (error) {
@@ -231,6 +232,7 @@ const Campaign = () => {
       header: data.header || "",
       body: data.body || ""
     });
+    setActiveStep(1);
     setIsStepOpen(true);
     onOpen();
 
@@ -291,6 +293,7 @@ const Campaign = () => {
   const [file, setFile] = useState({
     fileName: "", file: []
   });
+
   const fileInputRef = useRef()
   const handleFileChange = (event) => {
     setFile((prev) => ({ ...prev, file: event.target.files[0] }));
@@ -360,7 +363,7 @@ const Campaign = () => {
     }
   };
 
-  const getContacts = async () => {
+  const getContacts = async (admin_id) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact/getAllcontacts?admin_id=${admin_id}`, {
         method: "GET",
@@ -369,14 +372,14 @@ const Campaign = () => {
         }
       })
       const result = await response.json()
-      console.log("result", result)
+      // console.log("result", result)
       setDocuments(result.data)
     } catch (error) {
       console.log(error)
     }
   }
   useEffect(() => {
-    getContacts()
+    getContacts(admin_id)
   }, [])
 
   // const[contactId,setContactId]=useState(null)
@@ -422,7 +425,7 @@ const Campaign = () => {
 
           <TabPanels>
             <TabPanel>
-             
+
 
 
               <Flex
@@ -464,6 +467,7 @@ const Campaign = () => {
 
               <TableContainer
                 mt="20px"
+                width={'100%'}
                 borderRadius="5px 5px 0px 0px"
               //  maxH={flag ? "unset" : "600px"}
               // overflowY={flag ? "unset" : "scroll"}
@@ -669,40 +673,40 @@ const Campaign = () => {
                 </Button>
                 {/* <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
                   <GridItem colSpan={{ base: 1, md: 2 }}> */}
-                    <TableContainer>
-                      <Table variant='striped' size={'sm'} borderRadius={'10px'}>
-                        <TableCaption>DATA SETS UPLOADED FOR MODEL TRAINING</TableCaption>
-                        <Thead>
-                          {documents.length === 0 ? <Tr><Th border={'1px solid #b4b4b4'} colSpan={'4'} textAlign={'center'} fontSize={'12px'}>No Documents Uploaded</Th></Tr> : <Tr>
-                            <Th>ID</Th>
-                            <Th>File Name</Th>
-                            <Th>name</Th>
-                            <Th>phone</Th>
-                            <Th>email</Th>
-                            <Th>Created At</Th>
-                            {/* <Th>Action</Th> */}
-                          </Tr>}
-                        </Thead>
-                        <Tbody>
-                          {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} >
-                            <Td>{item?.id}</Td>
-                            <Td>{item?.name}</Td>
-                            <Td>{item?.contact_name}</Td>
-                            <Td>{item?.email}</Td>
-                            <Td>{item?.phone}</Td>
-                            <Td>{formatDate(item?.created_at)}</Td>
-                            {/* <Td>
+                <TableContainer>
+                  <Table variant='striped' size={'sm'} borderRadius={'10px'}>
+                    <TableCaption>DATA SETS UPLOADED FOR MODEL TRAINING</TableCaption>
+                    <Thead>
+                      {documents.length === 0 ? <Tr><Th border={'1px solid #b4b4b4'} colSpan={'4'} textAlign={'center'} fontSize={'12px'}>No Documents Uploaded</Th></Tr> : <Tr>
+                        <Th>ID</Th>
+                        <Th>File Name</Th>
+                        <Th>name</Th>
+                        <Th>phone</Th>
+                        <Th>email</Th>
+                        <Th>Created At</Th>
+                        {/* <Th>Action</Th> */}
+                      </Tr>}
+                    </Thead>
+                    <Tbody>
+                      {documents?.map(item => <Tr fontSize={'14px'} cursor={'pointer'} key={item?.id} >
+                        <Td>{item?.id}</Td>
+                        <Td>{item?.name}</Td>
+                        <Td>{item?.contact_name}</Td>
+                        <Td>{item?.email}</Td>
+                        <Td>{item?.phone}</Td>
+                        <Td>{formatDate(item?.created_at)}</Td>
+                        {/* <Td>
                               <Flex onClick={(e) => { e.stopPropagation(); deleteContacts(item.id) }} cursor={'pointer'} _hover={{ color: 'white', bg: 'red' }} color={'red'} justifyContent={'center'} alignItems={'center'} h={'20px'} w={'20px'} border={'1px solid red'} borderRadius={'full'}>
                                 <DeleteIcon />
                               </Flex>
                             </Td> */}
-                          </Tr>)}
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
-                  {/* </GridItem> */}
+                      </Tr>)}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+                {/* </GridItem> */}
 
-                  {/* <FileViewer selectedFile={selectedFile} /> */}
+                {/* <FileViewer selectedFile={selectedFile} /> */}
                 {/* </SimpleGrid> */}
               </Box>
 
@@ -771,7 +775,7 @@ const Campaign = () => {
 
       <Box>
         {isOpen && (
-          <Modal isOpen={isStepOpen} onClose={{ onClose, onStepClose }} size={"3xl"} >
+          <Modal isOpen={isStepOpen} onClose={onStepClose} size={"3xl"} >
             <ModalOverlay />
             <ModalContent pt={'2'}>
               <ModalCloseButton onClick={() => onClose()} />
@@ -943,11 +947,11 @@ const Campaign = () => {
                       <Flex p="4" justifyContent="space-between" borderBottom="1px solid #E2E8F0">
                         <Box>
                           <Text fontWeight="bold">To</Text>
-                          <Select name="to"  value={campaignData.to} onChange={handleChange} placeholder="select contact" >
+                          <Select name="to" value={campaignData.to} onChange={handleChange} placeholder="select contact" >
                             {
-                             documents.map((d)=>(
-                        <option value={d.contact_name}>{d.contact_name}</option>
-                             ))
+                              documents.map((d,index) => (
+                                <option key={index} value={d.contact_name} >{d.contact_name}</option>
+                              ))
                             }
                           </Select>
                           {/* <Text fontSize="sm" color="gray.500">Select a list of recipients</Text> */}

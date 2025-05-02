@@ -80,7 +80,7 @@ router.post('/upload', middleware, upload.single('file'), async (req, res) => {
             })
             .on('end', () => {
                 if (results.length === 0) {
-                    console.log(results)
+                    // console.log(results)
                     return res.status(400).json({ error: 'No valid data found in CSV.' });
                 }
 
@@ -149,7 +149,7 @@ router.get("/getAllcontacts", async (req, res) => {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
-            console.log(data)
+            // console.log(data)
             return res.json({ success: "success", data })
         })
     } catch (error) {

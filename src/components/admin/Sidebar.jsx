@@ -27,7 +27,7 @@ const Sidebar = () => {
     { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
   return (
-    <Box w="240px" bg="gray.800" color="white" p={5} minH="100%">
+    <Box width={'250px'} bg="gray.800" color="white" p={5} height="100vh">
       <Text fontSize="xl" fontWeight="bold" mb={8}>
         Marworx Chat Bot
       </Text>
