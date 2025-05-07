@@ -6,9 +6,9 @@ import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
 import Guest from './components/user/Guest';
-import Sector from './components/admin/Pages/Sector';
+// import Sector from './components/admin/Pages/Sector';
 import ProductService from './components/admin/Pages/ProductService';
-import BotBuilder from './components/admin/Pages/BotBuilder';
+// import BotBuilder from './components/admin/Pages/BotBuilder';
 import Campaign from './components/admin/Pages/Campaign';
 import GenerativeBot from './components/admin/Pages/GenerativeBot';
 import SectorProfile from './components/admin/Pages/SectorProfile';
@@ -25,6 +25,10 @@ const Queries = lazy(() => import('./components/admin/Pages/Queries'));
 const Login = lazy(() => import('./components/admin/Pages/Login'));
 const UserProfile = lazy(() => import('./components/admin/Pages/UserProfile'));
 const AdminProfile = lazy(() => import('./components/admin/Pages/AdminProfile'));
+const Sector = lazy(() => import('./components/admin/Pages/Sector'));
+const BotBuilder = lazy(() => import('./components/admin/Pages/BotBuilder'));
+const Bot =lazy(()=>import ('./components/admin/Pages/Bot'))
+// const MainPage = lazy(() => import('./components/user/MainPage'));
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
 
@@ -32,17 +36,21 @@ const AdminProfile = lazy(() => import('./components/admin/Pages/AdminProfile'))
 function App() {
 
 return (
+
     <Suspense
       fallback={
         <Flex h="calc(100vh - 60px)" w="100%" alignItems="center" justifyContent="center">
           <Spinner thickness="4px" speed=".9s" emptyColor="gray.200" color="gray.800" size="xl" />
         </Flex>
       }
-    >
+      >
+     
       <Router>
         <Routes>
           {/* Admin Routes */}
           <Route exact path="/home" element={<Login />} />
+          <Route path='bot_builder' element={<BotBuilder />} /> 
+          
           <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="admin" element={<Admin />} />
@@ -50,7 +58,7 @@ return (
             <Route path='sector' element={<Sector />} />
             <Route path='sector/:id' element={<SectorProfile />} />
             <Route path='product' element={<ProductService />} />
-            <Route path='bot_builder' element={<BotBuilder />} />
+            <Route path='bot' element={<Bot />} />
             <Route path='campaign' element={<Campaign />} />
             <Route path='gen_bot' element={<GenerativeBot />} />
             <Route path="queries" element={<Queries />} />
@@ -70,6 +78,7 @@ return (
         </Routes>
       </Router>
     </Suspense>
+      
   )
 }
 

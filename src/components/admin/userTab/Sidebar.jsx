@@ -20,7 +20,7 @@ const Sidebar = () => {
     { title: "Sector", url: "/home/sector", icon: <Icon as={LuSection} mr={2} /> },
     // { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Product Services ", url: "/home/product", icon: <Icon as={MdProductionQuantityLimits } mr={2} /> },
-    { title: "Bot Builder", url: "/home/bot_builder", icon: <Icon as={LuBot } mr={2} /> },
+    { title: "Bot Builder", url: "/home/bot", icon: <Icon as={LuBot } mr={2} /> },
     { title: "Campaign", url: "/home/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
     { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
     // { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },

@@ -7,127 +7,118 @@ import BreadCrumb from "./BreadCrumb";
 import { decrypt } from "../utils/security";
 import UserSidebar from "../admin/userTab/Sidebar";
 
-
 const Layout = () => {
-
-  const user=decrypt(localStorage.getItem('user'))
+  const user = decrypt(localStorage.getItem("user"));
 
   return (
     <Box h="100vh">
-    {/* Top Navbar */}
-    <Box
-      h="60px"
-      w="100%"
-      position="fixed"
-      top="0"
-      left="0"
-      zIndex="0"
-      bg="white"
-    >
-      <Navbar />
-    </Box>
-  
-    {/* Sidebar + Main Content Wrapper */}
-    <Flex h="100vh">
-      {/* Sidebar (Visible only on large screens) */}
+      {/* Top Navbar */}
       <Box
-         w="250px"
-        // bg="gray.800"
-      
-        // color="white"
-        display={{ base: "none", lg: "block" }}
-        position="fixed"
-        // top="60px"
-        // bottom="0"
-        zIndex={'1'}
-        left="0"
-        h="100vh"
-        overflowY="auto"
-      >
-        {user.role === "Super-Admin" ? <Sidebar /> : <UserSidebar />}
-      </Box>
-  
-      {/* Main Content Area */}
-      <Box
-        ml={{ base: 0, lg: "250px" }}
+        h="60px"
         w="100%"
-        // h="calc(100vh - 60px)"
-        overflowY="auto"
-      position={'absolute'}
-      zIndex='-1'
-        bg="#FFFBFA"
-        px={{ base: 3, md: 5 }}
-        // pt={2} 
-        pt="60px"
+        position="fixed"
+        top="0"
+        left="0"
+        zIndex="1000"
+        bg="white"
       >
-        <BreadCrumb />
-  
-        <Suspense
-          fallback={
-            <Flex
-              w="100%"
-              h="100%"
-              justify="center"
-              align="center"
-              bgColor="#f0f8ff"
-            >
-              <Spinner size="lg" />
-            </Flex>
-          }
-        >
-          <Box pb={8} w="100%" >
-            <Outlet />
-          </Box>
-        </Suspense>
+        <Navbar />
       </Box>
-    </Flex>
-  </Box>
-  
 
-  //   <Box h={'100vh'}>
-  
-  //   <Flex w={'auto'} h='calc(100vh - 60px)' bg="gray.800" color="white" display={{base:"none" ,sm:"none", md:"none", lg:"block" ,xl:"block"}}>
-  //     {user.role === "Super-Admin" ?  <Sidebar /> : <UserSidebar/>}
-  //   </Flex>
+      {/* Sidebar + Main Content Wrapper */}
+      <Flex h="100vh" >
+        {/* Sidebar (Visible only on large screens) */}
+        <Box
+          w="250px"
+          display={{ base: "none", lg: "block" }}
+          position="fixed"
+          // top="60px"
+          // bottom="0"
+          zIndex={"999"}
+          left="0"
+          h="100vh"
+          overflowY="auto"
+        >
+          {user.role === "Super-Admin" ? <Sidebar /> : <UserSidebar />}
+        </Box>
 
-  //   {/* Main Content Area */}
-  //   <Flex direction="column"  w='100%' h='calc(100vh - 60px)'>
-  //     {/* Top Navbar */}
-  //     <Box h="60px" w="100%">
-  //       <Navbar />
-  //     </Box>
+        {/* Main Content Area */}
+        <Box
+          ml={{ base: 0, lg: "250px" }}
+          w="100%"
+          // h="calc(100vh - 60px)"
+          overflowY="auto"
+          bg="#FFFBFA"
+          px={{ base: 3, md: 5 }}
+          // pt={2}
+          pt="60px"
+        >
+          <BreadCrumb />
 
-  //     {/* Page Content */}
-  //     <Box
-  //       w='100%' h='calc(100vh - 60px)'
-  //       overflow="auto"
-  //       bg="#f0f8ff"
-  //       px={{ base: 3, md: 5 }}
-  //       pt={2}
-  //     >
-  //       {/* Uncomment this if you want breadcrumb above */}
-  //     <BreadCrumb />
-  //       <Suspense
-  //         fallback={
-  //           <Flex
-  //             w="100%"
-  //             h="calc(100vh - 60px)"
-  //             justify="center"
-  //             align="center"
-  //             bgColor='#f0f8ff'
-  //           >
-  //             <Spinner size="lg" />
-  //           </Flex>
-  //         }
-  //       >
-  //         <Box pb={8}  w='100%' h='calc(100vh - 60px)' bg={'#f0f8ff'}  overflow={'auto'}>
-  //           <Outlet />
-  //         </Box>
-  //       </Suspense>
-  //     </Box>
-  //   </Flex>
-  // </Box>
+          <Suspense
+            fallback={
+              <Flex
+                w="100%"
+                h="100%"
+                justify="center"
+                align="center"
+                bgColor="#f0f8ff"
+              >
+                <Spinner size="lg" />
+              </Flex>
+            }
+          >
+            <Box pb={8} w="100%"  >
+              <Outlet />
+            </Box>
+          </Suspense>
+        </Box>
+      </Flex>
+    </Box>
 
+    //   <Box h={'100vh'}>
+
+    //   <Flex w={'auto'} h='calc(100vh - 60px)' bg="gray.800" color="white" display={{base:"none" ,sm:"none", md:"none", lg:"block" ,xl:"block"}}>
+    //     {user.role === "Super-Admin" ?  <Sidebar /> : <UserSidebar/>}
+    //   </Flex>
+
+    //   {/* Main Content Area */}
+    //   <Flex direction="column"  w='100%' h='calc(100vh - 60px)'>
+    //     {/* Top Navbar */}
+    //     <Box h="60px" w="100%">
+    //       <Navbar />
+    //     </Box>
+
+    //     {/* Page Content */}
+    //     <Box
+    //       w='100%' h='calc(100vh - 60px)'
+    //       overflow="auto"
+    //       bg="#f0f8ff"
+    //       px={{ base: 3, md: 5 }}
+    //       pt={2}
+    //     >
+    //       {/* Uncomment this if you want breadcrumb above */}
+    //     <BreadCrumb />
+    //       <Suspense
+    //         fallback={
+    //           <Flex
+    //             w="100%"
+    //             h="calc(100vh - 60px)"
+    //             justify="center"
+    //             align="center"
+    //             bgColor='#f0f8ff'
+    //           >
+    //             <Spinner size="lg" />
+    //           </Flex>
+    //         }
+    //       >
+    //         <Box pb={8}  w='100%' h='calc(100vh - 60px)' bg={'#f0f8ff'}  overflow={'auto'}>
+    //           <Outlet />
+    //         </Box>
+    //       </Suspense>
+    //     </Box>
+    //   </Flex>
+    // </Box>
 
     // <Box h={'100vh'}>
     //   <Navbar />
