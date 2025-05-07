@@ -176,7 +176,7 @@ const Campaign = () => {
   }
 
   const saveCampaign = async () => {
-   
+
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/add`, {
         method: "POST",
@@ -780,26 +780,7 @@ const Campaign = () => {
             <ModalContent pt={'2'}>
               <ModalCloseButton onClick={() => onClose()} />
 
-
-              {/* <Stepper index={activeStep} mb={6} size="sm" colorScheme="purple">
-              {steps.map((step, index) => (
-                <Step key={index}>
-                  <StepIndicator>
-                    <StepStatus
-                      complete={<StepIcon />}
-                      incomplete={<StepNumber />}
-                      active={<StepNumber />}
-                    />
-                  </StepIndicator>
-                  <Box flexShrink="0">
-                    <StepTitle>{step.title}</StepTitle>
-                    <StepDescription>{step.description}</StepDescription>
-                  </Box>
-                  <StepSeparator />
-                </Step>
-              ))}
-            </Stepper> */}
-
+             
               {activeStep === 0 && (
                 <>
                   <Text paddingLeft={'20px'} fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
@@ -807,12 +788,53 @@ const Campaign = () => {
                 </>
               )}
               <Text fontSize={'18px'}></Text>
+              
+  {/* <Stepper index={activeStep} mb={6} size="sm" >
+                        {steps.map((step, index) => (
+                          <Step key={index}>
+                            <StepIndicator>
+                              <StepStatus
+                                complete={<StepIcon />}
+                                incomplete={<StepNumber />}
+                                active={<StepNumber />}
+                              />
+                            </StepIndicator>
+                            <Box flexShrink="0">
+                              <StepTitle>{step.title}</StepTitle>
+                             
+                             </Box>
+                            <StepSeparator />
+                          </Step>
+                        ))}
+                      </Stepper>  */}
+
+<Stepper index={activeStep} mb={6} size="sm" colorScheme="orange">
+  {steps.map((step, index) => (
+    <Step key={index}>
+      <StepIndicator>
+        <StepStatus
+          complete={<StepIcon />}
+          incomplete={<StepNumber />}
+          active={<StepNumber />}
+        />
+      </StepIndicator>
+      <Box flexShrink="0">
+        <StepTitle>{step.title}</StepTitle>
+        {/* <StepDescription>{step.description}</StepDescription> */}
+      </Box>
+      <StepSeparator />
+    </Step>
+  ))}
+</Stepper>
+
 
               <ModalBody>
                 {activeStep === 0 && (
 
                   <Box>
-
+                    
+                    
+                   
                     <Text fontWeight="bold" mb={3}>Standard</Text>
                     <Text fontSize="sm" color="gray.600" mb={4}>
                       Create a one-off campaign from scratch.
@@ -949,7 +971,7 @@ const Campaign = () => {
                           <Text fontWeight="bold">To</Text>
                           <Select name="to" value={campaignData.to} onChange={handleChange} placeholder="select contact" >
                             {
-                              documents.map((d,index) => (
+                              documents.map((d, index) => (
                                 <option key={index} value={d.contact_name} >{d.contact_name}</option>
                               ))
                             }

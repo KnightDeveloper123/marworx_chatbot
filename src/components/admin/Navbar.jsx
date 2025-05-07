@@ -232,6 +232,7 @@ function Navbar() {
             gap={4}
             alignItems="center"
             display={{ xl: "flex", lg: "flex", md: "none", sm: "none", base: "none" }}
+        
           >
 
             <Box _hover={{ cursor: "pointer" }}>
@@ -249,7 +250,7 @@ function Navbar() {
               </Drawer>
             </Box>
 
-            <Box>
+            <Box >
               <Menu>
                 <MenuButton as={Button} backgroundColor={'white'} _focus={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
                   <IoSettingsSharp />

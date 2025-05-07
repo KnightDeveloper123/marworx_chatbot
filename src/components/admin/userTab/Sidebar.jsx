@@ -26,7 +26,7 @@ const Sidebar = () => {
     // { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
   return (
-    <Box w="240px" bg="gray.800" color="white" p={5} height="100vh">
+    <Box w="240px"  p={5} height="100vh" >
       <Text fontSize="xl" fontWeight="bold" mb={8}>
         Marworx Chat Bot
       </Text>
@@ -34,8 +34,9 @@ const Sidebar = () => {
         {adminNavbar.map((item, index) => (
           <Link key={index} to={item.url}>
             <Box
-              _hover={{ bg: "gray.700" }}
+              // _hover={{ bg: "gray.700" }}
               p={2}
+            
               borderRadius="md"
               display={"flex"}
             >

@@ -354,6 +354,7 @@ console.log(user_role)
 
 
 
+
       <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
         <Button
           borderRadius="var(--radius)"
@@ -403,30 +404,30 @@ console.log(user_role)
       
 
 
-      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' isCentered>
+      <Modal size={'sm'} isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Upload Files</ModalHeader>
+          <Text fontSize={'18px'} fontWeight={'semibold'} padding={'10px'}>Upload Files</Text>
           <ModalCloseButton />
           <ModalBody>
             <FormControl>
-              <FormLabel>File Name</FormLabel>
-              <Input name="fileName" type="text" onChange={(e) => setFile((prev) => ({ ...prev, fileName: e.target.value }))} placeholder="File Name" />
+              <FormLabel fontSize={'13px'} mb={'1px'}>File Name</FormLabel>
+              <Input name="fileName" type="text" fontSize={'12px'} borderRadius={'10px'} onChange={(e) => setFile((prev) => ({ ...prev, fileName: e.target.value }))} placeholder="File Name" />
             </FormControl>
 
             <FormControl mt={2}>
-              <Input border={'none'} p={0} type="file" name="file" ref={fileInputRef} onChange={handleFileChange} />
+              <Input border={'none'} p={0} type="file" name="file" fontSize={'13px'}  ref={fileInputRef} onChange={handleFileChange} />
             </FormControl>
           </ModalBody>
 
-          <ModalFooter>
-            <Button size={'sm'} mr={3} onClick={onClose}>
+          <Box width={'full'} display={'flex'} gap={'6px'} padding={'20px'}  >
+            <Button size={'sm'} width={'50%'} onClick={onClose}>
               Close
             </Button>
-            <Button size={'sm'} variant='ghost' onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
+            <Button size={'sm'} width={'50%'}   onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
               bgColor="var(--active-bg)"
               color="#fff">Upload</Button>
-          </ModalFooter>
+          </Box>
         </ModalContent>
       </Modal>
     </Flex >

@@ -189,15 +189,21 @@ const Sector = () => {
         flexDirection={"column"}
         p="15px"
       >
+
+        <Box display={'flex'}  alignItems={'center'} gap={'50px'}>
+          <Text height={'32px'} textAlign={'center'} borderRadius={'7px'} gap={'5px'} border={'1px'} width={'70px'} color={'#858585'}> Back</Text>
+        <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
+            Sector
+          </Text>
+        </Box>
         <Flex
           w="100%"
           alignItems={"center"}
-          justifyContent="space-between"
+          justifyContent="end"
           gap="10px"
         >
-          <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
-            Sector
-          </Text>
+          
+
           <Flex gap={2}>
 
             <Flex gap={3}
@@ -208,12 +214,14 @@ const Sector = () => {
                 fontWeight="var(--big-font-weight)"
               placeholder="Search Name"
               value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
+
               <Button
                 borderRadius="var(--radius)"
                 leftIcon={<IoMdAdd fontSize={"20px"} />}
                 _hover={{ bgColor: "var(--active-bg)" }}
                 bgColor="var(--active-bg)"
                 color="#fff"
+              
                 h={"35px"}
                 fontSize="var(--mini-text)"
                 fontWeight="var(--big-font-weight)"
@@ -224,21 +232,25 @@ const Sector = () => {
 
             </Flex>
           </Flex>
+
         </Flex>
+
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
+          border={'1px solid gray'}
         //  maxH={flag ? "unset" : "600px"}
         // overflowY={flag ? "unset" : "scroll"}
         >
-          <Table size="sm" className="custom-striped-table">
-            <Thead border="0.5px solid #F2F4F8">
-              <Tr h="40px" bgColor="var(--table-header-bg)">
+          <Table size="sm" className="custom-striped-table" border={'1px solid gray'}>
+            <Thead border="0.5px solid #F2F4F8" >
+              <Tr h="40px" bgColor="#FFF5F3">
                 <Th
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius="5px 0px 0px 0px"
                   fontSize="var(--mini-text)"
+                  border={'1px solid gray'}
                 >
                   ID
                 </Th>
@@ -247,6 +259,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
+                  border={'1px solid gray'}
                 >
                   Name
                 </Th>
@@ -255,6 +268,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
+                  border={'1px solid gray'}
                 >
                   Category
                 </Th>
@@ -262,6 +276,7 @@ const Sector = () => {
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius=""
+                  border={'1px solid gray'}
                   fontSize="var(--mini-text)"
                 >
                   Description
@@ -272,6 +287,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
+                  border={'1px solid gray'}
                 >
                   Icon
                 </Th>
@@ -281,6 +297,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius="0px 5px 0px 0px"
                   fontSize="var(--mini-text)"
+                  border={'1px solid gray'}
                 >
                   Actions
                 </Th>
@@ -288,27 +305,28 @@ const Sector = () => {
                   ""
                 )} */}
               </Tr>
-            </Thead>
+            </Thead >
 
-            <Tbody>
+            <Tbody >
               {
                 filteredData && filteredData.map((sector) => (
                   <Tr key={sector.id}>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.id}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.name}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.category}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}>{sector.description}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.id}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.name}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.category}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.description}</Td>
 
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)">
+                           
                       <img
                         src={`${import.meta.env.VITE_BACKEND_URL}/sectors/${sector.icon}`}
                         alt={sector.name}
                         style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                       />
                     </Td>
-                    <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
+                    <Td    border={'1px solid gray'}  color={"#404040"} fontSize="var(--mini-text)">
                       <Menu>
                         <MenuButton
                           bgColor="transparent"
@@ -358,14 +376,14 @@ const Sector = () => {
 
       {/* add Sector*/}
       <Modal isOpen={isOpen}
-        onClose={onClose} >
+        onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader fontSize={'18px'}>Add Sector</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
 
-            <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+            <Box as='form'  onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
@@ -401,7 +419,7 @@ const Sector = () => {
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
-                <Input type='text' {...register('description')}
+                <Input type='text' {...register('description')} height={'100px'}
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>

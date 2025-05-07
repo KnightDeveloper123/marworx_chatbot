@@ -32,8 +32,9 @@ const Layout = () => {
       {/* Sidebar (Visible only on large screens) */}
       <Box
          w="250px"
-        bg="gray.800"
-        color="white"
+        // bg="gray.800"
+      
+        // color="white"
         display={{ base: "none", lg: "block" }}
         position="fixed"
         // top="60px"
@@ -52,7 +53,9 @@ const Layout = () => {
         w="100%"
         // h="calc(100vh - 60px)"
         overflowY="auto"
-        bg="#f0f8ff"
+      position={'absolute'}
+      zIndex='-1'
+        bg="#FFFBFA"
         px={{ base: 3, md: 5 }}
         // pt={2} 
         pt="60px"
