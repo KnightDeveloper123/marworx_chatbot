@@ -16,7 +16,7 @@ import {
   ModalBody,
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 
@@ -27,6 +27,7 @@ export default function Login() {
   const { showAlert } = useContext(AppContext);
   const [registrationPage, setRegistrationPage] = useState(false);
   const [loginPage, setLoginPage] = useState(true);
+  const [forgotPasswordPage, setForgotPasswordPage] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpEmail, setOtpEmail] = useState("");
@@ -44,6 +45,12 @@ export default function Login() {
       password: "",
     },
   });
+  const forgotPasswordForm = useForm({
+    defaultValues: {
+      email: "",
+    },
+  });
+
 
   const handleRegister = async (values) => {
     try {
@@ -52,7 +59,7 @@ export default function Login() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: JSON.stringify(setOtpEmail(values.email)),
         }
       );
       const result = await response.json();
@@ -92,7 +99,7 @@ export default function Login() {
         showAlert(result.success, "success");
         navigate("/home/dashboard");
       } else {
-        
+
         showAlert(result.error || "Login failed", "error");
       }
     } catch (error) {
@@ -102,7 +109,7 @@ export default function Login() {
   };
 
   const handleOtpVerify = async () => {
-  
+
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/verify-otp`,
         {
@@ -115,11 +122,19 @@ export default function Login() {
       const result = await response.json();
 
       if (result?.success) {
-        const encryptedData = await encrypt(result.data);
-        localStorage.setItem("token", result.auth_token);
-        localStorage.setItem("user", encryptedData);
-        showAlert(result.success, "success");
-        navigate("/home/dashboard");
+        if(loginPage){
+          const encryptedData = await encrypt(result.data);
+          localStorage.setItem("token", result.auth_token);
+          localStorage.setItem("user", encryptedData);
+          showAlert(result.success, "success");
+          navigate("/home/dashboard");
+        }else{
+          setLoginPage(true);
+          setRegistrationPage(false);
+          setForgotPasswordPage(false);
+          setShowOtp(false);
+        }
+       
       } else {
         showAlert(result.error || "OTP verification failed", "error");
       }
@@ -128,6 +143,29 @@ export default function Login() {
       showAlert("Something went wrong. Please try again.", "error");
     }
   };
+
+  const handleForgotPassword = async (values) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/changePassword`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: values.email, password: values.password }),
+      });
+
+      const result = await response.json();
+      if (result?.step === "otp-verification") {
+        showAlert("OTP sent to your email", "info");
+        setOtpEmail(values.email);
+        setShowOtp(true);
+      } else {
+        showAlert(result.error || "Something went wrong", "error");
+      }
+    } catch (error) {
+      console.error("Forgot Password Error:", error);
+      showAlert("Something went wrong. Please try again.", "error");
+    }
+  };
+
 
   return (
     <Box
@@ -220,7 +258,10 @@ export default function Login() {
             >
               register here
             </Text>
-            <Text fontSize="12px" _hover={{ textDecoration: "underline" }}>
+            <Text fontSize="12px" _hover={{ textDecoration: "underline" }}
+              onClick={() => {
+                setForgotPasswordPage(true), setLoginPage(false);
+              }}>
               Forgot Password?
             </Text>
           </Flex>
@@ -353,12 +394,127 @@ export default function Login() {
             >
               Login
             </Text>
-            <Text fontSize="12px" _hover={{ textDecoration: "underline" }}>
+            <Text fontSize="12px" _hover={{ textDecoration: "underline" }}
+              onClick={() => {
+                setRegistrationPage(false), setLoginPage(false), setForgotPasswordPage(true);
+              }}
+            >
               Forgot Password?
             </Text>
           </Flex>
         </Flex>
       )}
+
+      {/* Forgot Password */}
+      {forgotPasswordPage && (
+        <Flex
+          as="form"
+          onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)}
+          width={{ base: "90%", sm: "60%", md: "45%", lg: "40%", xl: "30%" }}
+          p="40px"
+          boxShadow="2xl"
+          bgColor="white"
+          gap="20px"
+          flexDirection="column"
+          borderRadius="10px"
+        >
+          <Text textAlign="center" fontSize="30px" fontWeight="semibold">
+            Forgot Password
+          </Text>
+
+          {/* Email Field */}
+          <FormControl isInvalid={forgotPasswordForm.formState.errors.email}>
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              placeholder="Email address"
+              {...forgotPasswordForm.register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                  message: "Invalid email format",
+                },
+              })}
+            />
+            <FormErrorMessage>
+              {forgotPasswordForm.formState.errors.email?.message}
+            </FormErrorMessage>
+          </FormControl>
+
+          {/* Password Field */}
+          <FormControl isInvalid={forgotPasswordForm.formState.errors.password}>
+            <FormLabel>Password</FormLabel>
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              {...forgotPasswordForm.register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
+            />
+            <FormErrorMessage>
+              {forgotPasswordForm.formState.errors.password?.message}
+            </FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={forgotPasswordForm.formState.errors.confirmPassword}>
+            <FormLabel>Confirm Password</FormLabel>
+            <Input
+              type="password"
+              placeholder="Confirm your password"
+              {...forgotPasswordForm.register("confirmPassword", {
+                required: "Confirm Password is required",
+                validate: (value) =>
+                  value === forgotPasswordForm.watch("password") || "Passwords do not match",
+              })}
+            />
+            <FormErrorMessage>
+              {forgotPasswordForm.formState.errors.confirmPassword?.message}
+            </FormErrorMessage>
+          </FormControl>
+
+          {/* Forgot Password & Submit Button */}
+          <Flex
+            mt={2}
+            gap={2}
+            justifyContent="space-between"
+            flexDir={"column"}
+            alignItems="center"
+          >
+            <Button
+              type="submit"
+              width="full"
+              bgColor="blue.500"
+              textColor="white"
+              isLoading={forgotPasswordForm.formState.isSubmitting}
+            >
+              Send Reset Link
+            </Button>
+          </Flex>
+          <Flex justifyContent={"space-between"}>
+            <Text
+              fontSize="12px"
+              _hover={{ textDecoration: "underline" }}
+              onClick={() => {
+                setRegistrationPage(true), setForgotPasswordPage(false), setLoginPage(false);
+              }}
+            >
+              register here
+            </Text>
+            <Text fontSize="12px" _hover={{ textDecoration: "underline" }}
+              onClick={() => {
+                setLoginPage(true), setForgotPasswordPage(false), setRegistrationPage(false);
+              }}>
+              Log in
+            </Text>
+          </Flex>
+        </Flex>
+      )}
+      
+
     </Box>
   );
 }

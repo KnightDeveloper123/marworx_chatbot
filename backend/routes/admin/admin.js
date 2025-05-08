@@ -175,19 +175,24 @@ router.post("/update", middleware, upload.single('profile'), async (req, res) =>
 let otpStore = {}
 router.post("/login", async (req, res) => {
     try {
+        // console.log(req.body);
+        
         const { email, password } = req.body;
 
         const user = await executeQuery(`select * from admin where email=?`, [email]);
-
+        // console.log(user);
         if (!user[0] || !password) {
             return res.status(400).json({ error: "Invalid Credentials" });
         }
+        
 
         if (!user[0]?.password) {
             return res.status(400).json({ error: "Please set your password" });
         }
 
         const pwdCompare = await bcrypt.compare(password, user[0].password);
+        // console.log(pwdCompare);
+        
 
         if (!pwdCompare) {
             return res.status(400).json({ error: "Invalid Credentials" });
@@ -313,9 +318,16 @@ router.post("/changePassword", async (req, res) => {
 
         const checkEmail = await executeQuery(`select * from admin where email=?`, [email]);
 
-        if (!checkEmail[0]) {
-            return res.status(400).json({ error: "admin not fount" })
+        if (checkEmail[0]) {
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const expiry = Date.now() + 5 * 60 * 1000;
+            otpStore[email] = { otp, expiry };
+
+            await sendOtp(otp, email, checkEmail[0].name);
+
+             return res.json({ step: "otp-verification", message: "OTP sent to email", email });
         }
+
 
         var salt = bcrypt.genSaltSync(10);
         const secPass = await bcrypt.hash(password, salt);
