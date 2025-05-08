@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -32,6 +32,7 @@ import {
   Input,
   FormControl,
   FormLabel,
+  Image,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
@@ -62,7 +63,7 @@ function Navbar() {
   const { isOpen: isPasswordOpen, onOpen: onPasswordOpen, onClose: onPasswordClose } = useDisclosure()
 
   const encryptedUser = localStorage.getItem('user');
-  const user = encryptedUser ? decrypt(encryptedUser) : null;
+  const user = encryptedUser ? decrypt(encryptedUser) : null;  
 
   const adminNavbar = [
     { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
@@ -170,6 +171,7 @@ function Navbar() {
     navigate('/home')
   }
 
+
   return (
     <HStack
       p={{
@@ -185,6 +187,7 @@ function Navbar() {
       height="60px"
       bg="#fff !important"
       zIndex={111}
+      boxShadow='base'
     >
       <Flex
         w="100%"
@@ -274,6 +277,9 @@ function Navbar() {
                 </MenuList>
 
               </Menu>
+            </Box>
+            <Box>
+            <Avatar size='sm' name={user?.name} src='https://bit.ly/tioluwani-kolawole' />
             </Box>
 
 

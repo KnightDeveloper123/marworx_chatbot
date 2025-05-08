@@ -3,7 +3,7 @@ import { Box, VStack, Text, Icon } from "@chakra-ui/react";
 import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
 import { SiGooglebigquery } from "react-icons/si";
 import { FaCircleUser } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { RiTelegram2Line } from "react-icons/ri";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { LuBot } from "react-icons/lu";
@@ -13,6 +13,9 @@ import React from "react";
 import { PiBagSimpleFill } from "react-icons/pi";
 
 const Sidebar = () => {
+
+  const location = useLocation();
+  
   const adminNavbar = [
     { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
     { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
@@ -26,11 +29,11 @@ const Sidebar = () => {
     // { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
   ];
   return (
-    <Box w="240px"  p={5} height="100vh" >
+    <Box w="240px"  p={5} height="100vh" bg="#fff5f3" boxShadow='base'>
       <Text fontSize="xl" fontWeight="bold" mb={8}>
         Marworx Chat Bot
       </Text>
-      <VStack spacing={1} align="stretch">
+      {/* <VStack spacing={1} align="stretch">
         {adminNavbar.map((item, index) => (
           <Link key={index} to={item.url}>
             <Box
@@ -47,6 +50,30 @@ const Sidebar = () => {
             </Box>
           </Link>
         ))}
+      </VStack> */}
+       <VStack spacing={1} align="stretch">
+        {adminNavbar.map((item, index) => {
+          const isActive = location.pathname === item.url;
+
+          return (
+            <Link key={index} to={item.url}>
+              <Box
+                p={2}
+                borderRadius="md"
+                display="flex"
+                alignItems="center"
+                bg={isActive ? "#ff5f35" : "transparent"}
+                color={isActive ? "#fff" : "#000"}
+                transition="background 0.2s"
+              >
+                {item.icon}
+                <Text fontSize="15px" fontWeight="500" cursor="pointer">
+                  {item.title}
+                </Text>
+              </Box>
+            </Link>
+          );
+        })}
       </VStack>
     </Box>
   );

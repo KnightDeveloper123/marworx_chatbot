@@ -31,6 +31,7 @@ export default function Login() {
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpEmail, setOtpEmail] = useState("");
+  const [tempPassword, setTempPassword] = useState("");
 
   const loginForm = useForm({
     defaultValues: {
@@ -144,19 +145,54 @@ export default function Login() {
     }
   };
 
+  const handleOtpVerifyForgotPass= async () => {
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/changePassword`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: otpEmail,
+          password: tempPassword,
+          otp,
+          step: "verify-and-reset"
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (result.success) {
+        showAlert("Password successfully changed", "success");
+        setShowOtp(false);
+        // Redirect to login or reset form
+      } else {
+        showAlert(result.error || "Invalid OTP", "error");
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      showAlert("Something went wrong. Please try again.", "error");
+    }
+}
+
   const handleForgotPassword = async (values) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/changePassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email, password: values.password }),
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+          step: "request-otp"
+        }),
       });
-
+  
       const result = await response.json();
+  
       if (result?.step === "otp-verification") {
         showAlert("OTP sent to your email", "info");
-        setOtpEmail(values.email);
-        setShowOtp(true);
+        setOtpEmail(values.email);     
+        setTempPassword(values.password); 
+        setShowOtp(true);           
       } else {
         showAlert(result.error || "Something went wrong", "error");
       }
@@ -284,7 +320,7 @@ export default function Login() {
               onChange={(e) => setOtp(e.target.value)}
             />
             <Button
-              onClick={handleOtpVerify}
+              onClick={forgotPasswordPage ? handleOtpVerifyForgotPass : handleOtpVerify}
               width="full"
               bgColor="green.500"
               textColor="white"

@@ -168,8 +168,8 @@ const ProductService = () => {
 
                 >
                     <Table size="sm" className="custom-striped-table">
-                        <Thead border="0.5px solid #F2F4F8">
-                            <Tr h="40px" bgColor="var(--table-header-bg)">
+                        <Thead border="0.5px solid #FFF5F3">
+                            <Tr h="40px" bgColor="#FFF5F3">
 
                                 <Th fontWeight="var(--big-font-weight)"
                                     color="var(--text-black)"

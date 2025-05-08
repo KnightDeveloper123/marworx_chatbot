@@ -48,10 +48,11 @@ const Layout = () => {
           w="100%"
           // h="calc(100vh - 60px)"
           overflowY="auto"
-          bg="#FFFBFA"
+          // bg="#FFFBFA"
           px={{ base: 3, md: 5 }}
           // pt={2}
           pt="60px"
+
         >
           <BreadCrumb />
 

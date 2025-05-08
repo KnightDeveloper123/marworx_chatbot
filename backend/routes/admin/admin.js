@@ -312,33 +312,89 @@ router.post("/signUp", async (req, res) => {
     }
 });
 
+// router.post("/changePassword", async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         const checkEmail = await executeQuery(`select * from admin where email=?`, [email]);
+
+//         if (checkEmail[0]) {
+//             console.log("its check email ");
+            
+//             const otp = crypto.randomInt(100000, 999999).toString();
+//             const expiry = Date.now() + 5 * 60 * 1000;
+//             otpStore[email] = { otp, expiry };
+
+//             await sendOtp(otp, email, checkEmail[0].name);
+
+//              return res.json({ step: "otp-verification", message: "OTP sent to email", email });
+//         }
+
+
+//         var salt = bcrypt.genSaltSync(10);
+//         const secPass = await bcrypt.hash(password, salt);
+
+//         connection.execute('update admin set password=? where email=?;', [secPass, email], (err, data) => {
+//             if (err) {
+//                 console.log(err);
+//                 return res.status(400).json({ error: "Something went wrong" })
+//             }
+//             return res.json({ success: `Password changed`, data })
+//         })
+
+//     } catch (error) {
+//         console.log("/changePassword: ", error.message);
+//         return res.status(500).json({ error: "Internal Server Error." });
+//     }
+// });
+
 router.post("/changePassword", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, otp, step } = req.body;
 
-        const checkEmail = await executeQuery(`select * from admin where email=?`, [email]);
+        const checkEmail = await executeQuery(`SELECT * FROM admin WHERE email=?`, [email]);
 
-        if (checkEmail[0]) {
-            const otp = crypto.randomInt(100000, 999999).toString();
-            const expiry = Date.now() + 5 * 60 * 1000;
-            otpStore[email] = { otp, expiry };
-
-            await sendOtp(otp, email, checkEmail[0].name);
-
-             return res.json({ step: "otp-verification", message: "OTP sent to email", email });
+        if (!checkEmail[0]) {
+            return res.status(404).json({ error: "Email not found" });
         }
 
+        if (step === "request-otp") {
+            const generatedOtp = crypto.randomInt(100000, 999999).toString();
+            const expiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+            otpStore[email] = { otp: generatedOtp, expiry };
 
-        var salt = bcrypt.genSaltSync(10);
-        const secPass = await bcrypt.hash(password, salt);
+            await sendOtp(generatedOtp, email, checkEmail[0].name);
+            return res.json({ step: "otp-verification", message: "OTP sent to email", email });
+        }
 
-        connection.execute('update admin set password=? where email=?;', [secPass, email], (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.status(400).json({ error: "Something went wrong" })
+        if (step === "verify-and-reset") {
+            if (!otp || !otpStore[email]) {
+                return res.status(400).json({ error: "OTP not found or expired" });
             }
-            return res.json({ success: `Password changed`, data })
-        })
+            
+            const { otp: storedOtp, expiry } = otpStore[email];
+            if (Date.now() > expiry || otp !== storedOtp) {
+                return res.status(400).json({ error: "Invalid or expired OTP" });
+            }
+
+            // Proceed to change password
+            const salt = bcrypt.genSaltSync(10);
+            const secPass = await bcrypt.hash(password, salt);
+
+            connection.execute('UPDATE admin SET password=? WHERE email=?;', [secPass, email], (err, data) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).json({ error: "Something went wrong" });
+                }
+
+                // Clean up OTP
+                delete otpStore[email];
+
+                return res.status(200).json({ success: "Password changed", data });
+            });
+        } else {
+            return res.status(400).json({ error: "Invalid step" });
+        }
 
     } catch (error) {
         console.log("/changePassword: ", error.message);

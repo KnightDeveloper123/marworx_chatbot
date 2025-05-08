@@ -6,7 +6,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { RiRobot2Fill } from "react-icons/ri"; 
+import { RiRobot2Fill } from "react-icons/ri";
 import { AppContext } from "../../context/AppContext";
 import { IoIosSend, IoMdAdd } from "react-icons/io";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -25,13 +25,13 @@ const AdminDashboard = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const location = useLocation();
 
-  const user=localStorage.getItem('user')
-  
+  const user = localStorage.getItem('user')
+
   // console.log(decrypt(user))
 
-  const admin_id=decrypt(user).id
-  const user_role=decrypt(user).role
-console.log(user_role)
+  const admin_id = decrypt(user).id
+  const user_role = decrypt(user).role
+  console.log(user_role)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -152,204 +152,175 @@ console.log(user_role)
       showAlert("Upload failed", "error");
     }
   }
-  const [state, setState] = useState({
-
-    series: [
-      {
-        name: "Bots",
-        data: [28, 29, 33, 36, 32, 32, 33]
-      },
-      {
-        name: "Campaigns",
-        data: [12, 11, 14, 18, 17, 13, 13]
-      }
-    ],
-    options: {
-      chart: {
-        height: 350,
-        type: 'line',
-        dropShadow: {
-          enabled: true,
-          color: '#000',
-          top: 18,
-          left: 7,
-          blur: 10,
-          opacity: 0.5
-        },
-        zoom: {
-          enabled: false
-        },
-        toolbar: {
-          show: false
-        }
-      },
-      colors: ['#77B6EA', '#545454'],
-      dataLabels: {
-        enabled: true,
-      },
-      stroke: {
-        curve: 'smooth'
-      },
-      title: {
-        text: 'Top performing bots and campaigns',
-        align: 'left'
-      },
-      grid: {
-        borderColor: '#e7e7e7',
-        row: {
-          colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-          opacity: 0.5
-        },
-      },
-      markers: {
-        size: 1
-      },
-      xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-        title: {
-          text: 'Month'
-        }
-      },
-      yaxis: {
-        title: {
-          text: ''
-        },
-        min: 5,
-        max: 40
-      },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        floating: true,
-        offsetY: -25,
-        offsetX: -5
-      }
-    },
-  });
-  const [activeUser, setActiveUser] = useState({
+  const [state, setState] = React.useState({
 
     series: [{
-      data: [400, 430, 448, 470, 540, 580, 690]
+      name: 'Campaign',
+      data: [71, 65, 78, 85, 92, 109, 100]
+    }, {
+      name: 'Bot',
+      data: [11, 32, 45, 32, 34, 52, 41]
     }],
     options: {
       chart: {
-        type: 'bar',
-        height: 350
+        height: 350,
+        type: 'area'
       },
-      annotations: {
-        xaxis: [{
-          x: 500,
-          borderColor: '#00E396',
-        }],
-        yaxis: [{
-          y: 'July',
-          y2: 'September'
-        }]
+      colors: ['#4b63ff', '#ff5f35'],
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth',
+        width: [2, 2],
+      },
+      markers: {
+        size: 4,
+        colors: ['#ffffff'],
+        strokeColors: ['#4b63ff', '#ff5f35'],
+        strokeWidth: 2,
+        hover: {
+          size: 5
+        }
+      },
+      xaxis: {
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      },
+      tooltip: {
+        x: {
+          format: 'MMM', // Optional: will match category
+        },
+      },
+    },
+
+
+  });
+
+
+  const [activeUser, setActiveUser] = React.useState({
+    series: [
+      {
+        data: [450, 470, 490, 530, 560, 600, 680],
+      },
+    ],
+    options: {
+      chart: {
+        type: 'bar',
+        height: 350,
       },
       plotOptions: {
         bar: {
-          horizontal: true,
-        }
+          columnWidth: '50%',
+          distributed: true,
+          borderRadius: 6,
+          borderRadiusApplication: 'end',
+        },
+      },
+      colors: ['#B4BEFF', '#4b63ff'],
+      states: {
+        hover: {
+          filter: {
+            type: 'none',
+          },
+        },
       },
       dataLabels: {
-        enabled: true
+        enabled: false,
       },
       xaxis: {
-        categories: ['June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      },
-      grid: {
-        xaxis: {
-          lines: {
-            show: true
-          }
-        }
+        categories: ['Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+        labels: {
+          style: {
+            fontSize: '12px',
+          },
+        },
       },
       yaxis: {
-        reversed: true,
-        axisTicks: {
-          show: true
-        }
-      }
+        max: 800,
+      },
+      legend: {
+        show: false,
+      },
     },
-
   });
 
   return (
     <Flex flexDirection="column" w="100%" h="100%" pt={'20px'}>
-      {location.pathname === '/home/dashboard' &&(
-      <Box>
-        
-        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-          {user_role==="Admin" && (
-        <>
-          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-            <Flex flexDir={'column'}>
-              <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
-            </Flex>
-            <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
-              <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><RiRobot2Fill /></Text>
-            </Box>
-          </GridItem>
+      {location.pathname === '/home/dashboard' && (
+        <Box>
 
-          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-            <Flex flexDir={'column'}>
-              <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of campaigns sent</Text>
-            </Flex>
-            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
-            </Box>
-          </GridItem>
-          </>
-          )}
-          
-          {user_role==="Super-Admin" &&  ( 
-            <>
-          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-            <Flex flexDir={'column'}>
-              <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
-            </Flex>
-            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
-            </Box>
-          </GridItem>
-          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-            <Flex flexDir={'column'}>
-              <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Employee</Text>
-            </Flex>
-            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
-            </Box>
-          </GridItem>
-          <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
-            <Flex flexDir={'column'}>
-              <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
-              <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of User</Text>
-            </Flex>
-            <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-              <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
-            </Box>
-          </GridItem> 
-          </>
-        )}
-        </SimpleGrid>
+          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+            {user_role === "Admin" && (
+              <>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#f8f3ff' borderRadius={'10px'} boxShadow={'lg'}>
+                  <Flex flexDir={'column'}>
+                    <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
+                    <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
+                  </Flex>
+                  <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#490287'}><RiRobot2Fill /></Text>
+                  </Box>
+                </GridItem>
 
-        {/* // charts */}
-        <Flex id="chart" mt={10} w={"100%"} gap={4} h={"auto"} flexDir={{ base: 'column', md: 'row' }}>
-          <Box w={{ base: '100%', md: '50%'}}>
-            <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
-          </Box>
-          <Divider h={"auto"} borderWidth="1px" borderColor="black" orientation='vertical' />
-          <Box w={{ base: '100%', md: '50%'}}>
-            <Text>Active Users</Text>
-            <ReactApexChart options={activeUser.options} series={activeUser.series} type="bar" height={350} />
-          </Box>
-        </Flex>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#FFFDF2' borderRadius={'10px'} boxShadow={'lg'}>
+                  <Flex flexDir={'column'}>
+                    <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+                    <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of campaigns sent</Text>
+                  </Flex>
+                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  </Box>
+                </GridItem>
+              </>
+            )}
+
+            {user_role === "Super-Admin" && (
+              <>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                  <Flex flexDir={'column'}>
+                    <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
+                    <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
+                  </Flex>
+                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  </Box>
+                </GridItem>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                  <Flex flexDir={'column'}>
+                    <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
+                    <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Employee</Text>
+                  </Flex>
+                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  </Box>
+                </GridItem>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                  <Flex flexDir={'column'}>
+                    <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+                    <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of User</Text>
+                  </Flex>
+                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  </Box>
+                </GridItem>
+              </>
+            )}
+          </SimpleGrid>
+
+          {/* // charts */}
+          <Flex id="chart" mt={10} w={"100%"} gap={4} h={"auto"} flexDir={{ base: 'column', md: 'row' }}>
+            <Box w={{ base: '100%', md: '50%' }} boxShadow={'md'} borderRadius={'10px'}>
+            <Text p={4}>Top Performing bots and campaigns</Text>
+              <ReactApexChart options={state.options} series={state.series} type="area" height={350} />
+            </Box>
+            <Divider h={"auto"} borderWidth="1px" borderColor="black" orientation='vertical' />
+            <Box w={{ base: '100%', md: '50%' }} boxShadow={'md'} borderRadius={'10px'}>
+              <Text p={4}>Active Users</Text>
+              <ReactApexChart options={activeUser.options} series={activeUser.series} type="bar" height={350} />
+            </Box>
+          </Flex>
         </Box>
-     ) }
+      )}
 
 
 
@@ -401,7 +372,7 @@ console.log(user_role)
           <FileViewer selectedFile={selectedFile} />
         </SimpleGrid>
       </Box>
-      
+
 
 
       <Modal size={'sm'} isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' isCentered>
@@ -416,7 +387,7 @@ console.log(user_role)
             </FormControl>
 
             <FormControl mt={2}>
-              <Input border={'none'} p={0} type="file" name="file" fontSize={'13px'}  ref={fileInputRef} onChange={handleFileChange} />
+              <Input border={'none'} p={0} type="file" name="file" fontSize={'13px'} ref={fileInputRef} onChange={handleFileChange} />
             </FormControl>
           </ModalBody>
 
@@ -424,7 +395,7 @@ console.log(user_role)
             <Button size={'sm'} width={'50%'} onClick={onClose}>
               Close
             </Button>
-            <Button size={'sm'} width={'50%'}   onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
+            <Button size={'sm'} width={'50%'} onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}
               bgColor="var(--active-bg)"
               color="#fff">Upload</Button>
           </Box>

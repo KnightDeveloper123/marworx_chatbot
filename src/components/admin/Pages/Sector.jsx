@@ -238,19 +238,18 @@ const Sector = () => {
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
-          border={'1px solid gray'}
+         
         //  maxH={flag ? "unset" : "600px"}
         // overflowY={flag ? "unset" : "scroll"}
         >
-          <Table size="sm" className="custom-striped-table" border={'1px solid gray'}>
-            <Thead border="0.5px solid #F2F4F8" >
-              <Tr h="40px" bgColor="#FFF5F3">
-                <Th
+          <Table size="sm" className="custom-striped-table"  >
+            <Thead  >
+              <Tr h="40px" bgColor="#FFF5F3" >
+                <Th 
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius="5px 0px 0px 0px"
                   fontSize="var(--mini-text)"
-                  border={'1px solid gray'}
                 >
                   ID
                 </Th>
@@ -259,7 +258,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-                  border={'1px solid gray'}
+          
                 >
                   Name
                 </Th>
@@ -268,7 +267,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-                  border={'1px solid gray'}
+          
                 >
                   Category
                 </Th>
@@ -276,7 +275,7 @@ const Sector = () => {
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius=""
-                  border={'1px solid gray'}
+          
                   fontSize="var(--mini-text)"
                 >
                   Description
@@ -287,7 +286,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-                  border={'1px solid gray'}
+          
                 >
                   Icon
                 </Th>
@@ -297,7 +296,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius="0px 5px 0px 0px"
                   fontSize="var(--mini-text)"
-                  border={'1px solid gray'}
+          
                 >
                   Actions
                 </Th>
@@ -311,10 +310,10 @@ const Sector = () => {
               {
                 filteredData && filteredData.map((sector) => (
                   <Tr key={sector.id}>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.id}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.name}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.category}</Td>
-                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }}     border={'1px solid gray'}>{sector.description}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.id}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.name}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.category}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.description}</Td>
 
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"
@@ -326,7 +325,7 @@ const Sector = () => {
                         style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                       />
                     </Td>
-                    <Td    border={'1px solid gray'}  color={"#404040"} fontSize="var(--mini-text)">
+                    <Td   color={"#404040"} fontSize="var(--mini-text)">
                       <Menu>
                         <MenuButton
                           bgColor="transparent"
