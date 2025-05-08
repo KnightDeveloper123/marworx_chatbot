@@ -1,22 +1,4 @@
-
-
-
-
-import {
-  Box,
-  Button,
-  Card,
-  Collapse,
-  Flex,
-  Icon,
-  Image,
-  Input,
-  Menu,
-  MenuButton,
-  MenuList,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Box, Button, Card, Collapse, Divider, Flex, Icon, IconButton, Image, Input, Menu, MenuButton, MenuList, Text, Textarea, useDisclosure,} from "@chakra-ui/react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaImage, FaRegFileVideo } from "react-icons/fa";
 import { FcBusinessman, FcPhoneAndroid } from "react-icons/fc";
@@ -28,20 +10,10 @@ import { IoIosListBox } from "react-icons/io";
 import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
-
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactFlow, {
-  Background,
-  Controls,
-  Handle,
-  Position,
-  ReactFlowProvider,
-  addEdge,
-  useEdgesState,
-  useNodesState,
-  useReactFlow,
-} from "reactflow";
+import ReactFlow, { Background, Controls, Handle, Position, ReactFlowProvider, addEdge, useEdgesState, useNodesState, useReactFlow,} from "reactflow";
+import { IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
 
 // Utility for node ID generation
@@ -73,23 +45,11 @@ const nodeTypes = {
     };
 
     return (
-      <div style={{ background: "#fff", borderRadius: 8 }}>
+      <div style={{ background: "#fff", borderRadius: 4}}>
+      
         <Handle type="target" position="top" style={{ background: "#555" }} />
-        <textarea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter text..."
-          style={{
-            width: "100%",
-            minHeight: 40,
-            textAlign: 'center',
-            padding: 2,
-            // border: "1px solid #ccc",
-            borderRadius: 4,
-            resize: "none",
-          }}
-        />
- <Flex justifyContent="space-between" align={'flex-end'}>
+        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
+        <Text fontSize='10px' fontWeight="var(--big-font-weight)">Text</Text>
           <button
             onClick={handleDelete}
             style={{
@@ -100,55 +60,28 @@ const nodeTypes = {
               fontSize: "20px"
             }}
           >
-            🗑
+           <IoTrashOutline fontSize={'10px'} />
           </button>
         </Flex>
-
+        <Divider />
+        <Textarea
+        fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter text..."
+          style={{
+            width: "100%",
+            minHeight: 20,
+            resize: "none",
+            border:'none'
+          }}
+        />
         <Handle type="source" position="bottom" style={{ background: "#555" }} />
       </div>
     );
   },
 
-  //   imageNode : ({ data }) => {
-  //   const [image, setImage] = useState(data.image || null);
 
-  //   const handleImageUpload = (e) => {
-  //     const file = e.target.files[0];
-  //     if (file && file.type.startsWith("image/")) {
-  //       const reader = new FileReader();
-  //       reader.onloadend = () => {
-  //         setImage(reader.result);
-  //         data.image = reader.result; // persist in data
-  //       };
-  //       reader.readAsDataURL(file);
-  //     }
-  //   };
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
-
-  //   return (
-  //     <Box bg="white" p={2} border="1px solid #ccc" borderRadius="md" position="relative">
-  //       {/* Target Handle (input) */}
-  //       <Handle type="target" position={Position.Top} style={{ background: "#555" }} />
-
-  //       <Text mb={2}>{data.label}</Text>
-  //       <Flex justifyContent="space-between" align={'flex-end'}  fontSize="var(--mini-text)"
-  //                     fontWeight="var(--big-font-weight)">
-  //       {/* <strong>Text Node</strong> */}
-  //       <button onClick={handleDelete} style={{ color: "red", border: "none", background: "none", cursor: "pointer" }} >
-  //        +
-  //       </button>
-  //     </Flex>
-  //       <Input type="file" accept="image/*" onChange={handleImageUpload} size="sm" />
-  //       {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
-
-
-  //       {/* Source Handle (output) */}
-  //       <Handle type="source" position={Position.Bottom} style={{ background: "#555" }} />
-  //     </Box>
-  //   );
-  // },
 
   imageNode: ({ id, data }) => {
     const [image, setImage] = useState(data.image || null);
@@ -171,12 +104,10 @@ const nodeTypes = {
     };
 
     return (
-      <Box bg="white" p={2} border="1px solid #ccc" borderRadius="md" position="relative">
+      <Box bg="white"  border="1px solid #ccc" borderRadius="md" position="relative">
         <Handle type="target" position={Position.Top} style={{ background: "#555" }} />
-
-        <Text mb={2}>{data.label}</Text>
-
-        <Flex justifyContent="space-between" align={'flex-end'}>
+        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
+        <Text fontSize='10px' fontWeight="var(--big-font-weight)">Image</Text>
           <button
             onClick={handleDelete}
             style={{
@@ -187,11 +118,12 @@ const nodeTypes = {
               fontSize: "20px"
             }}
           >
-            🗑
+           <IoTrashOutline fontSize={'10px'} />
           </button>
         </Flex>
+        <Divider />
 
-        <Input type="file" accept="image/*" onChange={handleImageUpload} size="sm" />
+        <Input fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)" border={'none'} type="file" accept="image/*" onChange={handleImageUpload} size="sm" />
         {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
 
         <Handle type="source" position={Position.Bottom} style={{ background: "#555" }} />
@@ -244,18 +176,10 @@ const nodeTypes = {
     };
 
     return (
-      <div
-        style={{
-          padding: 12,
-          background: "#fff0f6",
-          border: "1px solid #eb2f96",
-          borderRadius: 8,
-        }}
-      >
+      <Box bg="white"  border="1px solid #ccc" borderRadius="md" position="relative" >
         <Handle type="target" position="top" style={{ background: "#eb2f96" }} />
-      <Box display={'flex'} justifyContent={'space-between'}>  
-        <strong>Video Upload</strong>
-        <Box >
+        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
+        <Text fontSize='10px' fontWeight="var(--big-font-weight)">Video</Text>
           <button
             onClick={handleDelete}
             style={{
@@ -266,26 +190,28 @@ const nodeTypes = {
               fontSize: "20px"
             }}
           >
-            <MdOutlineDeleteOutline />
+           <IoTrashOutline fontSize={'10px'} />
           </button>
-        </Box></Box>
+        </Flex>
+        <Divider />
 
         <input
+        fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)"
           type="file"
           accept="video/mp4"
           onChange={handleFileChange}
-          style={{ marginTop: 8 }}
+          style={{ marginTop:4 }}
         />
         {fileUrl && (
           <video
             src={fileUrl}
             controls
-            style={{ width: "100%", marginTop: 10, borderRadius: 4 }}
+            style={{ width: "100%", marginTop: 10, borderRadius: 4 ,}}
           />
         )}
         {fileName && (
-          <p style={{ fontSize: 12, marginTop: 6, color: "#eb2f96" }}>
-            🎬 {fileName}
+          <p style={{ fontSize: 12, marginTop: 3, color: "#eb2f96" }}>
+             {fileName}
           </p>
         )}
         <Handle
@@ -293,7 +219,7 @@ const nodeTypes = {
           position="bottom"
           style={{ background: "#eb2f96" }}
         />
-      </div>
+      </Box>
     );
   },
 
@@ -324,17 +250,15 @@ const nodeTypes = {
     setNodes((nds) => nds.filter((node) => node.id !== id));
   };
   return (
-    <div
+    <Box
       style={{
-        padding: 12,
-        background: "#e6f7ff",
-        border: "1px solid #1890ff",
-        borderRadius: 8,
+        background: "#fff",
+        borderRadius: 4,
       }}
     >
       <Handle type="target" position="top" style={{ background: "#1890ff" }} />
-      <strong>Google Sheets</strong>
-      <Flex justifyContent="space-between" align={'flex-end'}>
+      <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
+        <Text fontSize='10px' fontWeight="var(--big-font-weight)">Google Sheet</Text>
           <button
             onClick={handleDelete}
             style={{
@@ -345,14 +269,16 @@ const nodeTypes = {
               fontSize: "20px"
             }}
           >
-            🗑
+           <IoTrashOutline fontSize={'10px'} />
           </button>
         </Flex>
+        <Divider />
       <input
         type="file"
         accept=".xlsx,.xls,.csv"
         onChange={handleFileChange}
         style={{ marginTop: 8 }}
+        fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)"
       />
       {file && <p style={{ fontSize: 12, marginTop: 6 }}>📄 {file}</p>}
       <Handle
@@ -360,14 +286,14 @@ const nodeTypes = {
         position="bottom"
         style={{ background: "#1890ff" }}
       />
-    </div>
+    </Box>
   );
 }
 }
 
 const blockStyle = {
-  padding: "8px 10px",
-  margin: "6px 0",
+  padding: "3px 5px",
+  margin: "0px 0",
   borderRadius: 6,
   cursor: "grab",
   // background: "#f7f7f7",
@@ -414,7 +340,12 @@ const SidePanel = () => {
   return (
     <Box>
       <Menu>
-        <MenuButton as={Button} borderRadius={'50%'} textColor={'white'} bgColor={'blue.800'} size={'sm'} textAlign={'center'}><LuPlus /></MenuButton>
+      <MenuButton
+    as={IconButton}
+    aria-label='Options'
+    icon={<LuPlus fontSize={'27px'} />}bgColor={'#4fccc2'} _hover={{bgColor:'#4fccc2'}}
+    variant='outline' borderRadius='40px'>
+        </MenuButton>
         <MenuList px={4} py={2}>
           {/* Questions Toggle */}
           <Box
@@ -424,22 +355,21 @@ const SidePanel = () => {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Text fontWeight="bold">Questions</Text>
+            <Text  fontSize="15px" fontWeight="bold">Questions</Text>
             {isBoxOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </Box>
 
           <Collapse in={isBoxOpen} animateOpacity>
             <Box mt={2}>
               {QuestionsBlock.map((block) => (
-                <Box><Text
+                <Box
+                fontSize="15px" fontWeight="500"
                   key={block.label}
                   style={blockStyle}
                   draggable
                   onDragStart={(e) => handleDragStart(e, block)}
                 >
                   {block.icon} {block.label}
-                </Text>
-              
                 </Box>
               ))}
             </Box>
@@ -447,9 +377,10 @@ const SidePanel = () => {
 
           {/* Messages */}
           <Box mt={3}>
-            <Text fontWeight="bold">Messages</Text>
+            <Text   fontSize="15px" fontWeight="bold">Messages</Text>
             {messages.map((block) => (
               <Box
+              fontSize="15px" fontWeight="500"
                 key={block.label}
                 style={blockStyle}
                 draggable
@@ -462,9 +393,10 @@ const SidePanel = () => {
 
           {/* WhatsApp Essentials */}
           <Box mt={3}>
-            <Text fontWeight="bold">WhatsApp Essential</Text>
+            <Text   fontSize="15px" fontWeight="bold">WhatsApp Essential</Text>
             {WhatsAppEssential.map((block) => (
               <Box
+              fontSize="15px" fontWeight="500"
                 key={block.label}
                 style={blockStyle}
                 draggable
@@ -477,9 +409,10 @@ const SidePanel = () => {
 
           {/* Logic */}
           <Box mt={3}>
-            <Text fontWeight="bold">Logic</Text>
+            <Text   fontSize="15px" fontWeight="bold">Logic</Text>
             {logicBlocks.map((block) => (
               <Box
+              fontSize="15px" fontWeight="500"
                 key={block.label}
                 style={blockStyle}
                 draggable
@@ -492,9 +425,10 @@ const SidePanel = () => {
 
           {/* Integrations */}
           <Box mt={3}>
-            <Text fontWeight="bold">Integrations</Text>
+            <Text   fontSize="15px" fontWeight="bold">Integrations</Text>
             {integrations.map((block) => (
               <Box
+              fontSize="15px" fontWeight="500"
                 key={block.label}
                 style={blockStyle}
                 draggable
@@ -516,7 +450,7 @@ const FlowCanvas = () => {
     {
       id: "1",
       type: "custom",
-      data: { label: "Starting point\nWhere your bot begins" },
+      data: { label: <Text fontSize='10px' fontWeight="var(--big-font-weight)" >Starting point <br/> Welcome</Text> },
       position: { x: 100, y: 150 },
     },
   ]);
@@ -559,22 +493,36 @@ const FlowCanvas = () => {
   };
 
   return (
-    <Box flex={1} height="100vh" display="flex" flexDirection="column">
+    <Box flex={1} height="100vh" display="flex" flexDirection="column" p='5px'>
       <Box
         display="flex"
         justifyContent="space-between"
-        borderBottom="1px solid #ddd"
         alignItems="center"
-        mt="10px"
+        mb='10px'
         px={4}
       >
+
         <SidePanel />
-        <Button size="sm" colorScheme="blue">
-          Save Flow
+       <Flex justifyContent={'flex-end'} gap='10px'>
+      <Button onClick={() => window.history.back()}  type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+       textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={{bgColor:'white'}}>Back</Button>
+        <Button
+          borderRadius="var(--radius)"
+          _hover={{ bgColor: "var(--active-bg)" }}
+          bgColor="var(--active-bg)"
+          color="#fff"
+          h={"35px"}
+          fontSize="var(--mini-text)"
+          fontWeight="var(--big-font-weight)"
+          onClick={() => onOpen()}
+        >
+          Save
         </Button>
+       </Flex>
+      
       </Box>
 
-      <Box flex={1} onDrop={onDrop} onDragOver={onDragOver} bg="#3D4362">
+      <Box flex={1} onDrop={onDrop} onDragOver={onDragOver} bg="#474d6d"   fontSize="10px" >
         <ReactFlow
           nodes={nodes}
           edges={edges}

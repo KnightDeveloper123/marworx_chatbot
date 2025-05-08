@@ -37,6 +37,7 @@ app.use('/campaign', require("./routes/admin/campaign"))
 app.use('/sector', require("./routes/admin/sector"))
 app.use('/employee', require("./routes/admin/employee"))
 app.use('/contact', require("./routes/admin/contact_list"))
+app.use('/bots', require("./routes/admin/bots"))
 
 app.use('/user', require("./routes/users/user"))
 app.use('/chatbot', require("./routes/users/chatbot"))
