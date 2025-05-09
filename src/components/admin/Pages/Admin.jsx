@@ -43,6 +43,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 function Employee() {
 
@@ -63,7 +64,7 @@ function Employee() {
 
   useEffect(() => {
     fetchAllEmployee();
-    
+
   }, [activeData]);
 
 
@@ -213,27 +214,27 @@ function Employee() {
 
     }
   };
-  const updateStatus = async(id, isChecked) => {
+  const updateStatus = async (id, isChecked) => {
     const newStatus = isChecked ? 0 : 1;
     setActiveData(prevData =>
       prevData.map(item =>
         item.id === id ? { ...item, is_active: newStatus } : item
       )
     );
-    
-    try{
-        const response =await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getActiveStatus`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-          body: JSON.stringify({ user_id: id , is_active: newStatus, }),
-        })
-        const data = await response.json();
-        // console.log(data);
-        
-    }catch(error){
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getActiveStatus`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ user_id: id, is_active: newStatus, }),
+      })
+      const data = await response.json();
+      // console.log(data);
+
+    } catch (error) {
       console.log(error)
     }
   };
@@ -463,11 +464,20 @@ function Employee() {
                       fontWeight="var(--big-font-weight)"
                     >
                       <Switch
-                         isChecked={d.is_active === 0}
+                        isChecked={d.is_active === 0}
                         onChange={(e) => updateStatus(d.id, e.target.checked)}
                       />                    </Td>
                     <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
-                      <Menu >
+                      <Flex gap={2}>
+                        <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <MdOutlineModeEdit size={20} color={"#3550FF"} onClick={() => editEmployee(d)} />
+                        </Box>
+                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(d.id)} />
+                        </Box>
+                      </Flex>
+
+                      {/* <Menu >
                         <MenuButton
                           bgColor="transparent"
                           _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
@@ -503,7 +513,7 @@ function Employee() {
                             </Flex>
                           </MenuItem>
                         </MenuList>
-                      </Menu>
+                      </Menu> */}
                     </Td>
                   </Tr>
                 ))}

@@ -7,6 +7,7 @@ import { RxDotsHorizontal } from 'react-icons/rx';
 import { MdOutlineModeEdit } from 'react-icons/md';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { decrypt } from '../../utils/security';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 
 const ProductService = () => {
     const { showAlert, fetchProductService, productService } = useContext(AppContext)
@@ -15,9 +16,9 @@ const ProductService = () => {
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const token = localStorage.getItem('token')
-  const user=localStorage.getItem('user')
-  const admin_id=decrypt(user).id
-    
+    const user = localStorage.getItem('user')
+    const admin_id = decrypt(user).id
+
     useEffect(() => {
         fetchProductService(admin_id)
     }, [admin_id])
@@ -234,7 +235,15 @@ const ProductService = () => {
                                         </Td>
 
                                         <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
-                                            <Menu >
+                                            <Flex gap={2}>
+                                                <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                                                    <MdOutlineModeEdit size={20} color={"#3550FF"} onClick={() => editProduct(product)} />
+                                                </Box>
+                                                <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                                                    <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(product.id)} />
+                                                </Box>
+                                            </Flex>
+                                            {/* <Menu >
                                                 <MenuButton
                                                     bgColor="transparent"
                                                     _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
@@ -270,7 +279,7 @@ const ProductService = () => {
                                                         </Flex>
                                                     </MenuItem>
                                                 </MenuList>
-                                            </Menu>
+                                            </Menu> */}
                                         </Td>
                                     </Tr>
                                 ))

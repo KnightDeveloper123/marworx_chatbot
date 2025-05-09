@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   Menu,
@@ -21,6 +22,8 @@ import { IoMdAdd } from "react-icons/io";
 import { AppContext } from "../../context/AppContext";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { GrFormView } from "react-icons/gr";
+import { MdOutlineModeEdit } from "react-icons/md";
+import { LuEye } from "react-icons/lu";
 
 export default function Bot() {
   const navigate = useNavigate();
@@ -125,7 +128,12 @@ export default function Bot() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      <Menu>
+                      <Flex gap={2}>
+                        <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                            <LuEye  size={20} color={"#3550FF"}  onClick={() =>  navigate(`/view/${item.id}`)} />
+                        </Box>
+                      </Flex>
+                      {/* <Menu>
                         <MenuButton
                           bgColor="transparent"
                           _hover={{
@@ -158,7 +166,7 @@ export default function Bot() {
                             </Text>
                           </MenuItem>
                         </MenuList>
-                      </Menu>
+                      </Menu> */}
                     </Td>
                   </Tr>
                 );

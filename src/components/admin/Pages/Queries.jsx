@@ -44,6 +44,7 @@ import Select from "react-select";
 // import { add_querySchema } from "../validation/query";
 import { useState } from "react";
 import { decrypt } from "../../utils/security";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 function Queries() {
 
@@ -57,10 +58,10 @@ function Queries() {
     fetchAllEmployeeQuery,
     all_employees,
     queries,
-    formatDate, APP_URL,showAlert ,loading
+    formatDate, APP_URL, showAlert, loading
   } = useContext(AppContext);
 
-  
+
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -68,17 +69,17 @@ function Queries() {
     onOpen: ondeleteOpen,
     onClose: ondeleteClose,
   } = useDisclosure();
-  const [selectedQuery,setSelectedQuery]=useState({})
+  const [selectedQuery, setSelectedQuery] = useState({})
   const token = localStorage.getItem('token');
   const editleads = (data) => {
     onOpen(); // Open the modal
     setSelectedQuery({
-        query: data.query,
-        query_status: data.query_status,
-        assignee_id: data.assignee_id,
-        id: data.id,
-        user_id:data.user_id // Store ID if needed during update
-      });
+      query: data.query,
+      query_status: data.query_status,
+      assignee_id: data.assignee_id,
+      id: data.id,
+      user_id: data.user_id // Store ID if needed during update
+    });
   };
 
   const {
@@ -94,7 +95,7 @@ function Queries() {
       query: "",
       query_status: "",
       assignee_id: "",
-      user_id:"" // Add if required
+      user_id: "" // Add if required
     },
     // resolver: yupResolver(add_querySchema),
   });
@@ -106,8 +107,8 @@ function Queries() {
           query: selectedQuery.query || "",
           query_status: selectedQuery.query_status || "",
           assignee_id: selectedQuery.assignee_id || "",
-          query_id: selectedQuery.id ,
-          user_id:selectedQuery.user_id
+          query_id: selectedQuery.id,
+          user_id: selectedQuery.user_id
         });
       }, 100);
     }
@@ -124,19 +125,20 @@ function Queries() {
   }, [isOpen, reset]);
 
   const onSubmit = async (data) => {
-    const fetchData={
-        query: data.query,
-        query_status: data.query_status,
-        assignee_id: data.assignee_id,
-        query_id:data.query_id,
-        user_id:data.user_id
+    const fetchData = {
+      query: data.query,
+      query_status: data.query_status,
+      assignee_id: data.assignee_id,
+      query_id: data.query_id,
+      user_id: data.user_id
     }
     try {
       const response = await fetch(`${APP_URL}/support/updateQuery`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-            Authorization: token,
-         },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
         body: JSON.stringify(fetchData)
       });
 
@@ -163,22 +165,22 @@ function Queries() {
   const deleteleads = async (e) => {
     e.preventDefault();
     try {
-    //   setloading(true); // Show loader while request is in progress
-   
+      //   setloading(true); // Show loader while request is in progress
+
       const response = await fetch(`${APP_URL}/support/deleteQuery`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token, // Ensure correct token format
         },
-        body: JSON.stringify({  query_id:deleteId}),
+        body: JSON.stringify({ query_id: deleteId }),
       });
-  
-      
+
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-  
+
       const data = await response.json();
 
       if (data.success) {
@@ -191,10 +193,10 @@ function Queries() {
       console.error("API Error:", error);
       showAlert("Failed to delete query!", "error");
     } finally {
-    //   setloading(false); // Hide loader after request
+      //   setloading(false); // Hide loader after request
     }
   };
-  
+
 
   return (
     <Card>
@@ -217,8 +219,8 @@ function Queries() {
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
-          //  maxH={flag ? "unset" : "600px"}
-          // overflowY={flag ? "unset" : "scroll"}
+        //  maxH={flag ? "unset" : "600px"}
+        // overflowY={flag ? "unset" : "scroll"}
         >
           <Table size="sm" className="custom-striped-table">
             <Thead border="0.5px solid #F2F4F8">
@@ -285,7 +287,7 @@ function Queries() {
               {queries &&
                 queries.map((d, index) => (
                   <Tr
-                    key={index+1}
+                    key={index + 1}
                     border="0.5px solid #F2F4F8"
                     h="40px"
                     textAlign="start"
@@ -303,7 +305,7 @@ function Queries() {
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
-                      // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
+                    // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                     >
                       {d.query}
                     </Td>
@@ -320,7 +322,7 @@ function Queries() {
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
-                      // onClick={() => fetchNextUrl(d.assigen_to)} _hover={{ cursor: "pointer", color: "navy" }}
+                    // onClick={() => fetchNextUrl(d.assigen_to)} _hover={{ cursor: "pointer", color: "navy" }}
                     >
                       <Flex display={"flex"} alignItems={"center"} gap={"5px"}>
                         <Avatar size={"xs"} name={d.assignee_name} />
@@ -341,7 +343,15 @@ function Queries() {
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                     >
-                      <Menu>
+                      <Flex gap={2}>
+                        <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <MdOutlineModeEdit size={20} color={"#3550FF"} onClick={() => editleads(d)} />
+                        </Box>
+                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <RiDeleteBin6Line size={20} color={"#D50B0B"}  onClick={() => {setSelectLead(d);deteleuery(d.id);}} />
+                        </Box>
+                      </Flex>
+                      {/* <Menu>
                         <MenuButton
                           bgColor="transparent"
                           _hover={{
@@ -389,7 +399,7 @@ function Queries() {
                             </Flex>
                           </MenuItem>
                         </MenuList>
-                      </Menu>
+                      </Menu> */}
                     </Td>
                   </Tr>
                 ))}
@@ -401,15 +411,15 @@ function Queries() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent as="form"
-              display={"flex"}
-              flexDirection={"column"}
-              gap={"8px"}
-              onSubmit={handleSubmit(onSubmit)}>
+          display={"flex"}
+          flexDirection={"column"}
+          gap={"8px"}
+          onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader fontSize={"18px"}>Add Queries</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Box
-              
+
             >
               <FormControl isInvalid={errors.query}>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
@@ -420,7 +430,7 @@ function Queries() {
                   {...register("query")}
                   placeholder="Enter your query"
                   fontSize="var(--text-12px)"
-                
+
                 />
                 <FormErrorMessage fontSize="var(--text-12px)" mt={0}>
                   {errors.query?.message}
@@ -435,7 +445,7 @@ function Queries() {
                   {...register("query_status")}
                   placeholder="Enter query status"
                   fontSize="var(--text-12px)"
-                 
+
                 />
 
                 <FormErrorMessage mt={0}>
@@ -448,35 +458,35 @@ function Queries() {
                 </FormLabel>
                 <Controller
                   name="assignee_id"
-                    control={control}
-                    render={({ field }) => (
-                        <Select
-                        options={all_employees}
-                        placeholder="Select Assignee"
-                        value={all_employees.find((item) => item.value === field.value)}
-                        onChange={(selectedOption) =>
-                            field.onChange(selectedOption?.value )
-                        }
-                        styles={{
-                            control: (provided) => ({
-                              ...provided, fontSize: '14px',
-                            }),
-                            option: (provided) => ({
-                              ...provided, fontSize: '14px',
-                            }),
-                            singleValue: (provided) => ({
-                              ...provided, fontSize: '14px',
-                            }),
-                            menu: (provided) => ({
-                              ...provided, fontSize: '14px',
-                            }),
-                            placeholder: (provided) => ({
-                              ...provided, fontSize: '14px',
-                            }),
-                          }}
-                        />
-                    )}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      options={all_employees}
+                      placeholder="Select Assignee"
+                      value={all_employees.find((item) => item.value === field.value)}
+                      onChange={(selectedOption) =>
+                        field.onChange(selectedOption?.value)
+                      }
+                      styles={{
+                        control: (provided) => ({
+                          ...provided, fontSize: '14px',
+                        }),
+                        option: (provided) => ({
+                          ...provided, fontSize: '14px',
+                        }),
+                        singleValue: (provided) => ({
+                          ...provided, fontSize: '14px',
+                        }),
+                        menu: (provided) => ({
+                          ...provided, fontSize: '14px',
+                        }),
+                        placeholder: (provided) => ({
+                          ...provided, fontSize: '14px',
+                        }),
+                      }}
                     />
+                  )}
+                />
 
                 <FormErrorMessage fontSize="var(--text-12px)" mt={0}>
                   {errors.assignee_id?.message}
@@ -533,7 +543,7 @@ function Queries() {
               flexDirection="column"
               as="form"
             >
-            
+
               <Text
                 fontSize="var(--mini-text)"
                 fontWeight="var(--big-font-weight)"

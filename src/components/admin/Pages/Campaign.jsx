@@ -66,6 +66,7 @@ import {
   TableCaption,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import Card from "../../../Card";
 import { IoMdAdd } from "react-icons/io";
 import { AppContext } from "../../context/AppContext";
@@ -403,6 +404,19 @@ const Campaign = () => {
     // }
   }
 
+  const statusColors = {
+  Sent: "#001ABF",
+  View: "#268901",
+  Draft: "#686278",
+  Pending: "#BFA300",
+};
+
+  const statusBgColors = {
+  Sent: "#CCD1F2",
+  View: "#CCD1F2",
+  Draft: "#CCD1F2",
+  Pending: "#EFEAD2",
+};
 
 
   return (
@@ -607,11 +621,22 @@ const Campaign = () => {
                             fontSize="var(--mini-text)"
                             fontWeight="var(--big-font-weight)"
                           >
-                            {d.is_status}
+                            <Box bgColor={statusBgColors[d.is_status]}  p={1} borderRadius={"5px"} textAlign={"center"}>
+                              <Text color={statusColors[d.is_status]}>{d.is_status}</Text>
+                            </Box>
                           </Td>
 
                           <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
-                            <Menu>
+                            <Flex gap={2}>
+                              <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                                <MdOutlineModeEdit size={20} color={"#3550FF"} onClick={() => editCampaign(d)} />
+                              </Box>
+                              <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                                <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(d.id)} />
+                              </Box>
+                            </Flex>
+
+                            {/* <Menu>
                               <MenuButton
                                 bgColor="transparent"
                                 _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
@@ -646,7 +671,7 @@ const Campaign = () => {
                                   </Flex>
                                 </MenuItem>
                               </MenuList>
-                            </Menu>
+                            </Menu> */}
                           </Td>
                         </Tr>
                       ))}
@@ -780,7 +805,7 @@ const Campaign = () => {
             <ModalContent pt={'2'}>
               <ModalCloseButton onClick={() => onClose()} />
 
-             
+
               {activeStep === 0 && (
                 <>
                   <Text paddingLeft={'20px'} fontSize={'22px'} fontWeight={'semibold'}>Create a Campaign</Text>
@@ -788,8 +813,8 @@ const Campaign = () => {
                 </>
               )}
               <Text fontSize={'18px'}></Text>
-              
-  {/* <Stepper index={activeStep} mb={6} size="sm" >
+
+              {/* <Stepper index={activeStep} mb={6} size="sm" >
                         {steps.map((step, index) => (
                           <Step key={index}>
                             <StepIndicator>
@@ -808,33 +833,33 @@ const Campaign = () => {
                         ))}
                       </Stepper>  */}
 
-<Stepper index={activeStep} mb={6} size="sm" colorScheme="orange">
-  {steps.map((step, index) => (
-    <Step key={index}>
-      <StepIndicator>
-        <StepStatus
-          complete={<StepIcon />}
-          incomplete={<StepNumber />}
-          active={<StepNumber />}
-        />
-      </StepIndicator>
-      <Box flexShrink="0">
-        <StepTitle>{step.title}</StepTitle>
-        {/* <StepDescription>{step.description}</StepDescription> */}
-      </Box>
-      <StepSeparator />
-    </Step>
-  ))}
-</Stepper>
+              <Stepper index={activeStep} mb={6} size="sm" colorScheme="orange">
+                {steps.map((step, index) => (
+                  <Step key={index}>
+                    <StepIndicator>
+                      <StepStatus
+                        complete={<StepIcon />}
+                        incomplete={<StepNumber />}
+                        active={<StepNumber />}
+                      />
+                    </StepIndicator>
+                    <Box flexShrink="0">
+                      <StepTitle>{step.title}</StepTitle>
+                      {/* <StepDescription>{step.description}</StepDescription> */}
+                    </Box>
+                    <StepSeparator />
+                  </Step>
+                ))}
+              </Stepper>
 
 
               <ModalBody>
                 {activeStep === 0 && (
 
                   <Box>
-                    
-                    
-                   
+
+
+
                     <Text fontWeight="bold" mb={3}>Standard</Text>
                     <Text fontSize="sm" color="gray.600" mb={4}>
                       Create a one-off campaign from scratch.

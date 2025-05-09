@@ -16,6 +16,8 @@ import { MdSocialDistance } from "react-icons/md";
 import ApexCharts from 'apexcharts'
 import ReactApexChart from "react-apexcharts";
 import { decrypt } from "../../utils/security";
+import { FaUserCircle, FaUsers } from "react-icons/fa";
+import { HiMiniUsers } from "react-icons/hi2";
 
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext);
@@ -276,31 +278,31 @@ const AdminDashboard = () => {
 
             {user_role === "Super-Admin" && (
               <>
-                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#F8F3FF' borderRadius={'10px'} boxShadow={'lg'}>
                   <Flex flexDir={'column'}>
                     <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
                     <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Admin</Text>
                   </Flex>
-                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  <Box p={2} borderRadius={'full'} bg={'#E8DAFA'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#7919FF'}><FaUserCircle  /> </Text>
                   </Box>
                 </GridItem>
-                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#FFFDF2' borderRadius={'10px'} boxShadow={'lg'}>
                   <Flex flexDir={'column'}>
                     <Text fontSize={'20px'}>{dashboardData.total_employee}</Text>
                     <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of Employee</Text>
                   </Flex>
                   <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#BFA300'}><HiMiniUsers /> </Text>
                   </Box>
                 </GridItem>
-                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#fff' borderRadius={'10px'} boxShadow={'lg'}>
+                <GridItem display={'flex'} alignItems={'center'} justifyContent={'space-between'} p={4} bg='#F2FFF2' borderRadius={'10px'} boxShadow={'lg'}>
                   <Flex flexDir={'column'}>
                     <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
                     <Text color={'#a4a4a4'} fontSize={{ base: '12px', md: "14px" }}>Number of User</Text>
                   </Flex>
-                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#db7100'}><IoIosSend /> </Text>
+                  <Box p={2} borderRadius={'full'} bg={'#CDFFCE'}>
+                    <Text fontSize={{ base: '18px', md: '24px' }} color={'#029D07'}><FaUsers  /> </Text>
                   </Box>
                 </GridItem>
               </>

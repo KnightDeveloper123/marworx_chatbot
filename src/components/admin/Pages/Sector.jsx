@@ -5,10 +5,10 @@ import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { RxDotsHorizontal } from 'react-icons/rx'
 import { AppContext } from '../../context/AppContext'
 import { useNavigate } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -326,7 +326,15 @@ const Sector = () => {
                       />
                     </Td>
                     <Td   color={"#404040"} fontSize="var(--mini-text)">
-                      <Menu>
+                      <Flex gap={2}>
+                        <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                            <MdOutlineModeEdit size={20} color={"#3550FF"}  onClick={() => editSector(sector)} />
+                        </Box>
+                         <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                            <RiDeleteBin6Line  size={20} color={"#D50B0B"} onClick={() => openDeleteModal(sector.id)} />
+                        </Box>
+                      </Flex>
+                      {/* <Menu>
                         <MenuButton
                           bgColor="transparent"
                           _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
@@ -361,8 +369,8 @@ const Sector = () => {
                               <Text >Delete</Text>
                             </Flex>
                           </MenuItem>
-                        </MenuList>
-                      </Menu>
+                        </MenuList> 
+                      </Menu>*/}
                     </Td>
                   </Tr>
                 ))
