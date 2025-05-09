@@ -42,6 +42,7 @@ import ReactFlow, {
 } from "reactflow";
 import { IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
+import { useParams } from "react-router-dom";
 
 // Utility for node ID generation
 let id = 1;
@@ -594,6 +595,9 @@ const SidePanel = () => {
 const token = localStorage.getItem("token");
 // Flow Canvas
 const FlowCanvas = () => {
+ 
+const {id } = useParams()
+console.log(id)
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "1",
@@ -641,7 +645,9 @@ const FlowCanvas = () => {
       `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+            Authorization: token,
+         },
         body: JSON.stringify({
           flowName: "Welcome Journey",
           nodes,
@@ -651,74 +657,72 @@ const FlowCanvas = () => {
     );
 
     const data = await response.json();
-    console.log(data);
+
   };
-  
-//   const [bots, setBots] = useState({});
-//   const [newEdge, setNewEdge] = useState(null); 
-//   const fetchBot = async () => {
-//     try {
-//       const response = await fetch(
-//         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=1`,
-//         {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: token,
-//           },
-//         }
-//       );
-//       const result = await response.json();
-//       // console.log(result);
-//       setBots(result.data);
-//     } catch (error) {
-//       console.log(error);
-//       // showAlert("Internal server error", "error");
-//     }
-//   };
+  const [bots, setBots] = useState({});
 
-//   useEffect(() => {
-//     fetchBot();
-//   }, []);
+  const fetchBot = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+      const result = await response.json();
+      // console.log(result);
+      setBots(result.data);
+    } catch (error) {
+      console.log(error);
+      // showAlert("Internal server error", "error");
+    }
+  };
 
-//   console.log(bots)
+  useEffect(() => {
+    fetchBot();
+  }, []);
 
-// useEffect(() => {
-//   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
-//     const nodeMap = new Map();
 
-//     // Add nodes to the nodeMap
-//     bots.nodes.forEach((botNode) => {
-//       nodeMap.set(botNode.id, {
-//         id: botNode.id.toString(),
-//         type: botNode.type,
-//         position: botNode.position,
-//         data: { label: botNode.data.label || 'No label provided' },
-//         width: botNode.width,
-//         height: botNode.height,
-//         selected: botNode.selected,
-//         dragging: botNode.dragging,
-//         positionAbsolute: botNode.positionAbsolute,
-//         edges: [], // Initialize edges array for each node
-//       });
-//     });
+useEffect(() => {
+  if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
+    const nodeMap = new Map();
 
-//     // Add edges to respective nodes in nodeMap
-//     bots.edges.forEach((edge) => {
-//       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-//         nodeMap.get(edge.source).edges.push(edge);
-//         nodeMap.get(edge.target).edges.push(edge);
-//       }
-//     });
+    // Add nodes to the nodeMap
+    bots.nodes.forEach((botNode) => {
+      nodeMap.set(botNode.id, {
+        id: botNode.id.toString(),
+        type: botNode.type,
+        position: botNode.position,
+        data: { label: botNode.data.label || 'No label provided' },
+        width: botNode.width,
+        height: botNode.height,
+        selected: botNode.selected,
+        dragging: botNode.dragging,
+        positionAbsolute: botNode.positionAbsolute,
+        edges: [], // Initialize edges array for each node
+      });
+    });
 
-//     // Convert nodeMap back to an array of nodes
-//     const newNodes = Array.from(nodeMap.values());
+    // Add edges to respective nodes in nodeMap
+    bots.edges.forEach((edge) => {
+      if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
+        nodeMap.get(edge.source).edges.push(edge);
+        nodeMap.get(edge.target).edges.push(edge);
+      }
+    });
 
-//     // Update state with new nodes and edges
-//     setNodes(newNodes);
-//     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-//   }
-// }, [bots, setNodes, setEdges]);
+    // Convert nodeMap back to an array of nodes
+    const newNodes = Array.from(nodeMap.values());
+
+    // Update state with new nodes and edges
+    setNodes(newNodes);
+    setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
+  }
+}, [bots, setNodes, setEdges]);
  
   
   return (
@@ -745,7 +749,7 @@ const FlowCanvas = () => {
           >
             Back
           </Button>
-          <Button
+          {/* <Button
             borderRadius="var(--radius)"
             _hover={{ bgColor: "var(--active-bg)" }}
             bgColor="var(--active-bg)"
@@ -756,7 +760,7 @@ const FlowCanvas = () => {
             onClick={() => saveFlow()}
           >
             Save
-          </Button>
+          </Button> */}
         </Flex>
       </Box>
 

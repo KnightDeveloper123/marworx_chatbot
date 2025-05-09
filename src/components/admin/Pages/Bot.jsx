@@ -1,16 +1,39 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
-import React from "react";
+import {
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../../../Card";
 import { IoMdAdd } from "react-icons/io";
+import { AppContext } from "../../context/AppContext";
+import { RxDotsHorizontal } from "react-icons/rx";
+import { GrFormView } from "react-icons/gr";
 
 export default function Bot() {
   const navigate = useNavigate();
+  const { bots, fetchBot } = useContext(AppContext);
 
   const navigateData = () => {
-      navigate("/bot_builder");
-      // console.log("sdfhds");
-    };
+    navigate("/bot_builder");
+    // console.log("sdfhds");
+  };
+
+  useEffect(() => {
+    fetchBot();
+  }, []);
 
   return (
     <Card>
@@ -21,45 +44,129 @@ export default function Bot() {
         p="15px"
       >
         <Flex
-                 w="100%"
-                 alignItems={"center"}
-                 justifyContent="space-between"
-                 gap="10px"
-               >
-                 <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
-                   Bot
-                 </Text>
-                 <Flex gap={2}>
-       
-                   <Flex gap={3}
-                   // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
-                   >
-                     {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
-                     {/* <Input h={"35px"} htmlSize={20} width='auto'  fontSize="var(--mini-text)"
-                       fontWeight="var(--big-font-weight)"
-                     placeholder="Search Name"
-                     value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} /> */}
-                     <Button
-                       borderRadius="var(--radius)"
-                       leftIcon={<IoMdAdd fontSize={"20px"} />}
-                       _hover={{ bgColor: "var(--active-bg)" }}
-                       bgColor="var(--active-bg)"
-                       color="#fff"
-                       h={"35px"}
-                       fontSize="var(--mini-text)"
-                       fontWeight="var(--big-font-weight)"
-                       onClick={navigateData}
-                     >
-                       Build Chatbot
-                     </Button>
-       
-                   </Flex>
-                 </Flex>
-               </Flex>
-       
-       
+          w="100%"
+          alignItems={"center"}
+          justifyContent="space-between"
+          gap="10px"
+        >
+          <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
+            Bot
+          </Text>
+          <Flex gap={2}>
+            <Flex gap={3}>
+              <Button
+                borderRadius="var(--radius)"
+                leftIcon={<IoMdAdd fontSize={"20px"} />}
+                _hover={{ bgColor: "var(--active-bg)" }}
+                bgColor="var(--active-bg)"
+                color="#fff"
+                h={"35px"}
+                fontSize="var(--mini-text)"
+                fontWeight="var(--big-font-weight)"
+                onClick={navigateData}
+              >
+                Build Chatbot
+              </Button>
+            </Flex>
+          </Flex>
         </Flex>
-      
+
+        <TableContainer mt="20px" borderRadius="5px 5px 0px 0px">
+          <Table size="sm" className="custom-striped-table">
+            <Thead border="0.5px solid #FFF5F3">
+              <Tr h="40px" bgColor="#FFF5F3">
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Bot name
+                </Th>
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Sector name
+                </Th>
+
+                <Th
+                  h
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Actions
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {bots.map((item, i) => {
+                return (
+                  <Tr>
+                    <Td
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      {item.name}
+                    </Td>
+
+                    <Td
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      Automobile
+                    </Td>
+
+                    <Td
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      <Menu>
+                        <MenuButton
+                          bgColor="transparent"
+                          _hover={{
+                            bgColor: "transparent",
+                            color: "var(--active-bg)",
+                          }}
+                          _active={{
+                            bgColor: "transparent",
+                            color: "var(--active-bg)",
+                          }}
+                          as={Button}
+                        >
+                          <RxDotsHorizontal />
+                        </MenuButton>
+                        <MenuList gap={2}>
+                          <MenuItem
+                            w="100%"
+                            minW="100px"
+                            onClick={() => navigate(`/view/${item.id}`)}
+                            display={"flex"}
+                            alignItems={"center"}
+                            gap={2}
+                          >
+                            <GrFormView color="green" />
+                            <Text
+                              fontSize="var(--mini-text)"
+                              fontWeight="var(--big-font-weight)"
+                            >
+                              View
+                            </Text>
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Flex>
     </Card>
   );
 }

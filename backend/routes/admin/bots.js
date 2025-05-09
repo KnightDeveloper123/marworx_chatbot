@@ -2,43 +2,59 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../../database/db');
 const executeQuery = require('../../utils/executeQuery');
+const { middleware } = require('../../middleware/middleware');
 const fetch = require('node-fetch')
-// router.post('/add', (req, res) => {
-//     const { flowName, nodes, edges } = req.body;
 
-//     const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
-//     connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], (err, result) => {
+router.post('/add', middleware, (req, res) => {
+    const { flowName, nodes, edges } = req.body;
+
+    const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
+    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], (err, result) => {
+        if (err) {
+            console.error('Error saving flow:', err);
+            return res.status(500).json({ message: 'Database error' });
+        }
+        console.log(result)
+        res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
+    });
+});
+
+// GET: Fetch all flows
+
+// router.get('/getAll', middleware, (req, res) => {
+//     connection.query('SELECT * FROM bots ORDER BY created_at DESC', (err, results) => {
 //         if (err) {
-//             console.error('Error saving flow:', err);
-//             return res.status(500).json({ message: 'Database error' });
+//             return res.status(500).json({ message: 'Error fetching flows' });
 //         }
-//         console.log(result)
-//         res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
+//         res.json(results);
 //     });
 // });
 
-// GET: Fetch all flows
-router.get('/flows', (req, res) => {
-    connection.query('SELECT * FROM bots ORDER BY created_at DESC', (err, results) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error fetching flows' });
-        }
-        res.json(results);
-    });
+router.get('/getAll', middleware, async(req, res)=>{
+    try{
+    //    const { admin_id } = req.query;
+    const data=await executeQuery(`SELECT * FROM bots ORDER BY created_at DESC`) 
+    return res.json({data})
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:"Internal Server Error"})
+    }
 });
+
 
 // GET: Fetch flow by ID
-router.get('/api/flows/:id', (req, res) => {
-    const { id } = req.params;
-    connection.query('SELECT * FROM bots WHERE id = ?', [id], (err, results) => {
-        if (err || results.length === 0) {
-            return res.status(404).json({ message: 'Flow not found' });
-        }
-        res.json(results[0]);
-    });
+router.get('/getbyid', middleware, async (req, res) => {
+    try{
+    const { id } = req.query;
+    const data=await executeQuery(`SELECT * FROM bots where id=${id}`) 
+        res.json({data:data[0]});
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:"Internal Server Error"}) 
+    }
 });
 
-router.post('/add', (req, res) => {
+router.post('/addwithwhatsup', (req, res) => {
     const { flowName, nodes, edges, to } = req.body; // Add 'to' number in frontend request
 
     const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;

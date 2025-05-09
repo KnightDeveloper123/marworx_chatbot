@@ -271,6 +271,28 @@ export const AppProvider = ({ children }) => {
               showAlert('Internal server error', 'error')
           }
       }
+
+      const[bots,setBots]=useState([])
+
+      const fetchBot= async (admin_id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    Authorization: token
+                },
+
+            })
+            const result = await response.json();
+       
+            setBots(result.data)
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
          
         // const user=localStorage.getItem('user')
         // const admin_id=decrypt(user).id
@@ -284,7 +306,7 @@ export const AppProvider = ({ children }) => {
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
-                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery
+                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, fetchBot, bots
             }}
         >
             {children}
