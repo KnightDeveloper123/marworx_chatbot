@@ -42,6 +42,7 @@ import ReactFlow, {
 } from "reactflow";
 import { IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
+import { useNavigate } from "react-router-dom";
 
 // Utility for node ID generation
 let id = 1;
@@ -594,6 +595,8 @@ const SidePanel = () => {
 const token = localStorage.getItem("token");
 // Flow Canvas
 const FlowCanvas = () => {
+  const navigate=useNavigate()
+  const token = localStorage.getItem('token')
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "1",
@@ -605,7 +608,11 @@ const FlowCanvas = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
 
-  const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),
+    [setEdges]
+  );
 
   const onDrop = useCallback(
     (event) => {
@@ -637,90 +644,97 @@ const FlowCanvas = () => {
   };
   // save on database
   const saveFlow = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          flowName: "Welcome Journey",
-          nodes,
-          edges,
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json",
+            Authorization : token
+           },
+          body: JSON.stringify({
+            flowName: "Welcome Journey",
+            nodes,
+            edges,
+          }),
+        }
+      );
 
-    const data = await response.json();
-    console.log(data);
+      const data = await response.json();
+      console.log("save sucessfully")
+      navigate('/home/bot')
+    } catch (error) {
+      console.log(error);
+      showAlert("Failed to add Campaign", "error");
+    }
   };
-  
-//   const [bots, setBots] = useState({});
-//   const [newEdge, setNewEdge] = useState(null); 
-//   const fetchBot = async () => {
-//     try {
-//       const response = await fetch(
-//         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=1`,
-//         {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: token,
-//           },
-//         }
-//       );
-//       const result = await response.json();
-//       // console.log(result);
-//       setBots(result.data);
-//     } catch (error) {
-//       console.log(error);
-//       // showAlert("Internal server error", "error");
-//     }
-//   };
 
-//   useEffect(() => {
-//     fetchBot();
-//   }, []);
+  //   const [bots, setBots] = useState({});
+  //   const [newEdge, setNewEdge] = useState(null);
+  //   const fetchBot = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=1`,
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: token,
+  //           },
+  //         }
+  //       );
+  //       const result = await response.json();
+  //       // console.log(result);
+  //       setBots(result.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //       // showAlert("Internal server error", "error");
+  //     }
+  //   };
 
-//   console.log(bots)
+  //   useEffect(() => {
+  //     fetchBot();
+  //   }, []);
 
-// useEffect(() => {
-//   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
-//     const nodeMap = new Map();
+  //   console.log(bots)
 
-//     // Add nodes to the nodeMap
-//     bots.nodes.forEach((botNode) => {
-//       nodeMap.set(botNode.id, {
-//         id: botNode.id.toString(),
-//         type: botNode.type,
-//         position: botNode.position,
-//         data: { label: botNode.data.label || 'No label provided' },
-//         width: botNode.width,
-//         height: botNode.height,
-//         selected: botNode.selected,
-//         dragging: botNode.dragging,
-//         positionAbsolute: botNode.positionAbsolute,
-//         edges: [], // Initialize edges array for each node
-//       });
-//     });
+  // useEffect(() => {
+  //   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
+  //     const nodeMap = new Map();
 
-//     // Add edges to respective nodes in nodeMap
-//     bots.edges.forEach((edge) => {
-//       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-//         nodeMap.get(edge.source).edges.push(edge);
-//         nodeMap.get(edge.target).edges.push(edge);
-//       }
-//     });
+  //     // Add nodes to the nodeMap
+  //     bots.nodes.forEach((botNode) => {
+  //       nodeMap.set(botNode.id, {
+  //         id: botNode.id.toString(),
+  //         type: botNode.type,
+  //         position: botNode.position,
+  //         data: { label: botNode.data.label || 'No label provided' },
+  //         width: botNode.width,
+  //         height: botNode.height,
+  //         selected: botNode.selected,
+  //         dragging: botNode.dragging,
+  //         positionAbsolute: botNode.positionAbsolute,
+  //         edges: [], // Initialize edges array for each node
+  //       });
+  //     });
 
-//     // Convert nodeMap back to an array of nodes
-//     const newNodes = Array.from(nodeMap.values());
+  //     // Add edges to respective nodes in nodeMap
+  //     bots.edges.forEach((edge) => {
+  //       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
+  //         nodeMap.get(edge.source).edges.push(edge);
+  //         nodeMap.get(edge.target).edges.push(edge);
+  //       }
+  //     });
 
-//     // Update state with new nodes and edges
-//     setNodes(newNodes);
-//     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-//   }
-// }, [bots, setNodes, setEdges]);
- 
-  
+  //     // Convert nodeMap back to an array of nodes
+  //     const newNodes = Array.from(nodeMap.values());
+
+  //     // Update state with new nodes and edges
+  //     setNodes(newNodes);
+  //     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
+  //   }
+  // }, [bots, setNodes, setEdges]);
+
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
       <Box
