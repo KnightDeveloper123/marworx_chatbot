@@ -4,7 +4,7 @@ const connection = require('../../database/db');
 const executeQuery = require('../../utils/executeQuery');
 const { middleware } = require('../../middleware/middleware');
 
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
 
 
@@ -57,63 +57,63 @@ router.get('/getbyid', middleware, async (req, res) => {
     }
 });
 
-router.post('/addwithwhatsup', (req, res) => {
-    const { flowName, nodes, edges, to } = req.body; // Add 'to' number in frontend request
+// router.post('/addwithwhatsup', (req, res) => {
+//     const { flowName, nodes, edges, to } = req.body; // Add 'to' number in frontend request
 
-    const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
-    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], async (err, result) => {
-        if (err) {
-            console.error('Error saving flow:', err);
-            return res.status(500).json({ message: 'Database error' });
-        }
+//     const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
+//     connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], async (err, result) => {
+//         if (err) {
+//             console.error('Error saving flow:', err);
+//             return res.status(500).json({ message: 'Database error' });
+//         }
 
-        const flowId = result.insertId;
-        const messageText = `✅ Flow '${flowName}' saved successfully with ID: ${flowId}`;
+//         const flowId = result.insertId;
+//         const messageText = `✅ Flow '${flowName}' saved successfully with ID: ${flowId}`;
 
-        // WhatsApp API details
-        const phoneNumberId = '688758694314072'; // Your actual phone number ID
-        const token = 'EAAR5zlpRIpcBOwCFm3eGmq5S4nzr8ZAjaM2zsNJyX0sKuoaGhzupHGGObWGHrzWjZCUGtQIiZAZCJAdrws57srH7QifePZC16XZCbieXNbrDoHRCDZAwTxr7Mki3q6tqyqlsyOt8cGZA19PtFkkmuSYdm3FHBcs9RX3MnCNhoRAwadonugy6VdP0RpFGiigtklSGTX9Vry0KSlE6lJPm26SXXK3dNx8H4SzmZCZCZCESpIXFxgZD'; // Store this securely in .env
+//         // WhatsApp API details
+//         const phoneNumberId = '688758694314072'; // Your actual phone number ID
+//         const token = 'EAAR5zlpRIpcBOwCFm3eGmq5S4nzr8ZAjaM2zsNJyX0sKuoaGhzupHGGObWGHrzWjZCUGtQIiZAZCJAdrws57srH7QifePZC16XZCbieXNbrDoHRCDZAwTxr7Mki3q6tqyqlsyOt8cGZA19PtFkkmuSYdm3FHBcs9RX3MnCNhoRAwadonugy6VdP0RpFGiigtklSGTX9Vry0KSlE6lJPm26SXXK3dNx8H4SzmZCZCZCESpIXFxgZD'; // Store this securely in .env
 
-        const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
-console.log(messageText)
-        const whatsappBody = {
-            messaging_product: 'whatsapp',
-            to: to, // This should be a verified WhatsApp number
-            type: 'text',
-            text: { body: `${messageText}` }
-        };
+//         const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+// console.log(messageText)
+//         const whatsappBody = {
+//             messaging_product: 'whatsapp',
+//             to: to, // This should be a verified WhatsApp number
+//             type: 'text',
+//             text: { body: `${messageText}` }
+//         };
 
-        try {
-            const waResponse = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(whatsappBody)
-            });
+//         try {
+//             const waResponse = await fetch(url, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Authorization': `Bearer ${token}`,
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify(whatsappBody)
+//             });
 
-            const waData = await waResponse.json();
+//             const waData = await waResponse.json();
 
-            if (waData.error) {
-                console.error('WhatsApp Error:', waData);
-            }
+//             if (waData.error) {
+//                 console.error('WhatsApp Error:', waData);
+//             }
 
-            // Respond to frontend
-            res.status(200).json({
-                message: 'Flow saved and WhatsApp message sent',
-                flowId: flowId,
-                whatsappStatus: waData
-            });
-        } catch (whatsappError) {
-            console.error('Error sending WhatsApp:', whatsappError);
-            res.status(200).json({
-                message: 'Flow saved, but failed to send WhatsApp message',
-                flowId: flowId
-            });
-        }
-    });
-});
+//             // Respond to frontend
+//             res.status(200).json({
+//                 message: 'Flow saved and WhatsApp message sent',
+//                 flowId: flowId,
+//                 whatsappStatus: waData
+//             });
+//         } catch (whatsappError) {
+//             console.error('Error sending WhatsApp:', whatsappError);
+//             res.status(200).json({
+//                 message: 'Flow saved, but failed to send WhatsApp message',
+//                 flowId: flowId
+//             });
+//         }
+//     });
+// });
 
 // router.post('/send-whatsapp', async (req, res) => {
 //     const { to } = req.body;
