@@ -1,5 +1,5 @@
 import { DeleteIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@chakra-ui/react'
+import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
@@ -9,6 +9,8 @@ import { AppContext } from '../../context/AppContext'
 import { useNavigate } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaRobot } from "react-icons/fa";
+import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -16,9 +18,11 @@ const Sector = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+  const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
+  const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
-    const user=localStorage.getItem('user')
-    const admin_id=decrypt(user).id
+  const user = localStorage.getItem('user')
+  const admin_id = decrypt(user).id
 
   const {
     register,
@@ -67,7 +71,7 @@ const Sector = () => {
 
 
   const onSubmit = async (data) => {
- 
+
     const formData = new FormData();
     formData.append("admin_id", admin_id);
     formData.append("name", data.name);
@@ -84,7 +88,7 @@ const Sector = () => {
         body: formData
       })
       const result = await response.json();
-   
+
       if (result.success) {
         showAlert("Sector added successfully", 'success')
         fetchSector(admin_id);
@@ -138,7 +142,7 @@ const Sector = () => {
 
         showAlert("sector updated successfully", 'success')
         fetchSector()
-        
+
         onEditClose();
       }
     } catch (error) {
@@ -181,6 +185,61 @@ const Sector = () => {
   const filteredData = sectors.filter(item =>
     item.name.toLowerCase().includes(filteredSectors.toLowerCase())
   );
+
+  const options = [
+    {
+      icon: FaMagic,
+      title: 'Build it for me!',
+      description: 'Tell what you need and we will create it automatically',
+
+    },
+    {
+      icon: FaPencilAlt,
+      title: 'Start from scratch',
+      description: 'Start with a blank builder and let your imagination flow!',
+      path: '/bot_builder'
+    },
+    {
+      icon: FaPuzzlePiece,
+      title: 'Use a template',
+      description: 'Choose a pre-made bot and edit them as you want',
+      path: '/'
+    },
+  ];
+  const bg = useColorModeValue('gray.50');
+
+  const botCreate = (id) => {
+    onBotOpen();
+    console.log(id)
+  }
+  // const saveFlow = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: token
+  //         },
+  //         body: JSON.stringify({
+  //           flowName: "Welcome Journey",
+  //           nodes,
+  //           edges,
+  //           sector_id: id
+  //         }),
+  //       }
+  //     );
+
+  //     const data = await response.json();
+  //     console.log("save sucessfully")
+  //     // navigate('/home/bot')
+  //   } catch (error) {
+  //     console.log(error);
+  //     // showAlert("Failed to add Campaign", "error");
+  //   }
+  // };
+
   return (
     <Card>
       <Flex
@@ -190,19 +249,20 @@ const Sector = () => {
         p="15px"
       >
 
-        <Box display={'flex'}  alignItems={'center'} gap={'50px'}>
-          <Text height={'32px'} textAlign={'center'} borderRadius={'7px'} gap={'5px'} border={'1px'} width={'70px'} color={'#858585'}> Back</Text>
-        <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
+        <Box display={'flex'} alignItems={'center'} gap={'50px'}>
+          {/* <Text height={'32px'} textAlign={'center'} borderRadius={'7px'} gap={'5px'} border={'1px'} width={'70px'} color={'#858585'}> Back</Text> */}
+          <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
             Sector
           </Text>
         </Box>
+
         <Flex
           w="100%"
           alignItems={"center"}
           justifyContent="end"
           gap="10px"
         >
-          
+
 
           <Flex gap={2}>
 
@@ -210,10 +270,10 @@ const Sector = () => {
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
-              <Input h={"35px"} htmlSize={20} width='auto'  fontSize="var(--mini-text)"
+              <Input h={"35px"} htmlSize={20} width='auto' fontSize="var(--mini-text)"
                 fontWeight="var(--big-font-weight)"
-              placeholder="Search Name"
-              value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
+                placeholder="Search Name"
+                value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
 
               <Button
                 borderRadius="var(--radius)"
@@ -221,7 +281,7 @@ const Sector = () => {
                 _hover={{ bgColor: "var(--active-bg)" }}
                 bgColor="var(--active-bg)"
                 color="#fff"
-              
+
                 h={"35px"}
                 fontSize="var(--mini-text)"
                 fontWeight="var(--big-font-weight)"
@@ -238,14 +298,14 @@ const Sector = () => {
         <TableContainer
           mt="20px"
           borderRadius="5px 5px 0px 0px"
-         
+
         //  maxH={flag ? "unset" : "600px"}
         // overflowY={flag ? "unset" : "scroll"}
         >
           <Table size="sm" className="custom-striped-table"  >
-            <Thead  >
+            <Thead>
               <Tr h="40px" bgColor="#FFF5F3" >
-                <Th 
+                <Th
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius="5px 0px 0px 0px"
@@ -258,7 +318,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-          
+
                 >
                   Name
                 </Th>
@@ -267,7 +327,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-          
+
                 >
                   Category
                 </Th>
@@ -275,7 +335,7 @@ const Sector = () => {
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius=""
-          
+
                   fontSize="var(--mini-text)"
                 >
                   Description
@@ -286,7 +346,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
-          
+
                 >
                   Icon
                 </Th>
@@ -296,7 +356,7 @@ const Sector = () => {
                   color="var(--text-black)"
                   borderRadius="0px 5px 0px 0px"
                   fontSize="var(--mini-text)"
-          
+
                 >
                   Actions
                 </Th>
@@ -318,22 +378,97 @@ const Sector = () => {
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)">
-                           
+
                       <img
                         src={`${import.meta.env.VITE_BACKEND_URL}/sectors/${sector.icon}`}
                         alt={sector.name}
                         style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                       />
                     </Td>
-                    <Td   color={"#404040"} fontSize="var(--mini-text)">
+                    <Td color={"#404040"} fontSize="var(--mini-text)">
                       <Flex gap={2}>
                         <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
-                            <MdOutlineModeEdit size={20} color={"#3550FF"}  onClick={() => editSector(sector)} />
+                          <MdOutlineModeEdit size={20} color={"#3550FF"} onClick={() => editSector(sector)} />
                         </Box>
-                         <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
-                            <RiDeleteBin6Line  size={20} color={"#D50B0B"} onClick={() => openDeleteModal(sector.id)} />
+                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(sector.id)} />
                         </Box>
+
+
+                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
+                          <FaRobot size={20} color={'green'} /></Box>
                       </Flex>
+
+
+                      <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'} >
+                        <ModalOverlay />
+                        <ModalContent padding={'20px'}>
+
+                          <Box display={'flex'} justifyContent={'center'}>
+                            <Text padding={'10px'} backgroundColor={'black'} textAlign={'center'} width={'350px'} color={'white'}>Build Chat Bot for Automobile</Text>
+                          </Box>
+                          <ModalCloseButton />
+                          <ModalBody mt={'20px'}>
+                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' gap={'10px'}>
+                              <GridItem>
+                                <Box onClick={onAlgOpen} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Algorithmic</Box></GridItem>
+                              <GridItem>
+                                <Box onClick={() => navigate('/home/campaign')} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Campaign</Box></GridItem>
+                              <GridItem>
+                                <Box onClick={() => navigate('/home/gen_bot')} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Generative</Box></GridItem>
+                            </Grid>
+                          </ModalBody>
+    </ModalContent>
+                      </Modal>
+
+
+
+
+                      {/* const bg = useColorModeValue('gray.100', 'gray.700'); */}
+                      <Modal isOpen={isAlgOpen} onClose={onAlgClose} size={'2xl'} >
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalCloseButton />
+                          <ModalBody mt={'10px'}>
+                            <Box textAlign="center" py={10}>
+                              <Heading mb={5} fontSize="3xl">
+                                Start building!
+                              </Heading>
+                              <Box
+                                display={'flex'}
+                                gap={6}
+                                wrap="wrap"
+                              >
+                                {options.map((opt, i) => (
+
+                                  <Box
+                                    key={i}
+                                    bg={bg}
+                                    p={6}
+                                    borderRadius="lg"
+                                    textAlign="center"
+                                    boxShadow="md"
+                                    transition="all 0.2s"
+                                    _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer' }}
+                                    onClick={() => navigate(opt.path)}
+                                  >
+                                    <Icon as={opt.icon} boxSize={8} mb={4} color="blue.600" />
+                                    <Text fontWeight="bold" mb={2}>
+                                      {opt.title}
+                                    </Text>
+                                    <Text fontSize="sm" color="gray.500">
+                                      {opt.description}
+                                    </Text>
+                                  </Box>
+                                ))}
+                              </Box>
+                            </Box>
+                          </ModalBody>
+
+
+                        </ModalContent>
+                      </Modal>
+
                       {/* <Menu>
                         <MenuButton
                           bgColor="transparent"
@@ -390,7 +525,7 @@ const Sector = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
 
-            <Box as='form'  onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+            <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
