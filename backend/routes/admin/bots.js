@@ -9,10 +9,10 @@ const fetch = require('node-fetch');
 
 
 router.post('/add', middleware, (req, res) => {
-    const { flowName, nodes, edges } = req.body;
+    const { flowName, nodes, edges ,sector_id,bot_type} = req.body;
 
-    const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
-    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], (err, result) => {
+    const sql = `INSERT INTO bots(name, nodes, edges,sector_id,bot_type) VALUES (?, ?, ?,?,?)`;
+    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges),sector_id,bot_type], (err, result) => {
         if (err) {
             console.error('Error saving flow:', err);
             return res.status(500).json({ message: 'Database error' });

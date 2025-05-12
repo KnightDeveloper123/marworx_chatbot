@@ -656,16 +656,17 @@ const FlowCanvas = () => {
             flowName: "Welcome Journey",
             nodes,
             edges,
+            sector_id:id
           }),
         }
       );
 
       const data = await response.json();
       console.log("save sucessfully")
-      navigate('/home/bot')
+      // navigate('/home/bot')
     } catch (error) {
       console.log(error);
-      showAlert("Failed to add Campaign", "error");
+      // showAlert("Failed to add Campaign", "error");
     }
   };
 
