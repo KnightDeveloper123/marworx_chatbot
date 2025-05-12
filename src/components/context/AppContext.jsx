@@ -293,7 +293,26 @@ export const AppProvider = ({ children }) => {
             showAlert('Internal server error', 'error')
         }
     }
-         
+    
+      const[template,setTemplate]=useState([])
+
+      const fetchTemplate= async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/get_all_template`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    Authorization: token
+                },
+            })
+            const result = await response.json();
+            setTemplate(result.data)
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
+
         // const user=localStorage.getItem('user')
         // const admin_id=decrypt(user).id
         // console.log(adminId,"fdffs");
@@ -306,7 +325,8 @@ export const AppProvider = ({ children }) => {
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
-                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, fetchBot, bots
+                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, fetchBot, bots,
+                fetchTemplate,template
             }}
         >
             {children}

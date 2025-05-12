@@ -29,7 +29,8 @@ const Sector = lazy(() => import('./components/admin/Pages/Sector'));
 const BotBuilder = lazy(() => import('./components/admin/Pages/BotBuilder'));
 const Bot =lazy(()=>import ('./components/admin/Pages/Bot'))
 const ViewBot = lazy(() => import('./components/admin/Pages/ViewBot'));
-
+const Template = lazy(()=>import ('./components/admin/Pages/Template'));
+const CreateTemplate = lazy(()=> import('./components/admin/Pages/CreateTemplate'))
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
 
@@ -52,6 +53,7 @@ return (
           <Route exact path="/home" element={<Login />} />
           <Route path='bot_builder' element={<BotBuilder />} /> 
           <Route path="view/:id" element={<ViewBot />} />
+          <Route path="create_template/:id" element={ <CreateTemplate /> } />
           
           <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
@@ -67,7 +69,7 @@ return (
             <Route path="user" element={<User />} />
             <Route path="user/:id" element={<UserProfile />} />
             <Route path="admin/:id" element={<AdminProfile />} />
-          
+            <Route path="template" element={ <Template /> } />
             
           </Route>
 
