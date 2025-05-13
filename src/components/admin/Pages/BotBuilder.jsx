@@ -592,7 +592,7 @@ const SidePanel = () => {
     </Box>
   );
 };
-const token = localStorage.getItem("token");
+
 
 // Flow Canvas
 const FlowCanvas = () => {
@@ -651,7 +651,7 @@ const FlowCanvas = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json",
-            Authorization : token
+            // Authorization : token
            },
           body: JSON.stringify({
             flowName: "Welcome Journey",

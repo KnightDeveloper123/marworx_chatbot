@@ -8,7 +8,7 @@ const { middleware } = require('../../middleware/middleware');
 
 
 
-router.post('/add', middleware, (req, res) => {
+router.post('/add', (req, res) => {
     const { flowName, nodes, edges ,sector_id,bot_type} = req.body;
 
     const sql = `INSERT INTO bots(name, nodes, edges,sector_id,bot_type) VALUES (?, ?, ?,?,?)`;
@@ -33,7 +33,7 @@ router.post('/add', middleware, (req, res) => {
 //     });
 // });
 
-router.get('/getAll', middleware, async(req, res)=>{
+router.get('/getAll',  async(req, res)=>{
     try{
     //    const { admin_id } = req.query;
     const data=await executeQuery(`SELECT * FROM bots ORDER BY created_at DESC`) 
@@ -46,7 +46,7 @@ router.get('/getAll', middleware, async(req, res)=>{
 
 
 // GET: Fetch flow by ID
-router.get('/getbyid',  async (req, res) => {
+router.get('/getbyid', async (req, res) => {
     try{
     const { id } = req.query;
     const data=await executeQuery(`SELECT * FROM bots where id=${id}`) 

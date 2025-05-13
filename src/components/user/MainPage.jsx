@@ -57,7 +57,7 @@ const MainPage = () => {
         }
         setValue("");
         setLoading(true);
-
+console.log(value)
         try {
             const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`, {
                 headers: {
@@ -76,7 +76,7 @@ const MainPage = () => {
             // ? `http://216.10.251.154:5000/get_info?query=${value}`
             // : `http://216.10.251.154:5000/get_info_no_doc?query=${value}`;
 
-
+console.log(res.answer)
 
 
             if (res) setLoading(false);
