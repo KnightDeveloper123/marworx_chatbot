@@ -79,6 +79,7 @@ import { IoCallOutline } from 'react-icons/io5'
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { useLocation, useParams } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
+import { LuCloudUpload } from 'react-icons/lu'
 
 const Campaign = () => {
   const token = localStorage.getItem('token')
@@ -851,7 +852,7 @@ const Campaign = () => {
                       />
                     </FormControl>
 
-                    <FormControl mt={2}>
+                    {/* <FormControl mt={2}>
                       <Input
                         border={'none'}
                         p={0}
@@ -860,6 +861,39 @@ const Campaign = () => {
                         ref={fileInputRef}
                         onChange={handleFileChange}
                       />
+                    </FormControl> */}
+
+                    <FormControl isRequired mt={5}>
+                      <FormLabel fontSize="var(--mini-text)" mb="2px">
+                        Upload File
+                      </FormLabel>
+
+                      {/* Hidden File Input */}
+                      <Input
+                        type="file"
+                        id="icon-upload"
+                        display="none"
+                        ref={fileInputRef} onChange={handleFileChange}
+                      />
+
+                      {/* Custom Styled Button as File Picker */}
+                      <FormLabel
+                        htmlFor="icon-upload"
+                        cursor="pointer"
+                        bg="#FF5722"
+                        color="white"
+                        px={4}
+                        py={2}
+                        borderRadius="md"
+                        display="inline-flex"
+                        alignItems="center"
+                        gap={2}
+                        fontSize="var(--text-12px)"
+                        _hover={{ bg: '#FF5722' }}
+                      >
+                        <LuCloudUpload />
+                        Upload File
+                      </FormLabel>
                     </FormControl>
                   </ModalBody>
  
