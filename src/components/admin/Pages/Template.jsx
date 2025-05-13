@@ -289,8 +289,8 @@ const Template = () => {
             <ModalHeader fontSize={"18px"}>Add Industry</ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
-              <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-                <FormControl isInvalid={errors.industry}>
+              <Box as="form" onSubmit={handleSubmit(onSubmit)} display={"flex"} flexDirection={"column"} gap={"10px"}>
+                <FormControl isRequired isInvalid={errors.industry}>
                   <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
                     Industry
                   </FormLabel>
@@ -309,7 +309,8 @@ const Template = () => {
                     </FormErrorMessage>
                   )}
                 </FormControl>
-                <FormControl isInvalid={errors.category}>
+
+                <FormControl isRequired isInvalid={errors.category}>
                   <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
                     Category
                   </FormLabel>
@@ -335,17 +336,8 @@ const Template = () => {
                   justifyContent={"center"}
                   gap={"6px"}
                   mt={"10px"}
+                  w={"100%"}
                 >
-                  <Button
-                    type="submit"
-                    fontSize={"13px"}
-                    bgColor={"#FF5722"}
-                    _hover={""}
-                    textColor={"white"}
-                    size={"sm"}
-                  >
-                    Save
-                  </Button>
                   <Button
                     onClick={onClose}
                     type="button"
@@ -355,9 +347,21 @@ const Template = () => {
                     textColor={"#FF5722"}
                     bgColor={"white"}
                     mr={3}
+                    w={"100%"}
                     _hover={""}
                   >
                     Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    fontSize={"13px"}
+                    bgColor={"#FF5722"}
+                    _hover={""}
+                    textColor={"white"}
+                    size={"sm"}
+                    w={"100%"}
+                  >
+                    Save
                   </Button>
                 </Box>
               </Box>

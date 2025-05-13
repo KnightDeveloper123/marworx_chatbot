@@ -863,20 +863,16 @@ const Campaign = () => {
                       />
                     </FormControl> */}
 
-                    <FormControl isRequired mt={5}>
+                    {/* <FormControl isRequired mt={5}>
                       <FormLabel fontSize="var(--mini-text)" mb="2px">
                         Upload File
                       </FormLabel>
-
-                      {/* Hidden File Input */}
                       <Input
                         type="file"
                         id="icon-upload"
                         display="none"
                         ref={fileInputRef} onChange={handleFileChange}
                       />
-
-                      {/* Custom Styled Button as File Picker */}
                       <FormLabel
                         htmlFor="icon-upload"
                         cursor="pointer"
@@ -894,7 +890,33 @@ const Campaign = () => {
                         <LuCloudUpload />
                         Upload File
                       </FormLabel>
-                    </FormControl>
+                    </FormControl> */}
+
+                    <FormControl isRequired mt={5}>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                      Upload File
+                                    </FormLabel>
+                                    <Input
+                                      type="file"
+                                      ref={fileInputRef} onChange={handleFileChange}
+                                      fontSize="var(--text-12px)"
+                                      colorScheme="orange"
+                                      sx={{
+                                        "::file-selector-button": {
+                                          backgroundColor: "#FF5722",
+                                          color: "white",
+                                          border: "none",
+                                          padding: "6px 12px",
+                                          borderRadius: "6px",
+                                          cursor: "pointer",
+                                          fontSize: "var(--text-12px)",
+                                        },
+                                        "::file-selector-button:hover": {
+                                          backgroundColor: "#e64a19",
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
                   </ModalBody>
  
                   <ModalFooter>
@@ -947,7 +969,7 @@ const Campaign = () => {
 
       <Box>
         {isOpen && (
-          <Modal isOpen={isStepOpen} onClose={onStepClose} size={'4xl'}>
+          <Modal isOpen={isStepOpen} onClose={onClose} size={'4xl'}>
             <ModalOverlay />
             <ModalContent pt={'2'}>
               <ModalCloseButton onClick={() => onClose()} />

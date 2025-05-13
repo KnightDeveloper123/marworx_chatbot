@@ -18,6 +18,7 @@ import ReactApexChart from "react-apexcharts";
 import { decrypt } from "../../utils/security";
 import { FaUserCircle, FaUsers } from "react-icons/fa";
 import { HiMiniUsers } from "react-icons/hi2";
+import { LuCloudUpload } from "react-icons/lu";
 
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext);
@@ -389,18 +390,73 @@ const AdminDashboard = () => {
           <Text fontSize={'18px'} fontWeight={'semibold'} padding={'10px'}>Upload Files</Text>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel fontSize={'13px'} mb={'1px'}>File Name</FormLabel>
               <Input name="fileName" type="text" fontSize={'12px'} borderRadius={'10px'} onChange={(e) => setFile((prev) => ({ ...prev, fileName: e.target.value }))} placeholder="File Name" />
             </FormControl>
 
-            <FormControl mt={2}>
+            {/* <FormControl mt={2}>
               <Input border={'none'} p={0} type="file" name="file" fontSize={'13px'} ref={fileInputRef} onChange={handleFileChange} />
-            </FormControl>
+            </FormControl> */}
+            
+              {/* <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb="2px" mt={5}>
+                  Upload File
+                </FormLabel>
+                <Input
+                  type="file"
+                  id="icon-upload"
+                  display="none"
+                  ref={fileInputRef} onChange={handleFileChange}
+                />
+                <FormLabel
+                  htmlFor="icon-upload"
+                  cursor="pointer"
+                  bg="#FF5722"
+                  color="white"
+                  px={4}
+                  py={2}
+                  borderRadius="md"
+                  display="inline-flex"
+                  alignItems="center"
+                    gap={2}
+                  fontSize="var(--text-12px)"
+                  _hover={{ bg: '#FF5722' }}
+                >
+                  <LuCloudUpload />
+                  Upload File
+                </FormLabel>
+              </FormControl> */}
+
+              <FormControl isRequired mt={5}>
+                              <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                Upload File
+                              </FormLabel>
+                              <Input
+                                type="file"
+                                ref={fileInputRef} onChange={handleFileChange}
+                                fontSize="var(--text-12px)"
+                                colorScheme="orange"
+                                sx={{
+                                  "::file-selector-button": {
+                                    backgroundColor: "#FF5722",
+                                    color: "white",
+                                    border: "none",
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "var(--text-12px)",
+                                  },
+                                  "::file-selector-button:hover": {
+                                    backgroundColor: "#e64a19",
+                                  }
+                                }}
+                              />
+                            </FormControl>
           </ModalBody>
 
           <Box width={'full'} display={'flex'} gap={'6px'} padding={'20px'}  >
-            <Button size={'sm'} width={'50%'} onClick={onClose}>
+            <Button size={'sm'} width={'50%'} onClick={onClose} bgColor='transparent' _hover='none' color='var(--active-bg)' border='1px solid var(--active-bg)'>
               Close
             </Button>
             <Button size={'sm'} width={'50%'} onClick={handleFileSubmit} _hover={{ bgColor: "var(--active-bg)" }}

@@ -169,6 +169,9 @@ export default function Login() {
       if (result.success) {
         showAlert("Password successfully changed", "success");
         setShowOtp(false);
+        setOtp("");
+        setForgotPasswordPage(false);
+        setLoginPage(true);
         // Redirect to login or reset form
       } else {
         showAlert(result.error || "Invalid OTP", "error");
@@ -392,9 +395,11 @@ export default function Login() {
             <Button
               onClick={forgotPasswordPage ? handleOtpVerifyForgotPass : handleOtpVerify}
               width="full"
-              bgColor="green.500"
+              // bgColor="#FF5F35"
               textColor="white"
               mt={4}
+               bgColor='var(--active-bg)'
+              _hover={{ bgColor: 'var(--active-bg)' }}
             >
               Verify OTP
             </Button>

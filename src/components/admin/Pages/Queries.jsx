@@ -419,9 +419,9 @@ function Queries() {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Box
-
+                display={"flex"} flexDir={"column"} gap={"8px"}
             >
-              <FormControl isInvalid={errors.query}>
+              <FormControl isRequired isInvalid={errors.query}>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
                   Query
                 </FormLabel>
@@ -436,7 +436,8 @@ function Queries() {
                   {errors.query?.message}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={errors.query_status}>
+
+              <FormControl isRequired isInvalid={errors.query_status}>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
                   Query Status
                 </FormLabel>
@@ -452,7 +453,8 @@ function Queries() {
                   {errors.query_status?.message}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={errors.assignee_id}>
+
+              <FormControl isRequired isInvalid={errors.assignee_id}>
                 <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
                   Assignee
                 </FormLabel>
@@ -501,17 +503,8 @@ function Queries() {
             alignItems={"center"}
             justifyContent={"center"}
             gap={"6px"}
+            w={"100%"}
           >
-            <Button
-              type="submit"
-              fontSize={"13px"}
-              bgColor={"#FF5722"}
-              _hover={""}
-              textColor={"white"}
-              size={"sm"}
-            >
-              Save
-            </Button>
             <Button
               onClick={onClose}
               type="button"
@@ -522,8 +515,20 @@ function Queries() {
               bgColor={"white"}
               mr={3}
               _hover={""}
+              w={"100%"}
             >
               Cancel
+            </Button>
+              <Button
+              type="submit"
+              fontSize={"13px"}
+              bgColor={"#FF5722"}
+              _hover={""}
+              textColor={"white"}
+              size={"sm"}
+              w={"100%"}
+            >
+              Save
             </Button>
           </ModalFooter>
         </ModalContent>

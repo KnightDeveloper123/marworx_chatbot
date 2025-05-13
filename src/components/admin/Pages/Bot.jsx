@@ -130,10 +130,10 @@ export default function Bot() {
                     >
                       <Flex gap={2}>
                         <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
-                            {/* <LuEye  size={20} color={"#3550FF"}  onClick={() =>  navigate(`/view/${item.id}`)} /> */}
+                            <LuEye  size={20} color={"#3550FF"}  onClick={() => navigate(`/view/${item.id}`)} />
                         </Box>
                       </Flex>
-                      <Menu>
+                      {/* <Menu>
                         <MenuButton
                           bgColor="transparent"
                           _hover={{
@@ -166,7 +166,7 @@ export default function Bot() {
                             </Text>
                           </MenuItem>
                         </MenuList>
-                      </Menu>
+                      </Menu> */}
                     </Td>
                   </Tr>
                 );

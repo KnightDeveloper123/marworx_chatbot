@@ -12,6 +12,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
+import { LuCloudUpload } from "react-icons/lu";
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -52,7 +53,7 @@ const Sector = () => {
   useEffect(() => {
     fetchSector(admin_id);
     fetchProductService(admin_id)
-  }, [])
+  }, [admin_id])
 
   const allCategory = [{
     value: "energy",
@@ -144,7 +145,7 @@ const Sector = () => {
       if (result.success) {
 
         showAlert("sector updated successfully", 'success')
-        fetchSector()
+        fetchSector(admin_id);
 
         onEditClose();
       }
@@ -175,7 +176,7 @@ const Sector = () => {
       const result = await response.json();
       if (result.success) {
         showAlert("Sector deleted successfully", 'success')
-        fetchSector();
+        fetchSector(admin_id);
 
         onDeleteClose();
       }
@@ -264,9 +265,9 @@ const Sector = () => {
         >
 
 
-          <Flex gap={2}>
+          <Flex gap={2} >
 
-            <Flex gap={3}
+            <Flex gap={3} 
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
@@ -426,15 +427,17 @@ const Sector = () => {
                       <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'}>
                         <ModalOverlay />
                         <ModalContent padding={'20px'}>
-                          <Box display={'flex'} justifyContent={'center'}>
-                            <Text padding={'10px'} backgroundColor={'black'} textAlign={'center'} width={'350px'} color={'white'}>Build Chat Bot for Automobile</Text>
+
+                          <Box display={'flex'} alignSelf={'center'} w={"90%"} justifyContent={'center'} bg={'#FF5F351A'} borderRadius={"7px"}>
+                            <Text padding={'10px'} textAlign={'center'} width={'350px'} color={'black'}>Build Chat Bot for Automobile</Text>
                           </Box>
                           <ModalCloseButton />
                           <ModalBody mt={'20px'}>
-                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' gap={'10px'}>
+                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' >
                               {botTypes.map((bot) => (
                                 <GridItem key={bot.type}>
                                   <Box
+                                  _hover={{ bg: "#FF5F35", color: "white",transitionDuration: "0.5s" }}
                                     onClick={() => {
                                       setSelectedBotType(bot.type)
                                       localStorage.setItem("botType", bot.type);
@@ -461,11 +464,11 @@ const Sector = () => {
                                     display={'flex'}
                                     justifyContent={'center'}
                                     alignItems={'center'}
-                                    width={'160px'}
+                                    width={'90%'}
                                     height={'140px'}
-                                    borderTopRightRadius={'15px'}
-                                    backgroundColor={'black'}
-                                    color={'white'}
+                                    borderRadius={'7px'}
+                                    backgroundColor={'#FF5F351A'}
+                                    color={'black'}
                                     cursor={'pointer'}
                                   >
                                     {bot.label}
@@ -486,14 +489,16 @@ const Sector = () => {
 
                           <ModalCloseButton />
                           <ModalBody mt={'10px'}>
-                            <Box onClick={() => {
+                            <Box 
+                            onClick={() => {
                               onAlgClose();
                               onBotOpen(); // Reopen first modal if needed
                             }}>
                               <HiOutlineArrowSmLeft />
                             </Box>
-                            <Box textAlign="center" py={10}>
-                              <Heading mb={5} fontSize="3xl">
+                            <Box textAlign="center"
+                             py={10} >
+                              <Heading mb={5} fontSize="3xl" >
                                 Start building!
                               </Heading>
 
@@ -512,14 +517,16 @@ const Sector = () => {
                                     textAlign="center"
                                     boxShadow="md"
                                     transition="all 0.2s"
-                                    _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer' }}
+                                    bgColor={'#FF5F351A'}
+                                    role="group"
+                                    _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer', bg: "#FF5F35", color: "white",transitionDuration: "0.5s"  }}
                                     onClick={() => navigate(opt.path)}
                                   >
-                                    <Icon as={opt.icon} boxSize={8} mb={4} color="blue.600" />
+                                    <Icon as={opt.icon} boxSize={8} mb={4} />
                                     <Text fontWeight="bold" mb={2}>
                                       {opt.title}
                                     </Text>
-                                    <Text fontSize="sm" color="gray.500">
+                                    <Text fontSize="sm" color="#565555"  _groupHover={{ color: "white",transitionDuration: "0.5s" }}>
                                       {opt.description}
                                     </Text>
                                   </Box>
@@ -589,13 +596,13 @@ const Sector = () => {
           <ModalBody pb={6}>
 
             <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Category</FormLabel>
                 <Controller
                   name="category"
@@ -622,19 +629,69 @@ const Sector = () => {
                   )}
                 />
               </FormControl>
-              <FormControl>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
+              <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
                 <Input type='text' {...register('description')} height={'100px'}
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
 
-              <FormControl>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Icon</FormLabel>
-                <Input type='file' {...register('icon')} fontSize="var(--text-12px)"  ></Input>
+              {/* <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb="2px">
+                  Upload Icon
+                </FormLabel>
+                <Input
+                  type="file"
+                  id="icon-upload"
+                  display="none"
+                  {...register('icon')}
+                />
+                <FormLabel
+                  htmlFor="icon-upload"
+                  cursor="pointer"
+                  bg="#FF5722"
+                  color="white"
+                  px={4}
+                  py={2}
+                  borderRadius="md"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={2}
+                  fontSize="var(--text-12px)"
+                  _hover={{ bg: '#FF5722' }}
+                >
+                  <LuCloudUpload />
+                  Upload Icon
+                </FormLabel>
+              </FormControl> */}
 
+              <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb="2px">
+                  Upload Icon
+                </FormLabel>
+                <Input
+                  type="file"
+                  {...register('icon')}
+                  fontSize="var(--text-12px)"
+                  colorScheme="orange"
+                  sx={{
+                    "::file-selector-button": {
+                      backgroundColor: "#FF5722",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "var(--text-12px)",
+                    },
+                    "::file-selector-button:hover": {
+                      backgroundColor: "#e64a19",
+                    }
+                  }}
+                />
               </FormControl>
-              <FormControl>
+
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
                 <Controller
                   name="products"
@@ -666,12 +723,13 @@ const Sector = () => {
                   )}
                 />
               </FormControl>
-              <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+
+                <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
                 </Button>
-                <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
               </Box>
             </Box>
           </ModalBody>
@@ -689,13 +747,13 @@ const Sector = () => {
           <ModalBody pb={6}>
 
             <Box as='form' onSubmit={handleSubmit(onEditSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Category</FormLabel>
                 <Controller
                   name="category"
@@ -722,19 +780,69 @@ const Sector = () => {
                   )}
                 />
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
                 <Input type='text' {...register('description')}
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
 
-              <FormControl>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Icon</FormLabel>
-                <Input type='file' {...register('icon')} fontSize="var(--text-12px)"  ></Input>
+              {/* <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb="2px">
+                  Upload Icon
+                </FormLabel>
+                <Input
+                  type="file"
+                  id="icon-upload"
+                  display="none"
+                  {...register('icon')}
+                />
+                <FormLabel
+                  htmlFor="icon-upload"
+                  cursor="pointer"
+                  bg="#FF5722"
+                  color="white"
+                  px={4}
+                  py={2}
+                  borderRadius="md"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={2}
+                  fontSize="var(--text-12px)"
+                  _hover={{ bg: '#FF5722' }}
+                >
+                  <LuCloudUpload />
+                  Upload Icon
+                </FormLabel>
+              </FormControl> */}
 
+              <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb="2px">
+                  Upload Icon
+                </FormLabel>
+                <Input
+                  type="file"
+                  {...register('icon')}
+                  fontSize="var(--text-12px)"
+                  colorScheme="orange"
+                  sx={{
+                    "::file-selector-button": {
+                      backgroundColor: "#FF5722",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "var(--text-12px)",
+                    },
+                    "::file-selector-button:hover": {
+                      backgroundColor: "#e64a19",
+                    }
+                  }}
+                />
               </FormControl>
-              <FormControl>
+
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
                 {/* <Controller
                   name="products"
@@ -797,12 +905,12 @@ const Sector = () => {
                 />
 
               </FormControl>
-              <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
+                <Button w={'100%'} onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
                 </Button>
-                <Button onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
               </Box>
             </Box>
           </ModalBody>

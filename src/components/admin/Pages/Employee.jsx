@@ -173,6 +173,7 @@ const Employee = () => {
           alignItems={"center"}
           justifyContent="space-between"
           gap="10px"
+          flexDir={{md:"row", base:"column"}}
         >
           <Text fontWeight="var(--big-font-weight)" fontSize="var(--semi-big)">
             Employees
@@ -345,38 +346,38 @@ const Employee = () => {
           <ModalBody pb={6}>
 
             <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Email</FormLabel>
                 <Input type='text' {...register('email', { required: 'email is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.email && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.email.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Mobile Number</FormLabel>
                 <Input type='number' {...register('mobile_no', { required: 'Mobile Number is required' })}
                   placeholder='Enter Mobile Number' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.mobile_no && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.mobile_no.message}</Text>}
               </FormControl>
 
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Date of Birth</FormLabel>
                 <Input type='date' {...register('date_of_birth', { required: 'Date of Birth is required' })}
                    fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.date_of_birth && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.date_of_birth.message}</Text>}
               </FormControl>
               
-              <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+                <Button w={"100%"} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                  <Button w={"100%"}  type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
                 </Button>
-                <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
               </Box>
             </Box>
           </ModalBody>
@@ -400,37 +401,38 @@ const Employee = () => {
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl> */}
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Email</FormLabel>
                 <Input type='text' {...register('email', { required: 'email is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.email && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.email.message}</Text>}
               </FormControl>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Mobile Number</FormLabel>
                 <Input type='number' {...register('mobile_no', { required: 'Mobile Number is required' })}
                   placeholder='Enter Mobile Number' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.mobile_no && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.mobile_no.message}</Text>}
               </FormControl>
 
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Date of Birth</FormLabel>
                 <Input type='date' {...register('date_of_birth', { required: 'Date of Birth is required' })}
                    fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.date_of_birth && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.date_of_birth.message}</Text>}
               </FormControl>
-              <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              <Box  w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'}  mt={'10px'}>
+               
+                <Button  w={'100%'} onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                   <Button  w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                   Save
                 </Button>
-                <Button onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                  textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
               </Box>
             </Box>
           </ModalBody>

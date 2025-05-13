@@ -8,6 +8,7 @@ import { MdOutlineModeEdit } from 'react-icons/md';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { decrypt } from '../../utils/security';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { BiImageAdd } from "react-icons/bi";
 
 const ProductService = () => {
     const { showAlert, fetchProductService, productService } = useContext(AppContext)
@@ -294,35 +295,64 @@ const ProductService = () => {
                     <ModalContent>
                         <ModalHeader fontSize={'18px'}>Add Product</ModalHeader>
                         <ModalCloseButton />
-                        <ModalBody pb={6}>
-                            <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-                                <FormControl isInvalid={errors.name}>
+                        <ModalBody pb={6} >
+                            <Box as="form" onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+                                <FormControl isRequired isInvalid={errors.name}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                                     <Input type='text' {...register("name", { required: "Product name is required" })} placeholder='enter product name' fontSize="var(--text-12px)" autoComplete='off'></Input>
                                     {errors.name && (
                                         <FormErrorMessage fontSize="var(--mini-text)">{errors.name.message}</FormErrorMessage>
                                     )}
                                 </FormControl>
-                                <FormControl isInvalid={errors.description}>
+                                <FormControl isRequired isInvalid={errors.description}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
                                     <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                                     {errors.description && (
                                         <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>
                                     )}
                                 </FormControl>
-                                <FormControl isInvalid={errors.file}>
+                                {/* <FormControl isInvalid={errors.file}>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Image</FormLabel>
                                     <Input type='file' {...register("image")} fontSize="var(--text-12px)" autoComplete='off'></Input>
                                     {errors.file && (
                                         <FormErrorMessage fontSize="var(--mini-text)">{errors.image.message}</FormErrorMessage>
                                     )}
+                                </FormControl> */}
+
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                        Upload Image
+                                    </FormLabel>
+                                    <Input
+                                        type="file"
+                                        {...register('image')}
+                                        fontSize="var(--text-12px)"
+                                        colorScheme="orange"
+                                        sx={{
+                                            "::file-selector-button": {
+                                                backgroundColor: "#FF5722",
+                                                color: "white",
+                                                border: "none",
+                                                padding: "6px 12px",
+                                                borderRadius: "6px",
+                                                cursor: "pointer",
+                                                fontSize: "var(--text-12px)",
+                                            },
+                                            "::file-selector-button:hover": {
+                                                backgroundColor: "#e64a19",
+                                            }
+                                        }}
+                                    />
                                 </FormControl>
-                                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                                    <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+
+
+                                <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+
+                                    <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                                    <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                                         Save
                                     </Button>
-                                    <Button onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
                                 </Box>
                             </Box>
                         </ModalBody>
@@ -337,25 +367,49 @@ const ProductService = () => {
                         <ModalHeader fontSize={'18px'}>Edit Sector</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
-                            <Box as="form" onSubmit={handleSubmit(onEditSubmit)}>
-                                <FormControl>
+                            <Box as="form" onSubmit={handleSubmit(onEditSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+                                <FormControl isRequired>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                                     <Input type='text' {...register("name", { required: "Product name is required" })} placeholder='enter product name' fontSize="var(--text-12px)" autoComplete='off'></Input>
                                 </FormControl>
-                                <FormControl>
+                                <FormControl isRequired>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
                                     <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                                 </FormControl>
-                                <FormControl>
-                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Image</FormLabel>
-                                    <Input type='file' {...register("image")} fontSize="var(--text-12px)" autoComplete='off'></Input>
+
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                        Upload Image
+                                    </FormLabel>
+                                    <Input
+                                        type="file"
+                                        {...register('image')}
+                                        fontSize="var(--text-12px)"
+                                        colorScheme="orange"
+                                        sx={{
+                                            "::file-selector-button": {
+                                                backgroundColor: "#FF5722",
+                                                color: "white",
+                                                border: "none",
+                                                padding: "6px 12px",
+                                                borderRadius: "6px",
+                                                cursor: "pointer",
+                                                fontSize: "var(--text-12px)",
+                                            },
+                                            "::file-selector-button:hover": {
+                                                backgroundColor: "#e64a19",
+                                            }
+                                        }}
+                                    />
                                 </FormControl>
-                                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
-                                    <Button type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+
+                                <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+
+                                    <Button w={'100%'} onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                                    <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
                                         Update
                                     </Button>
-                                    <Button onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
                                 </Box>
                             </Box>
                         </ModalBody>
