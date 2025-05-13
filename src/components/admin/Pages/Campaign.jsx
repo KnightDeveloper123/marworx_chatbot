@@ -862,7 +862,7 @@ const Campaign = () => {
                       />
                     </FormControl>
                   </ModalBody>
-
+ 
                   <ModalFooter>
                     <Button bg={'transparent'} border='1px solid var(--active-bg)' color='var(--active-bg)' _hover='none ' w='100%' size={'sm'} mr={3} onClick={onFileClose}>
                       Close
