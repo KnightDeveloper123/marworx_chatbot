@@ -325,9 +325,9 @@ function Navbar() {
                 </ModalBody>
 
                 <ModalFooter justifyContent={'center'} gap={'5px'}>
-                  <Button type="submit" form="updateProfileForm" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} 
+                  <Button w='100%' type="submit" form="updateProfileForm" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} 
                   textColor={'white'} size={'sm'} >Update</Button>
-                   <Button size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                   <Button w='100%' size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                       textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} onClick={onProfileClose}>
                     Close
                   </Button>

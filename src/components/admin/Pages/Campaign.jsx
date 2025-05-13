@@ -772,31 +772,80 @@ const Campaign = () => {
                 </Button>
                 {/* <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
                   <GridItem colSpan={{ base: 1, md: 2 }}> */}
-                <TableContainer>
-                  <Table variant='striped' size={'sm'} borderRadius={'10px'}>
+                <TableContainer
+                  mt='20px'
+                  width={'100%'}
+                  borderRadius='5px 5px 0px 0px'
+                >
+                  <Table size='sm' className='custom-striped-table'>
                     <TableCaption>
                       DATA SETS UPLOADED FOR MODEL TRAINING
                     </TableCaption>
-                    <Thead>
+                    <Thead border='0.5px solid #FFF5F3'>
                       {documents.length === 0 ? (
-                        <Tr>
+                        <Tr h='40px' bgColor='#FFF5F3'>
                           <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='5px 0px 0px 0px'
+                            fontSize='var(--mini-text)'
                             border={'1px solid #b4b4b4'}
                             colSpan={'4'}
                             textAlign={'center'}
-                            fontSize={'12px'}
                           >
                             No Documents Uploaded
                           </Th>
                         </Tr>
                       ) : (
-                        <Tr>
-                          <Th>ID</Th>
-                          <Th>File Name</Th>
-                          <Th>name</Th>
-                          <Th>phone</Th>
-                          <Th>email</Th>
-                          <Th>Created At</Th>
+                        <Tr h='40px' bgColor='#FFF5F3'>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='5px 0px 0px 0px'
+                            fontSize='var(--mini-text)'
+                          >
+                            ID
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            File Name
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            name
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            phone
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            email
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='0px 5px 5px 0px'
+                            fontSize='var(--mini-text)'
+                          >
+                            Created At
+                          </Th>
                           {/* <Th>Action</Th> */}
                         </Tr>
                       )}
@@ -893,38 +942,48 @@ const Campaign = () => {
                     </FormControl> */}
 
                     <FormControl isRequired mt={5}>
-                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
-                                      Upload File
-                                    </FormLabel>
-                                    <Input
-                                      type="file"
-                                      ref={fileInputRef} onChange={handleFileChange}
-                                      fontSize="var(--text-12px)"
-                                      colorScheme="orange"
-                                      sx={{
-                                        "::file-selector-button": {
-                                          backgroundColor: "#FF5722",
-                                          color: "white",
-                                          border: "none",
-                                          padding: "6px 12px",
-                                          borderRadius: "6px",
-                                          cursor: "pointer",
-                                          fontSize: "var(--text-12px)",
-                                        },
-                                        "::file-selector-button:hover": {
-                                          backgroundColor: "#e64a19",
-                                        }
-                                      }}
-                                    />
-                                  </FormControl>
+                      <FormLabel fontSize='var(--mini-text)' mb='2px'>
+                        Upload File
+                      </FormLabel>
+                      <Input
+                        type='file'
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        fontSize='var(--text-12px)'
+                        colorScheme='orange'
+                        sx={{
+                          '::file-selector-button': {
+                            backgroundColor: '#FF5722',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: 'var(--text-12px)'
+                          },
+                          '::file-selector-button:hover': {
+                            backgroundColor: '#e64a19'
+                          }
+                        }}
+                      />
+                    </FormControl>
                   </ModalBody>
- 
+
                   <ModalFooter>
-                    <Button bg={'transparent'} border='1px solid var(--active-bg)' color='var(--active-bg)' _hover='none ' w='100%' size={'sm'} mr={3} onClick={onFileClose}>
+                    <Button
+                      bg={'transparent'}
+                      border='1px solid var(--active-bg)'
+                      color='var(--active-bg)'
+                      _hover='none '
+                      w='100%'
+                      size={'sm'}
+                      mr={3}
+                      onClick={onFileClose}
+                    >
                       Close
                     </Button>
                     <Button
-                    w='100%'
+                      w='100%'
                       size={'sm'}
                       onClick={handleFileSubmit}
                       _hover={{ bgColor: 'var(--active-bg)' }}
