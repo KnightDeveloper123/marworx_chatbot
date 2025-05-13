@@ -598,47 +598,47 @@ const FlowCanvas = () => {
   // console.log(token)
 const {id } = useParams()
 // console.log(id)
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "1",
-      type: "custom",
-      data: { label: "Starting point\nWhere your bot begins" },
-      position: { x: 100, y: 150 },
-    },
-  ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { screenToFlowPosition } = useReactFlow();
+//   const [nodes, setNodes, onNodesChange] = useNodesState([
+//     {
+//       id: "1",
+//       type: "custom",
+//       data: { label: "Starting point\nWhere your bot begins" },
+//       position: { x: 100, y: 150 },
+//     },
+//   ]);
+//   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+//   const { screenToFlowPosition } = useReactFlow();
 
-  const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
+//   const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
 
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      const rawData = event.dataTransfer.getData("application/reactflow");
-      if (!rawData) return;
+//   const onDrop = useCallback(
+//     (event) => {
+//       event.preventDefault();
+//       const rawData = event.dataTransfer.getData("application/reactflow");
+//       if (!rawData) return;
 
-      const block = JSON.parse(rawData);
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
+//       const block = JSON.parse(rawData);
+//       const position = screenToFlowPosition({
+//         x: event.clientX,
+//         y: event.clientY,
+//       });
 
-      const newNode = {
-        id: getId(),
-        type: block.type,
-        position,
-        data: { label: block.label },
-      };
+//       const newNode = {
+//         id: getId(),
+//         type: block.type,
+//         position,
+//         data: { label: block.label },
+//       };
 
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [setNodes, screenToFlowPosition]
-  );
+//       setNodes((nds) => nds.concat(newNode));
+//     },
+//     [setNodes, screenToFlowPosition]
+//   );
 
-  const onDragOver = (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  };
+//   const onDragOver = (event) => {
+//     event.preventDefault();
+//     event.dataTransfer.dropEffect = "move";
+//   };
 
 // save on database
 //   const saveFlow = async () => {
@@ -660,13 +660,78 @@ const {id } = useParams()
 //   };
 
 
-  const [bots, setBots] = useState({});
+//   const [bots, setBots] = useState({});
 
-  const fetchBot = async () => {
-    console.log("bots")
+//   const fetchBot = async () => {
+//     console.log("bots")
+//     try {
+//       const response = await fetch(
+//         `${import.meta.env.VITE_BACKEND_URL}/template/getbyid?id=${id}`,
+//         {
+//           method: "GET",
+//           headers: {
+//             "Content-Type": "application/json",
+//             // Authorization: token,
+//           },
+//         }
+//       );
+//       const result = await response.json();
+//       console.log(result.data);
+//       setBots(result.data);
+//     } catch (error) {
+//       console.log(error);
+//       // showAlert("Internal server error", "error");
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchBot();
+//   }, []);
+
+
+// useEffect(() => {
+//   if (bots && bots.node && Array.isArray(bots.node) && bots.edges && Array.isArray(bots.edges)) {
+//     const nodeMap = new Map();
+
+//     // Add nodes to the nodeMap
+//     bots.node.forEach((botNode) => {
+//       nodeMap.set(botNode.id, {
+//         id: botNode.id.toString(),
+//         type: botNode.type,
+//         position: botNode.position,
+//         data: { label: botNode.data.label || 'No label provided' },
+//         width: botNode.width,
+//         height: botNode.height,
+//         selected: botNode.selected,
+//         dragging: botNode.dragging,
+//         positionAbsolute: botNode.positionAbsolute,
+//         edges: [], // Initialize edges array for each node
+//       });
+//     });
+
+//     // Add edges to respective nodes in nodeMap
+//     bots.edges.forEach((edge) => {
+//       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
+//         nodeMap.get(edge.source).edges.push(edge);
+//         nodeMap.get(edge.target).edges.push(edge);
+//       }
+//     });
+
+//     // Convert nodeMap back to an array of nodes
+//     const newNodes = Array.from(nodeMap.values());
+
+//     // Update state with new nodes and edges
+//     setNodes(newNodes);
+//     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
+//   }
+// }, [bots, setNodes, setEdges]);
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+
+  const fetchData = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/template/getbyid?id=${id}`,
+       
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/getbyid?id=${id}`, 
         {
           method: "GET",
           headers: {
@@ -677,55 +742,41 @@ const {id } = useParams()
       );
       const result = await response.json();
       console.log(result.data);
-      setBots(result.data);
+      console.log(result.data.node);
+
+      // If result.data contains node and edges as JSON strings
+    //   const parsedNodes = JSON.parse(result.data.node );
+    //   const parsedEdges = JSON.parse(result.data.edges );
+
+     setNodes(result.data.node);
+    setEdges(result.data.edges);
     } catch (error) {
-      console.log(error);
-      // showAlert("Internal server error", "error");
+      console.log("API error:", error.message);
     }
   };
-
-  useEffect(() => {
-    fetchBot();
-  }, []);
-
+  console.log(nodes)
 
 useEffect(() => {
-  if (bots && bots.node && Array.isArray(bots.node) && bots.edges && Array.isArray(bots.edges)) {
-    const nodeMap = new Map();
 
-    // Add nodes to the nodeMap
-    bots.node.forEach((botNode) => {
-      nodeMap.set(botNode.id, {
-        id: botNode.id.toString(),
-        type: botNode.type,
-        position: botNode.position,
-        data: { label: botNode.data.label || 'No label provided' },
-        width: botNode.width,
-        height: botNode.height,
-        selected: botNode.selected,
-        dragging: botNode.dragging,
-        positionAbsolute: botNode.positionAbsolute,
-        edges: [], // Initialize edges array for each node
-      });
-    });
 
-    // Add edges to respective nodes in nodeMap
-    bots.edges.forEach((edge) => {
-      if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-        nodeMap.get(edge.source).edges.push(edge);
-        nodeMap.get(edge.target).edges.push(edge);
-      }
-    });
 
-    // Convert nodeMap back to an array of nodes
-    const newNodes = Array.from(nodeMap.values());
+    // try {
+    //   const res = await fetch('http://216.10.251.154:2500/template/getbyid?id=10');
+    //   if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    //   const data = await res.json();
+    //   const parsedNodes = JSON.parse(data.node || '[]');
+    //   const parsedEdges = JSON.parse(data.edges || '[]');
+    //   setNodes(parsedNodes);
+    //   setEdges(parsedEdges);
+    // } catch (err) {
+    //   console.error("API error:", err.message);
+    // }
+  
 
-    // Update state with new nodes and edges
-    setNodes(newNodes);
-    setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-  }
-}, [bots, setNodes, setEdges]);
- 
+  fetchData();
+}, [id]);
+
+
   
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
@@ -768,18 +819,18 @@ useEffect(() => {
 
       <Box
         flex={1}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
+        // onDrop={onDrop}
+        // onDragOver={onDragOver}
         bg="#474d6d"
         fontSize="10px"
       >
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
+        //   onNodesChange={onNodesChange}
+        //   onEdgesChange={onEdgesChange}
+        //   onConnect={onConnect}
+        //   nodeTypes={nodeTypes}
           fitView
         >
           <Background />
