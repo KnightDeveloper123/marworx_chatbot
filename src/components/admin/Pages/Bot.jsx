@@ -133,7 +133,7 @@ export default function Bot() {
                             {/* <LuEye  size={20} color={"#3550FF"}  onClick={() =>  navigate(`/view/${item.id}`)} /> */}
                         </Box>
                       </Flex>
-                      {/* <Menu>
+                      <Menu>
                         <MenuButton
                           bgColor="transparent"
                           _hover={{
@@ -166,7 +166,7 @@ export default function Bot() {
                             </Text>
                           </MenuItem>
                         </MenuList>
-                      </Menu> */}
+                      </Menu>
                     </Td>
                   </Tr>
                 );
