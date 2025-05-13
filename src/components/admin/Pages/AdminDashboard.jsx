@@ -33,7 +33,7 @@ const AdminDashboard = () => {
 
   const admin_id = decrypt(user).id
   const user_role = decrypt(user).role
-  console.log(user_role)
+  // console.log(user_role)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
       );
 
       const result = await response.json();
-      console.log(result)
+      // console.log(result)
       if (result.success) {
         setDashboardData(result.counts)
       } else {

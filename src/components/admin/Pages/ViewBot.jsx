@@ -394,7 +394,7 @@ const blockStyle = {
 
 // Side Panel
 const SidePanel = () => {
-  const { isOpen: isBoxOpen, onToggle } = useDisclosure();
+  const { isOpen: isBoxOpen,  onToggle } = useDisclosure();
 
   const messages = [
     {
@@ -598,67 +598,67 @@ const FlowCanvas = () => {
  
 const {id } = useParams()
 console.log(id)
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "1",
-      type: "custom",
-      data: { label: "Starting point\nWhere your bot begins" },
-      position: { x: 100, y: 150 },
-    },
-  ]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([])
+  //   {
+  //     id: "1",
+  //     type: "custom",
+  //     data: { label: "Starting point\nWhere your bot begins" },
+  //     position: { x: 100, y: 150 },
+  //   },
+  // ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
 
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      const rawData = event.dataTransfer.getData("application/reactflow");
-      if (!rawData) return;
+  // const onDrop = useCallback(
+  //   (event) => {
+  //     event.preventDefault();
+  //     const rawData = event.dataTransfer.getData("application/reactflow");
+  //     if (!rawData) return;
 
-      const block = JSON.parse(rawData);
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
+  //     const block = JSON.parse(rawData);
+  //     const position = screenToFlowPosition({
+  //       x: event.clientX,
+  //       y: event.clientY,
+  //     });
 
-      const newNode = {
-        id: getId(),
-        type: block.type,
-        position,
-        data: { label: block.label },
-      };
+  //     const newNode = {
+  //       id: getId(),
+  //       type: block.type,
+  //       position,
+  //       data: { label: block.label },
+  //     };
 
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [setNodes, screenToFlowPosition]
-  );
+  //     setNodes((nds) => nds.concat(newNode));
+  //   },
+  //   [setNodes, screenToFlowPosition]
+  // );
 
-  const onDragOver = (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  };
+  // const onDragOver = (event) => {
+  //   event.preventDefault();
+  //   event.dataTransfer.dropEffect = "move";
+  // };
   // save on database
-  const saveFlow = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-            Authorization: token,
-         },
-        body: JSON.stringify({
-          flowName: "Welcome Journey",
-          nodes,
-          edges,
-        }),
-      }
-    );
+  // const saveFlow = async () => {
+  //   const response = await fetch(
+  //     `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
+  //     {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json",
+  //           Authorization: token,
+  //        },
+  //       body: JSON.stringify({
+  //         flowName: "Welcome Journey",
+  //         nodes,
+  //         edges,
+  //       }),
+  //     }
+  //   );
 
-    const data = await response.json();
+  //   const data = await response.json();
 
-  };
+  // };
   const [bots, setBots] = useState({});
 
   const fetchBot = async () => {
@@ -686,7 +686,7 @@ console.log(id)
     fetchBot();
   }, []);
 
-
+console.log(bots)
 useEffect(() => {
   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
     const nodeMap = new Map();
@@ -766,8 +766,8 @@ useEffect(() => {
 
       <Box
         flex={1}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
+        // onDrop={onDrop}
+        // onDragOver={onDragOver}
         bg="#474d6d"
         fontSize="10px"
       >
