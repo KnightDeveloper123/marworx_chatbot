@@ -741,15 +741,22 @@ const {id } = useParams()
         }
       );
       const result = await response.json();
-      console.log(result.data);
-      console.log(result.data.node);
+       const { node, edges } = result.data;
 
-      // If result.data contains node and edges as JSON strings
-    //   const parsedNodes = JSON.parse(result.data.node );
-    //   const parsedEdges = JSON.parse(result.data.edges );
+    const parsedNodes = typeof node === "string" ? JSON.parse(node) : node;
+    const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
 
-     setNodes(result.data.node);
-    setEdges(result.data.edges);
+    setNodes(Array.isArray(parsedNodes) ? parsedNodes : []);
+    setEdges(Array.isArray(parsedEdges) ? parsedEdges : []);
+    //   console.log(result.data);
+    //   console.log(result.data.node);
+
+    //   // If result.data contains node and edges as JSON strings
+    // //   const parsedNodes = JSON.parse(result.data.node );
+    // //   const parsedEdges = JSON.parse(result.data.edges );
+
+    //  setNodes(result.data.node);
+    // setEdges(result.data.edges);
     } catch (error) {
       console.log("API error:", error.message);
     }
