@@ -51,6 +51,15 @@ router.post('/create', middleware, (req, res) => {
         res.status(200).json({ success: 'successfully'});
     });
 });
-
+router.get('/getbyid', async (req, res) => {
+    try{
+    const { id } = req.query;
+    const data=await executeQuery(`SELECT * FROM template where id=${id}`) 
+        res.json({data: data[0]});
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:"Internal Server Error"}) 
+    }
+});
 
 module.exports=router;

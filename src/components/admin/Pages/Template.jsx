@@ -204,6 +204,13 @@ const Template = () => {
                   color="var(--text-black)"
                   fontSize="var(--mini-text)"
                 >
+                  ID
+                </Th>
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
                   Industry Name
                 </Th>
                 <Th
@@ -228,6 +235,13 @@ const Template = () => {
               {template && template.map((item, i) => (
                 <Tr key={i+1}>
                   <Td
+                    color={"#404040"}
+                    fontSize="var(--mini-text)"
+                    fontWeight="var(--big-font-weight)"
+                  >
+                    {item.id}
+                  </Td>
+                   <Td
                     color={"#404040"}
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
@@ -258,7 +272,7 @@ const Template = () => {
                         <LuEye
                           size={20}
                           color={"#3550FF"}
-                          onClick={() => navigate(`/create_template/${item.id}`)}
+                          onClick={() => navigate(`/view_template/${item.id}`)}
                         />
                       </Box>
                     </Flex>

@@ -31,6 +31,7 @@ const Bot =lazy(()=>import ('./components/admin/Pages/Bot'))
 const ViewBot = lazy(() => import('./components/admin/Pages/ViewBot'));
 const Template = lazy(()=>import ('./components/admin/Pages/Template'));
 const CreateTemplate = lazy(()=> import('./components/admin/Pages/CreateTemplate'))
+const ViewTemplate = lazy(()=> import('./components/admin/Pages/ViewTemplate'))
 // const MainPage = lazy(() => import('./components/user/MainPage'));
 
 
@@ -54,6 +55,7 @@ return (
           <Route path='bot_builder' element={<BotBuilder />} /> 
           <Route path="view/:id" element={<ViewBot />} />
           <Route path="create_template/:id" element={ <CreateTemplate /> } />
+          <Route path="view_template/:id" element={ <ViewTemplate /> } />
           
           <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
