@@ -46,7 +46,7 @@ router.get('/getAll', middleware, async(req, res)=>{
 
 
 // GET: Fetch flow by ID
-router.get('/getbyid', middleware, async (req, res) => {
+router.get('/getbyid',  async (req, res) => {
     try{
     const { id } = req.query;
     const data=await executeQuery(`SELECT * FROM bots where id=${id}`) 
