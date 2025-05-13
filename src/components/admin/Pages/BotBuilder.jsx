@@ -593,6 +593,7 @@ const SidePanel = () => {
   );
 };
 const token = localStorage.getItem("token");
+
 // Flow Canvas
 const FlowCanvas = () => {
   const navigate=useNavigate()
