@@ -396,7 +396,7 @@ const Sector = () => {
                         </Box>
 
 
-                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
+                        <Box bgColor={"#046E201A"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
                           <FaRobot size={20} color={'green'} />
                         </Box>
                       </Flex>
@@ -926,12 +926,12 @@ const Sector = () => {
           <ModalBody textAlign={'center'}>
             <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Sector?</Text>
           </ModalBody>
-          <ModalFooter display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
-            <Button onClick={() => deleteSector()} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+          <ModalFooter w='100%' display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
+            <Button w='100%' onClick={() => deleteSector()} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
               Delete
             </Button>
-            <Button onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
-              textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
+            <Button w='100%' onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
+              textColor={'#FF5722'} bgColor={'white'}  _hover={''}>
               Cancel
             </Button>
           </ModalFooter>
