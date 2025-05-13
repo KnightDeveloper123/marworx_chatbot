@@ -77,7 +77,7 @@ import { FcBiohazard } from "react-icons/fc";
 import { CiVideoOn } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { decrypt } from "../../utils/security";
 
 const Campaign = () => {
@@ -95,7 +95,14 @@ const Campaign = () => {
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
 
   const user = localStorage.getItem('user')
+  
   const admin_id = decrypt(user).id
+  const location = useLocation();
+  const { type, sectorId } = location.state || {};
+
+  console.log("Bot type:", type);
+  console.log("Sector ID:", sectorId);
+
   const steps = [
     {
       title: "Select Channel",
@@ -125,6 +132,8 @@ const Campaign = () => {
   useEffect(() => {
     fetchCampaign(admin_id);
   }, [])
+
+  
 
   const filteredData = campaign.filter(item =>
     item.template_type.toLowerCase().includes(filteredSectors.toLowerCase())
@@ -196,12 +205,14 @@ const Campaign = () => {
           header: campaignData.header,
           body: campaignData.body,
           admin_id: admin_id,
-          to: campaignData.to
+          to: campaignData.to,
+          sector_id:sectorId,
+         bot_type:type
         })
 
       })
       const result = await response.json();
-      console.log("rer", result)
+      console.log("result", result)
       if (result.success) {
         showAlert("Campaign added successfully", 'success')
         fetchCampaign(admin_id);
@@ -405,18 +416,18 @@ const Campaign = () => {
   }
 
   const statusColors = {
-  Sent: "#001ABF",
-  View: "#268901",
-  Draft: "#686278",
-  Pending: "#BFA300",
-};
+    Sent: "#001ABF",
+    View: "#268901",
+    Draft: "#686278",
+    Pending: "#BFA300",
+  };
 
   const statusBgColors = {
-  Sent: "#CCD1F2",
-  View: "#CCD1F2",
-  Draft: "#CCD1F2",
-  Pending: "#EFEAD2",
-};
+    Sent: "#CCD1F2",
+    View: "#CCD1F2",
+    Draft: "#CCD1F2",
+    Pending: "#EFEAD2",
+  };
 
 
   return (
@@ -621,7 +632,7 @@ const Campaign = () => {
                             fontSize="var(--mini-text)"
                             fontWeight="var(--big-font-weight)"
                           >
-                            <Box bgColor={statusBgColors[d.is_status]}  p={1} borderRadius={"5px"} textAlign={"center"}>
+                            <Box bgColor={statusBgColors[d.is_status]} p={1} borderRadius={"5px"} textAlign={"center"}>
                               <Text color={statusColors[d.is_status]}>{d.is_status}</Text>
                             </Box>
                           </Td>
@@ -1140,14 +1151,14 @@ const Campaign = () => {
                         <Heading fontSize="20px" mb={4}>Create a WhatsApp template</Heading>
                         <Text color={"gray.600"} fontSize={'15px'}>Design a WhatsApp message template that can be used for your WhatsApp campaigns or Transactional sendings. A template needs to be submitted for approval to Meta before it can be sent.</Text>
                         <Box display={'flex'} flexDirection={'column'} >
-                          <FormControl mt={7} isRequired>
+                          {/* <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
                             <Select fontSize="var(--text-12px)" name="sector" placeholder="Select sector" value={campaignData.sector} onChange={handleChange}>
                               {sectors.map((sector) => (
                                 <option value={sector.value} key={sector.value}>{sector.name}</option>
                               ))}
                             </Select>
-                          </FormControl>
+                          </FormControl> */}
                           <FormControl mt={5} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Template Name</FormLabel>
                             <Input name="template_name" value={campaignData.template_name} onChange={handleChange} placeholder="Type the name of your template" fontSize="var(--text-12px)" />
@@ -1157,7 +1168,7 @@ const Campaign = () => {
                             <Select fontSize="var(--text-12px)" name="template_type" value={campaignData.template_type} onChange={handleChange} >
                               <option value='utility'>Utility</option>
                               <option value='marketing '>Marketting</option>
-                              <option value='option3'>alert </option>
+                              <option value='alert'>alert </option>
                             </Select>
                             <FormHelperText>Choose Marketing for promotional communication and Utility for informational messages.</FormHelperText>
                           </FormControl>

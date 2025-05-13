@@ -35,6 +35,10 @@ const AdminDashboard = () => {
   const user_role = decrypt(user).role
   // console.log(user_role)
 
+   const { type, sectorId } = location.state || {};
+  
+
+
   const fetchDashboardData = useCallback(async () => {
     try {
       const response = await fetch(
@@ -106,6 +110,8 @@ const AdminDashboard = () => {
     formData.append("admin_id", admin_id);
     formData.append("file", file.file);
     formData.append("fileName", file.fileName);
+     formData.append("sector_id",  sectorId);
+      formData.append("bot_type", type);  
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/documents/uploadDocument?fileName=${file.fileName}`, {
         method: "POST",

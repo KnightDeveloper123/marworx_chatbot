@@ -28,7 +28,8 @@ const upload = multer({
 router.post('/uploadDocument', middleware, upload.single('file'), async (req, res) => {
     try {
         const { fileName } = req.query;
-        const { admin_id } = req.body
+        const { admin_id,sector_id,bot_type } = req.body
+        
 
         if (!req.file || !fileName) {
             return res.status(400).json({ error: 'File and fileName are required.' });
@@ -42,7 +43,7 @@ router.post('/uploadDocument', middleware, upload.single('file'), async (req, re
             return res.status(400).json({ error: "File with this name and extension already exists" })
         }
 
-        connection.query('INSERT INTO documents (name,admin_id) VALUES (?, ?)', [file_name,admin_id], (err, data) => {
+        connection.query('INSERT INTO documents (name,admin_id,sector_id,bot_type) VALUES (?, ?,?,?)', [file_name,admin_id,sector_id,bot_type], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })

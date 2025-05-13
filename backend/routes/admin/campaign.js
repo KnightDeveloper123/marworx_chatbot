@@ -9,10 +9,10 @@ const { Parser } = require('json2csv');
 
 router.post("/add", middleware, async (req, res) => {
     try {
-        const {  channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id ,to} = req.body;
-        console.log(req.body)
-        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?);'
-        connection.execute(insertQuery, [channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id, to ], (err, data) => {
+        const {  channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id ,to,sector_id,bot_type} = req.body;
+    
+        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`,sector_id,bot_type) values (?, ?, ?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?,?,?);'
+        connection.execute(insertQuery, [channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id, to,sector_id,bot_type ], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
@@ -117,7 +117,7 @@ router.post("/delete", middleware, async (req, res) => {
 router.get('/getCampaign', middleware, async(req, res)=>{
     try{
     const { user_id } = req.query;
-    const data=await executeQuery(`select campaign.*, s.name as sname  from campaign
+    const data=await executeQuery(`select campaign.*, s.name as sname from campaign
         left join sector as s on campaign.sector=s.id
         where campaign.id=${user_id}`) 
     return res.json({data:data[0]})

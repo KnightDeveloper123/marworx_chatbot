@@ -142,13 +142,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    fileName,
-                    fileUrl,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  fileName,
+                  fileUrl,
+                },
+              }
               : node
           )
         );
@@ -596,7 +596,7 @@ const SidePanel = () => {
 
 // Flow Canvas
 const FlowCanvas = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const token = localStorage.getItem('token')
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
@@ -643,6 +643,14 @@ const FlowCanvas = () => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
+
+  const botType = localStorage.getItem("botType");
+  const sectorId = localStorage.getItem("sectorId");
+
+  console.log("Bot Type:", botType);
+  console.log("Sector ID:", sectorId);
+
+
   // save on database
   const saveFlow = async () => {
     try {
@@ -650,27 +658,28 @@ const FlowCanvas = () => {
         `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json",
-            // Authorization : token
-           },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token
+          },
           body: JSON.stringify({
             flowName: "Welcome Journey",
             nodes,
             edges,
-            sector_id:id
+            sector_id: sectorId,
+            bot_type: botType
           }),
         }
       );
 
       const data = await response.json();
       console.log("save sucessfully")
-      navigate('/home/bot')
+      // navigate('/home/bot')
     } catch (error) {
       console.log(error);
       // showAlert("Failed to add Campaign", "error");
     }
   };
-
   //   const [bots, setBots] = useState({});
   //   const [newEdge, setNewEdge] = useState(null);
   //   const fetchBot = async () => {

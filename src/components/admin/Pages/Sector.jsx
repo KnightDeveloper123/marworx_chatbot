@@ -6,11 +6,12 @@ import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { AppContext } from '../../context/AppContext'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
+import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -34,6 +35,8 @@ const Sector = () => {
     }
   });
   const navigate = useNavigate();
+
+
 
   const all_productServices = productService.map(product => ({
     value: product.id,
@@ -152,10 +155,10 @@ const Sector = () => {
 
   }
 
-  const [sectorId, setSectorId] = useState(null)
+  const [sectorid, setSectorid] = useState(null)
   const openDeleteModal = (id) => {
     onDeleteOpen()
-    setSectorId(id)
+    setSectorid(id)
   }
   const deleteSector = async () => {
     try {
@@ -166,7 +169,7 @@ const Sector = () => {
           Authorization: token
         },
         body: JSON.stringify({
-          sector_id: sectorId
+          sector_id: sectorid
         })
       })
       const result = await response.json();
@@ -208,37 +211,34 @@ const Sector = () => {
   ];
   const bg = useColorModeValue('gray.50');
 
-  const botCreate = (id) => {
-    onBotOpen();
-    console.log(id)
-  }
-  // const saveFlow = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: token
-  //         },
-  //         body: JSON.stringify({
-  //           flowName: "Welcome Journey",
-  //           nodes,
-  //           edges,
-  //           sector_id: id
-  //         }),
-  //       }
-  //     );
 
-  //     const data = await response.json();
-  //     console.log("save sucessfully")
-  //     // navigate('/home/bot')
-  //   } catch (error) {
-  //     console.log(error);
-  //     // showAlert("Failed to add Campaign", "error");
-  //   }
-  // };
+
+
+  // const botCreate = (id) => {
+  //   onBotOpen();
+  //   console.log(id)
+  // }
+
+  const [selectedSectorId, setSelectedSectorId] = useState(null);
+  const [selectedBotType, setSelectedBotType] = useState(null)
+  console.log(selectedBotType)
+
+  const botCreate = (id) => {
+    setSelectedSectorId(id);  // Save the sector ID
+    onBotOpen();              // Open the modal
+  };
+
+  const botTypes = [
+    { label: "Algorithmic", type: "algorithmic" },
+    { label: "Campaign", type: "campaign", path: "/home/campaign" },
+    { label: "Generative", type: "generative", path: "/home/gen_bot" }
+  ];
+
+
+
+
+
+
 
   return (
     <Card>
@@ -396,11 +396,12 @@ const Sector = () => {
 
 
                         <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
-                          <FaRobot size={20} color={'green'} /></Box>
+                          <FaRobot size={20} color={'green'} />
+                        </Box>
                       </Flex>
 
 
-                      <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'} >
+                      {/* <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'} >
                         <ModalOverlay />
                         <ModalContent padding={'20px'}>
 
@@ -413,9 +414,64 @@ const Sector = () => {
                               <GridItem>
                                 <Box onClick={onAlgOpen} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Algorithmic</Box></GridItem>
                               <GridItem>
-                                <Box onClick={() => navigate('/home/campaign')} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Campaign</Box></GridItem>
+                                <Box display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Campaign</Box></GridItem>
                               <GridItem>
-                                <Box onClick={() => navigate('/home/gen_bot')} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Generative</Box></GridItem>
+                                <Box display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Generative</Box></GridItem>
+                            </Grid>
+                          </ModalBody>
+                        </ModalContent>
+                      </Modal> */}
+
+
+                      <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'}>
+                        <ModalOverlay />
+                        <ModalContent padding={'20px'}>
+                          <Box display={'flex'} justifyContent={'center'}>
+                            <Text padding={'10px'} backgroundColor={'black'} textAlign={'center'} width={'350px'} color={'white'}>Build Chat Bot for Automobile</Text>
+                          </Box>
+                          <ModalCloseButton />
+                          <ModalBody mt={'20px'}>
+                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' gap={'10px'}>
+                              {botTypes.map((bot) => (
+                                <GridItem key={bot.type}>
+                                  <Box
+                                    onClick={() => {
+                                      setSelectedBotType(bot.type)
+                                      localStorage.setItem("botType", bot.type);
+                                      localStorage.setItem("sectorId", selectedSectorId);
+                                      if (bot.type === "algorithmic") {
+
+                                        onAlgOpen(); // Open second modal
+                                        // onBotClose();
+
+
+                                      } else {
+                                        navigate(bot.path, {
+                                          state: { type: bot.type, sectorId: selectedSectorId }
+                                        });
+                                        onBotClose();
+                                      }
+                                    }}
+                                    // onClick={() => {
+                                    //   onBotClose(); // Close modal
+                                    //   navigate(bot.path, {
+                                    //     state: { type: bot.type, sectorId: selectedSectorId }
+                                    //   });
+                                    // }}
+                                    display={'flex'}
+                                    justifyContent={'center'}
+                                    alignItems={'center'}
+                                    width={'160px'}
+                                    height={'140px'}
+                                    borderTopRightRadius={'15px'}
+                                    backgroundColor={'black'}
+                                    color={'white'}
+                                    cursor={'pointer'}
+                                  >
+                                    {bot.label}
+                                  </Box>
+                                </GridItem>
+                              ))}
                             </Grid>
                           </ModalBody>
                         </ModalContent>
@@ -423,17 +479,24 @@ const Sector = () => {
 
 
 
-
                       {/* const bg = useColorModeValue('gray.100', 'gray.700'); */}
                       <Modal isOpen={isAlgOpen} onClose={onAlgClose} size={'2xl'} >
                         <ModalOverlay />
                         <ModalContent>
+
                           <ModalCloseButton />
                           <ModalBody mt={'10px'}>
+                            <Box onClick={() => {
+                              onAlgClose();
+                              onBotOpen(); // Reopen first modal if needed
+                            }}>
+                              <HiOutlineArrowSmLeft />
+                            </Box>
                             <Box textAlign="center" py={10}>
                               <Heading mb={5} fontSize="3xl">
                                 Start building!
                               </Heading>
+
                               <Box
                                 display={'flex'}
                                 gap={6}
