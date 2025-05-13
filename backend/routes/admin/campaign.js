@@ -130,6 +130,7 @@ router.get('/getCampaign', middleware, async(req, res)=>{
 router.get('/getAllCampaign', middleware, async(req, res)=>{
     try{
    const { admin_id } = req.query;
+   
     const data=await executeQuery(`select campaign.*, s.name as sname
         from campaign 
        left join sector as s on campaign.sector=s.id
