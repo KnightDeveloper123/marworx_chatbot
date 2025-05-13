@@ -291,7 +291,7 @@ function Navbar() {
                 <ModalCloseButton />
                 <ModalBody>
                   <Box as="form" id="updateProfileForm" onSubmit={handleSubmit(onSubmit)}>
-                    <FormControl>
+                    <FormControl isRequired>
                       <FormLabel htmlFor="name" fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
                       <Input
                         id="name"
@@ -302,7 +302,7 @@ function Navbar() {
                       {errors.name && <Text color="red.500">{errors.name.message}</Text>}
                     </FormControl>
 
-                    <FormControl mt={4}>
+                    <FormControl isRequired mt={4}>
                       <FormLabel htmlFor="mobile_no" fontSize="var(--mini-text)" mb={'2px'}>Mobile No:</FormLabel>
                       <Input
                         id="mobile_no"
@@ -313,24 +313,51 @@ function Navbar() {
                       {errors.mobile_no && <Text color="red.500">{errors.mobile_no.message}</Text>}
                     </FormControl>
 
-                    <FormControl mt={4}>
+                    {/* <FormControl isRequired mt={4}>
                       <FormLabel htmlFor="profile" fontSize="var(--mini-text)" mb={'2px'}>Profile Picture</FormLabel>
                       <Input
                         id="profile"
                         type="file"
                         {...register('profile')} fontSize="var(--text-12px)"
                       />
-                    </FormControl>
+                    </FormControl> */}
+
+                    <FormControl isRequired mt={4}>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                      Profile Picture
+                                    </FormLabel>
+                                    <Input
+                                      type="file"
+                                      {...register('profile')}
+                                      fontSize="var(--text-12px)"
+                                      colorScheme="orange"
+                                      sx={{
+                                        "::file-selector-button": {
+                                          backgroundColor: "#FF5722",
+                                          color: "white",
+                                          border: "none",
+                                          padding: "6px 12px",
+                                          borderRadius: "6px",
+                                          cursor: "pointer",
+                                          fontSize: "var(--text-12px)",
+                                        },
+                                        "::file-selector-button:hover": {
+                                          backgroundColor: "#e64a19",
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
                   </Box>
                 </ModalBody>
 
-                <ModalFooter justifyContent={'center'} gap={'5px'}>
-                  <Button w='100%' type="submit" form="updateProfileForm" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} 
-                  textColor={'white'} size={'sm'} >Update</Button>
+                <ModalFooter justifyContent={'center'} gap={'5px'} w={"100%"}>
+                  
                    <Button w='100%' size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                       textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''} onClick={onProfileClose}>
                     Close
                   </Button>
+                  <Button w='100%' type="submit" form="updateProfileForm" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} 
+                  textColor={'white'} size={'sm'} >Update</Button>
                 </ModalFooter>
               </ModalContent>
             </Modal>
@@ -412,20 +439,20 @@ function Navbar() {
               <ModalCloseButton />
               <ModalBody>
                 <Box as="form" onSubmit={handleSubmitPass(onPasswordSubmit)} display={'flex'} flexDirection={'column'} gap={'5px'}>
-                  <FormControl>
+                  <FormControl isRequired>
                     <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Email</FormLabel>
                     <Input type="email"  {...registerPass('email')} fontSize="var(--text-12px)" autoComplete='off'></Input>
                   </FormControl>
-                  <FormControl>
+                  <FormControl isRequired>
                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>New Password</FormLabel>
                     <Input type="password"   {...registerPass('password')} fontSize="var(--text-12px)"  ></Input>
-                  </FormControl>
-                  <Box mt={'6px'} display={'flex'} gap={'5px'} justifyContent={'center'}>
-                    <Button type="submit" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >Save</Button>
-                    <Button onClick={onPasswordClose} size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                  </FormControl >
+                  <Box w={'100%'} mt={'6px'} display={'flex'} gap={'5px'} justifyContent={'center'}>
+                    <Button w={'100%'} onClick={onPasswordClose} size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                       textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>
                       Close
                     </Button>
+                      <Button w={'100%'} type="submit" fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'} >Save</Button>
                   </Box>
                 </Box>
               </ModalBody>
