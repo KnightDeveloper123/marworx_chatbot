@@ -114,4 +114,19 @@ router.get("/getAllDocuments", async (req, res) => {
     }
 });
 
+router.get("/getAlldocfiles", async (req, res) => {
+    try {
+        // const {admin_id}=req.query;
+        connection.query(`select * from documents where status=0`, (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "Something went wrong" })
+            }
+            return res.json({ success: "success", data })
+        })
+    } catch (error) {
+        console.error("Error in /getAllQueries:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}); 
 module.exports = router;
