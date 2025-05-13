@@ -418,7 +418,7 @@ const Sector = () => {
                                 <Box onClick={() => navigate('/home/gen_bot')} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Generative</Box></GridItem>
                             </Grid>
                           </ModalBody>
-    </ModalContent>
+                        </ModalContent>
                       </Modal>
 
 
