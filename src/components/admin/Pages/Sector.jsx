@@ -1,6 +1,6 @@
+import React, { useContext, useEffect, useState } from 'react'
 import { DeleteIcon } from '@chakra-ui/icons'
 import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip } from '@chakra-ui/react'
-import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
@@ -13,7 +13,7 @@ import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { LuCloudUpload } from "react-icons/lu";
-import template from '../../../assets/template.jpg'
+import TemViw from "../../../assets/template.png"
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -403,27 +403,7 @@ const Sector = () => {
                       </Flex>
 
 
-                      {/* <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'} >
-                        <ModalOverlay />
-                        <ModalContent padding={'20px'}>
-
-                          <Box display={'flex'} justifyContent={'center'}>
-                            <Text padding={'10px'} backgroundColor={'black'} textAlign={'center'} width={'350px'} color={'white'}>Build Chat Bot for Automobile</Text>
-                          </Box>
-                          <ModalCloseButton />
-                          <ModalBody mt={'20px'}>
-                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' gap={'10px'}>
-                              <GridItem>
-                                <Box onClick={onAlgOpen} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Algorithmic</Box></GridItem>
-                              <GridItem>
-                                <Box display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Campaign</Box></GridItem>
-                              <GridItem>
-                                <Box display={'flex'} justifyContent={'center'} alignItems={'center'} width={'160px'} height={'140px'} borderTopRightRadius={'15px'} backgroundColor={'black'} color={'white'}>Generative</Box></GridItem>
-                            </Grid>
-                          </ModalBody>
-                        </ModalContent>
-                      </Modal> */}
-
+                    
 
                       <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'}>
                         <ModalOverlay />
@@ -566,7 +546,7 @@ const Sector = () => {
                                     bg="white"
                                   >
                                     <Image
-                                      src={template}
+                                      src={TemViw}
                                       height="188px"
                                       width="100%"
                                       objectFit="cover"
@@ -619,148 +599,10 @@ const Sector = () => {
                         </ModalContent>
                       </Modal>
 
-                      {/* <Modal isOpen={isTemplateOpen} onClose={onTemplateClose} size="4xl">
-                        <ModalOverlay />
-                        <ModalContent>
-                          <ModalHeader fontSize="18px">Select Template</ModalHeader>
-                          <ModalCloseButton />
-                          <ModalBody pb={6}>
-                            <Box maxHeight="330px" overflowY="auto">
-                              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                                {template.map((temp, index) => (
-                                  <GridItem
-                                    key={index}
-                                    boxShadow="lg"
-                                    borderRadius="8px"
-                                    border="1px solid lightgray"
-                                    overflow="hidden"
-                                    bg="white"
-                                  >
-                                    <Image
-                                      src="/Rectangle 189.png"
-                                      height="188px"
-                                      width="100%"
-                                      objectFit="cover"
-                                    />
-                                    <Box p="10px">
-                                      <Text fontWeight="600" fontSize="20px" color="#FF5F35">
-                                        {temp.category}
-                                      </Text>
-                                      <Text fontSize="16px" mb={4}>
-                                        {temp.description}
-                                      </Text>
-                                      <Button
-                                        width="full"
-                                        textAlign="center"
-                                        size="sm"
-                                        fontSize="15px"
-                                        bgColor="#FF5F35"
-                                        color="white"
-                                        _hover={{ bg: "#e14a1d" }}
-                                        onClick={() => navigate(`/view_template/${temp.id}`)}
-                                      >
-                                        Use
-                                      </Button>
-                                    </Box>
-                                  </GridItem>
-                                ))}
-                              </Grid>
-                            </Box>
-                          </ModalBody>
-                        </ModalContent>
-                      </Modal> */}
-
-                      {/* <Modal isOpen={isTemplateOpen}
-                        onClose={onTemplateClose} size={'4xl'} >
-                        <ModalOverlay />
-                        <ModalContent>
-                          <ModalHeader fontSize={'18px'}>Select Template</ModalHeader>
-                          <ModalCloseButton />
-                          <ModalBody pb={6}>
-                            <Box height="320px" overflowY={'auto'}  >
-                              <Box>
-                                <Grid templateColumns={'repeat(3,1fr)'} gap={'6px'} >
-                                  {
-                                    template.map((temp) => (
-                                      <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
-                                        <Image src='/Rectangle 189.png' height={'188px'} width={'300px'}></Image>
-                                        <Box padding={'20px'} >
-                                          <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>{temp.category}</Text>
-                                          <Text fontSize={'16px'}>This is whatsapp bot template</Text>
-                                          <Button width={'full'} textAlign={'center'} size={'sm'}
-                                            fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
-                                        </Box>
-                                      </GridItem>
-                                    ))
-                                  }
-
-                                  <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
-                                    <Image src={template} height={'188px'} width={'300px'}></Image>
-                                    <Box padding={'20px'} >
-                                      <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>Lead Gen Template</Text>
-                                      <Text fontSize={'16px'}>This is whatsapp bot template</Text>
-                                      <Button width={'full'} textAlign={'center'} size={'sm'}
-                                        fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
-                                    </Box>
-                                  </GridItem>
-                                  <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
-                                    <Image src={template} height={'188px'} width={'300px'} ></Image>
-                                    <Box padding={'20px'} >
-                                      <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>Lead Gen Template</Text>
-                                      <Text fontSize={'16px'}>This is whatsapp bot template</Text>
-                                      <Button width={'full'} textAlign={'center'} size={'sm'}
-                                        fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
-                                    </Box>
-                                  </GridItem>
-
-                                </Grid>
-                              </Box>
-                            </Box>
-                          </ModalBody>
-                        </ModalContent>
-
-                      </Modal> */}
+                     
 
 
 
-
-                      {/* <Menu>
-                        <MenuButton
-                          bgColor="transparent"
-                          _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          as={Button}
-                        >
-                          <RxDotsHorizontal />
-                        </MenuButton>
-                        <MenuList gap={2} >
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-
-                            onClick={() => editSector(sector)}
-                            display={'flex'} alignItems={'center'} gap={2}
-                          >
-                            <MdOutlineModeEdit color="green" />
-                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
-                              Edit
-                            </Text>
-                          </MenuItem>
-                          <Divider />
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-                            cursor="pointer"
-                            onClick={() => openDeleteModal(sector.id)}
-
-                          >
-                            <Flex gap={2} alignItems="center">
-                              <DeleteIcon color={"red"} />
-                              <Text >Delete</Text>
-                            </Flex>
-                          </MenuItem>
-                        </MenuList> 
-                      </Menu>*/}
                     </Td>
                   </Tr>
                 ))
