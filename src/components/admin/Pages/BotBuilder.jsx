@@ -644,9 +644,8 @@ const FlowCanvas = () => {
 
   const botType = localStorage.getItem('botType')
   const sectorId = localStorage.getItem('sectorId')
+  const admin_id = localStorage.getItem('admin_id')
 
-  console.log('Bot Type:', botType)
-  console.log('Sector ID:', sectorId)
 
   // save on database
   const saveFlow = async () => {
@@ -657,91 +656,28 @@ const FlowCanvas = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: token
+            // Authorization: token
           },
           body: JSON.stringify({
             flowName: 'Welcome Journey',
             nodes,
             edges,
             sector_id: sectorId,
-            bot_type: botType
+            bot_type: botType,
+            admin_id:admin_id
           })
         }
       )
 
       const data = await response.json()
       console.log('save sucessfully')
-      // navigate('/home/bot')
+      navigate('/home/bot')
     } catch (error) {
       console.log(error)
       // showAlert("Failed to add Campaign", "error");
     }
   }
-  //   const [bots, setBots] = useState({});
-  //   const [newEdge, setNewEdge] = useState(null);
-  //   const fetchBot = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=1`,
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: token,
-  //           },
-  //         }
-  //       );
-  //       const result = await response.json();
-  //       // console.log(result);
-  //       setBots(result.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //       // showAlert("Internal server error", "error");
-  //     }
-  //   };
-
-  //   useEffect(() => {
-  //     fetchBot();
-  //   }, []);
-
-  //   console.log(bots)
-
-  // useEffect(() => {
-  //   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
-  //     const nodeMap = new Map();
-
-  //     // Add nodes to the nodeMap
-  //     bots.nodes.forEach((botNode) => {
-  //       nodeMap.set(botNode.id, {
-  //         id: botNode.id.toString(),
-  //         type: botNode.type,
-  //         position: botNode.position,
-  //         data: { label: botNode.data.label || 'No label provided' },
-  //         width: botNode.width,
-  //         height: botNode.height,
-  //         selected: botNode.selected,
-  //         dragging: botNode.dragging,
-  //         positionAbsolute: botNode.positionAbsolute,
-  //         edges: [], // Initialize edges array for each node
-  //       });
-  //     });
-
-  //     // Add edges to respective nodes in nodeMap
-  //     bots.edges.forEach((edge) => {
-  //       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-  //         nodeMap.get(edge.source).edges.push(edge);
-  //         nodeMap.get(edge.target).edges.push(edge);
-  //       }
-  //     });
-
-  //     // Convert nodeMap back to an array of nodes
-  //     const newNodes = Array.from(nodeMap.values());
-
-  //     // Update state with new nodes and edges
-  //     setNodes(newNodes);
-  //     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-  //   }
-  // }, [bots, setNodes, setEdges]);
+ 
 
   return (
     <Box flex={1} height='100vh' display='flex' flexDirection='column' p='5px'>

@@ -479,8 +479,23 @@ router.post("/getActiveStatus", middleware, async (req, res) => {
     }
 });
 
-
-
+router.get('/getAdminCount', middleware, async (req, res) => {
+    try {
+      const activeBot=await executeQuery(`SELECT COUNT(*) AS active_bots FROM bots WHERE created_at >= NOW() - INTERVAL 30 DAY`)
+      const campaignSent= await executeQuery(`SELECT COUNT(*) AS sent_campaigan FROM campaign WHERE is_status= Sent`)
+      const monthlyUser=await executeQuery(`SELECT DATE_FORMAT(created_at, '%Y-%m') AS registration_month, COUNT(*) AS monthly_active_users
+            FROM admin
+            WHERE created_at IS NOT NULL
+            GROUP BY registration_month
+            ORDER BY registration_month DESC;
+            `)
+            return res.json({ success: "success", activeBot: activeBot[0],campaignSent: campaignSent[0] , monthlyUser: monthlyUser[0]})
+        // })
+    } catch (error) {
+        console.error("Error in /getAllQueriesById:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+})
 
 
 

@@ -13,7 +13,7 @@ import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { LuCloudUpload } from "react-icons/lu";
-import template from '../../../assets/Rectangle 189.png'
+import template from '../../../assets/template.jpg'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -566,7 +566,7 @@ const Sector = () => {
                                     bg="white"
                                   >
                                     <Image
-                                      src="/Rectangle 189.png"
+                                      src={template}
                                       height="188px"
                                       width="100%"
                                       objectFit="cover"

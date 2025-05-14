@@ -598,67 +598,50 @@ const FlowCanvas = () => {
   // console.log(token)
 const {id } = useParams()
 // console.log(id)
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "1",
-      type: "custom",
-      data: { label: "Starting point\nWhere your bot begins" },
-      position: { x: 100, y: 150 },
-    },
-  ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { screenToFlowPosition } = useReactFlow();
+  // const [nodes, setNodes, onNodesChange] = useNodesState([
+  //   {
+  //     id: "1",
+  //     type: "custom",
+  //     data: { label: "Starting point\nWhere your bot begins" },
+  //     position: { x: 100, y: 150 },
+  //   },
+  // ]);
+  // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  // const { screenToFlowPosition } = useReactFlow();
 
-  const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
+  // const onConnect = useCallback( (params) => setEdges((eds) => addEdge({ ...params, type: "smoothstep" }, eds)),[setEdges] );
 
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      const rawData = event.dataTransfer.getData("application/reactflow");
-      if (!rawData) return;
+  // const onDrop = useCallback(
+  //   (event) => {
+  //     event.preventDefault();
+  //     const rawData = event.dataTransfer.getData("application/reactflow");
+  //     if (!rawData) return;
 
-      const block = JSON.parse(rawData);
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
+  //     const block = JSON.parse(rawData);
+  //     const position = screenToFlowPosition({
+  //       x: event.clientX,
+  //       y: event.clientY,
+  //     });
 
-      const newNode = {
-        id: getId(),
-        type: block.type,
-        position,
-        data: { label: block.label },
-      };
+  //     const newNode = {
+  //       id: getId(),
+  //       type: block.type,
+  //       position,
+  //       data: { label: block.label },
+  //     };
 
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [setNodes, screenToFlowPosition]
-  );
+  //     setNodes((nds) => nds.concat(newNode));
+  //   },
+  //   [setNodes, screenToFlowPosition]
+  // );
 
-  const onDragOver = (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  };
+  // const onDragOver = (event) => {
+  //   event.preventDefault();
+  //   event.dataTransfer.dropEffect = "move";
+  // };
   // save on database
-  const saveFlow = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-            // Authorization: token,
-         },
-        body: JSON.stringify({
-          flowName: "Welcome Journey",
-          nodes,
-          edges,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-  };
+   const [nodes, setNodes] = useState([]);
+   const [edges, setEdges] = useState([]);
   const [bots, setBots] = useState({});
 
   const fetchBot = async () => {
@@ -674,8 +657,13 @@ const {id } = useParams()
         }
       );
       const result = await response.json();
-      // console.log(result);
-      setBots(result.data);
+    const { nodes, edges } = result.data;
+
+    const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
+    const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
+
+    setNodes(Array.isArray(parsedNodes) ? parsedNodes : []);
+    setEdges(Array.isArray(parsedEdges) ? parsedEdges : []);
     } catch (error) {
       console.log(error);
       // showAlert("Internal server error", "error");
@@ -687,42 +675,42 @@ const {id } = useParams()
   }, []);
 
 
-useEffect(() => {
-  if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
-    const nodeMap = new Map();
+// useEffect(() => {
+//   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
+//     const nodeMap = new Map();
 
-    // Add nodes to the nodeMap
-    bots.nodes.forEach((botNode) => {
-      nodeMap.set(botNode.id, {
-        id: botNode.id.toString(),
-        type: botNode.type,
-        position: botNode.position,
-        data: { label: botNode.data.label || 'No label provided' },
-        width: botNode.width,
-        height: botNode.height,
-        selected: botNode.selected,
-        dragging: botNode.dragging,
-        positionAbsolute: botNode.positionAbsolute,
-        edges: [], // Initialize edges array for each node
-      });
-    });
+//     // Add nodes to the nodeMap
+//     bots.nodes.forEach((botNode) => {
+//       nodeMap.set(botNode.id, {
+//         id: botNode.id.toString(),
+//         type: botNode.type,
+//         position: botNode.position,
+//         data: { label: botNode.data.label || 'No label provided' },
+//         width: botNode.width,
+//         height: botNode.height,
+//         selected: botNode.selected,
+//         dragging: botNode.dragging,
+//         positionAbsolute: botNode.positionAbsolute,
+//         edges: [], // Initialize edges array for each node
+//       });
+//     });
 
-    // Add edges to respective nodes in nodeMap
-    bots.edges.forEach((edge) => {
-      if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-        nodeMap.get(edge.source).edges.push(edge);
-        nodeMap.get(edge.target).edges.push(edge);
-      }
-    });
+//     // Add edges to respective nodes in nodeMap
+//     bots.edges.forEach((edge) => {
+//       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
+//         nodeMap.get(edge.source).edges.push(edge);
+//         nodeMap.get(edge.target).edges.push(edge);
+//       }
+//     });
 
-    // Convert nodeMap back to an array of nodes
-    const newNodes = Array.from(nodeMap.values());
+//     // Convert nodeMap back to an array of nodes
+//     const newNodes = Array.from(nodeMap.values());
 
-    // Update state with new nodes and edges
-    setNodes(newNodes);
-    setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-  }
-}, [bots, setNodes, setEdges]);
+//     // Update state with new nodes and edges
+//     setNodes(newNodes);
+//     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
+//   }
+// }, [bots, setNodes, setEdges]);
  
   
   return (
@@ -766,18 +754,18 @@ useEffect(() => {
 
       <Box
         flex={1}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
+        // onDrop={onDrop}
+        // onDragOver={onDragOver}
         bg="#474d6d"
         fontSize="10px"
       >
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
+          // onNodesChange={onNodesChange}
+          // onEdgesChange={onEdgesChange}
+          // onConnect={onConnect}
+          // nodeTypes={nodeTypes}
           fitView
         >
           <Background />

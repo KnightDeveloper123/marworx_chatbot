@@ -761,7 +761,7 @@ const {id } = useParams()
       console.log("API error:", error.message);
     }
   };
-  console.log(nodes)
+  // console.log(nodes)
 
 useEffect(() => {
 

@@ -56,9 +56,6 @@ const AdminDashboard = () => {
   const location = useLocation()
 
   const user = localStorage.getItem('user')
-
-  // console.log(decrypt(user))
-
   const admin_id = decrypt(user).id
   const user_role = decrypt(user).role
   // console.log(user_role)
@@ -291,6 +288,7 @@ const AdminDashboard = () => {
     }
   })
 
+  
   return (
     <Flex flexDirection='column' w='100%' h='100%' pt={'20px'}>
       {location.pathname === '/home/dashboard' && (

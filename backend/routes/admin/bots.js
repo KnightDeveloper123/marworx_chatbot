@@ -9,16 +9,27 @@ const { middleware } = require('../../middleware/middleware');
 
 
 router.post('/add', (req, res) => {
-    const { flowName, nodes, edges ,sector_id,bot_type} = req.body;
+    const { flowName, nodes, edges ,sector_id,bot_type, admin_id} = req.body;
 
-    const sql = `INSERT INTO bots(name, nodes, edges,sector_id,bot_type) VALUES (?, ?, ?,?,?)`;
-    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges),sector_id,bot_type], (err, result) => {
+    const sql = `INSERT INTO bots(name, nodes, edges,sector_id,bot_type, admin_id) VALUES (?, ?, ?, ?, ?, ?)`;
+    connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges),sector_id,bot_type, admin_id], (err, result) => {
         if (err) {
             console.error('Error saving flow:', err);
             return res.status(500).json({ message: 'Database error' });
         }
-        console.log(result)
+        
+        // const botId=result.id; 
+       
+        // const insertQuery=`INSERT INTO bot_events (bot_id, bot_type, event_type, admin_id ) VALUES (?, ?, 'complete', ?);`
+        //  connection.query(insertQuery, [botId, bot_type, admin_id], ()=>{
+        //     if(err){
+        //     console.error('Error saving flow:', err);
+        //     return res.status(500).json({ message: 'Database error' });
+        //     }
+        // })   
         res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
+        
+
     });
 });
 
