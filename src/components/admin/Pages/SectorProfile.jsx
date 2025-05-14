@@ -25,9 +25,10 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { AppContext } from "../../context/AppContext";
 import Card from "../../../Card";
+import TemViw from "../../../assets/template.png"
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -35,6 +36,9 @@ const SectorProfile = () => {
     const { id } = useParams();
     const [sector, setSector] = useState({});
     const [products, setProducts] = useState([]);
+
+    const navigate=useNavigate();
+    const token=localStorage.getItem("token")
 
     const sectorData = async () => {
         try {
@@ -88,14 +92,36 @@ const SectorProfile = () => {
                     headers: { Authorization: `${token}` },
                 }
             );
-            // console.log(response.data.data, "products")
+          
             setProducts(response.data.data);
         } catch (err) {
             console.error("Failed to fetch sector data", err);
         }
     };
 
- 
+    const [linkedBots, setLinkedBots] = useState([])
+
+    const fetchLinkedBots = async () => {
+        try {
+            const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization:token
+                }
+
+            })
+            const result = await data.json();
+           setLinkedBots(result?.data?.bots);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchLinkedBots()
+    }, [])
+
 
     useEffect(() => {
         sectorData();
@@ -207,21 +233,34 @@ const SectorProfile = () => {
                                 <TabPanel>
 
                                     <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' fontSize="var(--mini-text)"
-                    fontWeight="var(--big-font-weight)">
+                                        fontWeight="var(--big-font-weight)">
                                         {products.map((product, index) => (
                                             <Card key={index}>
-                                            <Image src={`${import.meta.env.VITE_BACKEND_URL}/products/${product.image}`} />
-                                            <Text fontWeight="var(--big-font-weight)" textAlign={"center"} mt={2}>{product.product_name}</Text>
-                                            <Text textAlign={"center"} mt={2}>{product.product_description}</Text>
-                                        </Card>
+                                                <Image src={`${import.meta.env.VITE_BACKEND_URL}/products/${product.image}`} />
+                                                <Text fontWeight="var(--big-font-weight)" textAlign={"center"} mt={2}>{product.product_name}</Text>
+                                                <Text textAlign={"center"} mt={2}>{product.product_description}</Text>
+                                            </Card>
                                         ))}
                                     </SimpleGrid>
 
 
                                 </TabPanel>
+                                <TabPanel>
+                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'   _hover={{cursor:'pointer'}}>
+                                        {linkedBots.map((bot, index) => (
+                                            <Card key={index}>
+                                                <Image src={TemViw}  onClick={()=>navigate(`/view/${bot.id}`)}/>
+
+                                                <Text textAlign="center" mt={2} >{bot.name}</Text>
+                                            </Card>
+                                        ))}
+                                    </SimpleGrid>
+
+                                    
+                                </TabPanel>
 
                                 <TabPanel>
-                                    
+
                                 </TabPanel>
                             </TabPanels>
                         </Box>

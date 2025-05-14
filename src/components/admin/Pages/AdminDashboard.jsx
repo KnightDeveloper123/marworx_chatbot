@@ -61,6 +61,8 @@ const AdminDashboard = () => {
   // console.log(user_role)
 
   const { type, sectorId } = location.state || {}
+  // getAdminCount
+
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -92,8 +94,7 @@ const AdminDashboard = () => {
     async admin_id => {
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
+          `${import.meta.env.VITE_BACKEND_URL
           }/documents/getAllDocuments?admin_id=${admin_id}`,
           {
             method: 'GET',
@@ -118,6 +119,38 @@ const AdminDashboard = () => {
     [showAlert]
   )
 
+
+  const [activeBots, setActiveBots] = useState(null)
+  const [campaignSent, setCampaignSent] = useState(null)
+
+  const fetchAllActiveBots = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem('token')
+        }
+      })
+      const result = await response.json();
+
+      if (result.success) {
+        setActiveBots(result?.activeBot?.active_bots)
+        setCampaignSent(result?.campaignSent?.sent_campaigan)
+
+      } else {
+        showAlert(result.error, "error")
+      }
+    } catch (error) {
+      console.log(error);
+      showAlert("Internal Server Error!", "error")
+    }
+  }
+
+  useEffect(() => {
+    fetchAllActiveBots()
+  }, [])
+
   useEffect(() => {
     fetchDashboardData()
     fetchAllDocuments(admin_id)
@@ -141,8 +174,7 @@ const AdminDashboard = () => {
     formData.append('bot_type', type)
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL
+        `${import.meta.env.VITE_BACKEND_URL
         }/documents/uploadDocument?fileName=${file.fileName}`,
         {
           method: 'POST',
@@ -174,8 +206,7 @@ const AdminDashboard = () => {
   const handleDeleteDocument = async id => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL
+        `${import.meta.env.VITE_BACKEND_URL
         }/documents/deleteDocument?document_id=${id}`,
         {
           method: 'POST',
@@ -288,7 +319,7 @@ const AdminDashboard = () => {
     }
   })
 
-  
+
   return (
     <Flex flexDirection='column' w='100%' h='100%' pt={'20px'}>
       {location.pathname === '/home/dashboard' && (
@@ -307,13 +338,13 @@ const AdminDashboard = () => {
                 >
                   <Flex flexDir={'column'}>
                     <Text fontSize={'20px'}>
-                      {dashboardData.total_employee}
+                      {activeBots}
                     </Text>
                     <Text
                       color={'#a4a4a4'}
                       fontSize={{ base: '12px', md: '14px' }}
                     >
-                      Number of Admin
+                      Number of Active Bots
                     </Text>
                   </Flex>
                   <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
@@ -336,7 +367,7 @@ const AdminDashboard = () => {
                   boxShadow={'lg'}
                 >
                   <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+                    <Text fontSize={'20px'}>{campaignSent}</Text>
                     <Text
                       color={'#a4a4a4'}
                       fontSize={{ base: '12px', md: '14px' }}
@@ -729,9 +760,8 @@ const FileViewer = ({ selectedFile }) => {
       return
     }
 
-    const filePath = `${import.meta.env.VITE_BACKEND_URL}/documents/${
-      selectedFile.name
-    }`
+    const filePath = `${import.meta.env.VITE_BACKEND_URL}/documents/${selectedFile.name
+      }`
 
     if (selectedFile.name.endsWith('.pdf')) {
       // Download and show PDF
