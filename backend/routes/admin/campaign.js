@@ -9,10 +9,10 @@ const { Parser } = require('json2csv');
 
 router.post("/add", middleware, async (req, res) => {
     try {
-        const {  channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id ,to,sector_id,bot_type} = req.body;
+        const {  channel_name, campaign_name, message_content,template_name, template_type, template_lang, header, body,admin_id ,to,sector_id,bot_type} = req.body;
     
-        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`,sector_id,bot_type) values (?, ?, ?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?,?,?);'
-        connection.execute(insertQuery, [channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body,admin_id, to,sector_id,bot_type ], (err, data) => {
+        const insertQuery = 'insert into campaign (channel_name, campaign_name, message_content, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`,sector_id,bot_type) values (?, ?, ?, ?,  ?, ?, ?, ?, "Sent", ?, ?,?,?);'
+        connection.execute(insertQuery, [channel_name, campaign_name, message_content,  template_name, template_type, template_lang, header, body,admin_id, to,sector_id,bot_type ], (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
@@ -27,7 +27,7 @@ router.post("/add", middleware, async (req, res) => {
 
 router.post("/update", middleware, async (req, res) => {
     try {
-        const { channel_name, campaign_name, message_content, sector, template_name, template_type, template_lang, header, body, campaign_id } = req.body;
+        const { channel_name, campaign_name, message_content,  template_name, template_type, template_lang, header, body, campaign_id } = req.body;
 
         let updateFields = [];
         let updateValues = [];
@@ -44,10 +44,10 @@ router.post("/update", middleware, async (req, res) => {
         updateFields.push("message_content = ?");
         updateValues.push(message_content);
         }
-        if (sector) {
-        updateFields.push("sector = ?");
-        updateValues.push(sector);
-        } 
+        // if (sector) {
+        // updateFields.push("sector = ?");
+        // updateValues.push(sector);
+        // } 
         if (template_name) {
         updateFields.push("template_name = ?");
         updateValues.push(template_name);
@@ -118,11 +118,11 @@ router.get('/getCampaign', middleware, async(req, res)=>{
     try{
     const { user_id } = req.query;
     const data=await executeQuery(`select campaign.*, s.name as sname from campaign
-        left join sector as s on campaign.sector=s.id
+        left join sector as s on campaign.sector_id=s.id
         where campaign.id=${user_id}`) 
     return res.json({data:data[0]})
     }catch(error){
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({error:"Internal Server Error"})
     }
 });
@@ -133,11 +133,11 @@ router.get('/getAllCampaign', middleware, async(req, res)=>{
    
     const data=await executeQuery(`select campaign.*, s.name as sname
         from campaign 
-       left join sector as s on campaign.sector=s.id
+       left join sector as s on campaign.sector_id=s.id
       where campaign.status=0 AND campaign.admin_id=${admin_id} order by campaign.id desc`) 
     return res.json({data})
     }catch(error){
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({error:"Internal Server Error"})
     }
 });
