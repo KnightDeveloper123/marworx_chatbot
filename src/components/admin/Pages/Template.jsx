@@ -41,21 +41,21 @@ import { useNavigate } from "react-router-dom";
 import { LuEye } from "react-icons/lu";
 
 const Template = () => {
-  const { showAlert, fetchTemplate,template } = useContext(
+  const { showAlert, fetchTemplate, template } = useContext(
     AppContext
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose} = useDisclosure();
-  const {  isOpen: isDeleteOpen,   onOpen: onDeleteOpen,  onClose: onDeleteClose } = useDisclosure();
-  const {  register,handleSubmit,reset,setValue, formState: { errors },} = useForm();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const { register, handleSubmit, reset, setValue, formState: { errors }, } = useForm();
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTemplate();
   }, []);
- 
+
   const onSubmit = async (data) => {
     try {
       const response = await fetch(
@@ -63,18 +63,19 @@ const Template = () => {
         {
           method: "POST",
           headers: {
-             "Content-Type": "application/json",
+            "Content-Type": "application/json",
             Authorization: token,
           },
           body: JSON.stringify({
             industry: data.industry,
-            category: data.category
+            category: data.category,
+            description: data.description
           }),
         }
       );
       const result = await response.json();
       if (result.success) {
-        const flowid=result.flowId;
+        const flowid = result.flowId;
         navigate(`/create_template/${flowid}`)
         reset();
         onClose();
@@ -92,6 +93,7 @@ const Template = () => {
     setEditProductData(productData);
     setValue("name", productData.name);
     setValue("description", productData.description);
+
   };
 
   const onEditSubmit = async (data) => {
@@ -159,6 +161,8 @@ const Template = () => {
       showAlert("Internal server error", "error");
     }
   };
+
+
   return (
     <Card>
       <Flex
@@ -220,7 +224,13 @@ const Template = () => {
                 >
                   Category
                 </Th>
-
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Description
+                </Th>
                 <Th
                   h
                   fontWeight="var(--big-font-weight)"
@@ -233,7 +243,7 @@ const Template = () => {
             </Thead>
             <Tbody>
               {template && template.map((item, i) => (
-                <Tr key={i+1}>
+                <Tr key={i + 1}>
                   <Td
                     color={"#404040"}
                     fontSize="var(--mini-text)"
@@ -241,7 +251,7 @@ const Template = () => {
                   >
                     {item.id}
                   </Td>
-                   <Td
+                  <Td
                     color={"#404040"}
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
@@ -254,9 +264,15 @@ const Template = () => {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)"
                   >
-                   {item.category}
+                    {item.category}
                   </Td>
-
+                  <Td
+                    color={"#404040"}
+                    fontSize="var(--mini-text)"
+                    fontWeight="var(--big-font-weight)"
+                  >
+                    {item.description}
+                  </Td>
                   <Td
                     border="0.5px solid #F2F4F8"
                     color={"#404040"}
@@ -326,6 +342,26 @@ const Template = () => {
                   {errors.category && (
                     <FormErrorMessage fontSize="var(--mini-text)">
                       {errors.category.message}
+                    </FormErrorMessage>
+                  )}
+                </FormControl>
+
+                <FormControl isRequired isInvalid={errors.description}>
+                  <FormLabel fontSize="var(--mini-text)" mb={"2px"}>
+                    description
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    {...register("description", {
+                      required: "description is required",
+                    })}
+                    placeholder="enter description"
+                    fontSize="var(--text-12px)"
+                    autoComplete="off"
+                  ></Input>
+                  {errors.description && (
+                    <FormErrorMessage fontSize="var(--mini-text)">
+                      {errors.description.message}
                     </FormErrorMessage>
                   )}
                 </FormControl>

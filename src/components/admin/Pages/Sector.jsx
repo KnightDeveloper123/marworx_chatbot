@@ -1,5 +1,5 @@
 import { DeleteIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon } from '@chakra-ui/react'
+import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
@@ -13,15 +13,17 @@ import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { LuCloudUpload } from "react-icons/lu";
+import template from '../../../assets/Rectangle 189.png'
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, fetchProductService, productService, sectors, fetchSector } = useContext(AppContext)
+  const { showAlert, fetchProductService, productService, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
   const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
+  const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
   const user = localStorage.getItem('user')
   const admin_id = decrypt(user).id
@@ -52,8 +54,12 @@ const Sector = () => {
 
   useEffect(() => {
     fetchSector(admin_id);
-    fetchProductService(admin_id)
+    fetchProductService(admin_id);
+    fetchTemplate(admin_id);
+
   }, [admin_id])
+
+
 
   const allCategory = [{
     value: "energy",
@@ -207,9 +213,10 @@ const Sector = () => {
       icon: FaPuzzlePiece,
       title: 'Use a template',
       description: 'Choose a pre-made bot and edit them as you want',
-      path: '/'
+      // path: "/home/gen_bot"
     },
   ];
+
   const bg = useColorModeValue('gray.50');
 
 
@@ -230,17 +237,12 @@ const Sector = () => {
   };
 
   const botTypes = [
-    { label: "Algorithmic", type: "algorithmic" },
+    { label: "Algorithmic", type: "algorithmic", admin_id: admin_id },
     { label: "Campaign", type: "campaign", path: "/home/campaign" },
     { label: "Generative", type: "generative", path: "/home/gen_bot" }
   ];
 
-
-
-
-
-
-
+  const [showAll, setShowAll] = useState(false)
   return (
     <Card>
       <Flex
@@ -267,7 +269,7 @@ const Sector = () => {
 
           <Flex gap={2} >
 
-            <Flex gap={3} 
+            <Flex gap={3}
             // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
             >
               {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
@@ -395,7 +397,6 @@ const Sector = () => {
                           <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(sector.id)} />
                         </Box>
 
-
                         <Box bgColor={"#046E201A"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
                           <FaRobot size={20} color={'green'} />
                         </Box>
@@ -437,17 +438,14 @@ const Sector = () => {
                               {botTypes.map((bot) => (
                                 <GridItem key={bot.type}>
                                   <Box
-                                  _hover={{ bg: "#FF5F35", color: "white",transitionDuration: "0.5s" }}
+                                    _hover={{ bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
                                     onClick={() => {
                                       setSelectedBotType(bot.type)
                                       localStorage.setItem("botType", bot.type);
                                       localStorage.setItem("sectorId", selectedSectorId);
+                                      localStorage.setItem("admin_id", bot.admin_id);
                                       if (bot.type === "algorithmic") {
-
-                                        onAlgOpen(); // Open second modal
-                                        // onBotClose();
-
-
+                                        onAlgOpen();
                                       } else {
                                         navigate(bot.path, {
                                           state: { type: bot.type, sectorId: selectedSectorId }
@@ -489,15 +487,15 @@ const Sector = () => {
 
                           <ModalCloseButton />
                           <ModalBody mt={'10px'}>
-                            <Box 
-                            onClick={() => {
-                              onAlgClose();
-                              onBotOpen(); // Reopen first modal if needed
-                            }}>
+                            <Box
+                              onClick={() => {
+                                onAlgClose();
+                                onBotOpen(); // Reopen first modal if needed
+                              }}>
                               <HiOutlineArrowSmLeft />
                             </Box>
                             <Box textAlign="center"
-                             py={10} >
+                              py={10} >
                               <Heading mb={5} fontSize="3xl" >
                                 Start building!
                               </Heading>
@@ -519,14 +517,25 @@ const Sector = () => {
                                     transition="all 0.2s"
                                     bgColor={'#FF5F351A'}
                                     role="group"
-                                    _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer', bg: "#FF5F35", color: "white",transitionDuration: "0.5s"  }}
-                                    onClick={() => navigate(opt.path)}
+                                    _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer', bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
+                                    onClick={() => {
+                                      if (opt.title === 'Use a template') {
+                                        onTemplateOpen();
+                                      } else if (opt.path) {
+                                        onAlgClose();
+                                        window.location.href = opt.path;
+                                      } else {
+                                        console.log("Other action");
+                                      }
+                                    }}
                                   >
                                     <Icon as={opt.icon} boxSize={8} mb={4} />
-                                    <Text fontWeight="bold" mb={2}>
+                                    <Text fontWeight="bold" mb={2}
+                                    >
                                       {opt.title}
+
                                     </Text>
-                                    <Text fontSize="sm" color="#565555"  _groupHover={{ color: "white",transitionDuration: "0.5s" }}>
+                                    <Text fontSize="sm" color="#565555" _groupHover={{ color: "white", transitionDuration: "0.5s" }}>
                                       {opt.description}
                                     </Text>
                                   </Box>
@@ -538,6 +547,182 @@ const Sector = () => {
 
                         </ModalContent>
                       </Modal>
+
+                      <Modal isOpen={isTemplateOpen} onClose={onTemplateClose} size="4xl">
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalHeader fontSize="18px">Select Template</ModalHeader>
+                          <ModalCloseButton />
+                          <ModalBody pb={6}>
+                            <Box maxHeight="380px" overflowY={showAll ? "auto" : "hidden"}>
+                              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                                {(showAll ? template : template.slice(0, 3)).map((temp, index) => (
+                                  <GridItem
+                                    key={index}
+                                    boxShadow="lg"
+                                    borderRadius="8px"
+                                    border="1px solid lightgray"
+                                    overflow="hidden"
+                                    bg="white"
+                                  >
+                                    <Image
+                                      src="/Rectangle 189.png"
+                                      height="188px"
+                                      width="100%"
+                                      objectFit="cover"
+                                    />
+                                    <Box p="10px">
+                                      <Text fontWeight="600" fontSize="18px" color="#FF5F35">
+                                        {temp.category}
+                                      </Text>
+                                      <Text fontSize="14px" mb={4} >
+                                        <Tooltip label={temp.description || 'No description'} hasArrow>
+                                          <Text as='span'>
+                                            {temp.description && temp.description.length > 50
+                                              ? `${temp.description.slice(0, 50)}...`
+                                              : temp.description || 'No description'}
+                                          </Text>
+                                        </Tooltip>
+
+                                      </Text>
+                                      <Button
+                                        width="full"
+                                        textAlign="center"
+                                        size="sm"
+                                        fontSize="15px"
+                                        bgColor="#FF5F35"
+                                        color="white"
+                                        _hover={{ bg: "#e14a1d" }}
+                                        onClick={() => navigate(`/view_template/${temp.id}`)}
+                                      >
+                                        Use
+                                      </Button>
+                                    </Box>
+                                  </GridItem>
+                                ))}
+                              </Grid>
+                              {!showAll && template.length > 3 && (
+                                <Box textAlign="center" mt={4}>
+                                  <Button
+                                    variant="outline"
+                                    color="#FF5F35"
+                                    borderColor="#FF5F35"
+                                    size="sm"
+                                    onClick={() => setShowAll(true)}
+                                  >
+                                    More options
+                                  </Button>
+                                </Box>
+                              )}
+                            </Box>
+                          </ModalBody>
+                        </ModalContent>
+                      </Modal>
+
+                      {/* <Modal isOpen={isTemplateOpen} onClose={onTemplateClose} size="4xl">
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalHeader fontSize="18px">Select Template</ModalHeader>
+                          <ModalCloseButton />
+                          <ModalBody pb={6}>
+                            <Box maxHeight="330px" overflowY="auto">
+                              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                                {template.map((temp, index) => (
+                                  <GridItem
+                                    key={index}
+                                    boxShadow="lg"
+                                    borderRadius="8px"
+                                    border="1px solid lightgray"
+                                    overflow="hidden"
+                                    bg="white"
+                                  >
+                                    <Image
+                                      src="/Rectangle 189.png"
+                                      height="188px"
+                                      width="100%"
+                                      objectFit="cover"
+                                    />
+                                    <Box p="10px">
+                                      <Text fontWeight="600" fontSize="20px" color="#FF5F35">
+                                        {temp.category}
+                                      </Text>
+                                      <Text fontSize="16px" mb={4}>
+                                        {temp.description}
+                                      </Text>
+                                      <Button
+                                        width="full"
+                                        textAlign="center"
+                                        size="sm"
+                                        fontSize="15px"
+                                        bgColor="#FF5F35"
+                                        color="white"
+                                        _hover={{ bg: "#e14a1d" }}
+                                        onClick={() => navigate(`/view_template/${temp.id}`)}
+                                      >
+                                        Use
+                                      </Button>
+                                    </Box>
+                                  </GridItem>
+                                ))}
+                              </Grid>
+                            </Box>
+                          </ModalBody>
+                        </ModalContent>
+                      </Modal> */}
+
+                      {/* <Modal isOpen={isTemplateOpen}
+                        onClose={onTemplateClose} size={'4xl'} >
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalHeader fontSize={'18px'}>Select Template</ModalHeader>
+                          <ModalCloseButton />
+                          <ModalBody pb={6}>
+                            <Box height="320px" overflowY={'auto'}  >
+                              <Box>
+                                <Grid templateColumns={'repeat(3,1fr)'} gap={'6px'} >
+                                  {
+                                    template.map((temp) => (
+                                      <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
+                                        <Image src='/Rectangle 189.png' height={'188px'} width={'300px'}></Image>
+                                        <Box padding={'20px'} >
+                                          <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>{temp.category}</Text>
+                                          <Text fontSize={'16px'}>This is whatsapp bot template</Text>
+                                          <Button width={'full'} textAlign={'center'} size={'sm'}
+                                            fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
+                                        </Box>
+                                      </GridItem>
+                                    ))
+                                  }
+
+                                  <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
+                                    <Image src={template} height={'188px'} width={'300px'}></Image>
+                                    <Box padding={'20px'} >
+                                      <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>Lead Gen Template</Text>
+                                      <Text fontSize={'16px'}>This is whatsapp bot template</Text>
+                                      <Button width={'full'} textAlign={'center'} size={'sm'}
+                                        fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
+                                    </Box>
+                                  </GridItem>
+                                  <GridItem shadow={'lg'} borderRadius={'8px'} border={'1px solid lightgray'} >
+                                    <Image src={template} height={'188px'} width={'300px'} ></Image>
+                                    <Box padding={'20px'} >
+                                      <Text fontWeight={'600'} fontSize={'20px'} color={'#FF5F35'}>Lead Gen Template</Text>
+                                      <Text fontSize={'16px'}>This is whatsapp bot template</Text>
+                                      <Button width={'full'} textAlign={'center'} size={'sm'}
+                                        fontSize={'15px'} bgColor={'#FF5F35'} color={'white'}> Use</Button>
+                                    </Box>
+                                  </GridItem>
+
+                                </Grid>
+                              </Box>
+                            </Box>
+                          </ModalBody>
+                        </ModalContent>
+
+                      </Modal> */}
+
+
+
 
                       {/* <Menu>
                         <MenuButton
@@ -931,7 +1116,7 @@ const Sector = () => {
               Delete
             </Button>
             <Button w='100%' onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
-              textColor={'#FF5722'} bgColor={'white'}  _hover={''}>
+              textColor={'#FF5722'} bgColor={'white'} _hover={''}>
               Cancel
             </Button>
           </ModalFooter>

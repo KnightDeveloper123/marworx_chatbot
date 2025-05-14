@@ -15,11 +15,11 @@ const { middleware } = require('../../middleware/middleware');
 //     ->   PRIMARY KEY (`id`) );
 
 router.post('/add', middleware, (req, res) => {
-    const { industry, category, } = req.body;
+    const { industry, category,description } = req.body;
     // console.log(req.body)
 
-    const sql = `INSERT INTO template(industry, category) VALUES (?, ?)`;
-    connection.query(sql, [industry, category], (err, result) => {
+    const sql = `INSERT INTO template(industry, category,description) VALUES (?, ?,?)`;
+    connection.query(sql, [industry, category,description], (err, result) => {
         if (err) {
             console.error('Error saving flow:', err);
             return res.status(500).json({ message: 'Database error' });
