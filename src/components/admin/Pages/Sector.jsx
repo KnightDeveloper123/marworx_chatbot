@@ -14,6 +14,9 @@ import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { LuCloudUpload } from "react-icons/lu";
 import TemViw from "../../../assets/template.png"
+import Algorithmic from "../../../assets/Algorithmic.png"
+import Campaign from "../../../assets/Campaign.png"
+import Generative from "../../../assets/Generative.png"
 
 const Sector = () => {
   const token = localStorage.getItem('token')
@@ -223,9 +226,9 @@ const Sector = () => {
   };
 
   const botTypes = [
-    { label: "Algorithmic", type: "algorithmic", admin_id: admin_id },
-    { label: "Campaign", type: "campaign", path: "/home/campaign" },
-    { label: "Generative", type: "generative", path: "/home/gen_bot" }
+    { label: "Algorithmic", type: "algorithmic",image:Algorithmic, admin_id: admin_id },
+    { label: "Campaign", type: "campaign",image:Campaign, path: "/home/campaign" },
+    { label: "Generative", type: "generative",image:Generative, path: "/home/gen_bot" }
   ];
 
 
@@ -411,43 +414,46 @@ const Sector = () => {
                           </Box>
                           <ModalCloseButton />
                           <ModalBody mt={'20px'}>
-                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' >
+                             <Grid display={'grid'} templateColumns='repeat(3, 1fr)' >
                               {botTypes.map((bot) => (
                                 <GridItem key={bot.type}>
-                                  <Box
-                                    _hover={{ bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
-                                    onClick={() => {
-                                      setSelectedBotType(bot.type)
-                                      localStorage.setItem("botType", bot.type);
-                                      localStorage.setItem("sectorId", selectedSectorId);
-                                      localStorage.setItem("admin_id", bot.admin_id);
-                                      if (bot.type === "algorithmic") {
-                                        onAlgOpen();
-                                      } else {
-                                        navigate(bot.path, {
-                                          state: { type: bot.type, sectorId: selectedSectorId }
-                                        });
-                                        onBotClose();
-                                      }
-                                    }}
-                                    // onClick={() => {
-                                    //   onBotClose(); // Close modal
-                                    //   navigate(bot.path, {
-                                    //     state: { type: bot.type, sectorId: selectedSectorId }
-                                    //   });
-                                    // }}
-                                    display={'flex'}
-                                    justifyContent={'center'}
-                                    alignItems={'center'}
-                                    width={'90%'}
-                                    height={'140px'}
-                                    borderRadius={'7px'}
-                                    backgroundColor={'#FF5F351A'}
-                                    color={'black'}
-                                    cursor={'pointer'}
-                                  >
-                                    {bot.label}
-                                  </Box>
+
+                                    <Box
+                                      _hover={{ bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
+                                      onClick={() => {
+                                        setSelectedBotType(bot.type)
+                                        localStorage.setItem("botType", bot.type);
+                                        localStorage.setItem("sectorId", selectedSectorId);
+                                        if (bot.type === "algorithmic") {
+
+                                          onAlgOpen(); // Open second modal
+                                          // onBotClose();
+
+
+                                        } else {
+                                          navigate(bot.path, {
+                                            state: { type: bot.type, sectorId: selectedSectorId }
+                                          });
+                                          onBotClose();
+                                        }
+                                      }}
+                                      display={'flex'}
+                                      justifyContent={'center'}
+                                      alignItems={'center'}
+                                      width={'90%'}
+                                      height={'140px'}
+                                      borderRadius={'7px'}
+                                      backgroundColor={'#FF5F3526'}
+                                      color={'black'}
+                                      cursor={'pointer'}
+                                    >
+                                      <Box>
+                                        <Image src={bot.image} alt={bot.type} />
+                                      </Box>
+                                    </Box>
+                                    <Text textAlign={'center'} mt={'10px'}>
+                                      {bot.label}
+                                    </Text>
                                 </GridItem>
                               ))}
                             </Grid>

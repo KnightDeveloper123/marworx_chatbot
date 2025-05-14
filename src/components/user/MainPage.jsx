@@ -12,6 +12,7 @@ import { GoReport } from "react-icons/go";
 import { TypeAnimation } from "react-type-animation";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
+const BOT_URL = import.meta.env.VITE_BOT_API_URL
 
 const MainPage = () => {
     const [value, setValue] = useState("");
@@ -57,9 +58,10 @@ const MainPage = () => {
         }
         setValue("");
         setLoading(true);
-console.log(value)
+// console.log(value)
+// console.log('ENV TEST:', process.env.REACT_APP_API_URL);
         try {
-            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`, {
+            const res = await axios.get(`${BOT_URL}/get_info?query=${value}`, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -76,22 +78,22 @@ console.log(value)
             // ? `http://216.10.251.154:5000/get_info?query=${value}`
             // : `http://216.10.251.154:5000/get_info_no_doc?query=${value}`;
 
-console.log(res.answer)
+// console.log(res?.data?.answer);
 
 
             if (res) setLoading(false);
             setAllchats((prevchats) => [
                 ...prevchats,
-                { message: res.data.response || "No response received", sender: "bot" }
+                { message: res?.data?.answer || "No response received", sender: "bot" }
             ]);
 
             // console.log(allchats, res.data.response, title_id);
 
             if (title_id) {
-                await sendResponse(res?.data?.response, "bot", title_id);
+                await sendResponse(res?.data?.answer, "bot", title_id);
                 title_id = null
             } else {
-                await sendResponse(res?.data?.response, "bot");
+                await sendResponse(res?.data?.answer, "bot");
             }
 
 
@@ -123,6 +125,7 @@ console.log(res.answer)
                     position: "top",
                     isClosable: true,
                 })
+                setLoading(false);
             }
         }
     };
