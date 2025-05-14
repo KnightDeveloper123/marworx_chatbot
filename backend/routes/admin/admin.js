@@ -492,6 +492,22 @@ router.get('/getAdminCount', middleware, async (req, res) => {
     }
 })
 
+router.get('/getActiveUser', middleware, async (req, res) => {
+    try {
+       const monthlyUser=await executeQuery(`SELECT DATE_FORMAT(created_at, '%Y-%m') AS registration_month, COUNT(*) AS monthly_active_users
+            FROM admin
+            WHERE created_at IS NOT NULL
+            GROUP BY registration_month
+            ORDER BY registration_month DESC;
+            `)
+   
+            return res.json({ success: "success", monthlyUser: monthlyUser[0] })
+        // })
+    } catch (error) {
+        console.error("Error in /getAllQueriesById:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+})
 
 
 

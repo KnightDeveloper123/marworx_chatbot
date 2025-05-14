@@ -231,6 +231,7 @@ export const AppProvider = ({ children }) => {
           const[sectors,setSectors]=useState([])
 
           const fetchSector= async (admin_id) => {
+            // console.log(admin_id)
             try {
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_sector?admin_id=${admin_id}`, {
                     method: "GET",

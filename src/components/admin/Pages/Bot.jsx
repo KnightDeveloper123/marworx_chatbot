@@ -57,7 +57,7 @@ export default function Bot() {
           </Text>
           <Flex gap={2}>
             <Flex gap={3}>
-              <Button
+              {/* <Button
                 borderRadius="var(--radius)"
                 leftIcon={<IoMdAdd fontSize={"20px"} />}
                 _hover={{ bgColor: "var(--active-bg)" }}
@@ -69,7 +69,7 @@ export default function Bot() {
                 onClick={navigateData}
               >
                 Build Chatbot
-              </Button>
+              </Button> */}
             </Flex>
           </Flex>
         </Flex>

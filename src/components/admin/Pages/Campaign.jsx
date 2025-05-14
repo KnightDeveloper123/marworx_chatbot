@@ -501,7 +501,7 @@ const Campaign = () => {
                       value={filteredSectors}
                       onChange={e => setFilteredSectors(e.target.value)}
                     />
-                    <Button
+                    {/* <Button
                       borderRadius='var(--radius)'
                       leftIcon={<IoMdAdd fontSize={'20px'} />}
                       _hover={{ bgColor: 'var(--active-bg)' }}
@@ -513,7 +513,7 @@ const Campaign = () => {
                       onClick={onOpen}
                     >
                       Create Campaign
-                    </Button>
+                    </Button> */}
                     {/* <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
               <TbFileExport fontSize={'25px'}  />
               </Box> */}

@@ -193,25 +193,43 @@ router.get('/sectort_by_id', middleware, async (req, res) => {
 
 // GET ALL PRODUCT
 router.get('/get_all_sector', middleware, async (req, res) => {
-  try {
-    const { admin_id } = req.query
-    const data = await executeQuery(`select s.id,s.name,s.status, s.created_on,s.category,s.description, s.icon,
-            GROUP_CONCAT(ps.product_id) as psId  from sector as s
-             left join product_sector as ps on ps.sector_id=s.id
-              where  s.status = 0  AND s.admin_id=${admin_id}
-             group by s.id
-             order by s.id desc; `)
+    try {
+      const { admin_id } = req.query
+        const data = await executeQuery(` SELECT
+        sector.id,
+        sector.name,
+        sector.status,
+        sector.created_on,
+        sector.category,
+        sector.description,
+        sector.icon,
+        COUNT(bots.id) AS bot_count,
+        GROUP_CONCAT(DISTINCT product_sector.product_id) AS psId
+      FROM sector
+      LEFT JOIN bots ON bots.sector_id = sector.id
+      LEFT JOIN product_sector ON product_sector.sector_id = sector.id
+      WHERE sector.status = 0 AND sector.admin_id = ${admin_id}
+      GROUP BY
+        sector.id,
+        sector.name,
+        sector.status,
+        sector.created_on,
+        sector.category,
+        sector.description,
+        sector.icon
+      ORDER BY sector.id DESC;`)
 
-    const formattedData = data.map(sector => ({
-      ...sector,
-      product_ids: sector.psId ? sector.psId.split(',').map(Number) : []
-    }));
-    return res.json({ formattedData })
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Internal server error!" })
-  }
+             const formattedData = data.map(sector => ({
+                ...sector,
+                product_ids: sector.psId ? sector.psId.split(',').map(Number) : []
+              }));
+        return res.json({ formattedData })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Internal server error!" })
+    }
 })
+
 
 router.get('/get_all_product_sector', middleware, async (req, res) => {
   try {

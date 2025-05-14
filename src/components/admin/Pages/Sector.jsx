@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { DeleteIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip } from '@chakra-ui/react'
+import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip, Textarea } from '@chakra-ui/react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
@@ -38,15 +38,12 @@ const Sector = () => {
     }
   });
   const navigate = useNavigate();
-
-
-
   const all_productServices = productService.map(product => ({
     value: product.id,
     label: product.name,
     customLabel: (
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <img src={product.iconUrl} alt="" width="20" height="20" />
+        {/* <img src={product.iconUrl} alt="" width="20" height="20" /> */}
         <span>{product.name}</span>
       </div>
     )
@@ -58,8 +55,6 @@ const Sector = () => {
     fetchTemplate(admin_id);
 
   }, [admin_id])
-
-
 
   const allCategory = [{
     value: "energy",
@@ -78,7 +73,6 @@ const Sector = () => {
     label: "Chemicals"
   },
   ]
-
 
   const onSubmit = async (data) => {
 
@@ -192,7 +186,7 @@ const Sector = () => {
     }
   }
 
-  const filteredData = sectors.filter(item =>
+  const filteredData = sectors?.filter(item =>
     item.name.toLowerCase().includes(filteredSectors.toLowerCase())
   );
 
@@ -219,17 +213,9 @@ const Sector = () => {
 
   const bg = useColorModeValue('gray.50');
 
-
-
-
-  // const botCreate = (id) => {
-  //   onBotOpen();
-  //   console.log(id)
-  // }
-
   const [selectedSectorId, setSelectedSectorId] = useState(null);
   const [selectedBotType, setSelectedBotType] = useState(null)
-  console.log(selectedBotType)
+
 
   const botCreate = (id) => {
     setSelectedSectorId(id);  // Save the sector ID
@@ -241,6 +227,8 @@ const Sector = () => {
     { label: "Campaign", type: "campaign", path: "/home/campaign" },
     { label: "Generative", type: "generative", path: "/home/gen_bot" }
   ];
+
+
 
   const [showAll, setShowAll] = useState(false)
   return (
@@ -307,7 +295,7 @@ const Sector = () => {
         >
           <Table size="sm" className="custom-striped-table"  >
             <Thead>
-              <Tr h="40px" bgColor="#FFF5F3" >
+              <Tr h="40px" bgColor="#FFF5F3"  >
                 <Th
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
@@ -344,6 +332,15 @@ const Sector = () => {
                   Description
                 </Th>
 
+                 <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  borderRadius=""
+                  fontSize="var(--mini-text)"
+
+                >
+                 Bot count
+                </Th>
                 <Th
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
@@ -363,9 +360,7 @@ const Sector = () => {
                 >
                   Actions
                 </Th>
-                {/* ) : (
-                  ""
-                )} */}
+              
               </Tr>
             </Thead >
 
@@ -378,6 +373,7 @@ const Sector = () => {
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.category}</Td>
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.description}</Td>
 
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.bot_count}</Td>
                     <Td color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)">
@@ -388,6 +384,7 @@ const Sector = () => {
                         style={{ width: '30px', height: '30px', objectFit: 'cover' }}
                       />
                     </Td>
+
                     <Td color={"#404040"} fontSize="var(--mini-text)">
                       <Flex gap={2}>
                         <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
@@ -503,7 +500,8 @@ const Sector = () => {
                                         onTemplateOpen();
                                       } else if (opt.path) {
                                         onAlgClose();
-                                        window.location.href = opt.path;
+                                        navigate(opt.path)
+                                        // window.location.href = opt.path;
                                       } else {
                                         console.log("Other action");
                                       }
@@ -658,39 +656,10 @@ const Sector = () => {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
-                <Input type='text' {...register('description')} height={'100px'}
-                  placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                <Textarea type='text' {...register('description')} 
+                  placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off' />
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
-
-              {/* <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb="2px">
-                  Upload Icon
-                </FormLabel>
-                <Input
-                  type="file"
-                  id="icon-upload"
-                  display="none"
-                  {...register('icon')}
-                />
-                <FormLabel
-                  htmlFor="icon-upload"
-                  cursor="pointer"
-                  bg="#FF5722"
-                  color="white"
-                  px={4}
-                  py={2}
-                  borderRadius="md"
-                  display="inline-flex"
-                  alignItems="center"
-                  gap={2}
-                  fontSize="var(--text-12px)"
-                  _hover={{ bg: '#FF5722' }}
-                >
-                  <LuCloudUpload />
-                  Upload Icon
-                </FormLabel>
-              </FormControl> */}
 
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb="2px">
@@ -871,35 +840,7 @@ const Sector = () => {
 
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
-                {/* <Controller
-                  name="products"
-                  control={control}
-                  rules={{ required: "Please select at least one product" }}
-                  render={({ field, fieldState: { error } }) => (
-                    <>
-                      <Select
-                        isMulti
-                        options={all_productServices}
-                        placeholder="Select Products"
-                        value={all_productServices.filter(option => field.value?.includes(option.value))}
-                        onChange={(selectedOptions) => {
-                          const selectedValues = selectedOptions.map(option => option.value);
-                          field.onChange(selectedValues);
-                        }}
-                        getOptionLabel={(e) => e.customLabel || e.label}
-                        getOptionValue={(e) => e.value}
-                        styles={{
-                          control: (provided) => ({ ...provided, fontSize: "12px" }),
-                          option: (provided) => ({ ...provided, fontSize: "12px" }),
-                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                        }}
-                      />
-                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                    </>
-                  )}
-                /> */}
+               
 
                 <Controller
                   name="products"
