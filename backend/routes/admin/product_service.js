@@ -33,7 +33,7 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
         const file_name = req.file.filename;
 
         const query = 'INSERT INTO product_service (name, description, image,admin_id) VALUES (?, ?, ?,?)';
-        connection.query(query, [name, description, file_name,admin_id], (err, data) => {
+        connection.query(query, [name, description, file_name, admin_id], (err, data) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({ error: "Something went wrong" });
@@ -131,6 +131,33 @@ router.get('/get_all_product', middleware, async (req, res) => {
 })
 
 
+router.get('/get_all_sector_bots', async (req, res) => {
+    try {
+        const { product_id } = req.query
+        const product = await executeQuery(`select product_sector.product_id ,product_sector.sector_id,sector.name as s_name,bots.name,bots.id from product_sector
+            left join sector on  product_sector.sector_id =sector.id
+           left join bots on bots.sector_id=sector.id
+            where product_id=${product_id}`)
+        return res.json({ product })
+    } catch (error) {
+
+    }
+})
+
+router.get('/get_all_sector', async (req, res) => {
+    try {
+        const { product_id } = req.query
+        const product = await executeQuery(`select product_sector.product_id ,product_sector.sector_id,sector.name as s_name,
+            sector.icon , sector.category,sector.description  from product_sector
+            left join sector on  product_sector.sector_id =sector.id
+         where product_id=${product_id}`)
+        return res.json({ product })
+    } catch (error) {
+
+    }
+})
 
 
-module.exports=router;
+
+
+module.exports = router;

@@ -9,6 +9,7 @@ import { DeleteIcon } from '@chakra-ui/icons';
 import { decrypt } from '../../utils/security';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { BiImageAdd } from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
 
 const ProductService = () => {
     const { showAlert, fetchProductService, productService } = useContext(AppContext)
@@ -19,6 +20,7 @@ const ProductService = () => {
     const token = localStorage.getItem('token')
     const user = localStorage.getItem('user')
     const admin_id = decrypt(user).id
+    const navigate=useNavigate();
 
     useEffect(() => {
         fetchProductService(admin_id)
@@ -201,7 +203,8 @@ const ProductService = () => {
                                     <Tr key={product.id}>
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
-                                            fontWeight="var(--big-font-weight)">{product.name}</Td>
+                                            fontWeight="var(--big-font-weight)"
+                                            onClick={()=>navigate(`/home/product/${product.id}`)}>{product.name}</Td>
 
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
