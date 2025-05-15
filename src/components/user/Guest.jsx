@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { IoLogOut } from "react-icons/io5";
 import { RiUserAddFill } from "react-icons/ri";
 import logo from "../../assets/logo.webp";
+const BOT_URL = import.meta.env.VITE_BOT_API_URL
 
 const Guest = () => {
     const [value, setValue] = useState("");
@@ -31,7 +32,7 @@ const Guest = () => {
         setLoading(true);
 
         try {
-            const res = await axios.get(`http://216.10.251.154:5000/get_info?query=${value}`, {
+            const res = await axios.get(`${BOT_URL}/get_info?query=${value}`, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -40,7 +41,7 @@ const Guest = () => {
             if (res) setLoading(false);
             setAllchats((prevchats) => [
                 ...prevchats,
-                { message: res.data.response || "No response received", sender: "bot" }
+                { message: res?.data?.answer || "No response received", sender: "bot" }
             ]);
 
         } catch (error) {
