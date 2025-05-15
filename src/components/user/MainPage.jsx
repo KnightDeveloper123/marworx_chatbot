@@ -66,6 +66,8 @@ const MainPage = () => {
                     "Content-Type": "application/json"
                 }
             });
+            // console.log("res", res);
+            
             // if(withDocumentation){
             // const res="With Documentation";
             // console.log(res);
