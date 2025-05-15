@@ -599,7 +599,7 @@ const FlowCanvas = () => {
   const navigate=useNavigate()
   const token = localStorage.getItem('token')
   const template_id=useParams();
-  console.log(template_id.id)
+
   const [nodes, setNodes, onNodesChange] = useNodesState([
      {
       id: "1",
@@ -654,7 +654,7 @@ const FlowCanvas = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json",
-            Authorization : token
+            // Authorization : token
            },
           body: JSON.stringify({
             node:nodes,
@@ -664,7 +664,7 @@ const FlowCanvas = () => {
         }
       );
       const data = await response.json();
-      console.log(data)
+      // console.log(data)
       navigate('/home/template')
     } catch (error) {
       console.log(error);

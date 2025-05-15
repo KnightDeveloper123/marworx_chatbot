@@ -38,7 +38,7 @@ router.get('/get_all_template', middleware, async (req, res) => {
     }
 })
 
-router.post('/create', middleware, (req, res) => {
+router.post('/create', (req, res) => {
     const { node, edges, template_id } = req.body;
 
    const sql = `UPDATE template SET node = ?, edges = ? WHERE id = ?`;

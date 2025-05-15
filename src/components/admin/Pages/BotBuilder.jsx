@@ -50,7 +50,45 @@ const getId = () => `${++id}`
 
 // Node types map
 const nodeTypes = {
-  CustomNode: ({ id, data }) => {
+Custom: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null)
+    const { setNodes } = useReactFlow()
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        )
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }, [value, id, setNodes])
+    return (
+   <Box bg='white' borderRadius={'15px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Input
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder='Enter text...'
+        fontSize='8px'
+        border='none'
+        resize='none'
+        size="xs" 
+        _focusVisible={{borderColor:'none', boxShadow:'none'}}
+        // px={2} 
+        // py={1}
+      />
+
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
+    )
+  },
+
+CustomNode: ({ id, data }) => {
     const [value, setValue] = useState(data.label || null)
     const { setNodes } = useReactFlow()
 
@@ -73,45 +111,100 @@ const nodeTypes = {
     }
 
     return (
-      <div style={{ background: '#fff', borderRadius: 4 }}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
-          <Text fontSize='10px' fontWeight='var(--big-font-weight)'>
-            Text
+   <Box bg='white' borderRadius={'15px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>
+            Question
           </Text>
-          <button
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='white'
+            icon={<IoTrashOutline />}
             onClick={handleDelete}
-            style={{
-              color: 'red',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: '20px'
-            }}
-          >
-            <IoTrashOutline fontSize={'10px'} />
-          </button>
+            aria-label='Delete Node'
+          />
         </Flex>
-        <Divider />
-        <Textarea
-          fontSize='var( --text-12px)'
-          fontWeight='var(--big-font-weight)'
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder='Enter text...'
-          style={{
-            width: '100%',
-            minHeight: 20,
-            resize: 'none',
-            border: 'none'
-          }}
-        />
-        <Handle
-          type='source'
-          position='bottom'
-          style={{ background: '#555' }}
-        />
-      </div>
+      </Box>
+
+      <Textarea
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder='Enter text...'
+        fontSize='8px'
+        border='none'
+        resize='none'
+        size="xs"
+        rows='1'
+          _focusVisible={{borderColor:'none', boxShadow:'none'}}
+        // px={2} 
+        // py={1}
+      />
+
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
+    )
+  },
+
+ CustomText: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null)
+    const { setNodes } = useReactFlow()
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        )
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }, [value, id, setNodes])
+
+    const handleDelete = () => {
+      setNodes(nds => nds.filter(node => node.id !== id))
+    }
+
+    return (
+   <Box bg='white' borderRadius={'15px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>
+            Message
+          </Text>
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='white'
+            icon={<IoTrashOutline />}
+            onClick={handleDelete}
+            aria-label='Delete Node'
+          />
+        </Flex>
+      </Box>
+
+      <Textarea
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder='Enter text...'
+        fontSize='8px'
+        border='none'
+        resize='none'
+        size="sm"
+        rows='2'
+          _focusVisible={{borderColor:'none', boxShadow:'none'}}
+        // px={2} 
+        // py={1}
+      />
+
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
     )
   },
 
@@ -156,38 +249,26 @@ const nodeTypes = {
     }, [fileUrl])
 
     return (
-      <Box
-        bg='white'
-        border='1px solid #ccc'
-        borderRadius='md'
-        position='relative'
-      >
-        <Handle
-          type='target'
-          position={Position.Top}
-          style={{ background: '#555' }}
-        />
-        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
-          <Text fontSize='10px' fontWeight='var(--big-font-weight)'>
-            Image
+      <Box bg='white' borderRadius={'15px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>
+           Image
           </Text>
-          <button
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='white'
+            icon={<IoTrashOutline />}
             onClick={handleDelete}
-            style={{
-              color: 'red',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: '20px'
-            }}
-          >
-            <IoTrashOutline fontSize={'10px'} />
-          </button>
+            aria-label='Delete Node'
+          />
         </Flex>
-        <Divider />
-
-        <Input
-          fontSize='var( --text-12px)'
+      </Box>
+      <Divider />
+     <Input
+          fontSize='8px'
           fontWeight='var(--big-font-weight)'
           border={'none'}
           type='file'
@@ -195,14 +276,17 @@ const nodeTypes = {
           onChange={handleImageUpload}
           size='sm'
         />
-        {image && <Image src={image} alt='Uploaded' mt={2} maxH='100px' />}
-
-        <Handle
-          type='source'
-          position={Position.Bottom}
-          style={{ background: '#555' }}
+     <Box position="relative" top='0px'>
+      {image && <Image
+          src={image} 
+          alt="node drawing"
+          width="189px"
+          height="auto"
         />
+      }
       </Box>
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+     </Box>
     )
   },
 
@@ -249,62 +333,49 @@ const nodeTypes = {
     }
 
     return (
-      <Box
-        bg='white'
-        border='1px solid #ccc'
-        borderRadius='md'
-        position='relative'
-      >
-        <Handle
-          type='target'
-          position='top'
-          style={{ background: '#eb2f96' }}
-        />
-        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
-          <Text fontSize='10px' fontWeight='var(--big-font-weight)'>
-            Video
+      <Box bg='white' borderRadius={'15px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>
+           Video
           </Text>
-          <button
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='white'
+            icon={<IoTrashOutline />}
             onClick={handleDelete}
-            style={{
-              color: 'red',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: '20px'
-            }}
-          >
-            <IoTrashOutline fontSize={'10px'} />
-          </button>
+            aria-label='Delete Node'
+          />
         </Flex>
-        <Divider />
-
-        <input
-          fontSize='var( --text-12px)'
+      </Box>
+      <Divider />
+      <Input
+          fontSize='8px'
           fontWeight='var(--big-font-weight)'
           type='file'
           accept='video/mp4'
           onChange={handleFileChange}
           style={{ marginTop: 4 }}
+          size={'sm'}
         />
         {fileUrl && (
           <video
             src={fileUrl}
             controls
-            style={{ width: '100%', marginTop: 10, borderRadius: 4 }}
+            style={{ width: '189px', height:'auto' }}
           />
         )}
-        {fileName && (
+        {/* {fileName && (
           <p style={{ fontSize: 12, marginTop: 3, color: '#eb2f96' }}>
             {fileName}
           </p>
-        )}
-        <Handle
-          type='source'
-          position='bottom'
-          style={{ background: '#eb2f96' }}
-        />
-      </Box>
+        )} */}
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
+
+    
     )
   },
 
@@ -334,53 +405,131 @@ const nodeTypes = {
       setNodes(nds => nds.filter(node => node.id !== id))
     }
     return (
-      <Box
-        style={{
-          background: '#fff',
-          borderRadius: 4
-        }}
-      >
-        <Handle
-          type='target'
-          position='top'
-          style={{ background: '#1890ff' }}
-        />
-        <Flex justifyContent={'space-between'} alignItems={'center'} p='1px'>
-          <Text fontSize='10px' fontWeight='var(--big-font-weight)'>
-            Google Sheet
+      <Box bg='white' borderRadius={'4px'}>
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>
+           GoogleSheet
           </Text>
-          <button
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='white'
+            icon={<IoTrashOutline />}
             onClick={handleDelete}
-            style={{
-              color: 'red',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: '20px'
-            }}
-          >
-            <IoTrashOutline fontSize={'10px'} />
-          </button>
+            aria-label='Delete Node'
+          />
         </Flex>
-        <Divider />
-        <input
+      </Box>
+      <Divider />
+        <Input
           type='file'
           accept='.xlsx,.xls,.csv'
           onChange={handleFileChange}
-          style={{ marginTop: 8 }}
           fontSize='var( --text-12px)'
           fontWeight='var(--big-font-weight)'
+          size='sm'
         />
-        {file && <p style={{ fontSize: 12, marginTop: 6 }}>📄 {file}</p>}
-        <Handle
-          type='source'
-          position='bottom'
-          style={{ background: '#1890ff' }}
-        />
-      </Box>
+        {file && <p>📄 {file}</p>}
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
     )
+  },
+  ListButton: ({ id, data }) => {
+  const { setNodes } = useReactFlow();
+  const [question, setQuestion] = useState(data.label || '');
+  const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+  // Sync data back to nodes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNodes(nds =>
+        nds.map(node =>
+          node.id === id
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues
+                }
+              }
+            : node
+        )
+      );
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [question, targetValues, id, setNodes]);
+
+  const handleDelete = () => {
+    setNodes(nds => nds.filter(node => node.id !== id));
+  };
+
+  const addTargetValue = () => {
+    setTargetValues(prev => [...prev, '']);
+  };
+
+  const updateTargetValue = (index, newValue) => {
+    setTargetValues(prev =>
+      prev.map((val, i) => (i === index ? newValue : val))
+    );
+  };
+
+  return (
+    <Box bg='white' borderRadius='5px' w="150px">
+      <Handle type='target' position='top' style={{ background: '#555' }} />
+
+      {/* Header */}
+      <Box bgColor='var(--active-bg)' color='white' borderRadius='md' p='1px'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='10px' fontWeight='bold'>List Button</Text>
+          <IconButton
+            size='xs'
+            variant='ghost'
+            colorScheme='whiteAlpha'
+            icon={<IoTrashOutline />}
+            onClick={handleDelete}
+            aria-label='Delete Node'
+          />
+        </Flex>
+      </Box>
+      {/* Target values */}
+      <Box mt={2}>
+        {targetValues.map((val, idx) => (
+          <Input
+            key={idx}
+            value={val}
+            onChange={e => updateTargetValue(idx, e.target.value)}
+            placeholder={`Option ${idx + 1}`}
+            size='xs'
+            fontSize='10px'
+            mb={1}
+          />
+        ))}
+
+        {/* Add Button */}
+        <Button
+          onClick={addTargetValue}
+          size='xs'
+          fontSize='10px'
+          width='100%'
+          mt={1}
+          variant='outline'
+          colorScheme='blue'
+        >
+          + Add Option
+        </Button>
+      </Box>
+
+      <Handle type='source' position='bottom' style={{ background: '#555' }} />
+    </Box>
+  );
   }
+
+
 }
+
 
 const blockStyle = {
   padding: '3px 5px',
@@ -398,8 +547,8 @@ const SidePanel = () => {
 
   const messages = [
     {
-      label: 'Text',
-      type: 'CustomNode',
+      label: 'Message',
+      type: 'CustomText',
       icon: <Icon as={AiOutlineMessage} mr={2} />
     },
     { label: 'Image', type: 'imageNode', icon: <Icon as={FaImage} mr={2} /> }
@@ -428,13 +577,13 @@ const SidePanel = () => {
     }
   ]
 
-  const logicBlocks = [
-    {
-      label: 'Condition',
-      type: 'CustomNode',
-      icon: <Icon as={TiArrowShuffle} mr={2} />
-    }
-  ]
+  // const logicBlocks = [
+  //   {
+  //     label: 'Condition',
+  //     type: 'CustomNode',
+  //     icon: <Icon as={TiArrowShuffle} mr={2} />
+  //   }
+  // ]
 
   const WhatsAppEssential = [
     {
@@ -444,7 +593,7 @@ const SidePanel = () => {
     },
     {
       label: 'List Buttons',
-      type: 'CustomNode',
+      type: 'ListButton',
       icon: <Icon as={IoIosListBox} mr={2} />
     }
   ]
@@ -475,9 +624,12 @@ const SidePanel = () => {
           as={IconButton}
           aria-label='Options'
           icon={<LuPlus fontSize={'27px'} />}
-          bgColor={'#4fccc2'}
-          _hover={{ bgColor: '#4fccc2' }}
+          bgColor='var(--active-bg)'
+          _hover={{ bgColor: 'var(--active-bg)' }}
+          _focus={{ bgColor: 'var(--active-bg)' }}
+          _active={{ bgColor: 'var(--active-bg)' }}
           variant='outline'
+          color={'white'}
           borderRadius='40px'
         ></MenuButton>
         <MenuList px={4} py={2}>
@@ -551,7 +703,7 @@ const SidePanel = () => {
           </Box>
 
           {/* Logic */}
-          <Box mt={3}>
+          {/* <Box mt={3}>
             <Text fontSize='15px' fontWeight='bold'>
               Logic
             </Text>
@@ -567,7 +719,7 @@ const SidePanel = () => {
                 {block.icon} {block.label}
               </Box>
             ))}
-          </Box>
+          </Box> */}
 
           {/* Integrations */}
           <Box mt={3}>
@@ -600,8 +752,8 @@ const FlowCanvas = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: '1',
-      type: 'custom',
-      data: { label: 'Starting point\nWhere your bot begins' },
+      type: 'Custom',
+      data: { label: 'Starting point' },
       position: { x: 100, y: 150 }
     }
   ])
@@ -646,7 +798,6 @@ const FlowCanvas = () => {
   const sectorId = localStorage.getItem('sectorId')
   const admin_id = localStorage.getItem('admin_id')
 
-
   // save on database
   const saveFlow = async () => {
     try {
@@ -670,7 +821,7 @@ const FlowCanvas = () => {
       )
 
       const data = await response.json()
-      console.log('save sucessfully')
+      // console.log('save sucessfully')
       navigate('/home/bot')
     } catch (error) {
       console.log(error)
