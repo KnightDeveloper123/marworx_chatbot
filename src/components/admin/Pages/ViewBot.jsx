@@ -190,7 +190,6 @@ const nodeTypes = {
       <Box bg="white" borderRadius={"15px"}>
         <Handle type="target" position="top" style={{ background: "#555" }} />
         <Box
-          bg="blue.500"
           color="white"
           p={0.5}
           borderRadius={"5px"}
@@ -235,17 +234,25 @@ const nodeTypes = {
   },
 
   imageNode: ({ id, data }) => {
-    const [image, setImage] = useState(data.image || null);
+    const [image, setImage] = useState(data.fileUrl  || '');
     const { setNodes } = useReactFlow(); // ✅ FIXED: access setNodes properly
     const [fileName, setFileName] = useState(data.fileName || "");
     const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async(e) => {
       const file = e.target.files[0];
       if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
         setFileName(file.name);
         setFileUrl(URL.createObjectURL(file));
         setImage(URL.createObjectURL(file));
+        const formData = new FormData();
+        formData.append("image", file);
+        const res = await fetch(`${API}/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const result = await res.json();
+        setImage(result.url);
       } else {
         alert("Only JPG and PNG files are allowed");
       }
@@ -527,13 +534,16 @@ const nodeTypes = {
     };
 
     return (
-      <Box bg="white" borderRadius="5px" w="150px">
+      <Box bg="white" borderRadius="4px" w="150px">
         <Handle type="target" position="top" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+        <Box  color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" >
+            <Text fontSize="10px" fontWeight="bold" >
               List Button
             </Text>
             {/* <IconButton
@@ -637,7 +647,10 @@ const nodeTypes = {
         <Handle type="target" position="top" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+        <Box  color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               Reply Button
@@ -697,7 +710,7 @@ const nodeTypes = {
       </Box>
     );
   },
-   StyledNode : ({ id, data }) => {
+  StyledNode : ({ id, data }) => {
     const { setNodes } = useReactFlow();
     const handleDelete = () => {
       setNodes(nds => nds.filter(node => node.id !== id));
@@ -736,7 +749,7 @@ const nodeTypes = {
         <Handle type="source" position="right" style={{ background: '#555' }} />
       </Box>
     );
-    }
+  }
 };
 
 const blockStyle = {

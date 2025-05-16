@@ -125,7 +125,7 @@ const nodeTypes = {
           bgColor="var(--active-bg)"
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
+            <Text fontSize="10px" >
               Question
             </Text>
             <IconButton
@@ -237,6 +237,9 @@ const nodeTypes = {
     const { setNodes } = useReactFlow(); // ✅ FIXED: access setNodes properly
     const [fileName, setFileName] = useState(data.fileName || "");
     const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+
+console.log(fileUrl)
+console.log(fileName)
 
     const handleImageUpload = (e) => {
       const file = e.target.files[0];
@@ -446,7 +449,7 @@ const nodeTypes = {
       <Box bg="white" borderRadius={"4px"}>
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box
-          bg="blue.500"
+          
           color="white"
           p={0.5}
           borderRadius={"5px"}
@@ -529,7 +532,10 @@ const nodeTypes = {
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+        <Box  color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               List Button
@@ -635,7 +641,10 @@ const nodeTypes = {
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+        <Box  color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               Reply Button
@@ -695,8 +704,6 @@ const nodeTypes = {
       </Box>
     );
   },
- 
-
 };
 
 const blockStyle = {
