@@ -50,6 +50,43 @@ const getId = () => `${++id}`;
 
 // Node types map
 const nodeTypes = {
+  Custom: ({ id, data }) => {
+      const [value, setValue] = useState(data.label || null)
+      const { setNodes } = useReactFlow()
+  
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setNodes(nds =>
+            nds.map(node =>
+              node.id === id
+                ? { ...node, data: { ...node.data, label: value } }
+                : node
+            )
+          )
+        }, 500)
+  
+        return () => clearTimeout(timer)
+      }, [value, id, setNodes])
+      return (
+     <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Input
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder='Enter text...'
+          fontSize='8px'
+          border='none'
+          resize='none'
+          size="xs" 
+          _focusVisible={{borderColor:'none', boxShadow:'none'}}
+          // px={2} 
+          // py={1}
+        />
+  
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+      )
+    },
   CustomNode: ({ id, data }) => {
     const [value, setValue] = useState(data.label || null);
     const { setNodes } = useReactFlow();
@@ -837,7 +874,7 @@ useEffect(() => {
         //   onNodesChange={onNodesChange}
         //   onEdgesChange={onEdgesChange}
         //   onConnect={onConnect}
-        //   nodeTypes={nodeTypes}
+          nodeTypes={nodeTypes}
           fitView
         >
           <Background />

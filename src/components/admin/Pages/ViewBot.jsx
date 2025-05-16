@@ -9,6 +9,8 @@ import {
   IconButton,
   Image,
   Input,
+  List,
+  ListItem,
   Menu,
   MenuButton,
   MenuList,
@@ -50,6 +52,48 @@ const getId = () => `${++id}`;
 
 // Node types map
 const nodeTypes = {
+  Custom: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null);
+    const { setNodes } = useReactFlow();
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [value, id, setNodes]);
+    return (
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter text..."
+          fontSize="8px"
+          border="none"
+          resize="none"
+          size="xs"
+          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+          // px={2}
+          // py={1}
+        />
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
+  },
+
   CustomNode: ({ id, data }) => {
     const [value, setValue] = useState(data.label || null);
     const { setNodes } = useReactFlow();
@@ -73,45 +117,120 @@ const nodeTypes = {
     };
 
     return (
-      <div style={{ background: "#fff", borderRadius: 4 }}>
+      <Box bg="white" borderRadius={"15px"}>
         <Handle type="target" position="top" style={{ background: "#555" }} />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Text
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
-        <Divider />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Question
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
+
         <Textarea
-          fontSize="var( --text-12px)"
-          fontWeight="var(--big-font-weight)"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Enter text..."
-          style={{
-            width: "100%",
-            minHeight: 20,
-            resize: "none",
-            border: "none",
-          }}
+          fontSize="8px"
+          border="none"
+          resize="none"
+          size="xs"
+          rows="1"
+          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+          // px={2}
+          // py={1}
         />
+
         <Handle
           type="source"
           position="bottom"
           style={{ background: "#555" }}
         />
-      </div>
+      </Box>
+    );
+  },
+
+  CustomText: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null);
+    const { setNodes } = useReactFlow();
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [value, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    return (
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Message
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
+
+        <Textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter text..."
+          fontSize="8px"
+          border="none"
+          resize="none"
+          size="sm"
+          rows="2"
+          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+          // px={2}
+          // py={1}
+        />
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
     );
   },
 
@@ -156,38 +275,32 @@ const nodeTypes = {
     }, [fileUrl]);
 
     return (
-      <Box
-        bg="white"
-        border="1px solid #ccc"
-        borderRadius="md"
-        position="relative"
-      >
-        <Handle
-          type="target"
-          position={Position.Top}
-          style={{ background: "#555" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Image
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Image
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
         <Divider />
-
         <Input
-          fontSize="var( --text-12px)"
+          fontSize="8px"
           fontWeight="var(--big-font-weight)"
           border={"none"}
           type="file"
@@ -195,11 +308,14 @@ const nodeTypes = {
           onChange={handleImageUpload}
           size="sm"
         />
-        {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
-
+        <Box position="relative" top="0px">
+          {image && (
+            <Image src={image} alt="node drawing" width="189px" height="auto" />
+          )}
+        </Box>
         <Handle
           type="source"
-          position={Position.Bottom}
+          position="bottom"
           style={{ background: "#555" }}
         />
       </Box>
@@ -249,60 +365,55 @@ const nodeTypes = {
     };
 
     return (
-      <Box
-        bg="white"
-        border="1px solid #ccc"
-        borderRadius="md"
-        position="relative"
-      >
-        <Handle
-          type="target"
-          position="top"
-          style={{ background: "#eb2f96" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Video
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Video
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
         <Divider />
-
-        <input
-          fontSize="var( --text-12px)"
+        <Input
+          fontSize="8px"
           fontWeight="var(--big-font-weight)"
           type="file"
           accept="video/mp4"
           onChange={handleFileChange}
           style={{ marginTop: 4 }}
+          size={"sm"}
         />
         {fileUrl && (
           <video
             src={fileUrl}
             controls
-            style={{ width: "100%", marginTop: 10, borderRadius: 4 }}
+            style={{ width: "189px", height: "auto" }}
           />
         )}
-        {fileName && (
-          <p style={{ fontSize: 12, marginTop: 3, color: "#eb2f96" }}>
+        {/* {fileName && (
+          <p style={{ fontSize: 12, marginTop: 3, color: '#eb2f96' }}>
             {fileName}
           </p>
-        )}
+        )} */}
         <Handle
           type="source"
           position="bottom"
-          style={{ background: "#eb2f96" }}
+          style={{ background: "#555" }}
         />
       </Box>
     );
@@ -334,52 +445,298 @@ const nodeTypes = {
       setNodes((nds) => nds.filter((node) => node.id !== id));
     };
     return (
-      <Box
-        style={{
-          background: "#fff",
-          borderRadius: 4,
-        }}
-      >
-        <Handle
-          type="target"
-          position="top"
-          style={{ background: "#1890ff" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Google Sheet
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
+      <Box bg="white" borderRadius={"4px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              GoogleSheet
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
         <Divider />
-        <input
+        <Input
           type="file"
           accept=".xlsx,.xls,.csv"
           onChange={handleFileChange}
-          style={{ marginTop: 8 }}
           fontSize="var( --text-12px)"
           fontWeight="var(--big-font-weight)"
+          size="sm"
         />
-        {file && <p style={{ fontSize: 12, marginTop: 6 }}>📄 {file}</p>}
+        {file && <p>📄 {file}</p>}
         <Handle
           type="source"
           position="bottom"
-          style={{ background: "#1890ff" }}
+          style={{ background: "#555" }}
         />
       </Box>
     );
   },
+  ListButton: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "");
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+    // Sync data back to nodes
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
+              : node
+          )
+        );
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [question, targetValues, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    const addTargetValue = () => {
+      setTargetValues((prev) => [...prev, ""]);
+    };
+
+    const updateTargetValue = (index, newValue) => {
+      setTargetValues((prev) =>
+        prev.map((val, i) => (i === index ? newValue : val))
+      );
+    };
+
+    return (
+      <Box bg="white" borderRadius="5px" w="150px">
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+
+        {/* Header */}
+        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" >
+              List Button
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
+        {/* Target values */}
+
+        {targetValues.map((val, idx) => (
+          <Flex
+            key={idx}
+            position="relative"
+            borderRadius="md"
+            px={2}
+            py={1}
+            mb={1}
+            fontSize="10px"
+            alignItems="center"
+          >
+            <Input
+              key={idx}
+              value={val}
+              onChange={(e) => updateTargetValue(idx, e.target.value)}
+              placeholder={`Option ${idx + 1}`}
+              size="xs"
+              fontSize="10px"
+              mb={1}
+            />
+
+            <Handle
+              type="source"
+              position="right"
+              id={`option-${idx}`}
+              style={{ background: "#555" }}
+            />
+          </Flex>
+        ))}
+
+        <Button
+          onClick={addTargetValue}
+          size="xs"
+          fontSize="10px"
+          width="100%"
+          mt={1}
+          variant="outline"
+          colorScheme="blue"
+        >
+          + Add Option
+        </Button>
+      </Box>
+    );
+  },
+  ReplyButton: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "");
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+    // Sync data back to nodes
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
+              : node
+          )
+        );
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [question, targetValues, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    const addTargetValue = () => {
+      setTargetValues((prev) => [...prev, ""]);
+    };
+
+    const updateTargetValue = (index, newValue) => {
+      setTargetValues((prev) =>
+        prev.map((val, i) => (i === index ? newValue : val))
+      );
+    };
+
+    return (
+      <Box bg="white" borderRadius="5px" w="150px">
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+
+        {/* Header */}
+        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Reply Button
+            </Text>
+            {/* <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            /> */}
+          </Flex>
+        </Box>
+        {/* Target values */}
+
+        {targetValues.map((val, idx) => (
+          <Flex
+            key={idx}
+            position="relative"
+            borderRadius="md"
+            px={2}
+            py={1}
+            fontSize="10px"
+            alignItems="center"
+          >
+            <Input
+              key={idx}
+              value={val}
+              onChange={(e) => updateTargetValue(idx, e.target.value)}
+              placeholder={`button`}
+              size="xs"
+              fontSize="10px"
+              // mb={1}
+            />
+
+            <Handle
+              type="source"
+              position="right"
+              id={`option-${idx}`}
+              style={{ background: "#555" }}
+            />
+          </Flex>
+        ))}
+
+        <Button
+          onClick={addTargetValue}
+          size="xs"
+          fontSize="10px"
+          width="100%"
+          mt={1}
+          variant="outline"
+          colorScheme="blue"
+        >
+             + Add Option
+        </Button>
+      </Box>
+    );
+  },
+   StyledNode : ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const handleDelete = () => {
+      setNodes(nds => nds.filter(node => node.id !== id));
+    };
+  
+    return (
+      <Box bg="white" borderRadius="md" border="1px solid #ccc" minW="180px">
+        <Handle type="target" position="left" style={{ background: '#555' }} />
+  
+        <Flex bg="orange.500" color="white" px={2} py={1} justify="space-between" align="center">
+          <Text fontSize="sm" fontWeight="bold">{data.labelType || 'Node'}</Text>
+          {/* <IconButton
+            icon={<IoTrashOutline />}
+            size="xs"
+            variant="ghost"
+            onClick={handleDelete}
+            aria-label="Delete"
+          /> */}
+        </Flex>
+  
+        <Box p={2}>
+          {data.labelType === 'Reply Button' ? (
+            <>
+              {data.targetValues?.map((val, idx) => (
+                <Input key={idx} value={val} isReadOnly size="sm" fontSize="xs" mb={1} />
+              ))}
+              <Button size="sm" fontSize="xs" mt={2} isDisabled w="100%" variant="outline">
+                + Add Option
+              </Button>
+            </>
+          ) : (
+            <Text fontSize="sm">{data.text || data.label}</Text>
+          )}
+        </Box>
+  
+        <Handle type="source" position="right" style={{ background: '#555' }} />
+      </Box>
+    );
+    }
 };
 
 const blockStyle = {
@@ -398,8 +755,8 @@ const SidePanel = () => {
 
   const messages = [
     {
-      label: "Text",
-      type: "CustomNode",
+      label: "Message",
+      type: "CustomText",
       icon: <Icon as={AiOutlineMessage} mr={2} />,
     },
     { label: "Image", type: "imageNode", icon: <Icon as={FaImage} mr={2} /> },
@@ -428,23 +785,23 @@ const SidePanel = () => {
     },
   ];
 
-  const logicBlocks = [
-    {
-      label: "Condition",
-      type: "CustomNode",
-      icon: <Icon as={TiArrowShuffle} mr={2} />,
-    },
-  ];
+  // const logicBlocks = [
+  //   {
+  //     label: 'Condition',
+  //     type: 'CustomNode',
+  //     icon: <Icon as={TiArrowShuffle} mr={2} />
+  //   }
+  // ]
 
   const WhatsAppEssential = [
     {
       label: "Reply Buttons",
-      type: "CustomNode",
+      type: "ReplyButton",
       icon: <Icon as={LuReply} mr={2} />,
     },
     {
       label: "List Buttons",
-      type: "CustomNode",
+      type: "ListButton",
       icon: <Icon as={IoIosListBox} mr={2} />,
     },
   ];
@@ -475,9 +832,12 @@ const SidePanel = () => {
           as={IconButton}
           aria-label="Options"
           icon={<LuPlus fontSize={"27px"} />}
-          bgColor={"#4fccc2"}
-          _hover={{ bgColor: "#4fccc2" }}
+          bgColor="var(--active-bg)"
+          _hover={{ bgColor: "var(--active-bg)" }}
+          _focus={{ bgColor: "var(--active-bg)" }}
+          _active={{ bgColor: "var(--active-bg)" }}
           variant="outline"
+          color={"white"}
           borderRadius="40px"
         ></MenuButton>
         <MenuList px={4} py={2}>
@@ -551,23 +911,23 @@ const SidePanel = () => {
           </Box>
 
           {/* Logic */}
-          <Box mt={3}>
-            <Text fontSize="15px" fontWeight="bold">
+          {/* <Box mt={3}>
+            <Text fontSize='15px' fontWeight='bold'>
               Logic
             </Text>
-            {logicBlocks.map((block) => (
+            {logicBlocks.map(block => (
               <Box
-                fontSize="15px"
-                fontWeight="500"
+                fontSize='15px'
+                fontWeight='500'
                 key={block.label}
                 style={blockStyle}
                 draggable
-                onDragStart={(e) => handleDragStart(e, block)}
+                onDragStart={e => handleDragStart(e, block)}
               >
                 {block.icon} {block.label}
               </Box>
             ))}
-          </Box>
+          </Box> */}
 
           {/* Integrations */}
           <Box mt={3}>
@@ -592,6 +952,7 @@ const SidePanel = () => {
     </Box>
   );
 };
+
 // Flow Canvas
 const FlowCanvas = () => {
   // const token = localStorage.getItem("token");
@@ -657,6 +1018,7 @@ const {id } = useParams()
         }
       );
       const result = await response.json();
+      console.log(result.data)
     const { nodes, edges } = result.data;
 
     const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
@@ -765,12 +1127,27 @@ const {id } = useParams()
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
-          // nodeTypes={nodeTypes}
+          nodeTypes={nodeTypes}
           fitView
         >
           <Background />
           <Controls />
         </ReactFlow>
+         <Box p={4} bg="white">
+    <Text fontWeight="bold" mb={2}>List Button Options</Text>
+    {nodes
+      .filter(node => node.data?.targetValues)
+      .map(node => (
+        <Box key={node.id} mb={3} p={2} border="1px solid #ccc" borderRadius="md">
+          <Text fontSize="sm" fontWeight="bold">Node {node.id}: {node.data.label}</Text>
+          <List spacing={1} mt={1}>
+            {node.data.targetValues.map((val, idx) => (
+              <ListItem key={idx}>•kdksdksaks {val}</ListItem>
+            ))}
+          </List>
+        </Box>
+      ))}
+  </Box>
       </Box>
     </Box>
   );
