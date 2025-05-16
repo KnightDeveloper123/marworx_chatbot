@@ -126,41 +126,127 @@ router.get('/getbyid', async (req, res) => {
 //     });
 // });
 
-// router.post('/send-whatsapp', async (req, res) => {
-//     const { to } = req.body;
-//      const phoneNumberId = '688758694314072'
-//   console.log(to)
-//     const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
-//     const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
+router.post('/send-whatsapp', async (req, res) => {
+    const { to } = req.body;
+     const phoneNumberId = '688758694314072'
+  console.log(to)
+    const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+    const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
   
-//     const body = {
-//       messaging_product: 'whatsapp',
-//       to: to,
-//       type: 'template',
-//       template: {
-//         name: 'hello_world',
-//         language: {
-//           code: 'en_US',
-//         },
-//       },
-//     };
+    const body = {
+      messaging_product: 'whatsapp',
+      to: to,
+      type: 'template',
+      template: {
+        name: 'hello_world',
+        language: {
+          code: 'en_US',
+        },
+      },
+    };
 
-//     try {
-//       const response = await fetch(url, {
-//         method: 'POST',
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify(body),
-//       });
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
   
-//       const data = await response.json();
-//       res.status(200).json(data);
-//     } catch (err) {
-//       console.error('WhatsApp send error:', err);
-//       res.status(500).json({ error: 'Failed to send message' });
-//     }
-//   });
+      const data = await response.json();
+      res.status(200).json(data);
+    } catch (err) {
+      console.error('WhatsApp send error:', err);
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
+router.post('/addwithwhatsup', async (req, res) => {
+  const { flowName, nodes, edges, to } = req.body;
+
+  const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
+  connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], async (err, result) => {
+    if (err) {
+      console.error('Error saving flow:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+
+    const flowId = result.insertId;
+
+    // WhatsApp Config
+    const phoneNumberId = '688758694314072';
+    const token = 'EAAR5zlpRIpcBOZC5IaQwLT7w7va3gJxHub2oZCGN5LFUl54UegLPesIvOs6qhbBE2ZAJLV1j2Se84ZBKjLSSxUWmf5JfzY8FTzqXTtQN17zqmnP9hgOi8wVzSHEUGSgqrjxfq1D9c9ySE24pctVWFo8gDuJQ3y8fRldXbcrIGu6fQZA76pRGqzoUcxphdZCVTpJDt8jt8YVAwv5zZA2URck4V9zCosvZAvlmzF5OUaRlx2gm'; // Store in .env
+
+    // Step 1: Parse nodes if necessary
+    const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
+// console.log(parsedNodes)
+    // Step 2: Send each node content
+    for (const node of parsedNodes) {
+      const type = node.type;
+      const data = node.data || {};
+
+      try {
+        if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
+          await sendWhatsAppText(to, data.label, token, phoneNumberId);
+        }
+
+        if (type === 'imageNode' && data.fileUrl) {
+          await sendWhatsAppImage(to, data.fileUrl, token, phoneNumberId);
+        }
+      } catch (sendError) {
+        console.error(`Failed to send WhatsApp message for node ${node.id}:`, sendError);
+      }
+    }
+
+    res.status(200).json({
+      message: 'Flow saved and messages sent',
+      flowId: flowId
+    });
+  });
+});
+
+
+async function sendWhatsAppText(to, text, token, phoneNumberId) {
+    // console.log(to, text, token, phoneNumberId)
+  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  const body = {
+    messaging_product: 'whatsapp',
+    to,
+    type: 'text',
+    text: { body: text }
+  };
+console.log(body)
+const response=  await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+ const result = await response.json();
+ console.log(result)
+}
+
+async function sendWhatsAppImage(to, imageUrl, token, phoneNumberId) {
+  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  const body = {
+    messaging_product: 'whatsapp',
+    to,
+    type: 'image',
+    image: { link: imageUrl }
+  };
+
+  await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+}
 
 module.exports = router;
