@@ -994,6 +994,9 @@ const FlowCanvas = () => {
     setPhoneNumbers((prev) => prev.filter((num) => num !== numToDelete))
   }
 
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
+
+
   // save on database
   const saveFlow = async () => {
     try {
@@ -1025,6 +1028,39 @@ const FlowCanvas = () => {
     }
   };
 
+  const saveFlowNumber = async () => {
+    if (selectedNumbers.length === 0) {
+      alert("Please select at least one number to send test.");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            flowName: "E-commerce Bot",
+            nodes,
+            edges,
+            sector_id: sectorId,
+            bot_type: botType,
+            admin_id,
+            to: "918308459428", // ✅ always send as string
+          }),
+        }
+      );
+      
+
+      const data = await response.json();
+      console.log("Save success ✅");
+      console.log("WhatsApp API response:", data.whatsappStatus);
+    } catch (error) {
+      console.log("❌ Error:", error);
+    }
+  };
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
       <Box
@@ -1099,16 +1135,16 @@ const FlowCanvas = () => {
         </ReactFlow>
       </Box>
 
-<Modal isOpen={isOpen} onClose={onClose} size={'2xl'}>
+      <Modal isOpen={isOpen} onClose={onClose} size={'2xl'}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader></ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-          <Box display={'flex'} gap={'16px'} alignItems={'center'} mb={'16px'}>
-            <Text ><FaWhatsapp  color="#25D366" size="36px"/></Text>
-            <Heading>  Test this bot on WhatsApp</Heading>
-            </Box> 
+            <Box display={'flex'} gap={'16px'} alignItems={'center'} mb={'16px'}>
+              <Text ><FaWhatsapp color="#25D366" size="36px" /></Text>
+              <Heading>  Test this bot on WhatsApp</Heading>
+            </Box>
             <Divider />
             <Box display={'flex'} flexDirection={'column'} gap={'10px'} my={'20px'}>
               <Text>
@@ -1119,18 +1155,27 @@ const FlowCanvas = () => {
                 {phoneNumbers.map((num, index) => (
                   <Box key={index}>
                     <Box border={'1px solid lightgray'} display={'flex'} justifyContent={'space-between'} padding={'10px'} borderRadius={'7px'}>
-                      <Checkbox>
+                      <Checkbox
+                        isChecked={selectedNumbers.includes(num)}
+                        onChange={(e) => {
+                          const isChecked = e.target.checked;
+                          if (isChecked) {
+                            setSelectedNumbers((prev) => [...prev, num]);
+                          } else {
+                            setSelectedNumbers((prev) => prev.filter((n) => n !== num));
+                          }
+                        }}
+                      >
                         {num}
                       </Checkbox>
+
                       <Text onClick={() => deleteNumber(num)}><LiaTrashAlt /></Text>
                     </Box>
                   </Box>
                 ))}
-
               </Box>
             </Box>
           </ModalBody>
- 
           <ModalFooter>
             <Button onClick={onNumOpen}
               type="button"
@@ -1151,7 +1196,7 @@ const FlowCanvas = () => {
               // h={"35px"}
               fontSize="var(--mini-text)"
               fontWeight="var(--big-font-weight)"
-              onClick={() => console.log("send")}> Send Test </Button>
+              onClick={() => saveFlowNumber()}> Send Test </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
