@@ -2,9 +2,11 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Collapse,
   Divider,
   Flex,
+  Heading,
   Icon,
   IconButton,
   Image,
@@ -12,6 +14,13 @@ import {
   Menu,
   MenuButton,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   useDisclosure,
@@ -28,6 +37,8 @@ import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { LiaTrashAlt } from "react-icons/lia";
+import { FaWhatsapp } from "react-icons/fa";
 import React, { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   Background,
@@ -79,8 +90,8 @@ const nodeTypes = {
           resize="none"
           size="xs"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -149,8 +160,8 @@ const nodeTypes = {
           size="xs"
           rows="1"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -219,8 +230,8 @@ const nodeTypes = {
           size="sm"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -238,8 +249,8 @@ const nodeTypes = {
     const [fileName, setFileName] = useState(data.fileName || "");
     const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
-console.log(fileUrl)
-console.log(fileName)
+    console.log(fileUrl)
+    console.log(fileName)
 
     const handleImageUpload = (e) => {
       const file = e.target.files[0];
@@ -262,13 +273,13 @@ console.log(fileName)
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    fileName,
-                    fileUrl,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  fileName,
+                  fileUrl,
+                },
+              }
               : node
           )
         );
@@ -449,7 +460,7 @@ console.log(fileName)
       <Box bg="white" borderRadius={"4px"}>
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box
-          
+
           color="white"
           p={0.5}
           borderRadius={"5px"}
@@ -499,13 +510,13 @@ console.log(fileName)
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -532,7 +543,7 @@ console.log(fileName)
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box  color="white"
+        <Box color="white"
           p={0.5}
           borderRadius={"5px"}
           bgColor="var(--active-bg)">
@@ -608,13 +619,13 @@ console.log(fileName)
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -641,7 +652,7 @@ console.log(fileName)
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box  color="white"
+        <Box color="white"
           p={0.5}
           borderRadius={"5px"}
           bgColor="var(--active-bg)">
@@ -678,7 +689,7 @@ console.log(fileName)
               placeholder={`button`}
               size="xs"
               fontSize="10px"
-              // mb={1}
+            // mb={1}
             />
 
             <Handle
@@ -699,7 +710,7 @@ console.log(fileName)
           variant="outline"
           colorScheme="blue"
         >
-             + Add Option
+          + Add Option
         </Button>
       </Box>
     );
@@ -924,6 +935,8 @@ const SidePanel = () => {
 const FlowCanvas = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isNumOpen, onOpen: onNumOpen, onClose: onNumClose } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "1",
@@ -973,6 +986,13 @@ const FlowCanvas = () => {
   const botType = localStorage.getItem("botType");
   const sectorId = localStorage.getItem("sectorId");
   const admin_id = localStorage.getItem("admin_id");
+
+
+  const [phoneNumbers, setPhoneNumbers] = useState(["9022030279"]);
+  const [newNumber, setNewNumber] = useState("");
+  const deleteNumber = (numToDelete) => {
+    setPhoneNumbers((prev) => prev.filter((num) => num !== numToDelete))
+  }
 
   // save on database
   const saveFlow = async () => {
@@ -1031,6 +1051,19 @@ const FlowCanvas = () => {
           </Button>
           <Button
             borderRadius="var(--radius)"
+
+            border={'1px solid orange '}
+            color={"var(--active-bg)"}
+            size={"sm"}
+            bgColor={'white'}
+            // h={"35px"}
+            fontSize="var(--mini-text)"
+            fontWeight="var(--big-font-weight)"
+            onClick={onOpen}>
+            Test this bot
+          </Button>
+          <Button
+            borderRadius="var(--radius)"
             _hover={{ bgColor: "var(--active-bg)" }}
             bgColor="var(--active-bg)"
             color="#fff"
@@ -1065,6 +1098,120 @@ const FlowCanvas = () => {
           <Controls />
         </ReactFlow>
       </Box>
+
+<Modal isOpen={isOpen} onClose={onClose} size={'2xl'}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader></ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+          <Box display={'flex'} gap={'16px'} alignItems={'center'} mb={'16px'}>
+            <Text ><FaWhatsapp  color="#25D366" size="36px"/></Text>
+            <Heading>  Test this bot on WhatsApp</Heading>
+            </Box> 
+            <Divider />
+            <Box display={'flex'} flexDirection={'column'} gap={'10px'} my={'20px'}>
+              <Text>
+                Choose one or more numbers to use for the test.
+                You can test with a maximum of 10 numbers.
+              </Text>
+              <Box display={'flex'} gap={'4px'} flexDirection={'column'} maxHeight={'150px'} overflow={'auto'}>
+                {phoneNumbers.map((num, index) => (
+                  <Box key={index}>
+                    <Box border={'1px solid lightgray'} display={'flex'} justifyContent={'space-between'} padding={'10px'} borderRadius={'7px'}>
+                      <Checkbox>
+                        {num}
+                      </Checkbox>
+                      <Text onClick={() => deleteNumber(num)}><LiaTrashAlt /></Text>
+                    </Box>
+                  </Box>
+                ))}
+
+              </Box>
+            </Box>
+          </ModalBody>
+ 
+          <ModalFooter>
+            <Button onClick={onNumOpen}
+              type="button"
+              size={"sm"}
+              fontSize={"13px"}
+              border={"1px solid #FF5722 "}
+              textColor={"#FF5722"}
+              bgColor={"white"}
+              mr={3}
+              _hover={{ bgColor: "white" }}>
+              Add number
+            </Button>
+            <Button borderRadius="var(--radius)"
+              _hover={{ bgColor: "var(--active-bg)" }}
+              bgColor="var(--active-bg)"
+              color="#fff"
+              size={"sm"}
+              // h={"35px"}
+              fontSize="var(--mini-text)"
+              fontWeight="var(--big-font-weight)"
+              onClick={() => console.log("send")}> Send Test </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+
+      <Modal isOpen={isNumOpen} onClose={onNumClose} size={'2xl'}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader></ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Heading mb={'10px'}>Test this bot on WhatsApp
+            </Heading>
+            <Divider />
+            <Box display={'flex'} flexDirection={'column'} gap={'10px'} my={'20px'}>
+              <Text>If you want to test this bot yourself, add your phone number.
+                You can also send a test to your clients or colleagues by adding their number.
+              </Text>
+              <Input
+                type="number"
+                placeholder="Type a Phone number"
+                value={newNumber}
+                onChange={(e) => setNewNumber(e.target.value)}
+              />
+
+            </Box>
+          </ModalBody>
+          <Divider />
+          <ModalFooter>
+            <Button
+              type="button"
+              size={"sm"}
+              fontSize={"13px"}
+              border={"1px solid #FF5722 "}
+              textColor={"#FF5722"}
+              bgColor={"white"}
+              mr={3}
+              _hover={{ bgColor: "white" }}
+              onClick={onNumClose}>
+              back
+            </Button>
+            <Button borderRadius="var(--radius)"
+              _hover={{ bgColor: "var(--active-bg)" }}
+              bgColor="var(--active-bg)"
+              color="#fff"
+              size={"sm"}
+              // h={"35px"}
+              fontSize="var(--mini-text)"
+              fontWeight="var(--big-font-weight)"
+              onClick={() => {
+                if (newNumber && !phoneNumbers.includes(newNumber)) {
+                  setPhoneNumbers((prev) => [...prev, newNumber]);
+                  setNewNumber(""); // reset input
+                }
+                onNumClose(); // close number modal
+              }}
+            >Add number & Send Test </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
