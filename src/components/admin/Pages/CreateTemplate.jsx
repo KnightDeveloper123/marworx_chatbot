@@ -51,69 +51,164 @@ const getId = () => `${++id}`;
 
 // Node types map
 const nodeTypes = {
-  CustomNode: ({ id, data }) => {
-    const [value, setValue] = useState(data.label || null);
-    const { setNodes } = useReactFlow();
+
+  Custom: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null)
+    const { setNodes } = useReactFlow()
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes((nds) =>
-          nds.map((node) =>
+        setNodes(nds =>
+          nds.map(node =>
             node.id === id
               ? { ...node, data: { ...node.data, label: value } }
               : node
           )
-        );
-      }, 500);
+        )
+      }, 500)
 
-      return () => clearTimeout(timer);
-    }, [value, id, setNodes]);
+      return () => clearTimeout(timer)
+    }, [value, id, setNodes])
+    return (
+      <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Input
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder='Enter text...'
+          fontSize='8px'
+          border='none'
+          resize='none'
+          size="xs"
+          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
+        // px={2} 
+        // py={1}
+        />
+
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+    )
+  },
+
+  CustomNode: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null)
+    const { setNodes } = useReactFlow()
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        )
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }, [value, id, setNodes])
 
     const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
+      setNodes(nds => nds.filter(node => node.id !== id))
+    }
 
     return (
-      <div style={{ background: "#fff", borderRadius: 4 }}>
-        <Handle type="target" position="top" style={{ background: "#555" }} />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Text
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
-        <Divider />
+      <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>
+              Question
+            </Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='white'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
+
         <Textarea
-          fontSize="var( --text-12px)"
-          fontWeight="var(--big-font-weight)"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter text..."
-          style={{
-            width: "100%",
-            minHeight: 20,
-            resize: "none",
-            border: "none",
-          }}
+          onChange={e => setValue(e.target.value)}
+          placeholder='Enter text...'
+          fontSize='8px'
+          border='none'
+          resize='none'
+          size="xs"
+          rows='1'
+          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
+        // px={2} 
+        // py={1}
         />
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#555" }}
+
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+    )
+  },
+
+
+  CustomText: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null)
+    const { setNodes } = useReactFlow()
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        )
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }, [value, id, setNodes])
+
+    const handleDelete = () => {
+      setNodes(nds => nds.filter(node => node.id !== id))
+    }
+
+    return (
+      <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>
+              Message
+            </Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='white'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
+
+        <Textarea
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder='Enter text...'
+          fontSize='8px'
+          border='none'
+          resize='none'
+          size="sm"
+          rows='2'
+          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
+        // px={2} 
+        // py={1}
         />
-      </div>
-    );
+
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+    )
   },
 
   imageNode: ({ id, data }) => {
@@ -143,13 +238,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    fileName,
-                    fileUrl,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  fileName,
+                  fileUrl,
+                },
+              }
               : node
           )
         );
@@ -157,230 +252,439 @@ const nodeTypes = {
     }, [fileUrl]);
 
     return (
-      <Box
-        bg="white"
-        border="1px solid #ccc"
-        borderRadius="md"
-        position="relative"
-      >
-        <Handle
-          type="target"
-          position={Position.Top}
-          style={{ background: "#555" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Image
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
+      <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>
+              Image
+            </Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='white'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
         <Divider />
-
         <Input
-          fontSize="var( --text-12px)"
-          fontWeight="var(--big-font-weight)"
-          border={"none"}
-          type="file"
-          accept="image/*"
+          fontSize='8px'
+          fontWeight='var(--big-font-weight)'
+          border={'none'}
+          type='file'
+          accept='image/*'
           onChange={handleImageUpload}
-          size="sm"
+          size='sm'
         />
-        {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
-
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          style={{ background: "#555" }}
-        />
+        <Box position="relative" top='0px'>
+          {image && <Image
+            src={image}
+            alt="node drawing"
+            width="189px"
+            height="auto"
+          />
+          }
+        </Box>
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
       </Box>
+
+      // <Box
+      //   bg="white"
+      //   border="1px solid #ccc"
+      //   borderRadius="md"
+      //   position="relative"
+      // >
+      //   <Handle
+      //     type="target"
+      //     position={Position.Top}
+      //     style={{ background: "#555" }}
+      //   />
+      //   <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
+      //     <Text fontSize="10px" fontWeight="var(--big-font-weight)">
+      //       Image
+      //     </Text>
+      //     <button
+      //       onClick={handleDelete}
+      //       style={{
+      //         color: "red",
+      //         border: "none",
+      //         background: "none",
+      //         cursor: "pointer",
+      //         fontSize: "20px",
+      //       }}
+      //     >
+      //       <IoTrashOutline fontSize={"10px"} />
+      //     </button>
+      //   </Flex>
+      //   <Divider />
+
+      //   <Input
+      //     fontSize="var( --text-12px)"
+      //     fontWeight="var(--big-font-weight)"
+      //     border={"none"}
+      //     type="file"
+      //     accept="image/*"
+      //     onChange={handleImageUpload}
+      //     size="sm"
+      //   />
+      //   {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
+
+      //   <Handle
+      //     type="source"
+      //     position={Position.Bottom}
+      //     style={{ background: "#555" }}
+      //   />
+      // </Box>
     );
   },
 
   VideoNode: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [fileName, setFileName] = useState(data.fileName || "");
-    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+    const { setNodes } = useReactFlow()
+    const [fileName, setFileName] = useState(data.fileName || '')
+    const [fileUrl, setFileUrl] = useState(data.fileUrl || '')
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes((nodes) =>
-          nodes.map((node) =>
+        setNodes(nodes =>
+          nodes.map(node =>
             node.id === id
               ? { ...node, data: { ...node.data, fileName, fileUrl } }
               : node
           )
-        );
-      }, 500);
+        )
+      }, 500)
 
-      return () => clearTimeout(timer);
-    }, [fileName, fileUrl, id, setNodes]);
+      return () => clearTimeout(timer)
+    }, [fileName, fileUrl, id, setNodes])
     const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
+      setNodes(nds => nds.filter(node => node.id !== id))
+    }
 
-    const handleFileChange = async (e) => {
-      const file = e.target.files[0];
-      if (file && file.type === "video/mp4") {
+    const handleFileChange = async e => {
+      const file = e.target.files[0]
+      if (file && file.type === 'video/mp4') {
         // Step 1: Set local preview
-        setFileName(file.name);
-        setFileUrl(URL.createObjectURL(file));
+        setFileName(file.name)
+        setFileUrl(URL.createObjectURL(file))
 
         // Step 2: Upload to server (example)
-        const formData = new FormData();
-        formData.append("video", file);
-        const res = await fetch("/upload", { method: "POST", body: formData });
-        const data = await res.json();
+        const formData = new FormData()
+        formData.append('video', file)
+        const res = await fetch('/upload', { method: 'POST', body: formData })
+        const data = await res.json()
 
         // data.url should contain the uploaded video URL
-        setFileUrl(data.url);
+        setFileUrl(data.url)
       } else {
-        alert("Please upload a valid .mp4 video file.");
+        alert('Please upload a valid .mp4 video file.')
       }
-    };
+    }
 
     return (
-      <Box
-        bg="white"
-        border="1px solid #ccc"
-        borderRadius="md"
-        position="relative"
-      >
-        <Handle
-          type="target"
-          position="top"
-          style={{ background: "#eb2f96" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Video
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
-          >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
+      <Box bg='white' borderRadius={'15px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>
+              Video
+            </Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='white'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
         <Divider />
-
-        <input
-          fontSize="var( --text-12px)"
-          fontWeight="var(--big-font-weight)"
-          type="file"
-          accept="video/mp4"
+        <Input
+          fontSize='8px'
+          fontWeight='var(--big-font-weight)'
+          type='file'
+          accept='video/mp4'
           onChange={handleFileChange}
           style={{ marginTop: 4 }}
+          size={'sm'}
         />
         {fileUrl && (
           <video
             src={fileUrl}
             controls
-            style={{ width: "100%", marginTop: 10, borderRadius: 4 }}
+            style={{ width: '189px', height: 'auto' }}
           />
         )}
-        {fileName && (
-          <p style={{ fontSize: 12, marginTop: 3, color: "#eb2f96" }}>
-            {fileName}
-          </p>
-        )}
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#eb2f96" }}
-        />
+        {/* {fileName && (
+            <p style={{ fontSize: 12, marginTop: 3, color: '#eb2f96' }}>
+              {fileName}
+            </p>
+          )} */}
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
       </Box>
-    );
+
+
+    )
   },
 
   GoogleSheetsNode: ({ id, data }) => {
-    const [file, setFile] = useState(data.file || null);
-    const { setNodes } = useReactFlow();
+    const [file, setFile] = useState(data.file || null)
+    const { setNodes } = useReactFlow()
 
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id ? { ...node, data: { ...node.data, file } } : node
+          )
+        )
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }, [file, id, setNodes])
+
+    const handleFileChange = e => {
+      const uploadedFile = e.target.files[0]
+      if (uploadedFile) {
+        setFile(uploadedFile.name)
+      }
+    }
+    const handleDelete = () => {
+      setNodes(nds => nds.filter(node => node.id !== id))
+    }
+    return (
+      <Box bg='white' borderRadius={'4px'}>
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>
+              GoogleSheet
+            </Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='white'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
+        <Divider />
+        <Input
+          type='file'
+          accept='.xlsx,.xls,.csv'
+          onChange={handleFileChange}
+          fontSize='var( --text-12px)'
+          fontWeight='var(--big-font-weight)'
+          size='sm'
+        />
+        {file && <p>📄 {file}</p>}
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+    )
+  },
+
+  ReplyButton: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "");
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+    // Sync data back to nodes
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) =>
-            node.id === id ? { ...node, data: { ...node.data, file } } : node
+            node.id === id
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
+              : node
           )
         );
-      }, 500);
-
+      }, 300);
       return () => clearTimeout(timer);
-    }, [file, id, setNodes]);
+    }, [question, targetValues, id, setNodes]);
 
-    const handleFileChange = (e) => {
-      const uploadedFile = e.target.files[0];
-      if (uploadedFile) {
-        setFile(uploadedFile.name);
-      }
-    };
     const handleDelete = () => {
       setNodes((nds) => nds.filter((node) => node.id !== id));
     };
+
+    const addTargetValue = () => {
+      setTargetValues((prev) => [...prev, ""]);
+    };
+
+    const updateTargetValue = (index, newValue) => {
+      setTargetValues((prev) =>
+        prev.map((val, i) => (i === index ? newValue : val))
+      );
+    };
+
     return (
-      <Box
-        style={{
-          background: "#fff",
-          borderRadius: 4,
-        }}
-      >
-        <Handle
-          type="target"
-          position="top"
-          style={{ background: "#1890ff" }}
-        />
-        <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-          <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-            Google Sheet
-          </Text>
-          <button
-            onClick={handleDelete}
-            style={{
-              color: "red",
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              fontSize: "20px",
-            }}
+      <Box bg="white" borderRadius="5px" w="150px">
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+
+        {/* Header */}
+        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Reply Button
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        {/* Target values */}
+
+        {targetValues.map((val, idx) => (
+          <Flex
+            key={idx}
+            position="relative"
+            borderRadius="md"
+            px={2}
+            py={1}
+            fontSize="10px"
+            alignItems="center"
           >
-            <IoTrashOutline fontSize={"10px"} />
-          </button>
-        </Flex>
-        <Divider />
-        <input
-          type="file"
-          accept=".xlsx,.xls,.csv"
-          onChange={handleFileChange}
-          style={{ marginTop: 8 }}
-          fontSize="var( --text-12px)"
-          fontWeight="var(--big-font-weight)"
-        />
-        {file && <p style={{ fontSize: 12, marginTop: 6 }}>📄 {file}</p>}
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#1890ff" }}
-        />
+            <Input
+              key={idx}
+              value={val}
+              onChange={(e) => updateTargetValue(idx, e.target.value)}
+              placeholder={`button`}
+              size="xs"
+              fontSize="10px"
+            // mb={1}
+            />
+
+            <Handle
+              type="source"
+              position="right"
+              id={`option-${idx}`}
+              style={{ background: "#555" }}
+            />
+          </Flex>
+        ))}
+
+        <Button
+          onClick={addTargetValue}
+          size="xs"
+          fontSize="10px"
+          width="100%"
+          mt={1}
+          variant="outline"
+          colorScheme="blue"
+        >
+          + Add Option
+        </Button>
       </Box>
     );
   },
+  ListButton: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || '');
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+    // Sync data back to nodes
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes(nds =>
+          nds.map(node =>
+            node.id === id
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues
+                }
+              }
+              : node
+          )
+        );
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [question, targetValues, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes(nds => nds.filter(node => node.id !== id));
+    };
+
+    const addTargetValue = () => {
+      setTargetValues(prev => [...prev, '']);
+    };
+
+    const updateTargetValue = (index, newValue) => {
+      setTargetValues(prev =>
+        prev.map((val, i) => (i === index ? newValue : val))
+      );
+    };
+
+    return (
+      <Box bg='white' borderRadius='5px' w="150px">
+        <Handle type='target' position='top' style={{ background: '#555' }} />
+
+        {/* Header */}
+        <Box bgColor='var(--active-bg)' color='white' borderRadius='md' p='1px'>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Text fontSize='10px' fontWeight='bold'>List Button</Text>
+            <IconButton
+              size='xs'
+              variant='ghost'
+              colorScheme='whiteAlpha'
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label='Delete Node'
+            />
+          </Flex>
+        </Box>
+        {/* Target values */}
+        <Box mt={2}>
+          {targetValues.map((val, idx) => (
+            <Input
+              key={idx}
+              value={val}
+              onChange={e => updateTargetValue(idx, e.target.value)}
+              placeholder={`Option ${idx + 1}`}
+              size='xs'
+              fontSize='10px'
+              mb={1}
+            />
+          ))}
+
+          {/* Add Button */}
+          <Button
+            onClick={addTargetValue}
+            size='xs'
+            fontSize='10px'
+            width='100%'
+            mt={1}
+            variant='outline'
+            colorScheme='blue'
+          >
+            + Add Option
+          </Button>
+        </Box>
+
+        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+      </Box>
+    );
+  }
+
+  
 };
 
 const blockStyle = {
@@ -397,55 +701,48 @@ const blockStyle = {
 const SidePanel = () => {
   const { isOpen: isBoxOpen, onToggle } = useDisclosure();
 
+
   const messages = [
     {
-      label: "Text",
-      type: "CustomNode",
-      icon: <Icon as={AiOutlineMessage} mr={2} />,
+      label: 'Message',
+      type: 'CustomText',
+      icon: <Icon as={AiOutlineMessage} mr={2} />
     },
-    { label: "Image", type: "imageNode", icon: <Icon as={FaImage} mr={2} /> },
-  ];
+    { label: 'Image', type: 'imageNode', icon: <Icon as={FaImage} mr={2} /> }
+  ]
 
-  const QuestionsBlock = [
+ const QuestionsBlock = [
     {
-      label: "What is your name?",
-      type: "CustomNode",
-      icon: <Icon as={FcBusinessman} mr={2} />,
+      label: 'What is your name?',
+      type: 'CustomNode',
+      icon: <Icon as={FcBusinessman} mr={2} />
     },
     {
-      label: "Ask a Question?",
-      type: "CustomNode",
-      icon: <Icon as={GoQuestion} mr={2} />,
+      label: 'Ask a Question?',
+      type: 'CustomNode',
+      icon: <Icon as={GoQuestion} mr={2} />
     },
     {
-      label: "Ask for an email?",
-      type: "CustomNode",
-      icon: <Icon as={TfiEmail} mr={2} />,
+      label: 'Ask for an email?',
+      type: 'CustomNode',
+      icon: <Icon as={TfiEmail} mr={2} />
     },
     {
-      label: "Ask for Phone number?",
-      type: "CustomNode",
-      icon: <Icon as={FcPhoneAndroid} mr={2} />,
-    },
-  ];
-
-  const logicBlocks = [
-    {
-      label: "Condition",
-      type: "CustomNode",
-      icon: <Icon as={TiArrowShuffle} mr={2} />,
-    },
-  ];
+      label: 'Ask for Phone number?',
+      type: 'CustomNode',
+      icon: <Icon as={FcPhoneAndroid} mr={2} />
+    }
+  ]
 
   const WhatsAppEssential = [
     {
       label: "Reply Buttons",
-      type: "CustomNode",
+      type: "ReplyButton",
       icon: <Icon as={LuReply} mr={2} />,
     },
     {
       label: "List Buttons",
-      type: "CustomNode",
+      type: "ListButton",
       icon: <Icon as={IoIosListBox} mr={2} />,
     },
   ];
@@ -551,25 +848,6 @@ const SidePanel = () => {
             ))}
           </Box>
 
-          {/* Logic */}
-          <Box mt={3}>
-            <Text fontSize="15px" fontWeight="bold">
-              Logic
-            </Text>
-            {logicBlocks.map((block) => (
-              <Box
-                fontSize="15px"
-                fontWeight="500"
-                key={block.label}
-                style={blockStyle}
-                draggable
-                onDragStart={(e) => handleDragStart(e, block)}
-              >
-                {block.icon} {block.label}
-              </Box>
-            ))}
-          </Box>
-
           {/* Integrations */}
           <Box mt={3}>
             <Text fontSize="15px" fontWeight="bold">
@@ -596,18 +874,18 @@ const SidePanel = () => {
 
 // Flow Canvas
 const FlowCanvas = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const token = localStorage.getItem('token')
-  const template_id=useParams();
+  const template_id = useParams();
 
   const [nodes, setNodes, onNodesChange] = useNodesState([
-     {
-      id: "1",
-      type: "CustomNode",
-      data: { label: "Starting Point" },
-      position: { x: 100, y: 150 },
-     }
-  ]);
+    {
+      id: '1',
+      type: 'Custom',
+      data: { label: 'Starting point' },
+      position: { x: 100, y: 150 }
+    }
+  ])
 
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
@@ -648,18 +926,19 @@ const FlowCanvas = () => {
   };
   // save on database
   const saveFlow = async () => {
-      try {
+    try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/template/create`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json",
+          headers: {
+            "Content-Type": "application/json",
             // Authorization : token
-           },
+          },
           body: JSON.stringify({
-            node:nodes,
+            node: nodes,
             edges,
-            template_id:template_id.id
+            template_id: template_id.id
           }),
         }
       );
@@ -668,7 +947,7 @@ const FlowCanvas = () => {
       navigate('/home/template')
     } catch (error) {
       console.log(error);
-    //   showAlert("Failed to add Campaign", "error");
+      //   showAlert("Failed to add Campaign", "error");
     }
   };
 

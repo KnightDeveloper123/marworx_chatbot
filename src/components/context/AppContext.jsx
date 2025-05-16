@@ -251,6 +251,8 @@ export const AppProvider = ({ children }) => {
             }
         }
 
+        console.log(sectors)
+
         const[campaign,setCampaign]=useState([])
 
         const fetchCampaign= async (admin_id) => {
