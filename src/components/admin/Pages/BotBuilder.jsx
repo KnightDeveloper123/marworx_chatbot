@@ -1048,17 +1048,17 @@ const FlowCanvas = () => {
             sector_id: sectorId,
             bot_type: botType,
             admin_id,
-            to: "918308459428", // ✅ always send as string
+            to: selectedNumbers, 
           }),
         }
       );
-      
+
 
       const data = await response.json();
-      console.log("Save success ✅");
+      console.log("Save success ");
       console.log("WhatsApp API response:", data.whatsappStatus);
     } catch (error) {
-      console.log("❌ Error:", error);
+      console.log(" Error:", error);
     }
   };
   return (
@@ -1253,7 +1253,7 @@ const FlowCanvas = () => {
                 }
                 onNumClose(); // close number modal
               }}
-            >Add number & Send Test </Button>
+            > Save number</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
