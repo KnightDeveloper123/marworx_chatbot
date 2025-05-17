@@ -82,10 +82,10 @@ router.get('/getbyid', async (req, res) => {
 //         const messageText = `✅ Flow '${flowName}' saved successfully with ID: ${flowId}`;
 
 //         // WhatsApp API details
-//         const phoneNumberId = '688758694314072'; // Your actual phone number ID
+//         const process.env.PHONE_NUMBER = '688758694314072'; // Your actual phone number ID
 //         const token = 'EAAR5zlpRIpcBOwCFm3eGmq5S4nzr8ZAjaM2zsNJyX0sKuoaGhzupHGGObWGHrzWjZCUGtQIiZAZCJAdrws57srH7QifePZC16XZCbieXNbrDoHRCDZAwTxr7Mki3q6tqyqlsyOt8cGZA19PtFkkmuSYdm3FHBcs9RX3MnCNhoRAwadonugy6VdP0RpFGiigtklSGTX9Vry0KSlE6lJPm26SXXK3dNx8H4SzmZCZCZCESpIXFxgZD'; // Store this securely in .env
 
-//         const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+//         const url = `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER}/messages`;
 // console.log(messageText)
 //         const whatsappBody = {
 //             messaging_product: 'whatsapp',
@@ -128,9 +128,8 @@ router.get('/getbyid', async (req, res) => {
 
 router.post('/send-whatsapp', async (req, res) => {
     const { to } = req.body;
-     const phoneNumberId = '688758694314072'
-  console.log(to)
-    const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+     const PhoneNumber = '688758694314072'
+    const url = `https://graph.facebook.com/v17.0/${PhoneNumber}/messages`;
     const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
   
     const body = {
@@ -176,8 +175,8 @@ router.post('/addwithwhatsup', async (req, res) => {
     const flowId = result.insertId;
 
     // WhatsApp Config
-    const phoneNumberId = '688758694314072';
-    const token = 'EAAR5zlpRIpcBOZC5IaQwLT7w7va3gJxHub2oZCGN5LFUl54UegLPesIvOs6qhbBE2ZAJLV1j2Se84ZBKjLSSxUWmf5JfzY8FTzqXTtQN17zqmnP9hgOi8wVzSHEUGSgqrjxfq1D9c9ySE24pctVWFo8gDuJQ3y8fRldXbcrIGu6fQZA76pRGqzoUcxphdZCVTpJDt8jt8YVAwv5zZA2URck4V9zCosvZAvlmzF5OUaRlx2gm'; // Store in .env
+    // const process.env.PHONE_NUMBER = '688758694314072';
+    const token='EAAR5zlpRIpcBOZBYvmBZAS94AGunOjFOWjsHwaYnZAvIAbXAWc9mszBmw18ki5TqZCrZCWWqf4Jb1LSVvYg0OZALMu4rWJkZAwWGVe96LUDmWaCgkgBxevKZCyYEZC3DPvZALTJ9eZBpw2T1uxZAVoCMS5tpjVrbcd0hDuYHqa0OrYon0ajo8yg3ZBdsxEaCmPCccqj8t6WZBLmlZCQ0t2zZA5KJ9Da9LMJl4cS5ZCr8bVyITibFFKQgZD'; // Store in .env
 
     // Step 1: Parse nodes if necessary
     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
@@ -189,11 +188,11 @@ router.post('/addwithwhatsup', async (req, res) => {
 
       try {
         if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
-          await sendWhatsAppText(to, data.label, token, phoneNumberId);
+          await sendWhatsAppText(to, data.label, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
         }
 
         if (type === 'imageNode' && data.fileUrl) {
-          await sendWhatsAppImage(to, data.fileUrl, token, phoneNumberId);
+          await sendWhatsAppImage(to, data.fileUrl, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
         }
       } catch (sendError) {
         console.error(`Failed to send WhatsApp message for node ${node.id}:`, sendError);
@@ -208,16 +207,16 @@ router.post('/addwithwhatsup', async (req, res) => {
 });
 
 
-async function sendWhatsAppText(to, text, token, phoneNumberId) {
-    // console.log(to, text, token, phoneNumberId)
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+async function sendWhatsAppText(to, text, token) {
+    // console.log(to)
+  const url = `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`;
   const body = {
     messaging_product: 'whatsapp',
     to,
     type: 'text',
     text: { body: text }
   };
-console.log(body)
+// console.log(body)
 const response=  await fetch(url, {
     method: 'POST',
     headers: {
@@ -227,11 +226,11 @@ const response=  await fetch(url, {
     body: JSON.stringify(body)
   });
  const result = await response.json();
- console.log(result)
+//  console.log(result)
 }
 
-async function sendWhatsAppImage(to, imageUrl, token, phoneNumberId) {
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+async function sendWhatsAppImage(to, imageUrl, token) {
+  const url = `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`;
   const body = {
     messaging_product: 'whatsapp',
     to,
@@ -248,5 +247,27 @@ async function sendWhatsAppImage(to, imageUrl, token, phoneNumberId) {
     body: JSON.stringify(body)
   });
 }
+
+
+router.get('/webhook', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode && token && mode === 'subscribe' && token === process.env.JWT_SECRET) {
+    console.log('✅ Webhook Verified');
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
+
+// POST - For receiving actual messages (optional)
+router.post('/webhook', (req, res) => {
+  console.log(req.body)
+  console.log('📩 Incoming Webhook:', JSON.stringify(req.body, null, 2));
+  res.sendStatus(200);
+});
 
 module.exports = router;
