@@ -402,7 +402,7 @@ const Sector = () => {
                         </Box> */}
                       </Flex>
 
-
+{/* // sector */}
                     
 
                       <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'}>

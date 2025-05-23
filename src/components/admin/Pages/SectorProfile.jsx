@@ -83,6 +83,8 @@ const SectorProfile = () => {
     return `${days} day${days !== 1 ? "s" : ""} ago`;
   }
 
+  // sector
+
     const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
     const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
     const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
