@@ -16,7 +16,7 @@ router.post('/add', (req, res) => {
     if (err) {
       console.error('Error saving flow:', err);
       return res.status(500).json({ message: 'Database error' });
-    } 
+    }
     res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
 
 
@@ -25,7 +25,7 @@ router.post('/add', (req, res) => {
 
 router.get('/getAll', async (req, res) => {
   try {
-       const { admin_id } = req.query;
+    const { admin_id } = req.query;
     const data = await executeQuery(`SELECT * FROM bots where admin_id=${admin_id} ORDER BY created_at DESC`)
     return res.json({ data })
   } catch (error) {
@@ -45,24 +45,24 @@ router.get('/getbyid', async (req, res) => {
   }
 });
 
-    router.post("/update", (req, res) => {
-      const { id, nodes, edges, } = req.body;
+router.post("/update", (req, res) => {
+  const { id, nodes, edges, } = req.body;
 
-      const query = `
+  const query = `
         UPDATE bots
         SET nodes = ?, edges = ?
         WHERE id = ?
       `;
 
-      connection.query(query, [nodes, edges, id], (err, result) => {
-        if (err) {
-          console.error("MySQL Error:", err);
-          return res.status(500).json({ error: "Failed to update Bot" });
-        }
+  connection.query(query, [nodes, edges, id], (err, result) => {
+    if (err) {
+      console.error("MySQL Error:", err);
+      return res.status(500).json({ error: "Failed to update Bot" });
+    }
 
-        res.status(200).json({ success: "Bot updated successfully", result });
-      });
-    });
+    res.status(200).json({ success: "Bot updated successfully", result });
+  });
+});
 
 
 
@@ -140,7 +140,7 @@ router.post('/addwithwhatsup', async (req, res) => {
         if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
           await sendWhatsAppText(to, data.label, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
         }
-      
+
         if (type === 'imageNode' && data.fileUrl) {
           await sendWhatsAppImage(to, data.fileUrl, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
         }
@@ -156,11 +156,11 @@ router.post('/addwithwhatsup', async (req, res) => {
   });
 });
 const phoneNumberId = process.env.PHONE_NUMBER_ID
-const token=process.env.WHATSAPP_TOKEN
+const token = process.env.WHATSAPP_TOKEN
 // console.log(process.env.PHONE_NUMBER_ID)
 // console.log(process.env.WHATSAPP_TOKEN)
 
-async function sendWhatsAppText(to, text, ) {
+async function sendWhatsAppText(to, text,) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   const body = {
     messaging_product: 'whatsapp',
@@ -179,7 +179,7 @@ async function sendWhatsAppText(to, text, ) {
   });
 
   const result = await response.json();
-  
+
   console.log('Send result+:', result);
 
   if (!response.ok) {
@@ -215,7 +215,7 @@ router.get('/webhook', (req, res) => {
   console.log(challenge)
   console.log(token)
   console.log(mode)
-  
+
   if (mode === 'subscribe' && token === verifyToken) {
     return res.status(200).send(challenge);
   } else {
@@ -253,6 +253,61 @@ router.post('/webhook', async (req, res) => {
 
   res.sendStatus(200);
 });
+
+
+
+router.post('/save_number', async (req, res) => {
+  const { phone_number } = req.body;
+
+  try {
+    const insertQuery = `INSERT INTO whatsup_number (phone_number) values(?)`;
+
+    connection.query(insertQuery, [phone_number], (err, data) => {
+
+      if (err) {
+        console.log(err)
+        return res.json({ error: "database error" })
+      }
+      return res.json({ data, message: "saved number" })
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.get('/getPhone_numbers', async (req, res) => {
+  try {
+    sql = `select * from whatsup_number where status=0`;
+    connection.query(sql, (err, data) => {
+      if (err) {
+        return res.json({ error: "database error" })
+      }
+      return res.status(200).json({ data, message: "fetched all numbers" })
+
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" })
+  }
+})
+
+router.post('/delete_number', async (req, res) => {
+  const { id } = req.body;
+  try {
+    const sql = `update whatsup_number set status=1 where id=?`;
+    connection.query(sql, [id], (err, data) => {
+      if (err) {
+        console.log(err)
+        return res.status(400).json({ message: "Something went wrong" })
+      }
+      return res.status(200).json({ message: "Number deleted" })
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 
 // async function sendTemplateMessage(to, token, phoneNumberId) {

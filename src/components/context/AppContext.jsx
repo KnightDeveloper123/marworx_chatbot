@@ -375,6 +375,24 @@ export const AppProvider = ({ children }) => {
         }
     };
         
+      const [phoneNumbers, setPhoneNumbers] = useState([]);
+
+     const getAllNumbers = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getPhone_numbers`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      const result = await response.json();
+      setPhoneNumbers(result.data)
+
+      // console.log("allnum", result.data?.phone_number)
+    } catch (error) {
+      console.log(error)
+    }
+  }
     return (
         <AppContext.Provider
             value={{
@@ -384,7 +402,7 @@ export const AppProvider = ({ children }) => {
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
                 ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, fetchBot, bots,
-                fetchTemplate,template
+                fetchTemplate,template,getAllNumbers,phoneNumbers
             }}
         >
             {children}

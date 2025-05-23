@@ -38,7 +38,7 @@ import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -55,6 +55,7 @@ import "reactflow/dist/style.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { decrypt } from "../../utils/security";
 import { LiaTrashAlt } from "react-icons/lia";
+import { AppContext } from "../../context/AppContext";
 
 // Utility for node ID generation
 let id = 1;
@@ -91,8 +92,8 @@ const nodeTypes = {
           resize="none"
           size="xs"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -161,8 +162,8 @@ const nodeTypes = {
           size="xs"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -231,8 +232,8 @@ const nodeTypes = {
           size="sm"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -271,13 +272,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    fileName,
-                    fileUrl,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  fileName,
+                  fileUrl,
+                },
+              }
               : node
           )
         );
@@ -509,13 +510,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -576,7 +577,7 @@ const nodeTypes = {
               placeholder={`button`}
               size="xs"
               fontSize="10px"
-              // mb={1}
+            // mb={1}
             />
 
             <Handle
@@ -614,13 +615,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -886,23 +887,24 @@ const SidePanel = () => {
 const FlowCanvas = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-   const { isOpen, onOpen, onClose } = useDisclosure();
-    const { isOpen: isNumOpen, onOpen: onNumOpen, onClose: onNumClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isNumOpen, onOpen: onNumOpen, onClose: onNumClose } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
-  
-    const botType = localStorage.getItem("botType");
-    const sectorId = localStorage.getItem("sectorId");
-    const user = localStorage.getItem('user');
-    const admin_id = decrypt(user).id;
+  const { phoneNumbers, getAllNumbers } = useContext(AppContext)
+
+  const botType = localStorage.getItem("botType");
+  const sectorId = localStorage.getItem("sectorId");
+  const user = localStorage.getItem('user');
+  const admin_id = decrypt(user).id;
 
   console.log(admin_id)
   console.log(botType)
   console.log(sectorId)
 
 
-   const onDrop = useCallback(
+  const onDrop = useCallback(
     (event) => {
       event.preventDefault();
       const rawData = event.dataTransfer.getData("application/reactflow");
@@ -990,14 +992,31 @@ const FlowCanvas = () => {
     fetchBot();
   }, []);
 
-  
-    const [phoneNumbers, setPhoneNumbers] = useState(["918308459428"]);
-    const [newNumber, setNewNumber] = useState("");
-    const deleteNumber = (numToDelete) => {
-      setPhoneNumbers((prev) => prev.filter((num) => num !== numToDelete))
+
+  // const [phoneNumbers, setPhoneNumbers] = useState([]);
+
+  const deleteNumber = async (id) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/delete_number`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id
+        })
+      })
+
+      const result = await response.json();
+      // console.log(result);
+      getAllNumbers();
+    } catch (error) {
+      console.log(error)
     }
-  
-    const [selectedNumbers, setSelectedNumbers] = useState([]);
+
+  }
+
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
 
   const saveFlowNumber = async () => {
     if (selectedNumbers.length === 0) {
@@ -1031,6 +1050,31 @@ const FlowCanvas = () => {
     }
   };
 
+  useEffect(() => {
+    getAllNumbers();
+  }, [])
+
+  const [newNumber, setNewNumber] = useState("");
+  const savePhoneNumber = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/save_number`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: newNumber
+        })
+      })
+      const data = await response.json();
+      console.log("numbers", data)
+      setNewNumber('')
+      onNumClose();
+      getAllNumbers();
+    } catch (error) {
+      console.log(error)
+    }
+  }
   // useEffect(() => {
   //   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
   //     const nodeMap = new Map();
@@ -1097,7 +1141,7 @@ const FlowCanvas = () => {
             color={"var(--active-bg)"}
             size={"sm"}
             bgColor={"white"}
-           _hover={{ bgColor: "white" }}
+            _hover={{ bgColor: "white" }}
             fontSize="var(--mini-text)"
             fontWeight="var(--big-font-weight)"
             onClick={onOpen}
@@ -1184,22 +1228,22 @@ const FlowCanvas = () => {
                       borderRadius={"7px"}
                     >
                       <Checkbox
-                        isChecked={selectedNumbers.includes(num)}
+                        isChecked={selectedNumbers.includes(num.phone_number)}
                         onChange={(e) => {
                           const isChecked = e.target.checked;
                           if (isChecked) {
-                            setSelectedNumbers((prev) => [...prev, num]);
+                            setSelectedNumbers((prev) => [...prev, num.phone_number]);
                           } else {
                             setSelectedNumbers((prev) =>
-                              prev.filter((n) => n !== num)
+                              prev.filter((n) => n !== num.phone_number)
                             );
                           }
                         }}
                       >
-                        {num}
+                        {num.phone_number}
                       </Checkbox>
 
-                      <Text onClick={() => deleteNumber(num)}>
+                      <Text onClick={() => deleteNumber(num.id)}>
                         <LiaTrashAlt />
                       </Text>
                     </Box>
@@ -1290,13 +1334,9 @@ const FlowCanvas = () => {
               // h={"35px"}
               fontSize="var(--mini-text)"
               fontWeight="var(--big-font-weight)"
-              onClick={() => {
-                if (newNumber && !phoneNumbers.includes(newNumber)) {
-                  setPhoneNumbers((prev) => [...prev, newNumber]);
-                  setNewNumber(""); // reset input
-                }
-                onNumClose(); // close number modal
-              }}
+              onClick={() =>
+                savePhoneNumber()
+              }
             >
               {" "}
               Save number

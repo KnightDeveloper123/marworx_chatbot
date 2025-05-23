@@ -350,6 +350,7 @@ export default function Bot() {
                     onClick={() => {
                       if (opt.title === 'Use a template') {
                         // onTemplateOpen();
+                        console.log("hello")
                       } else if (opt.path) {
                         onAlgClose();
                         navigate(opt.path)
