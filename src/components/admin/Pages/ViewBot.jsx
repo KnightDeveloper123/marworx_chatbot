@@ -1023,9 +1023,9 @@ const FlowCanvas = () => {
       alert("Please select at least one number to send test.");
       return;
     }
+    console.log(selectedNumbers)
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
         {
           method: "POST",
           headers: {
