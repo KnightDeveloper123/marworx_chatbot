@@ -108,17 +108,21 @@ const products = [
   { id: 2, name: "Product B", price: "₹200" },
 ];
 
+
 router.post('/addwithwhatsup', async (req, res) => {
-  const { flowName, nodes, edges, } = req.body;
-  const toRaw = req.body.to;
-  if (!toRaw) {
-    return res.status(400).json({ message: 'Missing "to" phone number in request body' });
+  const { flowName, nodes, edges, to: toRaw } = req.body;
+
+  // Validate "to" field
+  if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
+    return res.status(400).json({ message: 'Missing or invalid "to" phone numbers' });
   }
 
-  const to = typeof toRaw === 'string' ? toRaw.replace(/\D/g, '') : String(toRaw).replace(/\D/g, '');
+  const toNumbers = toRaw
+    .map(num => String(num).replace(/\D/g, ''))         // Remove non-digits
+    .filter(num => /^\d{10,15}$/.test(num));            // Keep only valid numbers
 
-  if (!/^\d{10,15}$/.test(to)) {
-    return res.status(400).json({ message: 'Invalid phone number format' });
+  if (toNumbers.length === 0) {
+    return res.status(400).json({ message: 'No valid phone numbers provided' });
   }
 
   const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
@@ -129,32 +133,83 @@ router.post('/addwithwhatsup', async (req, res) => {
     }
 
     const flowId = result.insertId;
-
     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
 
-    for (const node of parsedNodes) {
-      const type = node.type;
-      const data = node.data || {};
+    for (const to of toNumbers) {
+      for (const node of parsedNodes) {
+        const type = node.type;
+        const data = node.data || {};
 
-      try {
-        if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
-          await sendWhatsAppText(to, data.label, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
-        }
+        try {
+          if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
+            await sendWhatsAppText(to, data.label);
+          }
 
-        if (type === 'imageNode' && data.fileUrl) {
-          await sendWhatsAppImage(to, data.fileUrl, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
+          if (type === 'imageNode' && data.fileUrl) {
+            await sendWhatsAppImage(to, data.fileUrl);
+          }
+        } catch (sendError) {
+          console.error(`Failed to send to ${to} for node ${node.id}:`, sendError);
         }
-      } catch (sendError) {
-        console.error(`Failed to send WhatsApp message for node ${node.id}:`, sendError);
       }
     }
 
     res.status(200).json({
-      message: 'Flow saved and messages sent',
-      flowId: flowId
+      message: 'Flow saved and messages sent to all numbers',
+      flowId
     });
   });
 });
+
+// router.post('/addwithwhatsup', async (req, res) => {
+//   const { flowName, nodes, edges, to:toRaw} = req.body;
+//   // const toRaw = req.body.to;
+
+  
+//   if (!toRaw) {
+//     return res.status(400).json({ message: 'Missing "to" phone number in request body' });
+//   }
+
+//   const to = typeof toRaw === 'string' ? toRaw.replace(/\D/g, '') : String(toRaw).replace(/\D/g, '');
+
+//   if (!/^\d{10,15}$/.test(to)) {
+//     return res.status(400).json({ message: 'Invalid phone number format' });
+//   }
+
+//   const sql = `INSERT INTO bots(name, nodes, edges) VALUES (?, ?, ?)`;
+//   connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges)], async (err, result) => {
+//     if (err) {
+//       console.error('Error saving flow:', err);
+//       return res.status(500).json({ message: 'Database error' });
+//     }
+
+//     const flowId = result.insertId;
+
+//     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
+
+//     for (const node of parsedNodes) {
+//       const type = node.type;
+//       const data = node.data || {};
+
+//       try {
+//         if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
+//           await sendWhatsAppText(to, data.label, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
+//         }
+
+//         if (type === 'imageNode' && data.fileUrl) {
+//           await sendWhatsAppImage(to, data.fileUrl, process.env.WHATSAPP_TOKEN, process.env.PHONE_NUMBER_ID);
+//         }
+//       } catch (sendError) {
+//         console.error(`Failed to send WhatsApp message for node ${node.id}:`, sendError);
+//       }
+//     }
+
+//     res.status(200).json({
+//       message: 'Flow saved and messages sent',
+//       flowId: flowId
+//     });
+//   });
+// });
 const phoneNumberId = process.env.PHONE_NUMBER_ID
 const token = process.env.WHATSAPP_TOKEN
 // console.log(process.env.PHONE_NUMBER_ID)
@@ -180,7 +235,7 @@ async function sendWhatsAppText(to, text,) {
 
   const result = await response.json();
 
-  console.log('Send result+:', result);
+  // console.log('Send result+:', result);
 
   if (!response.ok) {
     throw new Error(`WhatsApp API error: ${JSON.stringify(result)}`);
@@ -228,7 +283,7 @@ router.post('/webhook', async (req, res) => {
   console.log('Incoming Webhook:', JSON.stringify(req.body, null, 2));
 
   const body = req.body;
-
+  
   const messageData = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
   if (messageData) {
     const from = messageData.from;
