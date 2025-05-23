@@ -5,15 +5,6 @@ const executeQuery = require('../../utils/executeQuery');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 
-// CREATE TABLE `template` (
-//     ->   `id` int NOT NULL AUTO_INCREMENT,
-//     ->   `industry` varchar(255) DEFAULT NULL,
-//     ->   `category` varchar(255) DEFAULT NULL,
-//     ->   `node` json DEFAULT NULL,
-//     ->   `edges` json DEFAULT NULL,
-//     ->   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-//     ->   PRIMARY KEY (`id`) );
-
 router.post('/add', middleware, (req, res) => {
     const { industry, category,description } = req.body;
     // console.log(req.body)
@@ -51,6 +42,7 @@ router.post('/create', (req, res) => {
         res.status(200).json({ success: 'successfully'});
     });
 });
+
 router.get('/getbyid', async (req, res) => {
     try{
     const { id } = req.query;
@@ -61,5 +53,25 @@ router.get('/getbyid', async (req, res) => {
         return res.status(500).json({error:"Internal Server Error"}) 
     }
 });
+
+router.post("/update", (req, res) => {
+  const { id, node, edges, } = req.body;
+
+  const query = `
+    UPDATE template
+    SET node = ?, edges = ?
+    WHERE id = ?
+  `;
+
+  connection.query(query, [node, edges, id], (err, result) => {
+    if (err) {
+      console.error("MySQL Error:", err);
+      return res.status(500).json({ error: "Failed to update template" });
+    }
+
+    res.status(200).json({ success: "Template updated successfully", result });
+  });
+});
+
 
 module.exports=router;

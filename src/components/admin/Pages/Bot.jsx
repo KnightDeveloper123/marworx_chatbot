@@ -52,7 +52,7 @@ export default function Bot() {
   };
 
   useEffect(() => {
-    fetchBot();
+    fetchBot(admin_id);
     fetchSector(admin_id);
   }, []);
 

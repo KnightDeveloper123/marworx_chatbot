@@ -1,6 +1,7 @@
 import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { decrypt, encrypt } from "../utils/security";
+import axios from "axios";
 
 export const AppContext = createContext();
 
@@ -249,9 +250,7 @@ export const AppProvider = ({ children }) => {
                 console.log(error)
                 showAlert('Internal server error', 'error')
             }
-        }
-
-       
+        }       
 
         const[campaign,setCampaign]=useState([])
 
@@ -279,7 +278,7 @@ export const AppProvider = ({ children }) => {
 
       const fetchBot= async (admin_id) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll?admin_id=${admin_id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": 'application/json',
@@ -316,14 +315,70 @@ export const AppProvider = ({ children }) => {
         }
     }
 
-        // const user=localStorage.getItem('user')
-        // const admin_id=decrypt(user).id
-        // console.log(adminId,"fdffs");
+    const [linkedBots, setLinkedBots] = useState([])
+    const fetchLinkedBots = async (id) => {
+        try {
+            const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization:token
+                }
+
+            })
+            const result = await data.json();
+           setLinkedBots(result?.data?.bots);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+     const [products, setProducts] = useState([]);
+      const getProducts = async (id) => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.error("No token found");
+                    return;
+                }
+    
+                const response = await axios.get(
+                    `${APP_URL}/sector/get_all_product_sector?sector_id=${id}`,
+                    {
+                        headers: { Authorization: `${token}` },
+                    }
+                );
+            
+                setProducts(response.data.data);
+            } catch (err) {
+                console.error("Failed to fetch sector data", err);
+            }
+        };
+
+            const [sector, setSector] = useState({});
+     
+
+    const sectorData = async (id) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found");
+                return;
+            }
+            const response = await axios.get(`${APP_URL}/sector/sectort_by_id?sector_id=${id}`, {
+                headers: { Authorization: `${token}` },
+            });
+            setSector(response.data.data);
+            // console.log(response.data.data);
+        } catch (err) {
+            console.error("Failed to fetch sector data");
+        }
+    };
         
     return (
         <AppContext.Provider
             value={{
-                showAlert, loading,
+                showAlert, loading,fetchLinkedBots,linkedBots,getProducts,products,sectorData, sector,
                 fetchAllEmployees, employees,
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,

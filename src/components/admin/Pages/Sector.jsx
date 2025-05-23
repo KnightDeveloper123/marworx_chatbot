@@ -397,9 +397,9 @@ const Sector = () => {
                           <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(sector.id)} />
                         </Box>
 
-                        <Box bgColor={"#046E201A"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
+                        {/* <Box bgColor={"#046E201A"} p={1} borderRadius={"5px"} cursor={"pointer"} onClick={() => botCreate(sector.id)}>
                           <FaRobot size={20} color={'green'} />
-                        </Box>
+                        </Box> */}
                       </Flex>
 
 
@@ -460,10 +460,7 @@ const Sector = () => {
                           </ModalBody>
                         </ModalContent>
                       </Modal>
-
-
-
-                      {/* const bg = useColorModeValue('gray.100', 'gray.700'); */}
+                     
                       <Modal isOpen={isAlgOpen} onClose={onAlgClose} size={'2xl'} >
                         <ModalOverlay />
                         <ModalContent>
@@ -602,11 +599,6 @@ const Sector = () => {
                           </ModalBody>
                         </ModalContent>
                       </Modal>
-
-                     
-
-
-
                     </Td>
                   </Tr>
                 ))

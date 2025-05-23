@@ -40,6 +40,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { LiaTrashAlt } from "react-icons/lia";
 import { FaWhatsapp } from "react-icons/fa";
 import React, { useCallback, useEffect, useState } from "react";
+import { decrypt } from "../../utils/security";
 import ReactFlow, {
   Background,
   Controls,
@@ -90,8 +91,8 @@ const nodeTypes = {
           resize="none"
           size="xs"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -136,9 +137,7 @@ const nodeTypes = {
           bgColor="var(--active-bg)"
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" >
-              Question
-            </Text>
+            <Text fontSize="10px">Question</Text>
             <IconButton
               size="xs"
               variant="ghost"
@@ -160,8 +159,8 @@ const nodeTypes = {
           size="xs"
           rows="1"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -230,8 +229,8 @@ const nodeTypes = {
           size="sm"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -249,8 +248,8 @@ const nodeTypes = {
     const [fileName, setFileName] = useState(data.fileName || "");
     const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
-    console.log(fileUrl)
-    console.log(fileName)
+    console.log(fileUrl);
+    console.log(fileName);
 
     const handleImageUpload = (e) => {
       const file = e.target.files[0];
@@ -273,13 +272,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  fileName,
-                  fileUrl,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    fileName,
+                    fileUrl,
+                  },
+                }
               : node
           )
         );
@@ -460,7 +459,6 @@ const nodeTypes = {
       <Box bg="white" borderRadius={"4px"}>
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box
-
           color="white"
           p={0.5}
           borderRadius={"5px"}
@@ -510,13 +508,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
               : node
           )
         );
@@ -543,10 +541,12 @@ const nodeTypes = {
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box color="white"
+        <Box
+          color="white"
           p={0.5}
           borderRadius={"5px"}
-          bgColor="var(--active-bg)">
+          bgColor="var(--active-bg)"
+        >
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               List Button
@@ -619,13 +619,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
               : node
           )
         );
@@ -652,10 +652,12 @@ const nodeTypes = {
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box color="white"
+        <Box
+          color="white"
           p={0.5}
           borderRadius={"5px"}
-          bgColor="var(--active-bg)">
+          bgColor="var(--active-bg)"
+        >
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               Reply Button
@@ -689,7 +691,7 @@ const nodeTypes = {
               placeholder={`button`}
               size="xs"
               fontSize="10px"
-            // mb={1}
+              // mb={1}
             />
 
             <Handle
@@ -936,7 +938,11 @@ const FlowCanvas = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isNumOpen, onOpen: onNumOpen, onClose: onNumClose } = useDisclosure();
+  const {
+    isOpen: isNumOpen,
+    onOpen: onNumOpen,
+    onClose: onNumClose,
+  } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "1",
@@ -985,17 +991,17 @@ const FlowCanvas = () => {
 
   const botType = localStorage.getItem("botType");
   const sectorId = localStorage.getItem("sectorId");
-  const admin_id = localStorage.getItem("admin_id");
-
+  const user = localStorage.getItem("user");
+  const admin_id = decrypt(user).id;
+  // console.log(admin_id)
 
   const [phoneNumbers, setPhoneNumbers] = useState(["918308459428"]);
   const [newNumber, setNewNumber] = useState("");
   const deleteNumber = (numToDelete) => {
-    setPhoneNumbers((prev) => prev.filter((num) => num !== numToDelete))
-  }
+    setPhoneNumbers((prev) => prev.filter((num) => num !== numToDelete));
+  };
 
   const [selectedNumbers, setSelectedNumbers] = useState([]);
-
 
   // save on database
   const saveFlow = async () => {
@@ -1009,12 +1015,12 @@ const FlowCanvas = () => {
             // Authorization: token
           },
           body: JSON.stringify({
-            flowName: "Welcome Journey",
+            flowName: "New Bot",
             nodes,
             edges,
             sector_id: sectorId,
             bot_type: botType,
-            admin_id: admin_id,
+            admin_id,
           }),
         }
       );
@@ -1042,21 +1048,19 @@ const FlowCanvas = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            flowName: "E-commerce Bot",
+            flowName: "New Bot",
             nodes,
             edges,
             sector_id: sectorId,
             bot_type: botType,
             admin_id,
-            to: selectedNumbers, 
+            to: selectedNumbers,
           }),
         }
       );
 
-
       const data = await response.json();
-      console.log("Save success ");
-      console.log("WhatsApp API response:", data.whatsappStatus);
+      navigate("/home/bot");
     } catch (error) {
       console.log(" Error:", error);
     }
@@ -1080,22 +1084,21 @@ const FlowCanvas = () => {
             border={"1px solid #FF5722 "}
             textColor={"#FF5722"}
             bgColor={"white"}
-            mr={3}
             _hover={{ bgColor: "white" }}
           >
             Back
           </Button>
           <Button
             borderRadius="var(--radius)"
-
-            border={'1px solid orange '}
+            border={"1px solid orange "}
             color={"var(--active-bg)"}
             size={"sm"}
-            bgColor={'white'}
-            // h={"35px"}
+            bgColor={"white"}
             fontSize="var(--mini-text)"
             fontWeight="var(--big-font-weight)"
-            onClick={onOpen}>
+            onClick={onOpen}
+            _hover={{ bgColor: "white" }}
+          >
             Test this bot
           </Button>
           <Button
@@ -1104,7 +1107,6 @@ const FlowCanvas = () => {
             bgColor="var(--active-bg)"
             color="#fff"
             size={"sm"}
-            // h={"35px"}
             fontSize="var(--mini-text)"
             fontWeight="var(--big-font-weight)"
             onClick={() => saveFlow()}
@@ -1135,26 +1137,50 @@ const FlowCanvas = () => {
         </ReactFlow>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} size={'2xl'}>
+      <Modal isOpen={isOpen} onClose={onClose} size={"2xl"}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader></ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Box display={'flex'} gap={'16px'} alignItems={'center'} mb={'16px'}>
-              <Text ><FaWhatsapp color="#25D366" size="36px" /></Text>
-              <Heading>  Test this bot on WhatsApp</Heading>
+            <Box
+              display={"flex"}
+              gap={"16px"}
+              alignItems={"center"}
+              mb={"16px"}
+            >
+              <Text>
+                <FaWhatsapp color="#25D366" size="36px" />
+              </Text>
+              <Heading> Test this bot on WhatsApp</Heading>
             </Box>
             <Divider />
-            <Box display={'flex'} flexDirection={'column'} gap={'10px'} my={'20px'}>
+            <Box
+              display={"flex"}
+              flexDirection={"column"}
+              gap={"10px"}
+              my={"20px"}
+            >
               <Text>
-                Choose one or more numbers to use for the test.
-                You can test with a maximum of 10 numbers.
+                Choose one or more numbers to use for the test. You can test
+                with a maximum of 10 numbers.
               </Text>
-              <Box display={'flex'} gap={'4px'} flexDirection={'column'} maxHeight={'150px'} overflow={'auto'}>
+              <Box
+                display={"flex"}
+                gap={"4px"}
+                flexDirection={"column"}
+                maxHeight={"150px"}
+                overflow={"auto"}
+              >
                 {phoneNumbers.map((num, index) => (
                   <Box key={index}>
-                    <Box border={'1px solid lightgray'} display={'flex'} justifyContent={'space-between'} padding={'10px'} borderRadius={'7px'}>
+                    <Box
+                      border={"1px solid lightgray"}
+                      display={"flex"}
+                      justifyContent={"space-between"}
+                      padding={"10px"}
+                      borderRadius={"7px"}
+                    >
                       <Checkbox
                         isChecked={selectedNumbers.includes(num)}
                         onChange={(e) => {
@@ -1162,14 +1188,18 @@ const FlowCanvas = () => {
                           if (isChecked) {
                             setSelectedNumbers((prev) => [...prev, num]);
                           } else {
-                            setSelectedNumbers((prev) => prev.filter((n) => n !== num));
+                            setSelectedNumbers((prev) =>
+                              prev.filter((n) => n !== num)
+                            );
                           }
                         }}
                       >
                         {num}
                       </Checkbox>
 
-                      <Text onClick={() => deleteNumber(num)}><LiaTrashAlt /></Text>
+                      <Text onClick={() => deleteNumber(num)}>
+                        <LiaTrashAlt />
+                      </Text>
                     </Box>
                   </Box>
                 ))}
@@ -1177,7 +1207,8 @@ const FlowCanvas = () => {
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onNumOpen}
+            <Button
+              onClick={onNumOpen}
               type="button"
               size={"sm"}
               fontSize={"13px"}
@@ -1185,10 +1216,12 @@ const FlowCanvas = () => {
               textColor={"#FF5722"}
               bgColor={"white"}
               mr={3}
-              _hover={{ bgColor: "white" }}>
+              _hover={{ bgColor: "white" }}
+            >
               Add number
             </Button>
-            <Button borderRadius="var(--radius)"
+            <Button
+              borderRadius="var(--radius)"
               _hover={{ bgColor: "var(--active-bg)" }}
               bgColor="var(--active-bg)"
               color="#fff"
@@ -1196,24 +1229,33 @@ const FlowCanvas = () => {
               // h={"35px"}
               fontSize="var(--mini-text)"
               fontWeight="var(--big-font-weight)"
-              onClick={() => saveFlowNumber()}> Send Test </Button>
+              onClick={() => saveFlowNumber()}
+            >
+              {" "}
+              Send Test{" "}
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-
-      <Modal isOpen={isNumOpen} onClose={onNumClose} size={'2xl'}>
+      <Modal isOpen={isNumOpen} onClose={onNumClose} size={"2xl"}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader></ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Heading mb={'10px'}>Test this bot on WhatsApp
-            </Heading>
+            <Heading mb={"10px"}>Test this bot on WhatsApp</Heading>
             <Divider />
-            <Box display={'flex'} flexDirection={'column'} gap={'10px'} my={'20px'}>
-              <Text>If you want to test this bot yourself, add your phone number.
-                You can also send a test to your clients or colleagues by adding their number.
+            <Box
+              display={"flex"}
+              flexDirection={"column"}
+              gap={"10px"}
+              my={"20px"}
+            >
+              <Text>
+                If you want to test this bot yourself, add your phone number.
+                You can also send a test to your clients or colleagues by adding
+                their number.
               </Text>
               <Input
                 type="number"
@@ -1221,7 +1263,6 @@ const FlowCanvas = () => {
                 value={newNumber}
                 onChange={(e) => setNewNumber(e.target.value)}
               />
-
             </Box>
           </ModalBody>
           <Divider />
@@ -1235,10 +1276,12 @@ const FlowCanvas = () => {
               bgColor={"white"}
               mr={3}
               _hover={{ bgColor: "white" }}
-              onClick={onNumClose}>
+              onClick={onNumClose}
+            >
               back
             </Button>
-            <Button borderRadius="var(--radius)"
+            <Button
+              borderRadius="var(--radius)"
               _hover={{ bgColor: "var(--active-bg)" }}
               bgColor="var(--active-bg)"
               color="#fff"
@@ -1253,7 +1296,10 @@ const FlowCanvas = () => {
                 }
                 onNumClose(); // close number modal
               }}
-            > Save number</Button>
+            >
+              {" "}
+              Save number
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
