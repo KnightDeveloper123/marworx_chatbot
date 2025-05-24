@@ -401,7 +401,7 @@ export const AppProvider = ({ children }) => {
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout,productService
-                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, fetchBot, bots,
+                ,fetchProductService,sectors,fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery,bots, fetchBot, 
                 fetchTemplate,template,getAllNumbers,phoneNumbers
             }}
         >

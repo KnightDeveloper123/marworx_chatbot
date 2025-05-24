@@ -899,9 +899,7 @@ const FlowCanvas = () => {
   const user = localStorage.getItem('user');
   const admin_id = decrypt(user).id;
 
-  console.log(admin_id)
-  console.log(botType)
-  console.log(sectorId)
+
 
 
   const onDrop = useCallback(
