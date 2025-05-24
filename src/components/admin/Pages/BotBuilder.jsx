@@ -938,7 +938,7 @@ const SidePanel = () => {
 const FlowCanvas = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const{phoneNumbers,getAllNumbers}=useContext(AppContext)
+  const { phoneNumbers, getAllNumbers } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isNumOpen,
@@ -1013,11 +1013,11 @@ const FlowCanvas = () => {
         })
       })
 
-      const result=await response.json();
+      const result = await response.json();
       // console.log(result);
       getAllNumbers();
     } catch (error) {
-       console.log(error)
+      console.log(error)
     }
 
   }
@@ -1072,7 +1072,6 @@ const FlowCanvas = () => {
       setNewNumber('')
       onNumClose();
       getAllNumbers();
-
     } catch (error) {
       console.log(error)
     }
@@ -1112,7 +1111,7 @@ const FlowCanvas = () => {
     }
   };
 
-  
+
   useEffect(() => {
     getAllNumbers();
   }, [])
@@ -1359,6 +1358,9 @@ const FlowCanvas = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+
+      
     </Box>
   );
 };

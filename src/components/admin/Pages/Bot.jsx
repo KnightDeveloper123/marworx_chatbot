@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalHeader,
   ModalOverlay,
   Select,
   Table,
@@ -20,6 +21,7 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -38,14 +40,18 @@ import Generative from "../../../assets/Generative.png"
 import { decrypt } from '../../utils/security'
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from "react-icons/fa";
+import TemViw from "../../../assets/template.png"
+
 
 export default function Bot() {
   const navigate = useNavigate();
-  const { bots, fetchBot, sectors, fetchSector } = useContext(AppContext);
+  const { bots, fetchBot, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
+  const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
   const user = localStorage.getItem('user')
   const admin_id = decrypt(user).id
+  // console.log(admin_id)
   const navigateData = () => {
     navigate("/bot_builder");
     // console.log("sdfhds");
@@ -54,6 +60,7 @@ export default function Bot() {
   useEffect(() => {
     fetchBot(admin_id);
     fetchSector(admin_id);
+    fetchTemplate(admin_id)
   }, []);
 
 
@@ -92,7 +99,7 @@ export default function Bot() {
   const sectorid = localStorage.getItem("sectorId");
   const [sectorId, setSectorId] = useState(sectorid || "");
 
-
+  const [showAll, setShowAll] = useState(false)
   return (
     <Card>
       <Flex
@@ -289,12 +296,8 @@ export default function Bot() {
       <Modal isOpen={isAlgOpen} onClose={onAlgClose} size={'2xl'} >
         <ModalOverlay />
         <ModalContent>
-
           <ModalCloseButton />
           <ModalBody mt={'10px'}>
-
-
-
             <Box
               onClick={() => {
                 onAlgClose();
@@ -304,13 +307,12 @@ export default function Bot() {
             </Box>
             <Box textAlign="center"
               pt={1} pb={5}>
-
               <Heading mb={4} fontSize="3xl" >
                 Start building!
               </Heading>
               <Box my={'20px'} >
                 <Text textAlign={'left'}>Select sector</Text>
-             
+
                 <Select
 
                   placeholder="Select sector"
@@ -349,12 +351,11 @@ export default function Bot() {
                     _hover={{ boxShadow: 'lg', transform: 'scale(1.03)', cursor: 'pointer', bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
                     onClick={() => {
                       if (opt.title === 'Use a template') {
-                        // onTemplateOpen();
+                        onTemplateOpen();
                         console.log("hello")
                       } else if (opt.path) {
                         onAlgClose();
                         navigate(opt.path)
-                        // window.location.href = opt.path;
                       } else {
                         console.log("Other action");
                       }
@@ -376,6 +377,77 @@ export default function Bot() {
           </ModalBody>
 
 
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isTemplateOpen} onClose={onTemplateClose} size="4xl">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontSize="18px">Select Template</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <Box maxHeight="380px" overflowY={showAll ? "auto" : "hidden"}>
+              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                {(showAll ? template : template.slice(0, 3)).map((temp, index) => (
+                  <GridItem
+                    key={index}
+                    boxShadow="lg"
+                    borderRadius="8px"
+                    border="1px solid lightgray"
+                    overflow="hidden"
+                    bg="white"
+                  >
+                    <Image
+                      src={TemViw}
+                      height="188px"
+                      width="100%"
+                      objectFit="cover"
+                    />
+                    <Box p="10px">
+                      <Text fontWeight="600" fontSize="18px" color="#FF5F35">
+                        {temp.category}
+                      </Text>
+                      <Text fontSize="14px" mb={4} >
+                        <Tooltip label={temp.description || 'No description'} hasArrow>
+                          <Text as='span'>
+                            {temp.description && temp.description.length > 50
+                              ? `${temp.description.slice(0, 50)}...`
+                              : temp.description || 'No description'}
+                          </Text>
+                        </Tooltip>
+
+                      </Text>
+                      <Button
+                        width="full"
+                        textAlign="center"
+                        size="sm"
+                        fontSize="15px"
+                        bgColor="#FF5F35"
+                        color="white"
+                        _hover={{ bg: "#e14a1d" }}
+                        onClick={() => navigate(`/view_template/${temp.id}`)}
+                      >
+                        Use
+                      </Button>
+                    </Box>
+                  </GridItem>
+                ))}
+              </Grid>
+              {!showAll && template.length > 3 && (
+                <Box textAlign="center" mt={4}>
+                  <Button
+                    variant="outline"
+                    color="#FF5F35"
+                    borderColor="#FF5F35"
+                    size="sm"
+                    onClick={() => setShowAll(true)}
+                  >
+                    More options
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </Card>
