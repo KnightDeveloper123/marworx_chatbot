@@ -34,6 +34,7 @@ router.get('/getAll', async (req, res) => {
   }
 });
 
+
 router.get('/getbyid', async (req, res) => {
   try {
     const { id } = req.query;

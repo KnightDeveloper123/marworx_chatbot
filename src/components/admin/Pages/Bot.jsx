@@ -64,7 +64,6 @@ export default function Bot() {
   }, []);
 
 
-
   const [selectedBotType, setSelectedBotType] = useState(null);
   const [selectedSectorId, setSelectedSectorId] = useState(null);
 
@@ -174,7 +173,8 @@ export default function Bot() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      {item.name}
+                       {item?.nodes?.[0]?.data?.label || null}
+
                     </Td>
 
                     <Td

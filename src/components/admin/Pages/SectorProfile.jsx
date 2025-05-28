@@ -285,7 +285,7 @@ const SectorProfile = () => {
                               />
                             </Box>
                             <Box spacing="3px">
-                              <Text textAlign="start">{bot.name}</Text>
+                              <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
                               <Text textAlign="start" fontSize={"10px"}>
                                 {timeAgo(bot.created_at)}
                               </Text>

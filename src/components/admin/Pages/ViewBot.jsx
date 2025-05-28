@@ -498,6 +498,161 @@ const nodeTypes = {
     );
   },
 
+  ListButton: ({ id, data }) => {
+    // const { setNodes } = useReactFlow();
+    const { setNodes, setEdges } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "");
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+    // Sync data back to nodes
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
+              : node
+          )
+        );
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [question, targetValues, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    const addTargetValue = () => {
+      setTargetValues((prev) => [...prev, ""]);
+    };
+
+    // const updateTargetValue = (index, newValue) => {
+    //   console.log(newValue)
+    //   setTargetValues((prev) =>
+    //     prev.map((val, i) => (i === index ? newValue : val))
+    //   );
+    // };
+    const user = localStorage.getItem('user');
+    const admin_id = decrypt(user).id;
+    const updateTargetValue = async (index, option) => {
+      console.log(option)
+      if (option.toLowerCase() === `${option}`) {
+        const dateTimeBotId = "your-date-time-bot-id"; // 👈 Replace with actual bot ID
+    
+        try {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll?admin_id=${admin_id}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+    
+          const result = await response.json();
+          const { nodes, edges } = result.data;
+          console.log(result)
+    
+          const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
+          const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
+    
+          // Prevent duplicates
+          const newNodes = parsedNodes.filter(
+            (newNode) => !nodes.some((existingNode) => existingNode.id === newNode.id)
+          );
+    
+          setNodes((nds) => [...nds, ...newNodes]);
+          setEdges((eds) => [...eds, ...parsedEdges]);
+    
+        } catch (error) {
+          console.error("Error fetching Date & Time bot:", error);
+        }
+      }
+    };
+
+    return (
+      <Box bg="white" borderRadius="5px" w="150px">
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+
+        {/* Header */}
+        <Box
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              List Button
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        {/* Target values */}
+
+        {targetValues.map((val, idx) => (
+          <Flex
+            key={idx}
+            position="relative"
+            borderRadius="md"
+            px={2}
+            py={1}
+            mb={1}
+            fontSize="10px"
+            alignItems="center"
+          >
+            {/* <Input
+              key={idx}
+              value={val}
+              onChange={(e) => updateTargetValue(idx, e.target.value)}
+              placeholder={`Option ${idx + 1}`}
+              size="xs"
+              fontSize="10px"
+              mb={1}
+            /> */}
+            <Button
+            size="xs"
+            width="100%"
+            fontSize="10px"
+            value={val}
+            onClick={(e) => updateTargetValue(idx, e.target.value)}
+          >
+            {val}
+        </Button>
+
+            <Handle
+              type="source"
+              position="right"
+              id={`option-${idx}`}
+              style={{ background: "#555" }}
+            />
+          </Flex>
+        ))}
+
+        <Button
+          onClick={addTargetValue}
+          size="xs"
+          fontSize="10px"
+          width="100%"
+          mt={1}
+          variant="outline"
+          colorScheme="blue"
+        >
+          + Add Option
+        </Button>
+      </Box>
+    );
+  },
   ReplyButton: ({ id, data }) => {
     const { setNodes } = useReactFlow();
     const [question, setQuestion] = useState(data.label || "");
@@ -543,19 +698,24 @@ const nodeTypes = {
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
         {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+        <Box
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
               Reply Button
             </Text>
-            {/* <IconButton
+            <IconButton
               size="xs"
               variant="ghost"
               colorScheme="whiteAlpha"
               icon={<IoTrashOutline />}
               onClick={handleDelete}
               aria-label="Delete Node"
-            /> */}
+            />
           </Flex>
         </Box>
         {/* Target values */}
@@ -600,102 +760,6 @@ const nodeTypes = {
         >
           + Add Option
         </Button>
-      </Box>
-    );
-  },
-  ListButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || "");
-    const [targetValues, setTargetValues] = useState(data.targetValues || []);
-
-    // Sync data back to nodes
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id
-              ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
-              : node
-          )
-        );
-      }, 300);
-      return () => clearTimeout(timer);
-    }, [question, targetValues, id, setNodes]);
-
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
-
-    const addTargetValue = () => {
-      setTargetValues((prev) => [...prev, ""]);
-    };
-
-    const updateTargetValue = (index, newValue) => {
-      setTargetValues((prev) =>
-        prev.map((val, i) => (i === index ? newValue : val))
-      );
-    };
-
-    return (
-      <Box bg="white" borderRadius="5px" w="150px">
-        <Handle type="target" position="top" style={{ background: "#555" }} />
-
-        {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              List Button
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        {/* Target values */}
-        <Box mt={2}>
-          {targetValues.map((val, idx) => (
-            <Input
-              key={idx}
-              value={val}
-              onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`Option ${idx + 1}`}
-              size="xs"
-              fontSize="10px"
-              mb={1}
-            />
-          ))}
-
-          {/* Add Button */}
-          <Button
-            onClick={addTargetValue}
-            size="xs"
-            fontSize="10px"
-            width="100%"
-            mt={1}
-            variant="outline"
-            colorScheme="blue"
-          >
-            + Add Option
-          </Button>
-        </Box>
-
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#555" }}
-        />
       </Box>
     );
   },
@@ -952,6 +1016,7 @@ const FlowCanvas = () => {
       const result = await response.json();
       // console.log(result.data)
       const { nodes, edges } = result.data;
+      console.log(result.data)
 
       const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
       const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
