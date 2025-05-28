@@ -239,11 +239,27 @@ const Campaign = () => {
         }
       )
       const result = await response.json()
-      console.log('result', result)
       if (result.success) {
         showAlert('Campaign added successfully', 'success')
         fetchCampaign(admin_id)
         onStepClose()
+      }
+      console.log("id", result.flowId)
+      if (response.ok && result.flowId) {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              campaign_id: result.flowId,
+              user_id: admin_id
+
+            })
+          })
+
       }
     } catch (error) {
       console.log(error)
@@ -470,8 +486,8 @@ const Campaign = () => {
     Pending: '#EFEAD2'
   }
 
-  const exportUrl = `${import.meta.env.VITE_BACKEND_URL}/campaign/export/campaigns/csv`;
-  console.log(exportUrl)
+  // const exportUrl = `${import.meta.env.VITE_BACKEND_URL}/campaign/export/campaigns/csv`;
+  // console.log(exportUrl)
   return (
     <Card>
       <Flex
@@ -529,14 +545,16 @@ const Campaign = () => {
                     >
                       Create Campaign
                     </Button>
-                    <Link href={exportUrl} isExternal>
+
+                    {/* export file  */}
+                    {/* <Link href={exportUrl} isExternal>
                       <Button colorScheme="blue">Export CSV</Button>
                     </Link>
                     <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
                       <TbFileExport fontSize={'25px'} />
-                    </Box>
+                    </Box> */}
 
-                    <Box>
+                    {/* <Box>
                       <Link
                         href={`http://localhost:2500/campaign/export/campaigns/pdf`}
                         isExternal
@@ -544,7 +562,7 @@ const Campaign = () => {
                         <Button >Export pdf</Button>
                         
                       </Link>
-                    </Box>
+                    </Box> */}
                   </Flex>
 
                 </Flex>

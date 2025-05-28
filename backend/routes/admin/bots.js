@@ -6,8 +6,6 @@ const { middleware } = require('../../middleware/middleware');
 
 // const fetch = require('node-fetch');
 
-
-
 router.post('/add', (req, res) => {
   const { flowName, nodes, edges, sector_id, bot_type, admin_id } = req.body;
 
@@ -18,8 +16,6 @@ router.post('/add', (req, res) => {
       return res.status(500).json({ message: 'Database error' });
     }
     res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
-
-
   });
 });
 
@@ -33,7 +29,6 @@ router.get('/getAll', async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" })
   }
 });
-
 
 router.get('/getbyid', async (req, res) => {
   try {
@@ -65,11 +60,10 @@ router.post("/update", (req, res) => {
   });
 });
 
-
 router.post('/track-user-bot', async (req, res) => {
-  const { botId, userId } = req.body;
+  const { botId, admin_id} = req.body;
 
-  if (!botId || !userId) {
+  if (!botId || !admin_id) {
     return res.status(400).json({ success: false, message: 'botId and userId are required' });
   }
 
@@ -77,7 +71,7 @@ router.post('/track-user-bot', async (req, res) => {
     // Prevent duplicate entries (optional - works only if UNIQUE(bot_id, user_id) is set)
     await executeQuery(`
       INSERT IGNORE INTO bot_users (bot_id, user_id) VALUES (?, ?)
-    `, [botId, userId]);
+    `, [botId, admin_id]);
 
     return res.status(201).json({ success: true, message: 'User-bot tracked successfully' });
   } catch (err) {
@@ -127,11 +121,10 @@ const products = [
   { id: 2, name: "Product B", price: "₹200" },
 ];
 
-
 router.post('/addwithwhatsup', async (req, res) => {
   const { flowName, nodes, edges, to: toRaw, admin_id } = req.body;
 
-  console.log(admin_id)
+  // console.log(admin_id)
   // Validate "to" field
   if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
     return res.status(400).json({ message: 'Missing or invalid "to" phone numbers' });
@@ -174,14 +167,14 @@ router.post('/addwithwhatsup', async (req, res) => {
       }
     }
 
+    console.log("flowId",flowId);
+    
     res.status(200).json({
       message: 'Flow saved and messages sent to all numbers',
       flowId
     });
   });
 });
-
-
 
 const phoneNumberId = process.env.PHONE_NUMBER_ID
 const token = process.env.WHATSAPP_TOKEN
@@ -253,11 +246,9 @@ router.get('/webhook', (req, res) => {
 
 // ✅ Actual Webhook (POST)
 router.post('/webhook', async (req, res) => {
+
   console.log('Incoming Webhook:', JSON.stringify(req.body, null, 2));
-
-  const body = req.body;
-
-  const messageData = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+ const messageData = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
   if (messageData) {
     const from = messageData.from;
     const msg = messageData.text?.body?.trim().toLowerCase();
@@ -281,8 +272,6 @@ router.post('/webhook', async (req, res) => {
 
   res.sendStatus(200);
 });
-
-
 
 router.post('/save_number', async (req, res) => {
   const { phone_number } = req.body;

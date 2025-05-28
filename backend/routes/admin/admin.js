@@ -639,8 +639,8 @@ router.get('/sector-performance', middleware, async (req, res) => {
 // });
 
 router.get('/top-performing-bots', async (req, res) => {
-  try {
-    const topBots = await executeQuery(`
+    try {
+        const topBots = await executeQuery(`
       SELECT 
         b.id AS bot_id,
         b.name AS bot_name,
@@ -653,14 +653,39 @@ router.get('/top-performing-bots', async (req, res) => {
       LIMIT 5;
     `);
 
-    res.json({
-      success: true,
-      data: topBots
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
+        res.json({
+            success: true,
+            data: topBots
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+router.get('/top-performing-campaigns', async (req, res) => {
+    try {
+        const topBots = await executeQuery(`
+      SELECT 
+        c.id AS campaign_id,
+        c.campaign_name AS name,
+         
+        COUNT(cu.user_id) AS total_users
+      FROM campaign c
+      LEFT JOIN campaign_users cu ON c.id = cu.campaign_id
+      GROUP BY c.id, c.campaign_name
+      ORDER BY total_users DESC
+      LIMIT 5;
+    `);
+
+        res.json({
+            success: true,
+            data: topBots
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
 
 

@@ -545,28 +545,28 @@ const nodeTypes = {
       console.log(option)
       if (option.toLowerCase() === `${option}`) {
         const dateTimeBotId = "your-date-time-bot-id"; // 👈 Replace with actual bot ID
-    
+
         try {
           const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll?admin_id=${admin_id}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
           });
-    
+
           const result = await response.json();
           const { nodes, edges } = result.data;
           console.log(result)
-    
+
           const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
           const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
-    
+
           // Prevent duplicates
           const newNodes = parsedNodes.filter(
             (newNode) => !nodes.some((existingNode) => existingNode.id === newNode.id)
           );
-    
+
           setNodes((nds) => [...nds, ...newNodes]);
           setEdges((eds) => [...eds, ...parsedEdges]);
-    
+
         } catch (error) {
           console.error("Error fetching Date & Time bot:", error);
         }
@@ -621,14 +621,14 @@ const nodeTypes = {
               mb={1}
             /> */}
             <Button
-            size="xs"
-            width="100%"
-            fontSize="10px"
-            value={val}
-            onClick={(e) => updateTargetValue(idx, e.target.value)}
-          >
-            {val}
-        </Button>
+              size="xs"
+              width="100%"
+              fontSize="10px"
+              value={val}
+              onClick={(e) => updateTargetValue(idx, e.target.value)}
+            >
+              {val}
+            </Button>
 
             <Handle
               type="source"
@@ -1016,7 +1016,7 @@ const FlowCanvas = () => {
       const result = await response.json();
       // console.log(result.data)
       const { nodes, edges } = result.data;
-      console.log(result.data)
+
 
       const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
       const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
@@ -1107,6 +1107,24 @@ const FlowCanvas = () => {
       );
 
       const data = await response.json();
+      // console.log("viewData",data)
+      if (response.ok && data.flowId) {
+
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/bots/track-user-bot`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              botId: data.flowId,
+              admin_id
+            })
+          })
+        const result = await res.json();
+        console.log("result", result)
+      }
       navigate("/home/bot");
     } catch (error) {
       console.log(" Error:", error);

@@ -1065,7 +1065,7 @@ const FlowCanvas = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone_number:normalizedNumber
+          phone_number: normalizedNumber
         })
       })
       const data = await response.json();
@@ -1081,6 +1081,7 @@ const FlowCanvas = () => {
 
 
   const saveFlowNumber = async () => {
+    
     if (selectedNumbers.length === 0) {
       alert("Please select at least one number to send test.");
       return;
@@ -1106,7 +1107,29 @@ const FlowCanvas = () => {
       );
 
       const data = await response.json();
+      // console.log("data",data.flowId)
+
+      if (response.ok && data.flowId ) {
+     
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/bots/track-user-bot`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              botId:data.flowId,
+              admin_id
+            })
+          })
+        const result = await res.json();
+        console.log("result", result)
+      }
+
+
       navigate("/home/bot");
+
     } catch (error) {
       console.log(" Error:", error);
     }
@@ -1361,7 +1384,7 @@ const FlowCanvas = () => {
       </Modal>
 
 
-      
+
     </Box>
   );
 };

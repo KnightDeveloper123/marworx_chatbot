@@ -47,6 +47,21 @@ import { decrypt } from '../../utils/security'
 import { FaUserCircle, FaUsers } from 'react-icons/fa'
 import { HiMiniUsers } from 'react-icons/hi2'
 import { LuCloudUpload } from 'react-icons/lu'
+import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  LineElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(LineElement, BarElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
   const { showAlert, formatDate } = useContext(AppContext)
@@ -55,15 +70,10 @@ const AdminDashboard = () => {
   const [documents, setDocuments] = useState([])
   const [selectedFile, setSelectedFile] = useState(null)
   const location = useLocation()
-
   const user = localStorage.getItem('user')
   const admin_id = decrypt(user).id
   const user_role = decrypt(user).role
-  // console.log(user_role)
-
-  const { type, sectorId } = location.state || {}
-  // getAdminCount
-
+  // const { type, sectorId } = location.state || {}
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -79,7 +89,7 @@ const AdminDashboard = () => {
       )
 
       const result = await response.json()
-      // console.log(result)
+
       if (result.success) {
         setDashboardData(result.counts)
       } else {
@@ -120,42 +130,50 @@ const AdminDashboard = () => {
     [showAlert]
   )
 
-
-  const [activeBots, setActiveBots] = useState(null)
-  const [campaignSent, setCampaignSent] = useState(null)
-
-  // const fetchAllActiveBots = async () => {
-  //   try {
-  //     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: localStorage.getItem('token')
-  //       }
-  //     })
-  //     const result = await response.json();
-
-  //     if (result.success) {
-  //       setActiveBots(result?.activeBot?.active_bots)
-  //       setCampaignSent(result?.campaignSent?.sent_campaigan)
-
-  //     } else {
-  //       showAlert(result.error, "error")
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     showAlert("Internal Server Error!", "error")
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchAllActiveBots()
-  // }, [])
-
   useEffect(() => {
     fetchDashboardData()
     fetchAllDocuments(admin_id)
   }, [fetchDashboardData, fetchAllDocuments, admin_id])
+
+
+  const [activeBots, setActiveBots] = useState(null)
+  const [campaignSent, setCampaignSent] = useState(null)
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState({ activeBots: 0, campaignsSent: 0 });
+
+  useEffect(() => {
+    async function fetchMetrics() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token
+            }
+          }
+        );
+        const result = await res.json();
+        console.log("res", result.data)
+        if (result.success) {
+          const { activeBots, campaignsSent } = result.data;
+          setMetrics({ activeBots, campaignsSent });
+
+
+        } else {
+          console.error('API error:', result.error);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMetrics();
+  }, []);
+
 
   const [file, setFile] = useState({
     fileName: '',
@@ -229,149 +247,6 @@ const AdminDashboard = () => {
       showAlert('Upload failed', 'error')
     }
   }
-  // const [state, setState] = React.useState({
-  //   series: [
-  //     {
-  //       name: 'Campaign',
-  //       data: [71, 65, 78, 85, 92, 109, 100]
-  //     },
-  //     {
-  //       name: 'Bot',
-  //       data: [11, 32, 45, 32, 34, 52, 41]
-  //     }
-  //   ],
-  //   options: {
-  //     chart: {
-  //       height: 350,
-  //       type: 'area'
-  //     },
-  //     colors: ['#4b63ff', '#ff5f35'],
-  //     dataLabels: {
-  //       enabled: false
-  //     },
-  //     stroke: {
-  //       curve: 'smooth',
-  //       width: [2, 2]
-  //     },
-  //     markers: {
-  //       size: 4,
-  //       colors: ['#ffffff'],
-  //       strokeColors: ['#4b63ff', '#ff5f35'],
-  //       strokeWidth: 2,
-  //       hover: {
-  //         size: 5
-  //       }
-  //     },
-  //     xaxis: {
-  //       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-  //     },
-  //     tooltip: {
-  //       x: {
-  //         format: 'MMM' // Optional: will match category
-  //       }
-  //     }
-  //   }
-  // })
-
-  const [activeUser, setActiveUser] = React.useState({
-    series: [
-      {
-        data: [450, 470, 490, 530, 560, 600, 680]
-      }
-    ],
-    options: {
-      chart: {
-        type: 'bar',
-        height: 350
-      },
-      plotOptions: {
-        bar: {
-          columnWidth: '50%',
-          distributed: true,
-          borderRadius: 6,
-          borderRadiusApplication: 'end'
-        }
-      },
-      colors: ['#B4BEFF', '#4b63ff'],
-      states: {
-        hover: {
-          filter: {
-            type: 'none'
-          }
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      xaxis: {
-        categories: ['Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
-        labels: {
-          style: {
-            fontSize: '12px'
-          }
-        }
-      },
-      yaxis: {
-        max: 800
-      },
-      legend: {
-        show: false
-      }
-    }
-  })
-
-  const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState({ activeBots: 0, campaignsSent: 0 });
-
-  // Chart state
-  const [chartState, setChartState] = useState({
-    options: {
-      chart: { type: 'bar', toolbar: { show: false } },
-      xaxis: { categories: ['Active Bots', 'Campaigns Sent'] },
-      yaxis: { title: { text: 'Count' } },
-      dataLabels: { enabled: true },
-      title: { text: 'System Key Metrics', align: 'center' }
-    },
-    series: [
-      { name: 'Count', data: [0, 0] }
-    ]
-  });
-
-  useEffect(() => {
-    async function fetchMetrics() {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': token
-            }
-          }
-        );
-        const result = await res.json();
-        if (result.success) {
-          const { activeBots, campaignsSent } = result.data;
-          setMetrics({ activeBots, campaignsSent });
-
-          // update chart series
-          setChartState((prev) => ({
-            ...prev,
-            series: [{ name: 'Count', data: [activeBots, campaignsSent] }]
-          }));
-        } else {
-          console.error('API error:', result.error);
-        }
-      } catch (err) {
-        console.error('Fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMetrics();
-  }, []);
 
   // month wise display bot and campaign
   const [months, setMonths] = useState([]);
@@ -444,7 +319,6 @@ const AdminDashboard = () => {
         }
       })
       const response = await res.json();
-      console.log(response.data)
       setSectorPerformance(response.data)
     } catch (error) {
       console.log(error)
@@ -454,21 +328,35 @@ const AdminDashboard = () => {
     fetchMonthlyMetrics();
   }, [])
 
+  const data = {
+    labels: sectorPerformance.map((item) => item?.sector || 'N/A'),
+    datasets: [
+      {
+        label: 'Performance',
+        data: sectorPerformance.map((item) => item?.total_bots || 0),
+        borderColor: 'rgba(75,192,192,1)',
+        backgroundColor: 'rgba(75,192,192,0.2)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(75,192,192,1)',
+      },
+    ],
+  };
+
   const options = {
-    chart: {
-      id: 'sector-bar',
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Sector-wise Performance (Line Chart)' },
     },
-    xaxis: {
-      categories: sectorPerformance.map(item => item?.sector || 'N/A'),
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
     },
   };
 
-  const series = [
-    {
-      name: 'Performance',
-      data: sectorPerformance.map(item => item?.total_bots || 0),
-    },
-  ];
+
   // const [engagement, setEngagement] = useState({ clickThroughRate: 0, completionRate: 0 });
   // const fetchUserEnagement = async () => {
   //   try {
@@ -491,8 +379,6 @@ const AdminDashboard = () => {
   // }, [])
 
   const [topBots, setTopBots] = useState([]);
-  const [topCampaigns, setTopCampaigns] = useState([]);
-
   const fetchTopPerformer = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/top-performing-bots`, {
@@ -502,10 +388,7 @@ const AdminDashboard = () => {
         }
       })
       const response = await res.json();
-
       setTopBots(response.data);
-      // console.log(response.data)
-
       // setTopCampaigns(topRes.data.topCampaigns);
       // setEngagement(response.data)
     } catch (error) {
@@ -513,15 +396,90 @@ const AdminDashboard = () => {
     }
   }
 
-
   useEffect(() => {
     fetchTopPerformer()
   }, [])
+  const Botdata = {
+    labels: topBots.map((bot) => bot?.bot_name || 'N/A'), // replace `name` with the correct bot name field
+    datasets: [
+      {
+        label: 'Bot Performance',
+        data: topBots.map((bot) => bot?.total_users || 0), // replace `score` with your performance metric
+        backgroundColor: 'rgba(75,192,192,1)',
+        borderColor: 'rgba(75,192,192,0.2)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const botoptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Top Performing Bots' },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+
+  const [topCampaigns, setTopCampaigns] = useState([]);
+  const fetchTopCampaigns = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/top-performing-campaigns`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        }
+      })
+      const response = await res.json();
+      console.log(response.data)
+      setTopCampaigns(response.data);
+      // setTopCampaigns(topRes.data.topCampaigns);
+      // setEngagement(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchTopCampaigns();
+  }, [])
+
+  const Campaigndata = {
+    labels: topCampaigns.map((camp) => camp?.name || 'N/A'),
+    datasets: [
+      {
+        label: 'Campaign Performance',
+        data: topCampaigns.map((camp) => camp?.total_users || 0), // replace `score` with your performance metric
+        backgroundColor: 'rgba(75,192,192,1)',
+        borderColor: 'rgba(75,192,192,0.2)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const campaignoptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Top Performing Camapigns' },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
 
   return (
-    <Flex flexDirection='column' w='100%' h='100%' pt={'20px'}>
+    <Flex flexDirection='column' w='100%' h='100%' pt={'20px'} >
       {location.pathname === '/home/dashboard' && (
-        <Box>
+        <Box >
           <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
             {user_role === 'Admin' && (
               <>
@@ -536,7 +494,7 @@ const AdminDashboard = () => {
                 >
                   <Flex flexDir={'column'}>
                     <Text fontSize={'20px'}>
-                      {activeBots}
+                      {metrics.activeBots}
                     </Text>
                     <Text
                       color={'#a4a4a4'}
@@ -565,7 +523,7 @@ const AdminDashboard = () => {
                   boxShadow={'lg'}
                 >
                   <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>{campaignSent}</Text>
+                    <Text fontSize={'20px'}>{metrics.campaignsSent}</Text>
                     <Text
                       color={'#a4a4a4'}
                       fontSize={{ base: '12px', md: '14px' }}
@@ -573,6 +531,8 @@ const AdminDashboard = () => {
                       Number of campaigns sent
                     </Text>
                   </Flex>
+
+
                   <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
                     <Text
                       fontSize={{ base: '18px', md: '24px' }}
@@ -674,63 +634,11 @@ const AdminDashboard = () => {
             )}
           </SimpleGrid>
 
-          {/* // charts */}
-          {/* <Flex
-            id='chart'
-            mt={10}
-            w={'100%'}
-            gap={4}
-            h={'auto'}
-            flexDir={{ base: 'column', md: 'row' }}
-          >
-            <Box
-              w={{ base: '100%', md: '50%' }}
-              boxShadow={'md'}
-              borderRadius={'10px'}
-            >
-              <Text p={4}>Top Performing bots and campaigns</Text>
-              <ReactApexChart
-                options={state.options}
-                series={state.series}
-                type='area'
-                height={350}
-              />
-            </Box>
-            <Divider
-              h={'auto'}
-              borderWidth='1px'
-              borderColor='black'
-              orientation='vertical'
-            />
-            <Box
-              w={{ base: '100%', md: '50%' }}
-              boxShadow={'md'}
-              borderRadius={'10px'}
-            >
-              <Text p={4}>Active Users</Text>
-              <ReactApexChart
-                options={activeUser.options}
-                series={activeUser.series}
-                type='bar'
-                height={350}
-              />
-            </Box>
-          </Flex> */}
+          <Box w="100%" display={'flex'} flexDirection={'column'} gap={'40px'}>
 
-          <Box w="100%" p={4} boxShadow="md" borderRadius="md">
-            <Text mb={4} fontSize="lg" fontWeight="semibold">
-              Active Bots vs Campaigns Sent
-            </Text>
-            <ReactApexChart
-              options={chartState.options}
-              series={chartState.series}
-              type="bar"
-              height={350}
-            />
-          </Box>
 
-          {/* month wise display bot and campaign */}
-          <Box boxShadow='md' p={4} borderRadius='md'>
+            {/* month wise display bot and campaign */}
+            {/* <Box boxShadow='md' p={4} borderRadius='md'>
             <Text mb={4} fontWeight='bold'>Bots & Campaigns by Month</Text>
             {loading ? <Spinner /> : (
               <ReactApexChart
@@ -740,58 +648,23 @@ const AdminDashboard = () => {
                 height={350}
               />
             )}
-          </Box>
+          </Box> */}
 
-          <Box>
-            {/* <Box>
+            {/* sector wise bots */}
+            <Box boxShadow='md' p={4} borderRadius='md'>
+              <Line data={data} options={options} />
+            </Box>
+            <Box boxShadow='md' p={4} borderRadius='md'>
+              <Bar data={Botdata} options={botoptions} />
+            </Box>
 
-              <Text className="font-semibold">Engagement Metrics</Text>
-              <Text>CTR: {engagement.clickThroughRate}%</Text>
-              <Text>Completion Rate: {engagement.completionRate}%</Text>
-            </Box> */}
-          </Box>
-
-          {/* sector wise bots */}
-          <Text>Sector Wise bots</Text>
-          <Box>
-            {sectorPerformance.map((s, idx) => (
-              <li key={idx}>{s.sector}: {s.total_bots} bots</li>
-            ))}
-          </Box>
-          <Box>
-            <ReactApexChart options={options} series={series} type="bar" height={400} />
-          </Box>
-
-          <Box>
-
-            <Text className="font-semibold">Top Bots</Text>
-            <ul>
-              {topBots.map((bot, index) => (
-                <li
-                  key={bot.bot_id}
-                  className="bg-white shadow rounded-lg p-4 flex justify-between items-center"
-                >
-
-                  <Text className="font-medium"> {bot.bot_name}</Text>
-
-                  <Text className="text-gray-600">Users: {bot.total_users}</Text>
-                </li>
-              ))}
-            </ul>
-
-
-            <div className="p-4 shadow rounded bg-white">
-              <h3 className="font-semibold">Top Campaigns</h3>
-              <ul>
-                {topCampaigns.map((c, idx) => (
-                  <li key={idx}>{c.campaign_name} - {c.clicks} clicks</li>
-                ))}
-              </ul>
-            </div>
-
+            <Box boxShadow='md' p={4} borderRadius='md'>
+              <Bar data={Campaigndata} options={campaignoptions} />
+            </Box>
           </Box>
         </Box>
       )}
+
 
       <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
         <Button

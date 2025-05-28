@@ -43,7 +43,7 @@ router.post("/add", middleware, async (req, res) => {
       //   bot_type
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     const insertQuery = `
       INSERT INTO campaign 
@@ -71,7 +71,9 @@ router.post("/add", middleware, async (req, res) => {
         console.log(err);
         return res.status(400).json({ error: "Something went wrong" });
       }
-      return res.json({ success: "Campaign Added", data });
+      const flowId = data.insertId;
+      // console.log("campaign id", flowId)
+      return res.json({ success: "Campaign Added", data, flowId });
     });
   } catch (error) {
     console.log("/add: ", error.message);
@@ -199,7 +201,26 @@ router.get('/getAllCampaign', middleware, async (req, res) => {
   }
 });
 
+router.post('/track-user-campaign', async (req, res) => {
+  const { campaign_id, user_id } = req.body;
+  // console.log(req.body)
 
+  if (!campaign_id || !user_id) {
+    return res.status(400).json({ success: false, message: 'botId and userId are required' });
+  }
+
+  try {
+    // Prevent duplicate entries (optional - works only if UNIQUE(bot_id, user_id) is set)
+    await executeQuery(`
+      INSERT  INTO campaign_users ( campaign_id,user_id ) VALUES (?, ?)
+    `, [campaign_id, user_id]);
+
+    return res.status(201).json({ success: true, message: 'User-bot tracked successfully' });
+  } catch (err) {
+    console.error('Error inserting into bot_users:', err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
 
 router.get('/export', async (req, res) => {
   const { status } = req.query;

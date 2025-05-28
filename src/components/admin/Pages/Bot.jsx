@@ -167,7 +167,7 @@ export default function Bot() {
             <Tbody>
               {bots.map((item, i) => {
                 return (
-                  <Tr>
+                  <Tr key={item.id}>
                     <Td
                       color={"#404040"}
                       fontSize="var(--mini-text)"

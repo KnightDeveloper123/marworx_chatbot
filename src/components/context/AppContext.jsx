@@ -149,6 +149,7 @@ export const AppProvider = ({ children }) => {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: token,
+                    
                 }
             })
             const result = await response.json();
@@ -287,7 +288,7 @@ export const AppProvider = ({ children }) => {
 
             })
             const result = await response.json();
-       
+    //    console.log("bot",result.data)
             setBots(result.data)
 
         } catch (error) {
