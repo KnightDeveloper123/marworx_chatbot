@@ -56,7 +56,7 @@ import { IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
-
+import { normalizePhoneNumber } from '../../../utils/normalizePhoneNumber.js'
 // Utility for node ID generation
 let id = 1;
 const getId = () => `${++id}`;
@@ -1057,6 +1057,7 @@ const FlowCanvas = () => {
 
 
   const savePhoneNumber = async () => {
+    const normalizedNumber = normalizePhoneNumber(newNumber);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/save_number`, {
         method: "POST",
@@ -1064,7 +1065,7 @@ const FlowCanvas = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone_number: newNumber
+          phone_number:normalizedNumber
         })
       })
       const data = await response.json();

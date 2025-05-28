@@ -80,6 +80,7 @@ import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { useLocation, useParams } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
 import { LuCloudUpload } from 'react-icons/lu'
+import { Link } from '@chakra-ui/react'
 
 const Campaign = () => {
   const token = localStorage.getItem('token')
@@ -109,8 +110,9 @@ const Campaign = () => {
   const location = useLocation()
   const { type, sectorId } = location.state || {}
 
-  console.log('Bot type:', type)
-  console.log('Sector ID:', sectorId)
+
+  const sectorid = localStorage.getItem("sectorId");
+  //  console.log("sector",sectorid)
 
   const steps = [
     {
@@ -179,16 +181,29 @@ const Campaign = () => {
   }
 
   const [campaignData, setCampaignData] = useState({
+    // channel_name: 'WhatsApp',
+    // campaign_name: '',
+    // to: '',
+    // // message_content: '',
+    // sector_id: '1',
+    // template_name: '',
+    // template_type: '',
+    // template_lang: '',
+    // header: '',
+    // body: ''
+
     channel_name: 'WhatsApp',
-    campaign_name: '',
-    to: '',
-    message_content: '',
-    sector: '',
-    template_name: '',
-    template_type: '',
-    template_lang: '',
-    header: '',
-    body: ''
+    campaign_name: "",
+    template_name: "",
+    template_type: "",
+    template_lang: "",
+    header: "",
+    body: "",
+    admin_id: "",
+    sector_id: "",
+    to: ''
+
+    // bot_type:'campaign'
   })
 
   const handleChange = e => {
@@ -216,9 +231,10 @@ const Campaign = () => {
             header: campaignData.header,
             body: campaignData.body,
             admin_id: admin_id,
-            to: campaignData.to,
-            sector_id: sectorId,
-            bot_type: type
+            sector_id: sectorid,
+            to: campaignData.to
+
+            // bot_type: type
           })
         }
       )
@@ -245,7 +261,7 @@ const Campaign = () => {
     setCampaignData({
       channel_name: data.channel_name || 'WhatsApp',
       campaign_name: data.campaign_name || '',
-      message_content: data.message_content || '',
+      // message_content: data.message_content || '',
       sector: data.sector || '',
       template_name: data.template_name || '',
       template_type: data.template_type || '',
@@ -336,9 +352,8 @@ const Campaign = () => {
         return
       }
 
-      const filePath = `${import.meta.env.VITE_BACKEND_URL}/documents/${
-        selectedFile.name
-      }`
+      const filePath = `${import.meta.env.VITE_BACKEND_URL}/documents/${selectedFile.name
+        }`
 
       if (selectedFile.name.endsWith('.pdf')) {
         // Download and show PDF
@@ -370,8 +385,7 @@ const Campaign = () => {
     formData.append('file', file.file)
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/contact/upload?fileName=${
-          file.fileName
+        `${import.meta.env.VITE_BACKEND_URL}/contact/upload?fileName=${file.fileName
         }`,
         {
           method: 'POST',
@@ -403,8 +417,7 @@ const Campaign = () => {
   const getContacts = async admin_id => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL
+        `${import.meta.env.VITE_BACKEND_URL
         }/contact/getAllcontacts?admin_id=${admin_id}`,
         {
           method: 'GET',
@@ -457,6 +470,8 @@ const Campaign = () => {
     Pending: '#EFEAD2'
   }
 
+  const exportUrl = `${import.meta.env.VITE_BACKEND_URL}/campaign/export/campaigns/csv`;
+  console.log(exportUrl)
   return (
     <Card>
       <Flex
@@ -501,7 +516,7 @@ const Campaign = () => {
                       value={filteredSectors}
                       onChange={e => setFilteredSectors(e.target.value)}
                     />
-                    {/* <Button
+                    <Button
                       borderRadius='var(--radius)'
                       leftIcon={<IoMdAdd fontSize={'20px'} />}
                       _hover={{ bgColor: 'var(--active-bg)' }}
@@ -513,11 +528,25 @@ const Campaign = () => {
                       onClick={onOpen}
                     >
                       Create Campaign
-                    </Button> */}
-                    {/* <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
-              <TbFileExport fontSize={'25px'}  />
-              </Box> */}
+                    </Button>
+                    <Link href={exportUrl} isExternal>
+                      <Button colorScheme="blue">Export CSV</Button>
+                    </Link>
+                    <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
+                      <TbFileExport fontSize={'25px'} />
+                    </Box>
+
+                    <Box>
+                      <Link
+                        href={`http://localhost:2500/campaign/export/campaigns/pdf`}
+                        isExternal
+                      >
+                        <Button >Export pdf</Button>
+                        
+                      </Link>
+                    </Box>
                   </Flex>
+
                 </Flex>
               </Flex>
 
@@ -525,8 +554,8 @@ const Campaign = () => {
                 mt='20px'
                 width={'100%'}
                 borderRadius='5px 5px 0px 0px'
-                //  maxH={flag ? "unset" : "600px"}
-                // overflowY={flag ? "unset" : "scroll"}
+              //  maxH={flag ? "unset" : "600px"}
+              // overflowY={flag ? "unset" : "scroll"}
               >
                 <Table size='sm' className='custom-striped-table'>
                   <Thead border='0.5px solid #FFF5F3'>
@@ -704,6 +733,17 @@ const Campaign = () => {
                                   onClick={() => openDeleteModal(d.id)}
                                 />
                               </Box>
+                              <Box>
+                                <Link
+                                  href={`http://localhost:2500/campaign/export/campaigns/csv/${d.id}`}
+                                  isExternal
+                                >
+                                  {/* <Button colorScheme="blue">Export Campaign</Button> */}
+                                  <TbFileExport fontSize={'25px'} />
+                                </Link>
+                              </Box>
+
+
                             </Flex>
 
                             {/* <Menu>
@@ -1225,7 +1265,7 @@ const Campaign = () => {
                       name='campaign_name'
                       value={campaignData.campaign_name}
                       onChange={handleChange}
-                      // borderRadius={'5px'}
+                    // borderRadius={'5px'}
                     />
                     <Flex justifyContent='center' gap='4'>
                       <Button
@@ -1318,7 +1358,7 @@ const Campaign = () => {
                         <Button
                           variant='outline'
                           size='sm'
-                          //  borderRadius='full'
+                        //  borderRadius='full'
                         >
                           Edit
                         </Button>
@@ -1348,7 +1388,7 @@ const Campaign = () => {
                         <Button
                           variant='outline'
                           size='sm'
-                          // borderRadius='full'
+                        // borderRadius='full'
                         >
                           Edit
                         </Button>
@@ -1437,7 +1477,7 @@ const Campaign = () => {
                                 <FormControl>
                                   <Select
                                     placeholder='Select a template'
-                                    // borderRadius='full'
+                                  // borderRadius='full'
                                   >
                                     <option value='template'>abc</option>
                                   </Select>

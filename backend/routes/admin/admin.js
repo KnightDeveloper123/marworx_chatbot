@@ -10,7 +10,8 @@ const { middleware } = require('../../middleware/middleware');
 const fs = require('fs');
 const multer = require('multer')
 const path = require('path')
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { data } = require('react-router-dom');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -176,7 +177,7 @@ let otpStore = {}
 router.post("/login", async (req, res) => {
     try {
         // console.log(req.body);
-        
+
         const { email, password } = req.body;
 
         const user = await executeQuery(`select * from admin where email=?`, [email]);
@@ -184,7 +185,7 @@ router.post("/login", async (req, res) => {
         if (!user[0] || !password) {
             return res.status(400).json({ error: "Invalid Credentials" });
         }
-        
+
 
         if (!user[0]?.password) {
             return res.status(400).json({ error: "Please set your password" });
@@ -192,7 +193,7 @@ router.post("/login", async (req, res) => {
 
         const pwdCompare = await bcrypt.compare(password, user[0].password);
         // console.log(pwdCompare);
-        
+
 
         if (!pwdCompare) {
             return res.status(400).json({ error: "Invalid Credentials" });
@@ -255,7 +256,7 @@ router.post('/verify-otp', async (req, res) => {
     if (Date.now() > expiry) return res.status(400).json({ error: "OTP expired" })
     if (otp === storedOtp) {
 
-        const rows = await executeQuery(`SELECT * FROM admin WHERE email = ?`,[email]);
+        const rows = await executeQuery(`SELECT * FROM admin WHERE email = ?`, [email]);
         const user = rows[0];
 
         if (!user) {
@@ -320,7 +321,7 @@ router.post("/signUp", async (req, res) => {
 
 //         if (checkEmail[0]) {
 //             console.log("its check email ");
-            
+
 //             const otp = crypto.randomInt(100000, 999999).toString();
 //             const expiry = Date.now() + 5 * 60 * 1000;
 //             otpStore[email] = { otp, expiry };
@@ -371,7 +372,7 @@ router.post("/changePassword", async (req, res) => {
             if (!otp || !otpStore[email]) {
                 return res.status(400).json({ error: "OTP not found or expired" });
             }
-            
+
             const { otp: storedOtp, expiry } = otpStore[email];
             if (Date.now() > expiry || otp !== storedOtp) {
                 return res.status(400).json({ error: "Invalid or expired OTP" });
@@ -443,14 +444,14 @@ router.get('/getAllDashboardData', middleware, async (req, res) => {
             FROM employee
             WHERE status = 0;
             `,
-             (err, result) => {
-            if (err) {
-                console.log(err);
-                return res.status(400).json({ error: "Something went wrong" })
-            }
-            // console.log(result)
-            return res.json({ success: "success", counts: result[0] })
-        })
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).json({ error: "Something went wrong" })
+                }
+                // console.log(result)
+                return res.json({ success: "success", counts: result[0] })
+            })
     } catch (error) {
         console.error("Error in /getAllQueriesById:", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -479,29 +480,225 @@ router.post("/getActiveStatus", middleware, async (req, res) => {
     }
 });
 
+
+// router.get('/getAdminCount', middleware, async (req, res) => {
+//     try {
+//       const activeBot=await executeQuery(`SELECT COUNT(*) AS active_bots FROM bots WHERE created_at >= NOW() - INTERVAL 30 DAY`)
+//       const campaignSent= await executeQuery(`SELECT COUNT(*) AS sent_campaigan FROM campaign WHERE is_status='Sent'`)
+
+//             return res.json({ success: "success", activeBot: activeBot[0],campaignSent: campaignSent[0]})
+//         // })
+//     } catch (error) {
+//         console.error("Error in /getAllQueriesById:", error.message);
+//         return res.status(500).json({ error: "Internal Server Error" });
+//     }
+// })
+
 router.get('/getAdminCount', middleware, async (req, res) => {
     try {
-      const activeBot=await executeQuery(`SELECT COUNT(*) AS active_bots FROM bots WHERE created_at >= NOW() - INTERVAL 30 DAY`)
-      const campaignSent= await executeQuery(`SELECT COUNT(*) AS sent_campaigan FROM campaign WHERE is_status='Sent'`)
-      
-            return res.json({ success: "success", activeBot: activeBot[0],campaignSent: campaignSent[0]})
-        // })
+        // Get count of active bots in the last 30 days
+        const activeBot = await executeQuery(`
+      SELECT COUNT(*) AS active_bots FROM bots 
+      WHERE created_at >= NOW() - INTERVAL 30 DAY
+    `);
+
+        // Get count of campaigns with status 'Sent'
+        const campaignSent = await executeQuery(`
+      SELECT COUNT(*) AS campaigns_sent FROM campaign 
+      WHERE is_status = 'Sent'
+    `);
+
+        // Send response in the expected format
+        return res.json({
+            success: true,
+            data: {
+                activeBots: activeBot[0].active_bots,
+                campaignsSent: campaignSent[0].campaigns_sent
+            }
+        });
+
     } catch (error) {
-        console.error("Error in /getAllQueriesById:", error.message);
+        console.error("Error in /getAdminCount:", error.message);
+        return res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+});
+
+
+// month wise display bot
+router.get('/getMonthlyMetrics', middleware, async (req, res) => {
+    try {
+        const botsQuery = `
+      SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count
+      FROM bots
+      GROUP BY month
+      ORDER BY month;
+    `;
+
+        const campaignsQuery = `
+      SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count
+      FROM campaign
+      WHERE is_status = 'Sent'
+      GROUP BY month
+      ORDER BY month;
+    `;
+
+        const [bots, campaigns] = await Promise.all([
+            executeQuery(botsQuery),
+            executeQuery(campaignsQuery)
+        ]);
+
+        // get totals
+        const totalActiveBots = bots.reduce((sum, row) => sum + row.count, 0);
+        const totalCampaignsSent = campaigns.reduce((sum, row) => sum + row.count, 0);
+
+        res.json({
+            success: true,
+            data: {
+                totalActiveBots,
+                totalCampaignsSent,
+                botsByMonth: bots,
+                campaignsByMonth: campaigns
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching metrics:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+//sector-wise bots
+router.get('/sector-performance', middleware, async (req, res) => {
+    try {
+        const result = await executeQuery(`
+      SELECT s.name AS sector, COUNT(b.id) AS total_bots
+      FROM bots b
+      JOIN sector s ON s.id = b.sector_id
+      GROUP BY b.sector_id
+    `);
+
+        return res.json({ success: true, data: result });
+    } catch (err) {
+        console.error(err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
-})
+});
+
+// user_engagement
+// router.get('/user-engagement', middleware, async (req, res) => {
+//   try {
+//     const ctr = await executeQuery(`
+//       SELECT ROUND(SUM(clicks)/SUM(impressions)*100, 2) AS click_through_rate FROM user_metrics
+//     `);
+
+//     const completionRate = await executeQuery(`
+//       SELECT ROUND(SUM(completed)/SUM(started)*100, 2) AS completion_rate FROM user_metrics
+//     `);
+
+//     return res.json({
+//       success: true,
+//       data: {
+//         clickThroughRate: ctr[0].click_through_rate || 0,
+//         completionRate: completionRate[0].completion_rate || 0,
+//       }
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+
+
+//top performing bots and campaign
+// router.get('/top-performing', middleware, async (req, res) => {
+//     try {
+//         const bots = await executeQuery(`
+//       SELECT id, name, total_users
+//       FROM bots
+//       ORDER BY total_users DESC
+//       LIMIT 5
+//     `);
+
+//         const campaigns = await executeQuery(`
+//       SELECT id, campaign_name, clicks
+//       FROM campaign
+//       ORDER BY clicks DESC
+//       LIMIT 5
+//     `);
+
+//         return res.json({
+//             success: true,
+//             data: {
+//                 topBots: bots,
+//                 topCampaigns: campaigns
+//             }
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(500).json({ error: "Internal Server Error" });
+//     }
+// });
+
+router.get('/top-performing-bots', async (req, res) => {
+  try {
+    const topBots = await executeQuery(`
+      SELECT 
+        b.id AS bot_id,
+        b.name AS bot_name,
+         
+        COUNT(bu.user_id) AS total_users
+      FROM bots b
+      LEFT JOIN bot_users bu ON b.id = bu.bot_id
+      GROUP BY b.id, b.name
+      ORDER BY total_users DESC
+      LIMIT 5;
+    `);
+
+    res.json({
+      success: true,
+      data: topBots
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+
+// top campaign using clicks rate
+// router.get('/top-performing-campaigns-by-clicks', async (req, res) => {
+//   try {
+//     const topClickedCampaigns = await executeQuery(`
+//       SELECT 
+//         c.campaign_name,
+//         COUNT(cc.id) AS click_count
+//       FROM campaign c
+//       LEFT JOIN campaign_clicks cc ON c.id = cc.campaign_id
+//       GROUP BY c.id, c.campaign_name
+//       ORDER BY click_count DESC
+//       LIMIT 5;
+//     `);
+
+//     res.json({
+//       success: true,
+//       data: topClickedCampaigns
+//     });
+//   } catch (err) {
+//     console.error('Error fetching top campaigns by clicks:', err);
+//     res.status(500).json({ success: false, message: 'Internal server error' });
+//   }
+// });
+
 
 router.get('/getActiveUser', middleware, async (req, res) => {
     try {
-       const monthlyUser=await executeQuery(`SELECT DATE_FORMAT(created_at, '%Y-%m') AS registration_month, COUNT(*) AS monthly_active_users
+        const monthlyUser = await executeQuery(`SELECT DATE_FORMAT(created_at, '%Y-%m') AS registration_month, COUNT(*) AS monthly_active_users
             FROM admin
             WHERE created_at IS NOT NULL
             GROUP BY registration_month
             ORDER BY registration_month DESC;
             `)
-   
-            return res.json({ success: "success", monthlyUser: monthlyUser[0] })
+
+        return res.json({ success: "success", monthlyUser: monthlyUser[0] })
         // })
     } catch (error) {
         console.error("Error in /getAllQueriesById:", error.message);

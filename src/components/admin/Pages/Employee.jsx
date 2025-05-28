@@ -30,6 +30,7 @@ const Employee = () => {
     }
   });
   const navigate = useNavigate();
+  
   useEffect(() => {
     fetchAllEmployees(admin_id);
   }, [admin_id])

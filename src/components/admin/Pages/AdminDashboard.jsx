@@ -15,6 +15,7 @@ import {
   ModalHeader,
   ModalOverlay,
   SimpleGrid,
+  Spinner,
   Table,
   TableCaption,
   TableContainer,
@@ -123,33 +124,33 @@ const AdminDashboard = () => {
   const [activeBots, setActiveBots] = useState(null)
   const [campaignSent, setCampaignSent] = useState(null)
 
-  const fetchAllActiveBots = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: localStorage.getItem('token')
-        }
-      })
-      const result = await response.json();
+  // const fetchAllActiveBots = async () => {
+  //   try {
+  //     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: localStorage.getItem('token')
+  //       }
+  //     })
+  //     const result = await response.json();
 
-      if (result.success) {
-        setActiveBots(result?.activeBot?.active_bots)
-        setCampaignSent(result?.campaignSent?.sent_campaigan)
+  //     if (result.success) {
+  //       setActiveBots(result?.activeBot?.active_bots)
+  //       setCampaignSent(result?.campaignSent?.sent_campaigan)
 
-      } else {
-        showAlert(result.error, "error")
-      }
-    } catch (error) {
-      console.log(error);
-      showAlert("Internal Server Error!", "error")
-    }
-  }
+  //     } else {
+  //       showAlert(result.error, "error")
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     showAlert("Internal Server Error!", "error")
+  //   }
+  // }
 
-  useEffect(() => {
-    fetchAllActiveBots()
-  }, [])
+  // useEffect(() => {
+  //   fetchAllActiveBots()
+  // }, [])
 
   useEffect(() => {
     fetchDashboardData()
@@ -228,49 +229,49 @@ const AdminDashboard = () => {
       showAlert('Upload failed', 'error')
     }
   }
-  const [state, setState] = React.useState({
-    series: [
-      {
-        name: 'Campaign',
-        data: [71, 65, 78, 85, 92, 109, 100]
-      },
-      {
-        name: 'Bot',
-        data: [11, 32, 45, 32, 34, 52, 41]
-      }
-    ],
-    options: {
-      chart: {
-        height: 350,
-        type: 'area'
-      },
-      colors: ['#4b63ff', '#ff5f35'],
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth',
-        width: [2, 2]
-      },
-      markers: {
-        size: 4,
-        colors: ['#ffffff'],
-        strokeColors: ['#4b63ff', '#ff5f35'],
-        strokeWidth: 2,
-        hover: {
-          size: 5
-        }
-      },
-      xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-      },
-      tooltip: {
-        x: {
-          format: 'MMM' // Optional: will match category
-        }
-      }
-    }
-  })
+  // const [state, setState] = React.useState({
+  //   series: [
+  //     {
+  //       name: 'Campaign',
+  //       data: [71, 65, 78, 85, 92, 109, 100]
+  //     },
+  //     {
+  //       name: 'Bot',
+  //       data: [11, 32, 45, 32, 34, 52, 41]
+  //     }
+  //   ],
+  //   options: {
+  //     chart: {
+  //       height: 350,
+  //       type: 'area'
+  //     },
+  //     colors: ['#4b63ff', '#ff5f35'],
+  //     dataLabels: {
+  //       enabled: false
+  //     },
+  //     stroke: {
+  //       curve: 'smooth',
+  //       width: [2, 2]
+  //     },
+  //     markers: {
+  //       size: 4,
+  //       colors: ['#ffffff'],
+  //       strokeColors: ['#4b63ff', '#ff5f35'],
+  //       strokeWidth: 2,
+  //       hover: {
+  //         size: 5
+  //       }
+  //     },
+  //     xaxis: {
+  //       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+  //     },
+  //     tooltip: {
+  //       x: {
+  //         format: 'MMM' // Optional: will match category
+  //       }
+  //     }
+  //   }
+  // })
 
   const [activeUser, setActiveUser] = React.useState({
     series: [
@@ -319,6 +320,203 @@ const AdminDashboard = () => {
     }
   })
 
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState({ activeBots: 0, campaignsSent: 0 });
+
+  // Chart state
+  const [chartState, setChartState] = useState({
+    options: {
+      chart: { type: 'bar', toolbar: { show: false } },
+      xaxis: { categories: ['Active Bots', 'Campaigns Sent'] },
+      yaxis: { title: { text: 'Count' } },
+      dataLabels: { enabled: true },
+      title: { text: 'System Key Metrics', align: 'center' }
+    },
+    series: [
+      { name: 'Count', data: [0, 0] }
+    ]
+  });
+
+  useEffect(() => {
+    async function fetchMetrics() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token
+            }
+          }
+        );
+        const result = await res.json();
+        if (result.success) {
+          const { activeBots, campaignsSent } = result.data;
+          setMetrics({ activeBots, campaignsSent });
+
+          // update chart series
+          setChartState((prev) => ({
+            ...prev,
+            series: [{ name: 'Count', data: [activeBots, campaignsSent] }]
+          }));
+        } else {
+          console.error('API error:', result.error);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMetrics();
+  }, []);
+
+  // month wise display bot and campaign
+  const [months, setMonths] = useState([]);
+  const [botData, setBotData] = useState([]);
+  const [campaignData, setCampaignData] = useState([]);
+
+  useEffect(() => {
+    async function fetchMonthlyMetrics() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getMonthlyMetrics`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          }
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          const { botsByMonth, campaignsByMonth } = result.data;
+
+          const allMonths = [...new Set([
+            ...botsByMonth.map(item => item.month),
+            ...campaignsByMonth.map(item => item.month)
+          ])];
+
+          const botMap = Object.fromEntries(botsByMonth.map(item => [item.month, item.count]));
+          const campaignMap = Object.fromEntries(campaignsByMonth.map(item => [item.month, item.count]));
+
+          const botSeries = allMonths.map(m => botMap[m] || 0);
+          const campaignSeries = allMonths.map(m => campaignMap[m] || 0);
+
+          setMonths(allMonths);
+          setBotData(botSeries);
+          setCampaignData(campaignSeries);
+        } else {
+          console.error('API error:', result.error);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMonthlyMetrics();
+  }, []);
+
+  const chartOptions = {
+    chart: { id: 'bots_campaigns' },
+    xaxis: { categories: months },
+    title: { text: 'Monthly Active Bots & Campaigns Sent', align: 'left' },
+    stroke: { curve: 'smooth' }
+  };
+
+  const chartSeries = [
+    { name: 'Active Bots', data: botData },
+    { name: 'Campaigns Sent', data: campaignData }
+  ];
+
+  //sector wise bots
+  const [sectorPerformance, setSectorPerformance] = useState([]);
+  const token = localStorage.getItem('token')
+  const fetchMonthlyMetrics = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/sector-performance`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        }
+      })
+      const response = await res.json();
+      console.log(response.data)
+      setSectorPerformance(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    fetchMonthlyMetrics();
+  }, [])
+
+  const options = {
+    chart: {
+      id: 'sector-bar',
+    },
+    xaxis: {
+      categories: sectorPerformance.map(item => item?.sector || 'N/A'),
+    },
+  };
+
+  const series = [
+    {
+      name: 'Performance',
+      data: sectorPerformance.map(item => item?.total_bots || 0),
+    },
+  ];
+  // const [engagement, setEngagement] = useState({ clickThroughRate: 0, completionRate: 0 });
+  // const fetchUserEnagement = async () => {
+  //   try {
+  //     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/user-engagement`, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': token
+  //       }
+  //     })
+  //     const response = await res.json();
+  //     console.log("res", response.data)
+  //     setEngagement(response.data)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchUserEnagement();
+  // }, [])
+
+  const [topBots, setTopBots] = useState([]);
+  const [topCampaigns, setTopCampaigns] = useState([]);
+
+  const fetchTopPerformer = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/top-performing-bots`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        }
+      })
+      const response = await res.json();
+
+      setTopBots(response.data);
+      // console.log(response.data)
+
+      // setTopCampaigns(topRes.data.topCampaigns);
+      // setEngagement(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  useEffect(() => {
+    fetchTopPerformer()
+  }, [])
 
   return (
     <Flex flexDirection='column' w='100%' h='100%' pt={'20px'}>
@@ -477,7 +675,7 @@ const AdminDashboard = () => {
           </SimpleGrid>
 
           {/* // charts */}
-          <Flex
+          {/* <Flex
             id='chart'
             mt={10}
             w={'100%'}
@@ -517,7 +715,81 @@ const AdminDashboard = () => {
                 height={350}
               />
             </Box>
-          </Flex>
+          </Flex> */}
+
+          <Box w="100%" p={4} boxShadow="md" borderRadius="md">
+            <Text mb={4} fontSize="lg" fontWeight="semibold">
+              Active Bots vs Campaigns Sent
+            </Text>
+            <ReactApexChart
+              options={chartState.options}
+              series={chartState.series}
+              type="bar"
+              height={350}
+            />
+          </Box>
+
+          {/* month wise display bot and campaign */}
+          <Box boxShadow='md' p={4} borderRadius='md'>
+            <Text mb={4} fontWeight='bold'>Bots & Campaigns by Month</Text>
+            {loading ? <Spinner /> : (
+              <ReactApexChart
+                options={chartOptions}
+                series={chartSeries}
+                type='area'
+                height={350}
+              />
+            )}
+          </Box>
+
+          <Box>
+            {/* <Box>
+
+              <Text className="font-semibold">Engagement Metrics</Text>
+              <Text>CTR: {engagement.clickThroughRate}%</Text>
+              <Text>Completion Rate: {engagement.completionRate}%</Text>
+            </Box> */}
+          </Box>
+
+          {/* sector wise bots */}
+          <Text>Sector Wise bots</Text>
+          <Box>
+            {sectorPerformance.map((s, idx) => (
+              <li key={idx}>{s.sector}: {s.total_bots} bots</li>
+            ))}
+          </Box>
+          <Box>
+            <ReactApexChart options={options} series={series} type="bar" height={400} />
+          </Box>
+
+          <Box>
+
+            <Text className="font-semibold">Top Bots</Text>
+            <ul>
+              {topBots.map((bot, index) => (
+                <li
+                  key={bot.bot_id}
+                  className="bg-white shadow rounded-lg p-4 flex justify-between items-center"
+                >
+
+                  <Text className="font-medium"> {bot.bot_name}</Text>
+
+                  <Text className="text-gray-600">Users: {bot.total_users}</Text>
+                </li>
+              ))}
+            </ul>
+
+
+            <div className="p-4 shadow rounded bg-white">
+              <h3 className="font-semibold">Top Campaigns</h3>
+              <ul>
+                {topCampaigns.map((c, idx) => (
+                  <li key={idx}>{c.campaign_name} - {c.clicks} clicks</li>
+                ))}
+              </ul>
+            </div>
+
+          </Box>
         </Box>
       )}
 
