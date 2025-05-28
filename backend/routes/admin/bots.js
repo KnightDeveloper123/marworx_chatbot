@@ -66,7 +66,25 @@ router.post("/update", (req, res) => {
 });
 
 
+router.post('/track-user-bot', async (req, res) => {
+  const { botId, userId } = req.body;
 
+  if (!botId || !userId) {
+    return res.status(400).json({ success: false, message: 'botId and userId are required' });
+  }
+
+  try {
+    // Prevent duplicate entries (optional - works only if UNIQUE(bot_id, user_id) is set)
+    await executeQuery(`
+      INSERT IGNORE INTO bot_users (bot_id, user_id) VALUES (?, ?)
+    `, [botId, userId]);
+
+    return res.status(201).json({ success: true, message: 'User-bot tracked successfully' });
+  } catch (err) {
+    console.error('Error inserting into bot_users:', err);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
 
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
@@ -111,7 +129,7 @@ const products = [
 
 
 router.post('/addwithwhatsup', async (req, res) => {
-  const { flowName, nodes, edges, to: toRaw ,admin_id} = req.body;
+  const { flowName, nodes, edges, to: toRaw, admin_id } = req.body;
 
   console.log(admin_id)
   // Validate "to" field
@@ -128,7 +146,7 @@ router.post('/addwithwhatsup', async (req, res) => {
   }
 
   const sql = `INSERT INTO bots(name, nodes, edges,admin_id) VALUES (?, ?, ?,?)`;
-  connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges),admin_id], async (err, result) => {
+  connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges), admin_id], async (err, result) => {
     if (err) {
       console.error('Error saving flow:', err);
       return res.status(500).json({ message: 'Database error' });
