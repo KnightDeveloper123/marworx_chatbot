@@ -21,10 +21,13 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
+  ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   Textarea,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaImage, FaRegFileVideo, FaWhatsapp } from "react-icons/fa";
@@ -38,7 +41,7 @@ import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -60,7 +63,7 @@ import { AppContext } from "../../context/AppContext";
 // Utility for node ID generation
 let id = 1;
 const getId = () => `${++id}`;
-
+let selectedBotToLoad = null;
 // Node types map
 const nodeTypes = {
   Custom: ({ id, data }) => {
@@ -92,8 +95,8 @@ const nodeTypes = {
           resize="none"
           size="xs"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -162,8 +165,8 @@ const nodeTypes = {
           size="xs"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -232,8 +235,8 @@ const nodeTypes = {
           size="sm"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          // px={2}
+          // py={1}
         />
 
         <Handle
@@ -272,13 +275,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  fileName,
-                  fileUrl,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    fileName,
+                    fileUrl,
+                  },
+                }
               : node
           )
         );
@@ -504,20 +507,19 @@ const nodeTypes = {
     const [question, setQuestion] = useState(data.label || "");
     const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
-    // Sync data back to nodes
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
               : node
           )
         );
@@ -533,45 +535,75 @@ const nodeTypes = {
       setTargetValues((prev) => [...prev, ""]);
     };
 
-    // const updateTargetValue = (index, newValue) => {
-    //   console.log(newValue)
-    //   setTargetValues((prev) =>
-    //     prev.map((val, i) => (i === index ? newValue : val))
-    //   );
-    // };
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem("user");
     const admin_id = decrypt(user).id;
-    const updateTargetValue = async (index, option) => {
-      console.log(option)
-      if (option.toLowerCase() === `${option}`) {
-        const dateTimeBotId = "your-date-time-bot-id"; // 👈 Replace with actual bot ID
+    const [bots, setBots] = useState([]);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-        try {
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAll?admin_id=${admin_id}`, {
+    const currentIdxRef = useRef(null);
+    const updateTargetValue = async (index, option) => {
+      currentIdxRef.current = index;
+      try {
+        const response = await fetch(
+          `${ import.meta.env.VITE_BACKEND_URL}/bots/getAll?admin_id=${admin_id}`,
+          {
             method: "GET",
             headers: { "Content-Type": "application/json" },
-          });
-
-          const result = await response.json();
-          const { nodes, edges } = result.data;
-          console.log(result)
-
-          const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
-          const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
-
-          // Prevent duplicates
-          const newNodes = parsedNodes.filter(
-            (newNode) => !nodes.some((existingNode) => existingNode.id === newNode.id)
-          );
-
-          setNodes((nds) => [...nds, ...newNodes]);
-          setEdges((eds) => [...eds, ...parsedEdges]);
-
-        } catch (error) {
-          console.error("Error fetching Date & Time bot:", error);
-        }
+          }
+        );
+         const result = await response.json();
+        setBots(result?.data|| []);
+        onOpen();
+      } catch (error) {
+        console.error("Error fetching Date & Time bot:", error);
       }
     };
+    const { id: bot_id } = useParams();
+    
+  //  const handleBotSelect = (bot) => {
+  //  if (!bot?.nodes || !bot?.edges) return;
+
+  // const parsedNodes = typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+  // const parsedEdges = typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
+
+  // const filteredNodes = parsedNodes.filter((node) => node.type !== "Custom");
+  // const uniqueId = () => Math.random().toString(36).substr(2, 9);
+  // const nodeIdMap = {};
+
+  // const newNodes = filteredNodes.map((node) => {
+  //   const newId = uniqueId();
+  //   nodeIdMap[node.id] = newId;
+
+  //   return {
+  //     ...node,
+  //     id: newId,
+  //     position: {
+  //       x: (node.position?.x || 0) + Math.random() * 100 + 100,
+  //       y: (node.position?.y || 0) + Math.random() * 100 + 100,
+  //     },
+  //   };
+  // });
+
+  // const newEdges = parsedEdges
+  //   .filter((edge) => nodeIdMap[edge.source] && nodeIdMap[edge.target])
+  //   .map((edge) => ({
+  //     ...edge,
+  //     id: uniqueId(),
+  //     source: nodeIdMap[edge.source],
+  //     target: nodeIdMap[edge.target],
+  //   }));
+
+  // setNodes((nds) => [...nds, ...newNodes]);
+  // setEdges((eds) => [...eds, ...newEdges]);
+
+  // // Auto-save
+  // // setTimeout(() => updateTemplate(), 500);
+  //  };
+ 
+      const handleBotSelect = (bot) => {
+        selectedBotToLoad = bot;
+        onClose(); 
+      };
 
     return (
       <Box bg="white" borderRadius="5px" w="150px">
@@ -611,15 +643,6 @@ const nodeTypes = {
             fontSize="10px"
             alignItems="center"
           >
-            {/* <Input
-              key={idx}
-              value={val}
-              onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`Option ${idx + 1}`}
-              size="xs"
-              fontSize="10px"
-              mb={1}
-            /> */}
             <Button
               size="xs"
               width="100%"
@@ -650,6 +673,24 @@ const nodeTypes = {
         >
           + Add Option
         </Button>
+        <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Select a Bot</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack spacing={2}>
+              {bots.map((bot) => (
+                <Button key={bot.id} size="sm" onClick={() => handleBotSelect(bot)}>
+                  {/* {bot.name}
+                   */}
+                    {bot?.nodes?.[0]?.data?.label || null}
+                </Button>
+              ))}
+            </Stack>
+          </ModalBody>
+        </ModalContent>
+        </Modal>
       </Box>
     );
   },
@@ -665,13 +706,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
               : node
           )
         );
@@ -737,7 +778,7 @@ const nodeTypes = {
               placeholder={`button`}
               size="xs"
               fontSize="10px"
-            // mb={1}
+              // mb={1}
             />
 
             <Handle
@@ -952,19 +993,20 @@ const FlowCanvas = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isNumOpen, onOpen: onNumOpen, onClose: onNumClose } = useDisclosure();
+  const {
+    isOpen: isNumOpen,
+    onOpen: onNumOpen,
+    onClose: onNumClose,
+  } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
-  const { phoneNumbers, getAllNumbers } = useContext(AppContext)
+  const { phoneNumbers, getAllNumbers } = useContext(AppContext);
 
   const botType = localStorage.getItem("botType");
   const sectorId = localStorage.getItem("sectorId");
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem("user");
   const admin_id = decrypt(user).id;
-
-
-
 
   const onDrop = useCallback(
     (event) => {
@@ -1016,7 +1058,7 @@ const FlowCanvas = () => {
       const result = await response.json();
       // console.log(result.data)
       const { nodes, edges } = result.data;
-
+      // console.log(result.data)
 
       const parsedNodes = typeof nodes === "string" ? JSON.parse(nodes) : nodes;
       const parsedEdges = typeof edges === "string" ? JSON.parse(edges) : edges;
@@ -1028,12 +1070,14 @@ const FlowCanvas = () => {
       // showAlert("Internal server error", "error");
     }
   };
-  const updateTemplate = async () => {
+
+  const updateTemplate = async (nodes,edges) => {
     const payload = {
       id,
       node: JSON.stringify(nodes),
       edges: JSON.stringify(edges),
     };
+    // console.log(payload)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/bots/update`,
@@ -1045,7 +1089,7 @@ const FlowCanvas = () => {
       );
       const result = await response.json();
       if (result.success) {
-        navigate("/home/bots");
+        // navigate("/home/bots");
       }
     } catch (error) {
       console.log(error);
@@ -1053,40 +1097,92 @@ const FlowCanvas = () => {
   };
   useEffect(() => {
     fetchBot();
+     getAllNumbers();
   }, []);
 
+ useEffect(() => {
+  const interval = setInterval(() => {
+    if (selectedBotToLoad) {
+      const bot = selectedBotToLoad;
+      selectedBotToLoad = null;
 
-  // const [phoneNumbers, setPhoneNumbers] = useState([]);
+      const parsedNodes = typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+      const parsedEdges = typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
+
+      const filteredNodes = parsedNodes.filter((node) => node.type !== "Custom");
+      const uniqueId = () => Math.random().toString(36).substr(2, 9);
+      const nodeIdMap = {};
+
+      const newNodes = filteredNodes.map((node) => {
+        const newId = uniqueId();
+        nodeIdMap[node.id] = newId;
+
+        return {
+          ...node,
+          id: newId,
+          position: {
+            x: (node.position?.x || 0) + Math.random() * 100 + 100,
+            y: (node.position?.y || 0) + Math.random() * 100 + 100,
+          },
+        };
+      });
+
+      const newEdges = parsedEdges
+        .filter((edge) => nodeIdMap[edge.source] && nodeIdMap[edge.target])
+        .map((edge) => ({
+          ...edge,
+          id: uniqueId(),
+          source: nodeIdMap[edge.source],
+          target: nodeIdMap[edge.target],
+        }));
+
+      const nextNodes = [...nodes, ...newNodes];
+      const nextEdges = [...edges, ...newEdges];
+
+      setNodes(nextNodes);
+      setEdges(nextEdges);
+
+      // ✅ Save the correct data
+      updateTemplate(nextNodes, nextEdges);
+    }
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
 
   const deleteNumber = async (id) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/delete_number`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          id
-        })
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/bots/delete_number`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id,
+          }),
+        }
+      );
 
       const result = await response.json();
       // console.log(result);
       getAllNumbers();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
-  }
+  };
 
   const [selectedNumbers, setSelectedNumbers] = useState([]);
 
-  const saveFlowNumber = async () => {
+   const saveFlowNumber = async () => {
     if (selectedNumbers.length === 0) {
       alert("Please select at least one number to send test.");
       return;
     }
-    console.log(selectedNumbers)
+    // console.log(selectedNumbers)
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
         {
@@ -1123,7 +1219,7 @@ const FlowCanvas = () => {
             })
           })
         const result = await res.json();
-        console.log("result", result)
+        // console.log("result", result)
       }
       navigate("/home/bot");
     } catch (error) {
@@ -1131,67 +1227,33 @@ const FlowCanvas = () => {
     }
   };
 
-  useEffect(() => {
-    getAllNumbers();
-  }, [])
 
   const [newNumber, setNewNumber] = useState("");
   const savePhoneNumber = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/save_number`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone_number: newNumber
-        })
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/bots/save_number`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phone_number: newNumber,
+          }),
+        }
+      );
       const data = await response.json();
-      console.log("numbers", data)
-      setNewNumber('')
+      // console.log("numbers", data)
+      setNewNumber("");
       onNumClose();
       getAllNumbers();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-  // useEffect(() => {
-  //   if (bots && bots.nodes && Array.isArray(bots.nodes) && bots.edges && Array.isArray(bots.edges)) {
-  //     const nodeMap = new Map();
+  };
 
-  //     // Add nodes to the nodeMap
-  //     bots.nodes.forEach((botNode) => {
-  //       nodeMap.set(botNode.id, {
-  //         id: botNode.id.toString(),
-  //         type: botNode.type,
-  //         position: botNode.position,
-  //         data: { label: botNode.data.label || 'No label provided' },
-  //         width: botNode.width,
-  //         height: botNode.height,
-  //         selected: botNode.selected,
-  //         dragging: botNode.dragging,
-  //         positionAbsolute: botNode.positionAbsolute,
-  //         edges: [], // Initialize edges array for each node
-  //       });
-  //     });
 
-  //     // Add edges to respective nodes in nodeMap
-  //     bots.edges.forEach((edge) => {
-  //       if (nodeMap.has(edge.source) && nodeMap.has(edge.target)) {
-  //         nodeMap.get(edge.source).edges.push(edge);
-  //         nodeMap.get(edge.target).edges.push(edge);
-  //       }
-  //     });
-
-  //     // Convert nodeMap back to an array of nodes
-  //     const newNodes = Array.from(nodeMap.values());
-
-  //     // Update state with new nodes and edges
-  //     setNodes(newNodes);
-  //     setEdges((prevEdges) => [...prevEdges, ...bots.edges]); // Add all edges to the edges state
-  //   }
-  // }, [bots, setNodes, setEdges]);
 
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
@@ -1237,7 +1299,7 @@ const FlowCanvas = () => {
             h={"35px"}
             fontSize="var(--mini-text)"
             fontWeight="var(--big-font-weight)"
-            onClick={() => updateTemplate()}
+            onClick={() => updateTemplate(nodes, edges)}
           >
             Update
           </Button>
@@ -1313,7 +1375,10 @@ const FlowCanvas = () => {
                         onChange={(e) => {
                           const isChecked = e.target.checked;
                           if (isChecked) {
-                            setSelectedNumbers((prev) => [...prev, num.phone_number]);
+                            setSelectedNumbers((prev) => [
+                              ...prev,
+                              num.phone_number,
+                            ]);
                           } else {
                             setSelectedNumbers((prev) =>
                               prev.filter((n) => n !== num.phone_number)
@@ -1415,9 +1480,7 @@ const FlowCanvas = () => {
               // h={"35px"}
               fontSize="var(--mini-text)"
               fontWeight="var(--big-font-weight)"
-              onClick={() =>
-                savePhoneNumber()
-              }
+              onClick={() => savePhoneNumber()}
             >
               {" "}
               Save number
