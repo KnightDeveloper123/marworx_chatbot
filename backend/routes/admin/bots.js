@@ -61,7 +61,7 @@ router.post("/update", (req, res) => {
 });
 
 router.post('/track-user-bot', async (req, res) => {
-  const { botId, admin_id} = req.body;
+  const { botId, admin_id } = req.body;
 
   if (!botId || !admin_id) {
     return res.status(400).json({ success: false, message: 'botId and userId are required' });
@@ -82,7 +82,7 @@ router.post('/track-user-bot', async (req, res) => {
 
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
-  const PhoneNumber = '688758694314072'
+  const PhoneNumber = '671909416004124'
   const url = `https://graph.facebook.com/v17.0/${PhoneNumber}/messages`;
   const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
 
@@ -116,29 +116,26 @@ router.post('/send-whatsapp', async (req, res) => {
   }
 });
 
-const products = [
-  { id: 1, name: "Product A", price: "₹100" },
-  { id: 2, name: "Product B", price: "₹200" },
-];
 
+
+//send bot 
 router.post('/addwithwhatsup', async (req, res) => {
-  const { flowName, nodes, edges, to: toRaw, admin_id } = req.body;
+  const { flowName, nodes, edges, to: toRaw, admin_id,flow_id } = req.body;
 
-  // console.log(admin_id)
-  // Validate "to" field
+  console.log("flowId",flow_id)
   if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
     return res.status(400).json({ message: 'Missing or invalid "to" phone numbers' });
   }
 
   const toNumbers = toRaw
-    .map(num => String(num).replace(/\D/g, ''))         // Remove non-digits
-    .filter(num => /^\d{10,15}$/.test(num));            // Keep only valid numbers
+    .map(num => String(num).replace(/\D/g, ''))
+    .filter(num => /^\d{10,15}$/.test(num));
 
   if (toNumbers.length === 0) {
     return res.status(400).json({ message: 'No valid phone numbers provided' });
   }
 
-  const sql = `INSERT INTO bots(name, nodes, edges,admin_id) VALUES (?, ?, ?,?)`;
+  const sql = `INSERT INTO bots(name, nodes, edges, admin_id) VALUES (?, ?, ?, ?)`;
   connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges), admin_id], async (err, result) => {
     if (err) {
       console.error('Error saving flow:', err);
@@ -146,38 +143,108 @@ router.post('/addwithwhatsup', async (req, res) => {
     }
 
     const flowId = result.insertId;
+    // console.log(flowId)
+
     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
+    const parsedEdges = typeof edges === 'string' ? JSON.parse(edges) : edges;
+ const nodesWithFlowId = nodes.map(node => ({
+  ...node,
+  flowId: flowId
+}));
+
+    // Find start node
+    const incomingMap = {};
+    parsedEdges.forEach(edge => {
+      incomingMap[edge.target] = true;
+    });
+    const startNode = parsedNodes.find(n => !incomingMap[n.id]);
 
     for (const to of toNumbers) {
-      for (const node of parsedNodes) {
-        const type = node.type;
-        const data = node.data || {};
-
-        try {
-          if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
-            await sendWhatsAppText(to, data.label);
-          }
-
-          if (type === 'imageNode' && data.fileUrl) {
-            await sendWhatsAppImage(to, data.fileUrl);
-          }
-        } catch (sendError) {
-          console.error(`Failed to send to ${to} for node ${node.id}:`, sendError);
+      try {
+        if (startNode?.type === 'imageNode' && startNode?.data?.fileUrl) {
+          await sendWhatsAppImage(to, startNode.data.fileUrl);
+        } else if (startNode?.data?.label) {
+          await sendWhatsAppText(to, startNode.data.label);
+        } else {
+          await sendWhatsAppText(to, '👋 Hello! Let\'s begin.');
         }
+
+        // Save user progress as starting point
+        await executeQuery(
+          'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+          [to, flowId, 0]
+        );
+      } catch (sendErr) {
+        console.error(`Error sending to ${to}:`, sendErr);
       }
     }
 
-    console.log("flowId",flowId);
-    
     res.status(200).json({
-      message: 'Flow saved and messages sent to all numbers',
+      message: 'Flow saved and first message sent.',
       flowId
     });
   });
 });
 
+// for products
+// router.post('/addwithwhatsup', async (req, res) => {
+//   const { flowName, nodes, edges, to: toRaw, admin_id } = req.body;
+
+//   console.log("to", toRaw)
+//   // Validate "to" field
+//   if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
+//     return res.status(400).json({ message: 'Missing or invalid "to" phone numbers' });
+//   }
+
+//   const toNumbers = toRaw
+//     .map(num => String(num).replace(/\D/g, ''))         // Remove non-digits
+//     .filter(num => /^\d{10,15}$/.test(num));            // Keep only valid numbers
+
+//   if (toNumbers.length === 0) {
+//     return res.status(400).json({ message: 'No valid phone numbers provided' });
+//   }
+
+//   const sql = `INSERT INTO bots(name, nodes, edges,admin_id) VALUES (?, ?, ?,?)`;
+//   connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges), admin_id], async (err, result) => {
+//     if (err) {
+//       console.error('Error saving flow:', err);
+//       return res.status(500).json({ message: 'Database error' });
+//     }
+
+//     const flowId = result.insertId;
+//     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
+
+//     for (const to of toNumbers) {
+//       for (const node of parsedNodes) {
+//         const type = node.type;
+//         const data = node.data || {};
+
+//         try {
+//           if (['Custom', 'CustomNode', 'CustomText'].includes(type) && data.label) {
+//             await sendWhatsAppText(to, data.label);
+//           }
+
+//           if (type === 'imageNode' && data.fileUrl) {
+//             await sendWhatsAppImage(to, data.fileUrl);
+//           }
+//         } catch (sendError) {
+//           console.error(`Failed to send to ${to} for node ${node.id}:`, sendError);
+//         }
+//       }
+//     }
+
+//     // console.log("flowId", flowId);
+
+//     res.status(200).json({
+//       message: 'Flow saved and messages sent to all numbers',
+//       flowId
+//     });
+//   });
+// });
+
 const phoneNumberId = process.env.PHONE_NUMBER_ID
 const token = process.env.WHATSAPP_TOKEN
+// console.log(token)
 // console.log(process.env.PHONE_NUMBER_ID)
 // console.log(process.env.WHATSAPP_TOKEN)
 
@@ -230,6 +297,7 @@ async function sendWhatsAppImage(to, imageUrl, token) {
 // ✅ Facebook Verification
 router.get('/webhook', (req, res) => {
   const verifyToken = process.env.JWT_SECRET;
+  console.log(verifyToken)
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
@@ -244,34 +312,212 @@ router.get('/webhook', (req, res) => {
   }
 });
 
-// ✅ Actual Webhook (POST)
+const productsl = [
+  { id: 1, name: "Laptop", price: 50000 },
+  { id: 2, name: "Phone", price: 20000 },
+  { id: 3, name: "Headphones", price: 3000 }
+];
+
+// working for products
+// const flow_id=1
+// router.post('/webhook', async (req, res) => {
+//   try {
+//     const body = req.body;
+//    console.log('Incoming WhatsApp message:', JSON.stringify(req.body, null, 2));
+//     if (
+//       body.object === 'whatsapp_business_account' &&
+//       body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
+//     ) {
+//       const message = body.entry[0].changes[0].value.messages[0];
+//       const from = message.from;
+//       const msg = message.text?.body?.trim().toLowerCase();
+
+//       // ✅ Check user progress
+//       const progressRows = await executeQuery(
+//         'SELECT * FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+//         [from, flow_id]
+//       );
+
+//       let currentNodeIndex = progressRows.length ? progressRows[0].current_node_index : null;
+
+//       // ✅ Start flow
+//       if (currentNodeIndex === null || msg === 'hi' || msg === 'hello') {
+//         let productList = '👋 Welcome! Please choose a product:\n';
+//         productsl.forEach((p) => {
+//           productList += `${p.id}. ${p.name}\n`;
+//         });
+
+//         await sendWhatsAppText(from, productList);
+
+//         if (currentNodeIndex !== null) {
+//           await executeQuery(
+//             'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+//             [0, from, flow_id]
+//           );
+//         } else {
+//           await executeQuery(
+//             'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+//             [from, flow_id, 0]
+//           );
+//         }
+
+//         return res.sendStatus(200);
+//       }
+
+//       // ✅ Product selection flow
+//       if (currentNodeIndex === 0) {
+//         const productId = parseInt(msg);
+//         const product = productsl.find((p) => p.id === productId);
+
+//         if (product) {
+//           await sendWhatsAppText(from, `${product.name} costs ₹${product.price}`);
+
+//           // ✅ Store answer
+//           await executeQuery(
+//             'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+//             [from, flow_id, 'product_selection', product.name]
+//           );
+
+//           // ✅ Delete progress – flow ends here
+//           await executeQuery(
+//             'DELETE FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+//             [from, flow_id]
+//           );
+
+//         } else {
+//           await sendWhatsAppText(from, '❌ Please send a valid product number.');
+//         }
+
+//         return res.sendStatus(200);
+//       }
+
+//       // ✅ Unknown state
+//       await sendWhatsAppText(from, 'Type *hi* to restart the product flow.');
+//       return res.sendStatus(200);
+//     }
+
+//     res.status(200).send('Webhook processed');
+//   } catch (err) {
+//     console.error('Error in webhook:', err);
+//     res.sendStatus(500);
+//   }
+// });
+
+
 router.post('/webhook', async (req, res) => {
+  try {
+    const body = req.body;
+    //  console.log('Incoming WhatsApp message:', JSON.stringify(req.body, null, 2));
+    if (
+      body.object === 'whatsapp_business_account' &&
+      body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
+    ) {
+      const message = body.entry[0].changes[0].value.messages[0];
+      const from = message.from;
+      const msg = message.text?.body?.trim();
 
-  console.log('Incoming Webhook:', JSON.stringify(req.body, null, 2));
- const messageData = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-  if (messageData) {
-    const from = messageData.from;
-    const msg = messageData.text?.body?.trim().toLowerCase();
-
-    if (msg === 'hi' || msg === 'hello') {
-      let productList = 'Welcome! Product list:\n';
-      products.forEach((p) => {
-        productList += `${p.id}. ${p.name}\n`;
-      });
-      await sendMessage(from, productList);
-    } else {
-      const productId = parseInt(msg);
-      const product = products.find((p) => p.id === productId);
-      if (product) {
-        await sendMessage(from, `${product.name} ₹${product.price}`);
-      } else {
-        await sendMessage(from, 'Please send a valid product number.');
+      // ✅ Get flow_id from query or body
+      const flow_id = parseInt(req.query.flow_id || req.body.flow_id);
+      // const flow_id;
+      if (!flow_id) {
+        await sendWhatsAppText(from, '❌ Flow ID not provided.');
+        return res.sendStatus(400);
       }
-    }
-  }
+      // ✅ Fetch bot from DB
+      const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
+      if (!bot) {
+        await sendWhatsAppText(from, '❌ Bot not found.');
+        return res.sendStatus(404);
+      }
 
-  res.sendStatus(200);
+      // ✅ Safe parse nodes and edges
+      const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
+      console.log("nodes", nodes)
+      const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+
+      // ✅ Build ordered flow
+      const incomingMap = {};
+      edges.forEach(edge => {
+        incomingMap[edge.target] = true;
+      });
+
+      const startNode = nodes.find(n => !incomingMap[n.id]);
+      const orderedNodes = [];
+      let current = startNode;
+
+      while (current) {
+        orderedNodes.push(current);
+        const nextEdge = edges.find(e => e.source === current.id);
+        current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
+      }
+
+      // ✅ Fetch user progress
+      const progressRows = await executeQuery(
+        'SELECT * FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+        [from, flow_id]
+      );
+
+      let currentNodeIndex = progressRows.length ? progressRows[0].current_node_index : null;
+
+      // ✅ If new or starting conversation
+      if (currentNodeIndex === null || msg.toLowerCase() === 'hi' || msg.toLowerCase() === 'hello') {
+        const firstNode = orderedNodes[0];
+        await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
+
+        if (progressRows.length) {
+          await executeQuery(
+            'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+            [0, from, flow_id]
+          );
+        } else {
+          await executeQuery(
+            'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+            [from, flow_id, 0]
+          );
+        }
+
+        return res.sendStatus(200);
+      }
+
+      // ✅ Continue flow
+      const currentNode = orderedNodes[currentNodeIndex];
+      if (!currentNode) {
+        await sendWhatsAppText(from, '❌ Invalid step. Type *hi* to restart.');
+        return res.sendStatus(200);
+      }
+
+      // ✅ Save answer
+      await executeQuery(
+        'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+        [from, flow_id, currentNode.id, msg]
+      );
+
+      // ✅ Move to next node
+      const nextIndex = currentNodeIndex + 1;
+      if (nextIndex < orderedNodes.length) {
+        const nextNode = orderedNodes[nextIndex];
+        await sendWhatsAppText(from, nextNode?.data?.label || '...');
+        await executeQuery(
+          'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+          [nextIndex, from, flow_id]
+        );
+      } else {
+        await sendWhatsAppText(from, '✅ Thank you! You have completed the flow.');
+        await executeQuery(
+          'DELETE FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+          [from, flow_id]
+        );
+      }
+      return res.sendStatus(200);
+    }
+    res.status(200).send('Webhook processed');
+  } catch (err) {
+    console.error('Error in webhook:', err);
+    res.sendStatus(500);
+  }
 });
+
+
 
 router.post('/save_number', async (req, res) => {
   const { phone_number } = req.body;
@@ -325,6 +571,7 @@ router.post('/delete_number', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
+
 
 
 // async function sendTemplateMessage(to, token, phoneNumberId) {

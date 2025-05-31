@@ -5,6 +5,7 @@ require('dotenv').config()
 const path = require("path");
 
 
+
 const app = express();
 
 // const allowedOrigins = [process.env.FRONTEND_URL];
@@ -45,7 +46,9 @@ app.use('/user', require("./routes/users/user"))
 app.use('/chatbot', require("./routes/users/chatbot"))
 // app.use('/webhook', require('./routes/admin/bots'));
 
+
 const port = 2500;
 app.listen(port, () => {
     console.log(`http://localhost:${port}`)
+ 
 })
