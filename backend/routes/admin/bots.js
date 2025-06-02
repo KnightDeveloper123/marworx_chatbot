@@ -548,6 +548,7 @@ const productsl = [
 //     res.sendStatus(500);
 //   }
 // });
+console.log("hello")
 function getOrderedFlow(nodes, edges) {
   const incomingMap = {};
   edges.forEach(edge => (incomingMap[edge.target] = true));
