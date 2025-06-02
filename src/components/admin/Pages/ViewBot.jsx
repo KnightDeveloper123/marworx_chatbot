@@ -39,7 +39,7 @@ import { LuReply } from "react-icons/lu";
 import { IoIosListBox } from "react-icons/io";
 import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
-import { MdOutlineDeleteOutline } from "react-icons/md";
+import { MdExpandMore, MdOutlineDeleteOutline } from "react-icons/md";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import React, {
   useCallback,
@@ -510,7 +510,7 @@ const nodeTypes = {
   ListButton: ({ id, data }) => {
 
     const navigate = useNavigate();
-    const { setNodes, setEdges } = useReactFlow();
+    const { setNodes, setEdges, getEdges } = useReactFlow();
     const [question, setQuestion] = useState(data.label || "");
     const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
@@ -569,6 +569,7 @@ const nodeTypes = {
     };
     const { id: bot_id } = useParams();
 
+    
     const handleBotSelect = (bot) => {
  
       if (!bot?.nodes || !bot?.edges) return;
@@ -626,6 +627,7 @@ const nodeTypes = {
             sourceHandle: `option-${currentIdxRef.current}`,
             target: entryNode.id,
             type: "smoothstep",
+            expanded: true
           });
         }
 
@@ -638,7 +640,34 @@ const nodeTypes = {
       onClose(); // close modal
     };
 
-     
+    const handleExpand = () => {
+      const currentNodeId = id;
+      const allEdges = getEdges();
+    
+      // Filter edges that originate from this node
+      const childEdges = allEdges.filter((edge) => edge.source === currentNodeId);
+    
+      const childNodeIds = childEdges.map((edge) => edge.target);
+    
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          childNodeIds.includes(node.id)
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  expanded: !node.data?.expanded,
+                },
+              }
+            : node
+        )
+      );
+    };
+    
+    useEffect(() => {
+      handleExpand();
+    }, [targetValues]);
+    
     return (
       <Box bg="white" borderRadius="5px" w="150px">
         <Handle type="target" position="left" style={{ background: "#555" }} />
@@ -662,6 +691,15 @@ const nodeTypes = {
               onClick={handleDelete}
               aria-label="Delete Node"
             />
+            <IconButton
+            size="xs"
+            aria-label="Expand"
+            icon={<MdExpandMore />} // import from react-icons/md
+            // onClick={handleExpand}
+            onClick={handleExpand}
+
+            ml={1}
+          />
           </Flex>
         </Box>
         {/* Target values */}
@@ -682,7 +720,10 @@ const nodeTypes = {
               width="100%"
               fontSize="10px"
               value={val}
-              onClick={(e) => updateTargetValue(idx, e.target.value)}
+              onClick={(e) => {
+                currentIdxRef.current = idx; // ← Track index
+                updateTargetValue(idx, e.target.value);
+              }}
             >
               {val}
             </Button>
@@ -1028,6 +1069,42 @@ const SidePanel = () => {
     </Box>
   );
 };
+
+const getVisibleNodesAndEdges = (allNodes, allEdges) => {
+  const visibleNodes = [];
+  const visibleNodeIds = new Set();
+  const nodeMap = new Map(allNodes.map((n) => [n.id, n]));
+  const edgeMap = new Map();
+
+  allEdges.forEach((edge) => {
+    if (!edgeMap.has(edge.source)) edgeMap.set(edge.source, []);
+    edgeMap.get(edge.source).push(edge.target);
+  });
+
+  const addNodeAndChildren = (nodeId) => {
+    if (visibleNodeIds.has(nodeId)) return;
+    visibleNodeIds.add(nodeId);
+    visibleNodes.push(nodeMap.get(nodeId));
+
+    const node = nodeMap.get(nodeId);
+    if (node?.data?.expanded) {
+      const children = edgeMap.get(nodeId) || [];
+      children.forEach((childId) => addNodeAndChildren(childId));
+    }
+  };
+
+  const nodesWithIncomingEdges = new Set(allEdges.map((e) => e.target));
+  const rootNodes = allNodes.filter((n) => !nodesWithIncomingEdges.has(n.id));
+
+  rootNodes.forEach((root) => addNodeAndChildren(root.id));
+
+  return {
+    nodes: visibleNodes,
+    edges: allEdges.filter(
+      (edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)
+    ),
+  };
+};
 // Flow Canvas
 const FlowCanvas = () => {
   const navigate = useNavigate();
@@ -1040,6 +1117,11 @@ const FlowCanvas = () => {
   } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { nodes: visibleNodes, edges: visibleEdges } = getVisibleNodesAndEdges(
+    nodes,
+    edges
+  );
+
   const { screenToFlowPosition } = useReactFlow();
   const { phoneNumbers, getAllNumbers } = useContext(AppContext);
 
