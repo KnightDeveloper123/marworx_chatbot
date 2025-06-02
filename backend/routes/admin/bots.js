@@ -120,9 +120,9 @@ router.post('/send-whatsapp', async (req, res) => {
 
 //send bot 
 router.post('/addwithwhatsup', async (req, res) => {
-  const { flowName, nodes, edges, to: toRaw, admin_id,flow_id } = req.body;
+  const { flowName, nodes, edges, to: toRaw, admin_id, flow_id } = req.body;
 
-  console.log("flowId",flow_id)
+  console.log("flowId", flow_id)
   if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
     return res.status(400).json({ message: 'Missing or invalid "to" phone numbers' });
   }
@@ -147,10 +147,10 @@ router.post('/addwithwhatsup', async (req, res) => {
 
     const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
     const parsedEdges = typeof edges === 'string' ? JSON.parse(edges) : edges;
- const nodesWithFlowId = nodes.map(node => ({
-  ...node,
-  flowId: flowId
-}));
+    const nodesWithFlowId = nodes.map(node => ({
+      ...node,
+      flowId: flowId
+    }));
 
     // Find start node
     const incomingMap = {};
@@ -401,122 +401,274 @@ const productsl = [
 //     console.error('Error in webhook:', err);
 //     res.sendStatus(500);
 //   }
+// })
+
+
+
+// router.post('/webhook', async (req, res) => {
+//   try {
+//     const body = req.body;
+//     console.log('Incoming WhatsApp message:', JSON.stringify(req.body, null, 2));
+
+//     if (
+//       body.object === 'whatsapp_business_account' &&
+//       body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
+//     ) {
+//       const message = body.entry[0].changes[0].value.messages[0];
+//       const from = message.from;
+//       const msg = message.text?.body?.trim().toLowerCase();
+
+//       // Fetch user progress (before condition)
+//       let [progress] = await executeQuery(
+//         'SELECT flow_id, current_node_index FROM user_node_progress WHERE phone_number = ?',
+//         [from]
+//       );
+
+//       let flow_id = progress?.flow_id;
+
+//       // START FLOW: if user says "hi" or "hello"
+//       // if (msg === 'hi' || msg === 'hello') {
+//       //   if (!flow_id) {
+//       //     const [defaultBot] = await executeQuery('SELECT id FROM bots LIMIT 1');
+//       //     if (!defaultBot) {
+//       //       await sendWhatsAppText(from, '❌ No default bot is configured.');
+//       //       return res.sendStatus(400);
+//       //     }
+//       //     flow_id = defaultBot.id;
+//       //   }
+
+//       //   const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
+//       //   const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
+//       //   const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+
+//       //   // Build ordered flow
+//       //   const incomingMap = {};
+//       //   edges.forEach(edge => (incomingMap[edge.target] = true));
+//       //   const startNode = nodes.find(n => !incomingMap[n.id]);
+
+//       //   const orderedNodes = [];
+//       //   let current = startNode;
+//       //   while (current) {
+//       //     orderedNodes.push(current);
+//       //     const nextEdge = edges.find(e => e.source === current.id);
+//       //     current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
+//       //   }
+
+//       //   const firstNode = orderedNodes[0];
+//       //   await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
+
+//       //   // Save or update user progress
+//       //   if (progress) {
+//       //     await executeQuery(
+//       //       'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+//       //       [0, from, flow_id]
+//       //     );
+//       //   } else {
+//       //     await executeQuery(
+//       //       'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+//       //       [from, flow_id, 0]
+//       //     );
+//       //   }
+
+//       //   return res.sendStatus(200);
+//       // }
+
+//       if (msg === 'hi' || msg === 'hello') {
+
+//         if (progress) {
+//           await executeQuery(
+//             'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+//             [0, from, flow_id]
+//           );
+//         } else {
+//           await executeQuery(
+//             'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+//             [from, flow_id, 0]
+//           );
+//         }
+//       }
+
+//       // If not "hi", continue with flow
+//       if (!flow_id) {
+//         await sendWhatsAppText(from, '❌ No active flow found. Type *hi* to start.');
+//         return res.sendStatus(400);
+//       }
+
+//       const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
+//       const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
+//       const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+
+//       const incomingMap = {};
+//       edges.forEach(edge => (incomingMap[edge.target] = true));
+//       const startNode = nodes.find(n => !incomingMap[n.id]);
+
+//       const orderedNodes = [];
+//       let current = startNode;
+//       while (current) {
+//         orderedNodes.push(current);
+//         const nextEdge = edges.find(e => e.source === current.id);
+//         current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
+//       }
+
+//       const currentNode = orderedNodes[progress.current_node_index];
+//       if (!currentNode) {
+//         await sendWhatsAppText(from, '❌ Flow error. Please type *hi* to restart.');
+//         return res.sendStatus(200);
+//       }
+
+//       // Save answer
+//       await executeQuery(
+//         'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+//         [from, flow_id, currentNode.id, msg]
+//       );
+
+//       // Move to next node
+//       const nextIndex = progress.current_node_index + 1;
+//       if (nextIndex < orderedNodes.length) {
+//         const nextNode = orderedNodes[nextIndex];
+//         await sendWhatsAppText(from, nextNode?.data?.label || '...');
+//         await executeQuery(
+//           'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+//           [nextIndex, from, flow_id]
+//         );
+//       } else {
+//         await sendWhatsAppText(from, '✅ Thank you! You have completed the flow.');
+//         await executeQuery(
+//           'DELETE FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+//           [from, flow_id]
+//         );
+//       }
+
+//       return res.sendStatus(200);
+//     }
+
+//     res.status(200).send('Webhook processed');
+//   } catch (err) {
+//     console.error('❌ Error in webhook:', err);
+//     res.sendStatus(500);
+//   }
 // });
+function getOrderedFlow(nodes, edges) {
+  const incomingMap = {};
+  edges.forEach(edge => (incomingMap[edge.target] = true));
+  const startNode = nodes.find(n => !incomingMap[n.id]);
 
+  const ordered = [];
+  let current = startNode;
+  while (current) {
+    ordered.push(current);
+    const nextEdge = edges.find(e => e.source === current.id);
+    current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
+  }
 
+  return ordered;
+}
+
+// its working correct
 router.post('/webhook', async (req, res) => {
   try {
     const body = req.body;
-    //  console.log('Incoming WhatsApp message:', JSON.stringify(req.body, null, 2));
-    if (
-      body.object === 'whatsapp_business_account' &&
-      body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
-    ) {
-      const message = body.entry[0].changes[0].value.messages[0];
-      const from = message.from;
-      const msg = message.text?.body?.trim();
+    // console.log('📥 Incoming WhatsApp message:', JSON.stringify(body, null, 2));
 
-      // ✅ Get flow_id from query or body
-      const flow_id = parseInt(req.query.flow_id || req.body.flow_id);
-      // const flow_id;
-      if (!flow_id) {
-        await sendWhatsAppText(from, '❌ Flow ID not provided.');
-        return res.sendStatus(400);
-      }
-      // ✅ Fetch bot from DB
-      const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
-      if (!bot) {
-        await sendWhatsAppText(from, '❌ Bot not found.');
-        return res.sendStatus(404);
-      }
+    const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+    if (!message || body.object !== 'whatsapp_business_account') {
+      return res.status(200).send('No message to process');
+    }
 
-      // ✅ Safe parse nodes and edges
-      const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
-      console.log("nodes", nodes)
-      const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+    const from = message.from;
+    const msg = message.text?.body?.trim().toLowerCase();
 
-      // ✅ Build ordered flow
-      const incomingMap = {};
-      edges.forEach(edge => {
-        incomingMap[edge.target] = true;
-      });
-
-      const startNode = nodes.find(n => !incomingMap[n.id]);
-      const orderedNodes = [];
-      let current = startNode;
-
-      while (current) {
-        orderedNodes.push(current);
-        const nextEdge = edges.find(e => e.source === current.id);
-        current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
-      }
-
-      // ✅ Fetch user progress
-      const progressRows = await executeQuery(
-        'SELECT * FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
-        [from, flow_id]
-      );
-
-      let currentNodeIndex = progressRows.length ? progressRows[0].current_node_index : null;
-
-      // ✅ If new or starting conversation
-      if (currentNodeIndex === null || msg.toLowerCase() === 'hi' || msg.toLowerCase() === 'hello') {
-        const firstNode = orderedNodes[0];
-        await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
-
-        if (progressRows.length) {
-          await executeQuery(
-            'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
-            [0, from, flow_id]
-          );
-        } else {
-          await executeQuery(
-            'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
-            [from, flow_id, 0]
-          );
-        }
-
-        return res.sendStatus(200);
-      }
-
-      // ✅ Continue flow
-      const currentNode = orderedNodes[currentNodeIndex];
-      if (!currentNode) {
-        await sendWhatsAppText(from, '❌ Invalid step. Type *hi* to restart.');
-        return res.sendStatus(200);
-      }
-
-      // ✅ Save answer
-      await executeQuery(
-        'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
-        [from, flow_id, currentNode.id, msg]
-      );
-
-      // ✅ Move to next node
-      const nextIndex = currentNodeIndex + 1;
-      if (nextIndex < orderedNodes.length) {
-        const nextNode = orderedNodes[nextIndex];
-        await sendWhatsAppText(from, nextNode?.data?.label || '...');
-        await executeQuery(
-          'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
-          [nextIndex, from, flow_id]
-        );
-      } else {
-        await sendWhatsAppText(from, '✅ Thank you! You have completed the flow.');
-        await executeQuery(
-          'DELETE FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
-          [from, flow_id]
-        );
-      }
+    // Handle manual flow reset
+    if (msg === 'restart') {
+      await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
+      await sendWhatsAppText(from, '🔄 Flow reset. Type *hi* to begin again.');
       return res.sendStatus(200);
     }
-    res.status(200).send('Webhook processed');
+
+    // Fetch progress
+    let [progress] = await executeQuery(
+      'SELECT flow_id, current_node_index FROM user_node_progress WHERE phone_number = ?',
+      [from]
+    );
+
+    let flow_id = progress?.flow_id;
+
+    // Start flow if user says "hi" or "hello" and no progress exists
+    if ((msg === 'hi' || msg === 'hello') && !progress) {
+      const [defaultBot] = await executeQuery('SELECT id FROM bots LIMIT 1');
+      if (!defaultBot) {
+        await sendWhatsAppText(from, '❌ No default bot is configured.');
+        return res.sendStatus(400);
+      }
+
+      flow_id = defaultBot.id;
+      const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
+      const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
+      const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+
+      const orderedNodes = getOrderedFlow(nodes, edges);
+      const firstNode = orderedNodes[0];
+
+      await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
+
+      // Save user progress
+      await executeQuery(
+        'INSERT INTO user_node_progress (phone_number, flow_id, current_node_index) VALUES (?, ?, ?)',
+        [from, flow_id, 0]
+      );
+
+      return res.sendStatus(200);
+    }
+
+    // If no active progress and not saying "hi"
+    if (!flow_id) {
+      await sendWhatsAppText(from, '❌ No active flow found. Type *hi* to start.');
+      return res.sendStatus(400);
+    }
+
+    // Continue the flow
+    const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
+    const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
+    const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
+
+    const orderedNodes = getOrderedFlow(nodes, edges);
+    const currentNode = orderedNodes[progress.current_node_index];
+
+    if (!currentNode) {
+      await sendWhatsAppText(from, '❌ Flow error. Type *restart* to try again.');
+      return res.sendStatus(200);
+    }
+
+    // Save answer
+    await executeQuery(
+      'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+      [from, flow_id, currentNode.id, msg]
+    );
+
+    // Move to next node
+    const nextIndex = progress.current_node_index + 1;
+
+    if (nextIndex < orderedNodes.length) {
+      const nextNode = orderedNodes[nextIndex];
+      await sendWhatsAppText(from, nextNode?.data?.label || '...');
+      await executeQuery(
+        'UPDATE user_node_progress SET current_node_index = ? WHERE phone_number = ? AND flow_id = ?',
+        [nextIndex, from, flow_id]
+      );
+    } else {
+      await sendWhatsAppText(from, '✅ Thank you! You have completed the flow.');
+      await executeQuery(
+        'DELETE FROM user_node_progress WHERE phone_number = ? AND flow_id = ?',
+        [from, flow_id]
+      );
+    }
+
+    return res.sendStatus(200);
   } catch (err) {
-    console.error('Error in webhook:', err);
+    console.error('❌ Error in webhook:', err);
     res.sendStatus(500);
   }
 });
-
 
 
 router.post('/save_number', async (req, res) => {

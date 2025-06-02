@@ -538,75 +538,156 @@ const nodeTypes = {
     };
 
     return (
-      <Box bg="white" borderRadius="5px" w="150px">
-        <Handle type="target" position="left" style={{ background: "#555" }} />
+  <Box bg="white" borderRadius="5px" w="150px">
+    <Handle type="target" position="left" style={{ background: "#555" }} />
 
-        {/* Header */}
-        <Box
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              List Button
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        {/* Target values */}
+    {/* Header */}
+    <Box
+      color="white"
+      p={0.5}
+      borderRadius={"5px"}
+      bgColor="var(--active-bg)"
+    >
+      <Flex justifyContent="space-between" alignItems="center">
+        <Text fontSize="10px" fontWeight="bold">
+          List Button
+        </Text>
+        <IconButton
+          size="xs"
+          variant="ghost"
+          colorScheme="whiteAlpha"
+          icon={<IoTrashOutline />}
+          onClick={handleDelete}
+          aria-label="Delete Node"
+        />
+      </Flex>
+    </Box>
 
-        {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            mb={1}
-            fontSize="10px"
-            alignItems="center"
-          >
-            <Input
-              key={idx}
-              value={val}
-              onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`Option ${idx + 1}`}
-              size="xs"
-              fontSize="10px"
-              mb={1}
-            />
+    {/* Main question / label */}
+    <Input
+      value={question}
+      onChange={(e) => setQuestion(e.target.value)}
+      placeholder="Enter label (e.g. Select Option)"
+      size="xs"
+      fontSize="10px"
+      mt={2}
+      mb={1}
+    />
 
-            <Handle
-              type="source"
-              position="right"
-              id={`option-${idx}`}
-              style={{ background: "#555" }}
-            />
-          </Flex>
-        ))}
-
-        <Button
-          onClick={addTargetValue}
+    {/* Target values */}
+    {targetValues.map((val, idx) => (
+      <Flex
+        key={idx}
+        position="relative"
+        borderRadius="md"
+        px={2}
+        py={1}
+        mb={1}
+        fontSize="10px"
+        alignItems="center"
+      >
+        <Input
+          value={val}
+          onChange={(e) => updateTargetValue(idx, e.target.value)}
+          placeholder={`Option ${idx + 1}`}
           size="xs"
           fontSize="10px"
-          width="100%"
-          mt={1}
-          variant="outline"
-          colorScheme="blue"
-        >
-          + Add Option
-        </Button>
-      </Box>
-    );
+          mb={1}
+        />
+
+        <Handle
+          type="source"
+          position="right"
+          id={`option-${idx}`}
+          style={{ background: "#555" }}
+        />
+      </Flex>
+    ))}
+
+    <Button
+      onClick={addTargetValue}
+      size="xs"
+      fontSize="10px"
+      width="100%"
+      mt={1}
+      variant="outline"
+      colorScheme="blue"
+    >
+      + Add Option
+    </Button>
+  </Box>
+);
+
+    // return (
+    //   <Box bg="white" borderRadius="5px" w="150px">
+    //     <Handle type="target" position="left" style={{ background: "#555" }} />
+
+    //     {/* Header */}
+    //     <Box
+    //       color="white"
+    //       p={0.5}
+    //       borderRadius={"5px"}
+    //       bgColor="var(--active-bg)"
+    //     >
+    //       <Flex justifyContent="space-between" alignItems="center">
+    //         <Text fontSize="10px" fontWeight="bold">
+    //           List Button
+    //         </Text>
+    //         <IconButton
+    //           size="xs"
+    //           variant="ghost"
+    //           colorScheme="whiteAlpha"
+    //           icon={<IoTrashOutline />}
+    //           onClick={handleDelete}
+    //           aria-label="Delete Node"
+    //         />
+    //       </Flex>
+    //     </Box>
+    //     {/* Target values */}
+
+    //     {targetValues.map((val, idx) => (
+    //       <Flex
+    //         key={idx}
+    //         position="relative"
+    //         borderRadius="md"
+    //         px={2}
+    //         py={1}
+    //         mb={1}
+    //         fontSize="10px"
+    //         alignItems="center"
+    //       >
+    //         <Input
+    //           key={idx}
+    //           value={val}
+    //           onChange={(e) => updateTargetValue(idx, e.target.value)}
+    //           placeholder={`Option ${idx + 1}`}
+    //           size="xs"
+    //           fontSize="10px"
+    //           mb={1}
+    //         />
+
+    //         <Handle
+    //           type="source"
+    //           position="right"
+    //           id={`option-${idx}`}
+    //           style={{ background: "#555" }}
+    //         />
+    //       </Flex>
+    //     ))}
+
+    //     <Button
+    //       onClick={addTargetValue}
+    //       size="xs"
+    //       fontSize="10px"
+    //       width="100%"
+    //       mt={1}
+    //       variant="outline"
+    //       colorScheme="blue"
+    //     >
+    //       + Add Option
+    //     </Button>
+    //   </Box>
+    // );
   },
   ReplyButton: ({ id, data }) => {
     const { setNodes } = useReactFlow();
