@@ -10,6 +10,7 @@ import { FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 import { GoReport } from "react-icons/go";
 import { TypeAnimation } from "react-type-animation";
+import { motion } from "framer-motion";
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 const BOT_URL = import.meta.env.VITE_BOT_API_URL
@@ -28,6 +29,7 @@ const MainPage = () => {
     const { username, logout } = useContext(AppContext);
 
     const navigate = useNavigate();
+    const MotionBox = motion(Box);
 
     let { id } = useParams();
     const { userid } = useParams();
@@ -58,8 +60,8 @@ const MainPage = () => {
         }
         setValue("");
         setLoading(true);
-// console.log(value)
-// console.log('ENV TEST:', process.env.REACT_APP_API_URL);
+        // console.log(value)
+        // console.log('ENV TEST:', process.env.REACT_APP_API_URL);
         try {
             const res = await axios.get(`${BOT_URL}/get_info?query=${value}`, {
                 headers: {
@@ -67,7 +69,7 @@ const MainPage = () => {
                 }
             });
             // console.log("res", res);
-            
+
             // if(withDocumentation){
             // const res="With Documentation";
             // console.log(res);
@@ -80,7 +82,13 @@ const MainPage = () => {
             // ? `http://216.10.251.154:5000/get_info?query=${value}`
             // : `http://216.10.251.154:5000/get_info_no_doc?query=${value}`;
 
-// console.log(res?.data?.answer);
+
+            // const res = {
+            //     data: {
+            //         answer: "**bold** : bold\n*italic* : italic\n\\n\\n : enter,enter\n\\t : tab\n\nLorem Ipsum is simply dummy text of the **printing and typesetting industry**. *Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.* It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.\n\n  \t It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+            //     }
+            // };
+            // console.log(res?.data?.answer);
 
 
             if (res) setLoading(false);
@@ -352,7 +360,7 @@ const MainPage = () => {
                     <Box
                         key={index}
                         alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
-                        bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
+                        bg={chat.sender === "user" ? "#4A90E2" : "#171923"}
                         color="white"
                         borderRadius="20px"
                         p="10px"
@@ -363,16 +371,83 @@ const MainPage = () => {
 
                     >
 
-
                         {chat.sender === "bot" && index === allchats.length - 1 ? (
-                            <TypeAnimation
-                                sequence={[chat.message, 1000]}
-                                speed={70} // Increase this number for faster typing (default is 40)
-                                cursor={false}
-                            />
+                            <Box>
+                                {chat.message
+                                    .split('\n\n')
+                                    .filter(line => line.trim() !== '')
+                                    .map((line, idx) => {
+                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0');
+
+                                        const parsedLine = withIndent
+                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                            .map((part, i) => {
+                                                if (part.startsWith('**') && part.endsWith('**')) {
+                                                    return (
+                                                        <Text as="span" fontWeight="bold" key={i}>
+                                                            {part.slice(2, -2)}
+                                                        </Text>
+                                                    );
+                                                } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                    return (
+                                                        <Text as="span" fontStyle="italic" key={i}>
+                                                            {part.slice(1, -1)}
+                                                        </Text>
+                                                    );
+                                                } else {
+                                                    return <Text as="span" key={i}>{part}</Text>;
+                                                }
+                                            });
+
+                                        return (
+                                            <motion.div
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 1.4 }}
+                                            >
+                                                <Text mt={idx !== 0 ? 3 : 0}>{parsedLine}</Text>
+                                            </motion.div>
+                                        );
+                                    })}
+                            </Box>
                         ) : (
-                            <Text>{chat.message}</Text>
+                            <Box>
+                                {chat.message
+                                    .split('\n\n')
+                                    .filter(line => line.trim() !== '')
+                                    .map((line, idx) => {
+                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0'); // 4 non-breaking spaces
+
+                                        const parsedLine = withIndent
+                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                            .map((part, i) => {
+                                                if (part.startsWith('**') && part.endsWith('**')) {
+                                                    return (
+                                                        <Text as="span" fontWeight="bold" key={i}>
+                                                            {part.slice(2, -2)}
+                                                        </Text>
+                                                    );
+                                                } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                    return (
+                                                        <Text as="span" fontStyle="italic" key={i}>
+                                                            {part.slice(1, -1)}
+                                                        </Text>
+                                                    );
+                                                } else {
+                                                    return <Text as="span" key={i}>{part}</Text>;
+                                                }
+                                            });
+
+                                        return (
+                                            <Text key={idx} mt={idx !== 0 ? 3 : 0}>
+                                                {parsedLine}
+                                            </Text>
+                                        );
+                                    })}
+                            </Box>
                         )}
+
 
 
                     </Box>
@@ -382,7 +457,7 @@ const MainPage = () => {
                 {loading && (
                     <Box
                         alignSelf="flex-start"
-                        bg="#2D3748"
+                        bg="#171923"
                         color="white"
                         borderRadius="20px"
                         p="10px"
