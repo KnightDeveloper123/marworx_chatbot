@@ -262,75 +262,31 @@ router.get('/webhook', (req, res) => {
 });
 
 
-///working //
-// function getOrderedFlow(nodes, edges) {
-//   const incomingMap = {};
-//   edges.forEach(edge => (incomingMap[edge.target] = true));
-//   // const startNode = nodes.find(n => !incomingMap[n.id]);
-//   let startNode = parsedNodes.find(n => !incomingMap[n.id]);
-
-//   // If it's a dummy node, go to its next connected node
-//   if (!startNode?.data?.label) {
-//     const nextEdge = parsedEdges.find(e => e.source === startNode.id);
-//     if (nextEdge) {
-//       startNode = parsedNodes.find(n => n.id === nextEdge.target);
-//     }
-//   }
 
 
-//   const ordered = [];
-//   let current = startNode;
-//   while (current) {
-//     ordered.push(current);
-//     const nextEdge = edges.find(e => e.source === current.id);
-//     current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
-//   }
+function buildFlowGraph(nodes, edges) {
+  const graph = {};
+  const nodeMap = {};
 
-//   return ordered;
-// }
+  nodes.forEach(node => {
+    nodeMap[node.id] = node;
+    graph[node.id] = []; // Initialize even if no edges yet
+  });
 
-function getOrderedFlow(nodes, edges) {
-  const incomingMap = {};
-  edges.forEach(edge => (incomingMap[edge.target] = true));
-
-  // Find the start node (no incoming edges)
-  let startNode = nodes.find(n => !incomingMap[n.id]);
-  console.log('🔍 Start Node:', startNode);
-
-  if (!startNode) return [];
-
-  // Skip dummy nodes without labels
-  if (!startNode?.data?.label) {
-    const nextEdge = edges.find(e => e.source === startNode.id);
-    if (nextEdge) {
-      startNode = nodes.find(n => n.id === nextEdge.target);
+  edges.forEach(edge => {
+    if (graph[edge.source]) {
+      graph[edge.source].push(edge);
+    } else {
+      graph[edge.source] = [edge];
     }
-  }
+  });
 
-  const ordered = [];
-  let current = startNode;
-  const visited = new Set();
-
-  while (current && !visited.has(current.id)) {
-    ordered.push(current);
-    visited.add(current.id);
-
-    const nextEdge = edges.find(e => e.source === current.id);
-    current = nextEdge ? nodes.find(n => n.id === nextEdge.target) : null;
-  }
-
-  console.log('✅ Ordered Flow:', ordered.map(n => n.data?.label || n.id));
-  return ordered;
+  return { graph, nodeMap };
 }
-
-
-
 
 router.post('/webhook', async (req, res) => {
   try {
     const body = req.body;
-    console.log('📥 Incoming WhatsApp message:', JSON.stringify(req.body, null, 2));
-
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (!message || body.object !== 'whatsapp_business_account') {
       return res.status(200).send('No message to process');
@@ -339,23 +295,23 @@ router.post('/webhook', async (req, res) => {
     const from = message.from;
     const msg = message.text?.body?.trim().toLowerCase();
 
-    // Handle flow reset
+    // RESET FLOW
     if (msg === 'restart') {
       await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
       await sendWhatsAppText(from, '🔄 Flow reset. Type *hi* to begin again.');
       return res.sendStatus(200);
     }
 
-    // Fetch user's current progress
+    // GET USER PROGRESS
     let [progress] = await executeQuery(
       'SELECT flow_id, current_node_id FROM user_node_progress WHERE phone_number = ?',
       [from]
     );
 
     let flow_id = progress?.flow_id;
-    console.log("flow_id", flow_id);
+    console.log("flow_id",flow_id)
 
-    // Start flow on 'hi' or 'hello' if no progress
+    // START FLOW
     if ((msg === 'hi' || msg === 'hello') && !progress) {
       const [defaultBot] = await executeQuery('SELECT id FROM bots LIMIT 1');
       if (!defaultBot) {
@@ -368,12 +324,10 @@ router.post('/webhook', async (req, res) => {
       const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
       const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
 
-      const orderedNodes = getOrderedFlow(nodes, edges);
-      const firstNode = orderedNodes[0];
+      const { graph, nodeMap } = buildFlowGraph(nodes, edges);
+      const firstNode = nodes[0]; // Assume first in array is start
 
       await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
-
-      // Save user progress with the first node's id
       await executeQuery(
         'INSERT INTO user_node_progress (phone_number, flow_id, current_node_id) VALUES (?, ?, ?)',
         [from, flow_id, firstNode.id]
@@ -382,38 +336,76 @@ router.post('/webhook', async (req, res) => {
       return res.sendStatus(200);
     }
 
-    // If no active flow and user didn't say 'hi'
     if (!flow_id) {
-      await sendWhatsAppText(from, '❌ No active flow found. Type *hi* to start.');
-      return res.sendStatus(400);
+      return res.status(400).send('No active flow');
     }
 
-    // Continue flow
+    // LOAD BOT FLOW
     const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
     const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
     const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
 
-    const orderedNodes = getOrderedFlow(nodes, edges);
+    const { graph, nodeMap } = buildFlowGraph(nodes, edges);
+    const currentNodeId = progress?.current_node_id;
+    console.log("id",currentNodeId)
+    const currentNode = nodeMap[currentNodeId];
 
-    // Find index of current node using node id from progress
-    // const currentIndex = orderedNodes.findIndex(n => n.id === progress.current_node_id);
-       const currentNodeIndex = orderedNodes.findIndex(n => n.id === progress.current_node_id);
-    const nextNodeIndex = currentNodeIndex + 1;
+    if (!currentNode) {
+      await sendWhatsAppText(from, '⚠️ Flow error. Restarting...');
+      await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
+      return res.sendStatus(200);
+    }
 
-    // If there is a next node, send it and update progress
-    if (nextNodeIndex < orderedNodes.length) {
-      const nextNode = orderedNodes[nextNodeIndex];
+    let nextNodeId = null;
 
-      await sendWhatsAppText(from, nextNode?.data?.label || '🧩 Next message');
+    // Handle ListButton
+    if (currentNode.type === 'ListButton' && Array.isArray(currentNode.data?.targetValues)) {
+      const selectedIndex = currentNode.data.targetValues.findIndex(
+        val => val.toLowerCase().trim() === msg
+      );
 
-      // Update user progress to next node
+      if (selectedIndex !== -1) {
+        const connections = graph[currentNodeId] || [];
+        const match = connections.find(conn => conn.sourceHandle === `option-${selectedIndex}`);
+
+        if (match) {
+          nextNodeId = match.target;
+        } else {
+          await sendWhatsAppText(from, '⚠️ This option is not connected to the next step.');
+          return res.sendStatus(200);
+        }
+      } else {
+        await sendWhatsAppText(
+          from,
+          `❌ Invalid option. Reply with one of: ${currentNode.data.targetValues.join(', ')}`
+        );
+        return res.sendStatus(200);
+      }
+    }
+
+    // Handle CustomText (free text input)
+    else if (currentNode.type === 'CustomText') {
+      // Save user answer logic here (optional)
+      const connections = graph[currentNodeId];
+      if (connections && connections.length > 0) {
+        nextNodeId = connections[0].target;
+      }
+    }
+
+    // Default case: go to next if edge exists
+    else if (!nextNodeId && graph[currentNodeId] && graph[currentNodeId].length > 0) {
+      nextNodeId = graph[currentNodeId][0].target;
+    }
+
+    if (nextNodeId) {
+      const nextNode = nodeMap[nextNodeId];
+      await sendWhatsAppText(from, nextNode?.data?.label || '🧩 ...next step...');
       await executeQuery(
         'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
-        [nextNode.id, from]
+        [nextNodeId, from]
       );
     } else {
-      // Flow complete
-      await sendWhatsAppText(from, '✅ Flow completed. Type *restart* to start again.');
+      await sendWhatsAppText(from, '✅ Flow complete. Type *restart* to try again.');
       await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
     }
 
@@ -422,9 +414,12 @@ router.post('/webhook', async (req, res) => {
     console.error('❌ Error in webhook handler:', error);
     return res.sendStatus(500);
   }
-
-
 });
+
+
+
+
+
 router.post('/save_number', async (req, res) => {
   const { phone_number } = req.body;
 
