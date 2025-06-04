@@ -5,7 +5,8 @@ const executeQuery = require('../../utils/executeQuery');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 const multer = require('multer')
-const path = require('path')
+const path = require('path');
+const { default: axios } = require('axios');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
