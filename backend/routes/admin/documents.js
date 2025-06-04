@@ -89,7 +89,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                 }
                 try {
                     const pythonApiRes = await axios.post(`${Url}/roremove_by_paths`, {
-                        filename: fileName, // send as JSON body
+                        filename: path.basename(filePath),
                     });
 
                     return res.json({
@@ -101,7 +101,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                     console.error("Python API Error:", apiErr.message);
                     return res.status(500).json({ error: "File deleted locally but failed to notify Python service." });
                 }
-                return res.json({ success: "File deleted successfully.", data });
+                // return res.json({ success: "File deleted successfully.", data });
             })
         } catch (unlinkError) {
             if (unlinkError.code === 'ENOENT') {
