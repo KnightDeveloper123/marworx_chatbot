@@ -45,6 +45,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -65,11 +66,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { decrypt } from "../../utils/security";
 import { LiaTrashAlt } from "react-icons/lia";
 import { AppContext } from "../../context/AppContext";
-
+import { RiAiGenerate2 } from "react-icons/ri";
 // Utility for node ID generation
 let id = 1;
 const getId = () => `${++id}`;
 let selectedBotToLoad = null;
+
 // Node types map
 const nodeTypes = {
   Custom: ({ id, data }) => {
@@ -101,8 +103,8 @@ const nodeTypes = {
           resize="none"
           size="xs"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -148,7 +150,7 @@ const nodeTypes = {
         >
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
-              Question
+              Type
             </Text>
             <IconButton
               size="xs"
@@ -171,10 +173,91 @@ const nodeTypes = {
           size="xs"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
+  },
+  CustomQuestion: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null);
+    const { setNodes } = useReactFlow();
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [value, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    return (
+      <Box bg="white" borderRadius={"5px"}>
+        <Handle type="target" position="top" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Question
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Flex
+          fontSize="10px"
+          alignItems="center"
+        >
+          <Textarea
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Question?..."
+            fontSize="8px"
+            border="none"
+            resize="none"
+            size="xs"
+            rows="2"
+            _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+          // px={2}
+          // py={1}
+          />
+
+          <IconButton
+            size="xs"
+            variant="ghost"
+            colorScheme="white"
+            icon={<RiAiGenerate2 />}
+            // onClick={handleDelete}
+            aria-label="Ai Node"
+          />
+        </Flex>
         <Handle
           type="source"
           position="bottom"
@@ -241,8 +324,8 @@ const nodeTypes = {
           size="sm"
           rows="2"
           _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-          // px={2}
-          // py={1}
+        // px={2}
+        // py={1}
         />
 
         <Handle
@@ -281,13 +364,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    fileName,
-                    fileUrl,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  fileName,
+                  fileUrl,
+                },
+              }
               : node
           )
         );
@@ -520,13 +603,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -552,8 +635,7 @@ const nodeTypes = {
       currentIdxRef.current = index;
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
+          `${import.meta.env.VITE_BACKEND_URL
           }/bots/getAll?admin_id=${admin_id}`,
           {
             method: "GET",
@@ -569,24 +651,24 @@ const nodeTypes = {
     };
     const { id: bot_id } = useParams();
 
-    
+
     const handleBotSelect = (bot) => {
- 
+
       if (!bot?.nodes || !bot?.edges) return;
 
       const parsedNodes =
         typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
       const parsedEdges =
         typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
-        const filteredNodes = parsedNodes.filter(
-          (node) =>
-            node &&
-            node.id &&
-            node.type &&
-            node.data &&
-            typeof node.data === "object" &&
-            node.type !== "Custom"
-        );
+      const filteredNodes = parsedNodes.filter(
+        (node) =>
+          node &&
+          node.id &&
+          node.type &&
+          node.data &&
+          typeof node.data === "object" &&
+          node.type !== "Custom"
+      );
       const uniqueId = () => Math.random().toString(36).substr(2, 9);
       const nodeIdMap = {};
 
@@ -605,69 +687,192 @@ const nodeTypes = {
       });
 
       const newEdges = parsedEdges
-      .filter(
-        (edge) =>
-          edge &&
-          edge.source &&
-          edge.target &&
-          nodeIdMap[edge.source] &&
-          nodeIdMap[edge.target]
-      )
-      .map((edge) => ({
-        ...edge,
-        id: uniqueId(),
-        source: nodeIdMap[edge.source],
-        target: nodeIdMap[edge.target],
-      }));
-        const entryNode = newNodes[0];
-        if (entryNode) {
-          newEdges.push({
-            id: uniqueId(),
-            source: id, // this is the ListButton node ID
-            sourceHandle: `option-${currentIdxRef.current}`,
-            target: entryNode.id,
-            type: "smoothstep",
-            expanded: true
-          });
-        }
+        .filter(
+          (edge) =>
+            edge &&
+            edge.source &&
+            edge.target &&
+            nodeIdMap[edge.source] &&
+            nodeIdMap[edge.target]
+        )
+        .map((edge) => ({
+          ...edge,
+          id: uniqueId(),
+          source: nodeIdMap[edge.source],
+          target: nodeIdMap[edge.target],
+        }));
+      const entryNode = newNodes[0];
+      if (entryNode) {
+        newEdges.push({
+          id: uniqueId(),
+          source: id, // this is the ListButton node ID
+          sourceHandle: `option-${currentIdxRef.current}`,
+          target: entryNode.id,
+          type: "smoothstep",
+          expanded: true
+        });
+      }
 
-        if (newNodes.length > 0) {
-          setNodes((nds) => [...nds, ...newNodes]);
-          setEdges((eds) => [...eds, ...newEdges]);
-        } else {
-          console.warn("No valid nodes to import from selected bot");
-        }
+      if (newNodes.length > 0) {
+        setNodes((nds) => [...nds, ...newNodes]);
+        setEdges((eds) => [...eds, ...newEdges]);
+      } else {
+        console.warn("No valid nodes to import from selected bot");
+      }
       onClose(); // close modal
     };
 
-    const handleExpand = () => {
-      const currentNodeId = id;
+    const gatherDescendants = (startIds, allEdges) => {
+      const queue = [...startIds];
+      const result = new Set(startIds);
+
+      while (queue.length) {
+        const parentId = queue.shift();
+        // find edges whose source is parentId
+        allEdges
+          .filter((e) => e.source === parentId)
+          .forEach((e) => {
+            if (!result.has(e.target)) {
+              result.add(e.target);
+              queue.push(e.target);
+            }
+          });
+      }
+
+      return Array.from(result);
+    };
+
+    const handleExpandOne = () => {
       const allEdges = getEdges();
-    
-      // Filter edges that originate from this node
-      const childEdges = allEdges.filter((edge) => edge.source === currentNodeId);
-    
-      const childNodeIds = childEdges.map((edge) => edge.target);
-    
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          childNodeIds.includes(node.id)
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  expanded: !node.data?.expanded,
-                },
-              }
-            : node
-        )
+      const immediateChildren = allEdges
+        .filter((e) => e.source === id)
+        .map((e) => e.target);
+
+      // If you want to toggle *all* descendants:
+      const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
       );
     };
-    
-    useEffect(() => {
-      handleExpand();
-    }, [targetValues]);
-    
+
+
+    // const handleExpand = () => {
+    //   const currentNodeId = id;
+    //   const allEdges = getEdges();
+
+    //   // 1) Find all edges where this ListButton is the source → those are "childEdges"
+    //   const childEdges = allEdges.filter((edge) => edge.source === currentNodeId);
+
+    //   // 2) Pull out the child node IDs (targets)
+    //   const childNodeIds = childEdges.map((edge) => edge.target);
+
+    //   if (childNodeIds.length === 0) {
+    //     // no children to toggle
+    //     console.log("No child nodes found for expansion.");
+    //     return;
+    //   }
+
+    //   // 3) Toggle hidden on each of those child nodes
+    //   setNodes((prevNodes) =>
+    //     prevNodes.map((node) => {
+    //       if (childNodeIds.includes(node.id)) {
+    //         // If this is a child, flip its hidden flag
+    //         return {
+    //           ...node,
+    //           hidden: !node.hidden,        // toggle hidden
+    //           data: {
+    //             ...node.data,
+    //             // if you still need a separate "expanded" flag in data, you can keep it.
+    //             // But React Flow cares about node.hidden. 
+    //             expanded: !node.data?.expanded,
+    //           },
+    //         };
+    //       }
+    //       return node;
+    //     })
+    //   );
+
+    //   // 4) Toggle hidden on any edge that connects to those child node IDs
+    //   setEdges((prevEdges) =>
+    //     prevEdges.map((edge) => {
+    //       // If this edge’s source or target is one of the child IDs, flip hidden
+    //       if (
+    //         childNodeIds.includes(edge.source) ||
+    //         childNodeIds.includes(edge.target)
+    //       ) {
+    //         return {
+    //           ...edge,
+    //           hidden: !edge.hidden,
+    //         };
+    //       }
+    //       return edge;
+    //     })
+    //   );
+    // };
+
+
+    // useEffect(() => {
+    //   handleExpand();
+    // }, [targetValues]);
+
+    const handleExpand = (idx) => {
+      const allEdges = getEdges();
+
+      // Find the edge for this specific option
+      const matchingEdge = allEdges.find(
+        (e) => e.source === id && e.sourceHandle === `option-${idx}`
+      );
+
+      if (!matchingEdge) {
+        console.log("No matching edge found for option", idx);
+        return;
+      }
+
+      const targetId = matchingEdge.target;
+      const allDescendants = gatherDescendants([targetId], allEdges);
+
+      // Toggle visibility of nodes (including the direct target)
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (node.id === targetId || allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+
+      // Toggle visibility of edges (including the direct edge)
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            edge.id === matchingEdge.id ||
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
+      );
+    };
+
     return (
       <Box bg="white" borderRadius="5px" w="150px">
         <Handle type="target" position="left" style={{ background: "#555" }} />
@@ -683,23 +888,24 @@ const nodeTypes = {
             <Text fontSize="10px" fontWeight="bold">
               List Button
             </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-            <IconButton
-            size="xs"
-            aria-label="Expand"
-            icon={<MdExpandMore />} // import from react-icons/md
-            // onClick={handleExpand}
-            onClick={handleExpand}
+            <Flex alignItems={'flex-end'}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="whiteAlpha"
+                icon={<IoTrashOutline />}
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
 
-            ml={1}
-          />
+              <IconButton
+                size="xs"
+                aria-label="Expand"
+                icon={<MdExpandMore fontSize={'20px'} />} // import from react-icons/md
+                onClick={handleExpandOne}
+                background={'none'}
+              />
+            </Flex>
           </Flex>
         </Box>
         {/* Target values */}
@@ -727,6 +933,15 @@ const nodeTypes = {
             >
               {val}
             </Button>
+
+            <IconButton
+              size="xs"
+              aria-label="Expand"
+              icon={<MdExpandMore />} // import from react-icons/md
+              // onClick={handleExpand}
+              onClick={() => handleExpand(idx)}
+              ml={1}
+            />
 
             <Handle
               type="source"
@@ -764,7 +979,7 @@ const nodeTypes = {
                   >
 
                     {/* {console.log(bot.id)} */}
-                   {/* {`/view/${bot.id}`} */}
+                    {/* {`/view/${bot.id}`} */}
                     {bot?.nodes?.[0]?.data?.label || null}
                   </Button>
                 ))}
@@ -787,13 +1002,13 @@ const nodeTypes = {
           nds.map((node) =>
             node.id === id
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: question,
-                    targetValues: targetValues,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues: targetValues,
+                },
+              }
               : node
           )
         );
@@ -859,7 +1074,7 @@ const nodeTypes = {
               placeholder={`button`}
               size="xs"
               fontSize="10px"
-              // mb={1}
+            // mb={1}
             />
 
             <Handle
@@ -917,7 +1132,7 @@ const SidePanel = () => {
     },
     {
       label: "Ask a Question?",
-      type: "CustomNode",
+      type: "CustomQuestion",
       icon: <Icon as={GoQuestion} mr={2} />,
     },
     {
@@ -1070,44 +1285,10 @@ const SidePanel = () => {
   );
 };
 
-const getVisibleNodesAndEdges = (allNodes, allEdges) => {
-  const visibleNodes = [];
-  const visibleNodeIds = new Set();
-  const nodeMap = new Map(allNodes.map((n) => [n.id, n]));
-  const edgeMap = new Map();
-
-  allEdges.forEach((edge) => {
-    if (!edgeMap.has(edge.source)) edgeMap.set(edge.source, []);
-    edgeMap.get(edge.source).push(edge.target);
-  });
-
-  const addNodeAndChildren = (nodeId) => {
-    if (visibleNodeIds.has(nodeId)) return;
-    visibleNodeIds.add(nodeId);
-    visibleNodes.push(nodeMap.get(nodeId));
-
-    const node = nodeMap.get(nodeId);
-    if (node?.data?.expanded) {
-      const children = edgeMap.get(nodeId) || [];
-      children.forEach((childId) => addNodeAndChildren(childId));
-    }
-  };
-
-  const nodesWithIncomingEdges = new Set(allEdges.map((e) => e.target));
-  const rootNodes = allNodes.filter((n) => !nodesWithIncomingEdges.has(n.id));
-
-  rootNodes.forEach((root) => addNodeAndChildren(root.id));
-
-  return {
-    nodes: visibleNodes,
-    edges: allEdges.filter(
-      (edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)
-    ),
-  };
-};
 // Flow Canvas
 const FlowCanvas = () => {
   const navigate = useNavigate();
+
   const { id } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -1117,10 +1298,7 @@ const FlowCanvas = () => {
   } = useDisclosure();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { nodes: visibleNodes, edges: visibleEdges } = getVisibleNodesAndEdges(
-    nodes,
-    edges
-  );
+
 
   const { screenToFlowPosition } = useReactFlow();
   const { phoneNumbers, getAllNumbers } = useContext(AppContext);
@@ -1200,7 +1378,7 @@ const FlowCanvas = () => {
       nodes: JSON.stringify(nodes),
       edges: JSON.stringify(edges),
     };
-    
+
     // console.log(payload)
     try {
       const response = await fetch(
@@ -1213,7 +1391,7 @@ const FlowCanvas = () => {
       );
       const result = await response.json();
       if (result.success) {
-        // navigate("/home/bots");
+        navigate("/home/sector");
       }
     } catch (error) {
       console.log(error);
@@ -1222,9 +1400,10 @@ const FlowCanvas = () => {
   useEffect(() => {
     fetchBot();
     getAllNumbers();
+
   }, []);
 
- 
+
   const deleteNumber = async (id) => {
     try {
       const response = await fetch(
@@ -1256,7 +1435,8 @@ const FlowCanvas = () => {
       alert("Please select at least one number to send test.");
       return;
     }
-    // console.log(selectedNumbers)
+    console.log(nodes)
+    console.log(edges)
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
         {
@@ -1272,7 +1452,7 @@ const FlowCanvas = () => {
             bot_type: botType,
             admin_id,
             to: selectedNumbers,
-            flow_id:id
+            flow_id: id
           }),
         }
       );
@@ -1564,7 +1744,8 @@ const FlowCanvas = () => {
 };
 
 // Main Component
-export default function BotBuilder() {
+export default function ViewBot() {
+
   return (
     <Card>
       <ReactFlowProvider>

@@ -422,8 +422,6 @@ router.post('/webhook', async (req, res) => {
     console.error('❌ Error in webhook handler:', error);
     return res.sendStatus(500);
   }
-
-
 });
 router.post('/save_number', async (req, res) => {
   const { phone_number } = req.body;

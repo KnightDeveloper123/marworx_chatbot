@@ -189,8 +189,8 @@ const AdminDashboard = () => {
     formData.append('admin_id', admin_id)
     formData.append('file', file.file)
     formData.append('fileName', file.fileName)
-    formData.append('sector_id', sectorId)
-    formData.append('bot_type', type)
+    formData.append('sector_id', 1)
+    formData.append('bot_type', 'Genarative ai')
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL

@@ -75,7 +75,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
         }
         const fileName = document.name;
         const filePath = path.join(__dirname, '../../documents', fileName);
-     
+     console.log(filePath)
 
         try {
             await fs.promises.unlink(filePath);
