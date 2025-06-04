@@ -517,7 +517,7 @@ INSERT INTO `support` VALUES (1,'Unable to Login to the application.',1,1,0,'res
 UNLOCK TABLES;
 
 --
--- Table structure for table `template`
+-- Table structure for table `template`          
 --
 
 DROP TABLE IF EXISTS `template`;
