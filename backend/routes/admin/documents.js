@@ -88,7 +88,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                     return res.status(400).json({ error: "Something went wrong" })
                 }
                 try {
-                    const pythonApiRes = await axios.post(`${Url}/roremove_by_paths`, {
+                    const pythonApiRes = await axios.post(`${Url}/remove_by_paths`, {
                         filename: path.basename(filePath),
                     });
 
