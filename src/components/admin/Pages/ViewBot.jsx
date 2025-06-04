@@ -39,7 +39,7 @@ import { LuReply } from "react-icons/lu";
 import { IoIosListBox } from "react-icons/io";
 import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
-import { MdExpandMore, MdOutlineDeleteOutline } from "react-icons/md";
+import { MdExpandMore, MdOutlineDeleteOutline, MdOutlineLibraryAdd } from "react-icons/md";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import React, {
   useCallback,
@@ -910,7 +910,7 @@ const nodeTypes = {
         </Box>
         {/* Target values */}
 
-        {targetValues.map((val, idx) => (
+        {/* {targetValues.map((val, idx) => (
           <Flex
             key={idx}
             position="relative"
@@ -950,7 +950,58 @@ const nodeTypes = {
               style={{ background: "#555" }}
             />
           </Flex>
+        ))} */}
+
+        {targetValues.map((val, idx) => (
+          <Flex
+            key={idx}
+            position="relative"
+            borderRadius="md"
+            px={2}
+            py={1}
+            mb={1}
+            fontSize="10px"
+            alignItems="center"
+          >
+            <Input
+              size="xs"
+              fontSize="10px"
+              value={val}
+              onChange={(e) => {
+                const updated = [...targetValues];
+                updated[idx] = e.target.value;
+                setTargetValues(updated);
+              }}
+            />
+
+            <IconButton
+              size="xs"
+              aria-label="Open Bot Options"
+              icon={<MdExpandMore />}
+              onClick={() => handleExpand(idx)}
+              ml={1}
+            />
+
+            <IconButton
+              size="xs"
+              aria-label="Select Bot"
+              icon={<MdOutlineLibraryAdd />}
+              onClick={(e) => {
+                currentIdxRef.current = idx;
+                updateTargetValue(idx, val);
+              }}
+              ml={1}
+            />
+
+            <Handle
+              type="source"
+              position="right"
+              id={`option-${idx}`}
+              style={{ background: "#555" }}
+            />
+          </Flex>
         ))}
+
 
         <Button
           onClick={addTargetValue}
@@ -990,6 +1041,7 @@ const nodeTypes = {
       </Box>
     );
   },
+  
   ReplyButton: ({ id, data }) => {
     const { setNodes } = useReactFlow();
     const [question, setQuestion] = useState(data.label || "");
@@ -1357,7 +1409,7 @@ const FlowCanvas = () => {
         }
       );
       const result = await response.json();
-      // console.log(result.data)
+      console.log(result.data)
       const { nodes, edges } = result.data;
       // console.log(result.data)
 
