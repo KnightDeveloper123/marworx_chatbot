@@ -76,8 +76,8 @@ router.post("/deleteDocument", middleware, async (req, res) => {
             return res.status(404).json({ error: "Document not found" });
         }
         const fileName = document.name;
-        console.log(fileName)
         const filePath = path.join(__dirname, '../../documents', fileName);
+        console.log( path.basename(filePath))
      
 
         try {
