@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { IoLogOut } from "react-icons/io5";
 import { RiUserAddFill } from "react-icons/ri";
 import logo from "../../assets/logo.webp";
+import { motion } from "framer-motion";
 const BOT_URL = import.meta.env.VITE_BOT_API_URL
 
 
@@ -15,6 +16,8 @@ const Guest = () => {
     const [allchats, setAllchats] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showHeading, setShowHeading] = useState(true);
+
+        const MotionBox = motion(Box);
 
     const bottomRef = useRef(null);
 
@@ -168,23 +171,114 @@ const Guest = () => {
                     <Box
                         key={index}
                         alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
-                        bg={chat.sender === "user" ? "#4A90E2" : "#2D3748"}
+                        bg={chat.sender === "user" ? "#4A90E2" : "#171923"}
                         color="white"
                         borderRadius="20px"
                         p="10px"
                         maxW="60%"
                         my="8px"
+
                         boxShadow="md"
 
                     >
-                        {/* {console.log(chat.message)} */}
-                        {/* <Text>{chat.message}</Text> |||  */}
-                        {chat.sender === "bot" && index === allchats.length - 1 ? (
-                            <Text>{chat.message}</Text>
 
+
+                        {/* {chat.sender === "bot" && index === allchats.length - 1 ? (
+                            <TypeAnimation
+                                sequence={[chat.message, 1000]}
+                                speed={70} // Increase this number for faster typing (default is 40)
+                                cursor={false}
+                            />
                         ) : (
-                            <Text>{chat.message}</Text>
+                            <Box>
+                                {chat.message
+                                    // Split by numbered points (e.g. "1. ", "2. ", etc.) keeping the number
+                                    .split(/(?=\n\s*\d+\.\s+)/)
+                                    .map((part, idx) => (
+                                        <Text key={idx} mt={idx !== 0 ? 2 : 0}>
+                                            {part.trim()}
+                                        </Text>
+                                    ))}
+                            </Box>
+                        )} */}
+
+                        {chat.sender === "bot" && index === allchats.length - 1 ? (
+                            <Box>
+                                {chat.message
+                                    .split('\n\n')
+                                    .filter(line => line.trim() !== '')
+                                    .map((line, idx) => {
+                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0');
+
+                                        const parsedLine = withIndent
+                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                            .map((part, i) => {
+                                                if (part.startsWith('**') && part.endsWith('**')) {
+                                                    return (
+                                                        <Text as="span" fontWeight="bold" key={i}>
+                                                            {part.slice(2, -2)}
+                                                        </Text>
+                                                    );
+                                                } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                    return (
+                                                        <Text as="span" fontStyle="italic" key={i}>
+                                                            {part.slice(1, -1)}
+                                                        </Text>
+                                                    );
+                                                } else {
+                                                    return <Text as="span" key={i}>{part}</Text>;
+                                                }
+                                            });
+
+                                        return (
+                                            <motion.div
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 1.4 }}
+                                            >
+                                                <Text mt={idx !== 0 ? 3 : 0}>{parsedLine}</Text>
+                                            </motion.div>
+                                        );
+                                    })}
+                            </Box>
+                        ) : (
+                            <Box>
+                                {chat.message
+                                    .split('\n\n')
+                                    .filter(line => line.trim() !== '')
+                                    .map((line, idx) => {
+                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0'); // 4 non-breaking spaces
+
+                                        const parsedLine = withIndent
+                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                            .map((part, i) => {
+                                                if (part.startsWith('**') && part.endsWith('**')) {
+                                                    return (
+                                                        <Text as="span" fontWeight="bold" key={i}>
+                                                            {part.slice(2, -2)}
+                                                        </Text>
+                                                    );
+                                                } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                    return (
+                                                        <Text as="span" fontStyle="italic" key={i}>
+                                                            {part.slice(1, -1)}
+                                                        </Text>
+                                                    );
+                                                } else {
+                                                    return <Text as="span" key={i}>{part}</Text>;
+                                                }
+                                            });
+
+                                        return (
+                                            <Text key={idx} mt={idx !== 0 ? 3 : 0}>
+                                                {parsedLine}
+                                            </Text>
+                                        );
+                                    })}
+                            </Box>
                         )}
+
 
 
                     </Box>
@@ -194,7 +288,7 @@ const Guest = () => {
                 {loading && (
                     <Box
                         alignSelf="flex-start"
-                        bg="#2D3748"
+                        bg="#171923"
                         color="white"
                         borderRadius="20px"
                         p="10px"
