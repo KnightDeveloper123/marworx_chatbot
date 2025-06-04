@@ -60,6 +60,7 @@ router.post('/uploadDocument', middleware, upload.single('file'), async (req, re
         return res.status(500).json({ error: 'Internal Server Error.' });
     }
 });
+const Url=process.env.VITE_BOT_API_URL;
 
 router.post("/deleteDocument", middleware, async (req, res) => {
     try {
@@ -74,15 +75,30 @@ router.post("/deleteDocument", middleware, async (req, res) => {
             return res.status(404).json({ error: "Document not found" });
         }
         const fileName = document.name;
+        console.log(fileName)
         const filePath = path.join(__dirname, '../../documents', fileName);
-     console.log(filePath)
+     
 
         try {
             await fs.promises.unlink(filePath);
-            connection.query(`update documents set status=1 where id=?`, [document_id], (err, data) => {
+            connection.query(`update documents set status=1 where id=?`, [document_id], async (err, data) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).json({ error: "Something went wrong" })
+                }
+                try {
+                    const pythonApiRes = await axios.post(`${Url}/roremove_by_paths`, {
+                        filename: fileName, // send as JSON body
+                    });
+
+                    return res.json({
+                        success: "File deleted successfully.",
+                        pythonService: pythonApiRes.data,
+                        data,
+                    });
+                } catch (apiErr) {
+                    console.error("Python API Error:", apiErr.message);
+                    return res.status(500).json({ error: "File deleted locally but failed to notify Python service." });
                 }
                 return res.json({ success: "File deleted successfully.", data });
             })
