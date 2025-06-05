@@ -1,12 +1,12 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Switch, Text, Textarea, Tooltip, useDisclosure } from "@chakra-ui/react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Switch, Text, Textarea, Tooltip, useDisclosure } from "@chakra-ui/react";
+import React, { use, useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
-import { FaUser } from "react-icons/fa";
+import { FaRegThumbsDown, FaRegThumbsUp, FaThumbsDown, FaThumbsUp, FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 import { GoReport } from "react-icons/go";
 import { TypeAnimation } from "react-type-animation";
@@ -26,7 +26,7 @@ const MainPage = () => {
     const cancelRef = useRef()
     const bottomRef = useRef(null);
     const initRef = React.useRef();
-    const { username, logout } = useContext(AppContext);
+    const { username, logout, } = useContext(AppContext);
 
     const navigate = useNavigate();
     const MotionBox = motion(Box);
@@ -141,6 +141,7 @@ const MainPage = () => {
     };
 
 
+    // console.log(allchats);
 
 
     const sendResponse = async (message, sender, title_id = null) => {
@@ -193,6 +194,8 @@ const MainPage = () => {
                 headers: { Authorization: `${token}` },
             });
             setAllchats(response.data.data)
+            console.log(response.data.data);
+            
 
         } catch (error) {
             console.error("Error fetching data", error);
@@ -239,15 +242,53 @@ const MainPage = () => {
         navigate("/");
     };
 
-    useEffect(() => {
-
-        getsidebardata(id);
-
-    }, [id]);
+   
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [allchats]);
+
+    const [feedbackMap, setFeedbackMap] = useState({});
+
+    const handleLike = async (chatId) => {
+        const newStatus = feedbackMap[chatId] === 0 ? null : 0;
+        setFeedbackMap(prev => ({ ...prev, [chatId]: newStatus }));
+        await sendFeedback(chatId, newStatus);
+    };
+
+    const handleDislike = async (chatId) => {
+        const newStatus = feedbackMap[chatId] === 1 ? null : 1;
+        setFeedbackMap(prev => ({ ...prev, [chatId]: newStatus }));
+        await sendFeedback(chatId, newStatus);
+    };
+    // console.log(feedbackMap);
+
+
+    const sendFeedback = async (chatId, feedback) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.error("No token found");
+            return;
+        }
+        try {
+            const response = await axios.post(`${APP_URL}/chatbot/likeChat`, {
+                chat_id: chatId,
+                user_id: userid,
+                feedback: feedback
+            },
+                { headers: { Authorization: `${token}` } });
+            console.log(response.data);
+
+        } catch (error) {
+            console.error("Error submitting feedback:", error.response?.data || error.message);
+        }
+    };
+//  console.log(allchats);
+  useEffect(() => {
+
+        getsidebardata(id);
+
+    }, [id]);
 
     return (
 
@@ -356,103 +397,168 @@ const MainPage = () => {
             >
 
                 {allchats.map((chat, index) => (
+                    <>
+                        <Box
+                            key={index}
+                            alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
+                            bg={chat.sender === "user" ? "#4A90E2" : "#171923"}
+                            color="white"
+                            borderRadius="20px"
+                            p="10px"
+                            maxW="60%"
+                            my="8px"
+                            boxShadow="md"
 
-                    <Box
-                        key={index}
-                        alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
-                        bg={chat.sender === "user" ? "#4A90E2" : "#171923"}
-                        color="white"
-                        borderRadius="20px"
-                        p="10px"
-                        maxW="60%"
-                        my="8px"
+                        >
 
-                        boxShadow="md"
+                            {chat.sender === "bot" && index === allchats.length - 1 ? (
+                                <Box>
+                                    {chat.message
+                                        .split('\n\n')
+                                        .filter(line => line.trim() !== '')
+                                        .map((line, idx) => {
+                                            const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0');
 
-                    >
+                                            const parsedLine = withIndent
+                                                .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                                .map((part, i) => {
+                                                    if (part.startsWith('**') && part.endsWith('**')) {
+                                                        return (
+                                                            <Text as="span" fontWeight="bold" key={i}>
+                                                                {part.slice(2, -2)}
+                                                            </Text>
+                                                        );
+                                                    } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                        return (
+                                                            <Text as="span" fontStyle="italic" key={i}>
+                                                                {part.slice(1, -1)}
+                                                            </Text>
+                                                        );
+                                                    } else {
+                                                        return <Text as="span" key={i}>{part}</Text>;
+                                                    }
+                                                });
 
-                        {chat.sender === "bot" && index === allchats.length - 1 ? (
-                            <Box>
-                                {chat.message
-                                    .split('\n\n')
-                                    .filter(line => line.trim() !== '')
-                                    .map((line, idx) => {
-                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0');
+                                            return (
+                                                <motion.div
+                                                    key={idx}
+                                                    initial={{ opacity: 0, y: 8 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 1.4 }}
+                                                >
+                                                    <Text mt={idx !== 0 ? 3 : 0}>{parsedLine}</Text>
+                                                </motion.div>
+                                            );
+                                        })}
+                                </Box>
 
-                                        const parsedLine = withIndent
-                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
-                                            .map((part, i) => {
-                                                if (part.startsWith('**') && part.endsWith('**')) {
-                                                    return (
-                                                        <Text as="span" fontWeight="bold" key={i}>
-                                                            {part.slice(2, -2)}
-                                                        </Text>
-                                                    );
-                                                } else if (part.startsWith('*') && part.endsWith('*')) {
-                                                    return (
-                                                        <Text as="span" fontStyle="italic" key={i}>
-                                                            {part.slice(1, -1)}
-                                                        </Text>
-                                                    );
-                                                } else {
-                                                    return <Text as="span" key={i}>{part}</Text>;
-                                                }
-                                            });
+                            ) : (
+                                <Box>
+                                    <Box>
+                                        {chat.message
+                                            .split('\n\n')
+                                            .filter(line => line.trim() !== '')
+                                            .map((line, idx) => {
+                                                const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0'); // 4 non-breaking spaces
 
-                                        return (
-                                            <motion.div
-                                                key={idx}
-                                                initial={{ opacity: 0, y: 8 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ duration: 1.4 }}
-                                            >
-                                                <Text mt={idx !== 0 ? 3 : 0}>{parsedLine}</Text>
-                                            </motion.div>
-                                        );
-                                    })}
-                            </Box>
-                        ) : (
-                            <Box>
-                                {chat.message
-                                    .split('\n\n')
-                                    .filter(line => line.trim() !== '')
-                                    .map((line, idx) => {
-                                        const withIndent = line.replace(/\t/g, '\u00A0\u00A0\u00A0\u00A0'); // 4 non-breaking spaces
+                                                const parsedLine = withIndent
+                                                    .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                                    .map((part, i) => {
+                                                        if (part.startsWith('**') && part.endsWith('**')) {
+                                                            return (
+                                                                <Text as="span" fontWeight="bold" key={i}>
+                                                                    {part.slice(2, -2)}
+                                                                </Text>
+                                                            );
+                                                        } else if (part.startsWith('*') && part.endsWith('*')) {
+                                                            return (
+                                                                <Text as="span" fontStyle="italic" key={i}>
+                                                                    {part.slice(1, -1)}
+                                                                </Text>
+                                                            );
+                                                        } else {
+                                                            return <Text as="span" key={i}>{part}</Text>;
+                                                        }
+                                                    });
 
-                                        const parsedLine = withIndent
-                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
-                                            .map((part, i) => {
-                                                if (part.startsWith('**') && part.endsWith('**')) {
-                                                    return (
-                                                        <Text as="span" fontWeight="bold" key={i}>
-                                                            {part.slice(2, -2)}
-                                                        </Text>
-                                                    );
-                                                } else if (part.startsWith('*') && part.endsWith('*')) {
-                                                    return (
-                                                        <Text as="span" fontStyle="italic" key={i}>
-                                                            {part.slice(1, -1)}
-                                                        </Text>
-                                                    );
-                                                } else {
-                                                    return <Text as="span" key={i}>{part}</Text>;
-                                                }
-                                            });
+                                                return (
+                                                    <Text key={idx} mt={idx !== 0 ? 3 : 0}>
+                                                        {parsedLine}
+                                                    </Text>
+                                                );
+                                            })}
+                                    </Box>
 
-                                        return (
-                                            <Text key={idx} mt={idx !== 0 ? 3 : 0}>
-                                                {parsedLine}
-                                            </Text>
-                                        );
-                                    })}
-                            </Box>
-                        )}
+                                    {/* <HStack spacing={4}>
+                                    <IconButton
+                                        icon={<FaThumbsUp />}
+                                        colorScheme={liked ? 'blue' : 'gray'}
+                                        variant={liked ? 'solid' : 'outline'}
+                                        aria-label="Like"
+                                        onClick={handleLike}
+                                    />
+                                    <Text>{liked ? 'Liked' : ''}</Text>
+
+                                    <IconButton
+                                        icon={<FaThumbsDown />}
+                                        colorScheme={disliked ? 'red' : 'gray'}
+                                        variant={disliked ? 'solid' : 'outline'}
+                                        aria-label="Dislike"
+                                        onClick={handleDislike}
+                                    />
+                                    <Text>{disliked ? 'Disliked' : ''}</Text>
+                                </HStack> */}
+
+                                </Box>
+                            )}
 
 
 
-                    </Box>
+                        </Box>
+
+                        {chat.sender === "bot" && (
+                            <HStack spacing={1}>
+                                <IconButton
+                                    size="sm"
+                                    bg="transparent"
+                                    icon={
+                                        feedbackMap[chat.id] === 0 ? (
+                                            <FaThumbsUp color="#3182CE" />
+                                        ) : (
+                                            <FaRegThumbsUp color="gray" />
+                                        )
+                                    }
+                                    variant="ghost"
+                                    aria-label="Like"
+                                    _hover={{ bg: "transparent" }}
+                                    _active={{ bg: "transparent" }}
+                                    onClick={() => handleLike(chat.id)}
+                                />
+                                <IconButton
+                                    size="sm"
+                                    bg="transparent"
+                                    icon={
+                                        feedbackMap[chat.id] === 1 ? (
+                                            <FaThumbsDown color="#E53E3E" />
+                                        ) : (
+                                            <FaRegThumbsDown color="gray" />
+                                        )
+                                    }
+                                    variant="ghost"
+                                    aria-label="Dislike"
+                                    _hover={{ bg: "transparent" }}
+                                    _active={{ bg: "transparent" }}
+                                    onClick={() => handleDislike(chat.id)}
+                                />
+                            </HStack>
+                        )
+                        }
+                    </>
                 )
                 )}
+
+
+
 
                 {loading && (
                     <Box

@@ -56,9 +56,6 @@ router.post("/newChat", middleware, async (req, res) => {
 
 });
 
-
-
-
 router.delete("/deleteChatTitle", middleware, (req, res) => {
     const { title_id } = req.body;
 
@@ -98,6 +95,33 @@ router.get("/getAllChats", middleware, (req, res) => {
         res.json({ success: "success", data });
     });
 
+})
+
+router.post("/likeChat", middleware, (req, res) => {
+    
+    const {chat_id,user_id,feedback} = req.body;
+    console.log(chat_id,user_id,feedback);
+    
+
+    connection.query(`INSERT INTO chat_feedback (chat_id,user_id,feedback) VALUES (?,?,?)`, [chat_id,user_id,feedback],
+         (err, data) => {
+        if (err) {
+            console.error("Error fetching sidebar data:", err);
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json({ success: "success", data });
+    });
+
+})
+
+router.get("/getChatFeedback", middleware, (req, res) => {
+    connection.query(`select * from chat_feedback where feedback=0 || feedback=1`, (err, data) => {
+        if (err) {
+            console.error("Error fetching sidebar data:", err);
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json({ success: "success", data });
+    });
 })
 
 module.exports = router;
