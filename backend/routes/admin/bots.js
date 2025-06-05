@@ -116,14 +116,17 @@ router.post('/send-whatsapp', async (req, res) => {
   }
 });
 
+const phoneNumberId = process.env.PHONE_NUMBER_ID
+const token = process.env.WHATSAPP_TOKEN
+
 //send bot 
 router.post('/addwithwhatsup', async (req, res) => {
   const { flowName, nodes, edges, to: toRaw, admin_id, flow_id } = req.body;
-  console.log("nodes", req.body);
+  // console.log("nodes", req.body);
 
   nodes.forEach((node) => {
     if (node.type === 'ListButton') {
-      console.log(`Node ID: ${node.id}, targetValues:`, node.data.targetValues);
+      // console.log(`Node ID: ${node.id}, targetValues:`, node.data.targetValues);
     }
   });
   if (!toRaw || !Array.isArray(toRaw) || toRaw.length === 0) {
@@ -138,47 +141,62 @@ router.post('/addwithwhatsup', async (req, res) => {
     return res.status(400).json({ message: 'No valid phone numbers provided' });
   }
 
-  // const sql = `INSERT INTO bots(name, nodes, edges, admin_id) VALUES (?, ?, ?, ?)`;
-  // connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges), admin_id], async (err, result) => {
-  //   if (err) {
-  //     console.error('Error saving flow:', err);
-  //     return res.status(500).json({ message: 'Database error' });
-  //   }
-
-  //   const flowId = result.insertId;
-  // console.log(flowId)
-
-
   const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
-
+  // console.log(parsedNodes)
   const parsedEdges = typeof edges === 'string' ? JSON.parse(edges) : edges;
-  const nodesWithFlowId = nodes.map(node => ({
-    ...node,
-    flowId: flow_id
-  }));
-
+  // console.log(parsedEdges)
   // Find start node
   const incomingMap = {};
   parsedEdges.forEach(edge => {
     incomingMap[edge.target] = true;
   });
+  // console.log(incomingMap)
   const startNode = parsedNodes.find(n => !incomingMap[n.id]);
+  // console.log(startNode)
+  // console.log(startNode?.type)
 
   for (const to of toNumbers) {
     try {
-      if (startNode?.type === 'imageNode' && startNode?.data?.fileUrl) {
-        await sendWhatsAppImage(to, startNode.data.fileUrl);
-      } else if (startNode?.data?.label) {
-        await sendWhatsAppText(to, startNode.data.label);
-      } else {
-        await sendWhatsAppText(to, '👋 Hello! Let\'s begin.');
-      }
+      const connections = parsedEdges.filter(e => e.source === startNode.id);
+if (connections.length > 0) {
+  const next = parsedNodes.find(n => n.id === connections[0].target);
+  if (next) {
+    if (next.type === 'ListButton') {
+      await sendListButtonText(to, next.data.label, next.data.targetValues);
+    } else if (next.type === 'imageNode') {
+      await sendWhatsAppImage(to, next.data.fileUrl);
+    } else if (next.type === 'VideoNode') {
+      await sendWhatsAppVideo(to, next.data.fileUrl);
+    } else {
+      await sendWhatsAppText(to, next.data.label);
+    }
+
+    await executeQuery(
+      'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+      [next.id, to]
+    );
+    continue; // skip the old insert below
+  }
+}
+
+      // if (startNode?.type === 'imageNode' && startNode?.data?.fileUrl) {
+      //   await sendWhatsAppImage(to, startNode.data.fileUrl);
+      // } else if (startNode?.type === 'VideoNode' && startNode?.data?.fileUrl) {
+      //   await sendWhatsAppVideo(to, startNode.data.fileUrl);
+      // } else if (startNode?.type === 'ListButton') {
+      //   await sendListButtonText(to, startNode.data.label, startNode.data.targetValues);
+      // } else if (startNode?.type === 'GoogleSheetsNode') {
+      //   await sendWhatsAppText(to, `✅ Google Sheet Attached: ${startNode.data.file}`);
+      // } else {
+      //   await sendWhatsAppText(to, startNode?.data?.label || '🧩 ...next step...');
+      // }
+
 
       // Save user progress as starting point
-      await executeQuery(
-        'INSERT INTO user_node_progress (phone_number, flow_id, current_node_id) VALUES (?, ?, ?)',
-        [to, flow_id, 0]
-      );
+      // await executeQuery(
+      //   'INSERT INTO user_node_progress (phone_number, flow_id, current_node_id) VALUES (?, ?, ?)',
+      //   [to, flow_id, startNode.id]
+      // );
     } catch (sendErr) {
       console.error(`Error sending to ${to}:`, sendErr);
     }
@@ -190,11 +208,36 @@ router.post('/addwithwhatsup', async (req, res) => {
   });
 
 });
+async function sendListButtonText(to, title, options = []) {
+  console.log(to, title, options = [])
+  const listString = options.map((opt, i) => `${i + 1}. ${opt}`).join('\n');
+  console.log(listString)
+  const body = `📋 *${title}*\n\nPlease reply with one of the following:\n${listString}`;
+  await sendWhatsAppText(to, body);
+}
+async function sendWhatsAppVideo(to, videoUrl) {
+  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  const body = {
+    messaging_product: 'whatsapp',
+    to,
+    type: 'video',
+    video: { link: videoUrl }
+  };
 
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
 
-const phoneNumberId = process.env.PHONE_NUMBER_ID
-const token = process.env.WHATSAPP_TOKEN
-
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(`WhatsApp Video Error: ${JSON.stringify(result)}`);
+  }
+}
 
 async function sendWhatsAppText(to, text,) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
@@ -223,7 +266,7 @@ async function sendWhatsAppText(to, text,) {
   }
 }
 
-async function sendWhatsAppImage(to, imageUrl, token) {
+async function sendWhatsAppImage(to, imageUrl) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   const body = {
     messaging_product: 'whatsapp',
@@ -235,7 +278,7 @@ async function sendWhatsAppImage(to, imageUrl, token) {
   await fetch(url, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
@@ -325,11 +368,22 @@ router.post('/webhook', async (req, res) => {
       const { graph, nodeMap } = buildFlowGraph(nodes, edges);
       const firstNode = nodes[0]; // Assume first in array is start
 
-      await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
-      await executeQuery(
-        'INSERT INTO user_node_progress (phone_number, flow_id, current_node_id) VALUES (?, ?, ?)',
-        [from, flow_id, firstNode.id]
-      );
+      // Find next node (if any)
+      const connections = graph[firstNode.id];
+      if (connections && connections.length > 0) {
+        const nextNode = nodeMap[connections[0].target];
+
+        if (nextNode?.type === 'ListButton') {
+          await sendListButtonText(from, nextNode.data.label, nextNode.data.targetValues);
+        } else if (nextNode?.type === 'CustomText') {
+          await sendWhatsAppText(from, nextNode.data.label);
+        }
+
+        await executeQuery(
+          'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+          [nextNode.id, from]
+        );
+      }
 
       return res.sendStatus(200);
     }
@@ -369,7 +423,7 @@ router.post('/webhook', async (req, res) => {
     }
 
 
-    let nextNodeId = null;
+    let startNodeId = null;
 
     // Handle ListButton
     if (currentNode.type === 'ListButton' && Array.isArray(currentNode.data?.targetValues)) {
@@ -383,16 +437,7 @@ router.post('/webhook', async (req, res) => {
 
         if (match) {
           nextNodeId = match.target;
-        } else {
-          await sendWhatsAppText(from, '⚠️ This option is not connected to the next step.');
-          return res.sendStatus(200);
         }
-      } else {
-        await sendWhatsAppText(
-          from,
-          `❌ Invalid option. Reply with one of: ${currentNode.data.targetValues.join(', ')}`
-        );
-        return res.sendStatus(200);
       }
     }
 
@@ -417,7 +462,6 @@ router.post('/webhook', async (req, res) => {
 
     if (nextNodeId) {
       const nextNode = nodeMap[nextNodeId];
-      // await sendWhatsAppText(from, nextNode?.data?.label || '🧩 ...next step...');
       setTimeout(async () => {
         await sendWhatsAppText(from, nextNode?.data?.label || '🧩 ...next step...');
       }, 2000); // 2-second delay

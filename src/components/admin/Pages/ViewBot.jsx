@@ -1409,7 +1409,7 @@ const FlowCanvas = () => {
         }
       );
       const result = await response.json();
-      console.log(result.data)
+      // console.log(result.data)
       const { nodes, edges } = result.data;
       // console.log(result.data)
 
