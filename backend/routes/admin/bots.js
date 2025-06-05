@@ -179,24 +179,7 @@ if (connections.length > 0) {
   }
 }
 
-      // if (startNode?.type === 'imageNode' && startNode?.data?.fileUrl) {
-      //   await sendWhatsAppImage(to, startNode.data.fileUrl);
-      // } else if (startNode?.type === 'VideoNode' && startNode?.data?.fileUrl) {
-      //   await sendWhatsAppVideo(to, startNode.data.fileUrl);
-      // } else if (startNode?.type === 'ListButton') {
-      //   await sendListButtonText(to, startNode.data.label, startNode.data.targetValues);
-      // } else if (startNode?.type === 'GoogleSheetsNode') {
-      //   await sendWhatsAppText(to, `✅ Google Sheet Attached: ${startNode.data.file}`);
-      // } else {
-      //   await sendWhatsAppText(to, startNode?.data?.label || '🧩 ...next step...');
-      // }
-
-
-      // Save user progress as starting point
-      // await executeQuery(
-      //   'INSERT INTO user_node_progress (phone_number, flow_id, current_node_id) VALUES (?, ?, ?)',
-      //   [to, flow_id, startNode.id]
-      // );
+      
     } catch (sendErr) {
       console.error(`Error sending to ${to}:`, sendErr);
     }
@@ -208,13 +191,16 @@ if (connections.length > 0) {
   });
 
 });
-async function sendListButtonText(to, title, options = []) {
-  console.log(to, title, options = [])
+async function sendListButtonText(to, title = '', options = []) {
+  if (!Array.isArray(options) || options.length === 0) {
+    return sendWhatsAppText(to, `${title || '⚠️ No options available right now.'}`);
+  }
+
   const listString = options.map((opt, i) => `${i + 1}. ${opt}`).join('\n');
-  console.log(listString)
-  const body = `📋 *${title}*\n\nPlease reply with one of the following:\n${listString}`;
+  const body = `📋 *${title}*\n\nChoose one:\n${listString}`;
   await sendWhatsAppText(to, body);
 }
+
 async function sendWhatsAppVideo(to, videoUrl) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   const body = {
@@ -463,8 +449,19 @@ router.post('/webhook', async (req, res) => {
     if (nextNodeId) {
       const nextNode = nodeMap[nextNodeId];
       setTimeout(async () => {
-        await sendWhatsAppText(from, nextNode?.data?.label || '🧩 ...next step...');
-      }, 2000); // 2-second delay
+  if (nextNode?.type === 'imageNode' && nextNode.data?.fileUrl) {
+    await sendWhatsAppImage(from, nextNode.data.fileUrl);
+  } else if (nextNode?.type === 'VideoNode' && nextNode.data?.fileUrl) {
+    await sendWhatsAppVideo(from, nextNode.data.fileUrl);
+  } else if (nextNode?.type === 'ListButton') {
+    await sendListButtonText(from, nextNode.data.label, nextNode.data.targetValues);
+  } else if (nextNode?.type === 'GoogleSheetsNode') {
+    await sendWhatsAppText(from, `✅ Google Sheet Attached: ${nextNode.data.file}`);
+  } else {
+    await sendWhatsAppText(from, nextNode?.data?.label || '🧩 ...next step...');
+  }
+}, 2000);
+
 
       await executeQuery(
         'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
