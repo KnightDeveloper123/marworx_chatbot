@@ -538,12 +538,37 @@ const nodeTypes = {
       return () => clearTimeout(timer);
     }, [file, id, setNodes]);
 
-    const handleFileChange = (e) => {
+ 
+    const handleFileChange = async (e) => {
+
       const uploadedFile = e.target.files[0];
       if (uploadedFile) {
-        setFile(uploadedFile.name);
+        const nameWithoutExtension = uploadedFile.name.split('.').slice(0, -1).join('.');
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/upload-sheet?fileName=${nameWithoutExtension}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          setFile(result.fileName); // Save actual filename
+        } else {
+          alert('Upload failed');
+        }
       }
     };
+
+
+
+    // const handleFileChange = (e) => {
+    //   const uploadedFile = e.target.files[0];
+    //   if (uploadedFile) {
+    //     setFile(uploadedFile.name);
+    //   }
+    // };
     const handleDelete = () => {
       setNodes((nds) => nds.filter((node) => node.id !== id));
     };
@@ -1041,32 +1066,27 @@ const nodeTypes = {
       </Box>
     );
   },
-  
+
   ReplyButton: ({ id, data }) => {
     const { setNodes } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || "");
-    const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
-    // Sync data back to nodes
+
+    const [label, setLabel] = useState(data.label || "");
+    const [targetValues, setTargetValues] = useState(data.targetValues || []);
+    const [phoneNumber, setPhoneNumber] = useState("");
+
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) =>
             node.id === id
-              ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+              ? { ...node, data: { ...node.data, label, targetValues } }
               : node
           )
         );
       }, 300);
       return () => clearTimeout(timer);
-    }, [question, targetValues, id, setNodes]);
+    }, [label, targetValues, id, setNodes]);
 
     const handleDelete = () => {
       setNodes((nds) => nds.filter((node) => node.id !== id));
@@ -1082,58 +1102,52 @@ const nodeTypes = {
       );
     };
 
+
+
     return (
-      <Box bg="white" borderRadius="5px" w="150px">
-        <Handle type="target" position="left" style={{ background: "#555" }} />
+      <Box bg="white" borderRadius="10px" w="230px" p={3} boxShadow="md">
+        <Handle type="target" position="top" style={{ background: "#555" }} />
 
-        {/* Header */}
-        <Box
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              Reply Button
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        {/* Target values */}
+        <Flex justifyContent="space-between" alignItems="center" mb={2}>
+          <Text fontWeight="bold" fontSize="14px" color="black">
+            Reply Button
+          </Text>
+          <IconButton
+            size="xs"
+            variant="ghost"
+            icon={<IoTrashOutline />}
+            onClick={handleDelete}
+            aria-label="Delete Node"
+          />
+        </Flex>
 
+        {/* Question Input */}
+        <Input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Type your question..."
+          size="sm"
+          fontSize="13px"
+          mb={2}
+          bg="gray.100"
+        />
+
+        {/* Reply Buttons */}
         {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            fontSize="10px"
-            alignItems="center"
-          >
+          <Flex key={idx} alignItems="center" mb={1}>
             <Input
-              key={idx}
               value={val}
               onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`button`}
+              placeholder={`Button ${idx + 1}`}
               size="xs"
-              fontSize="10px"
-            // mb={1}
+              fontSize="11px"
+              bg="gray.50"
             />
-
             <Handle
               type="source"
               position="right"
               id={`option-${idx}`}
-              style={{ background: "#555" }}
+              style={{ background: "#555", marginLeft: "4px" }}
             />
           </Flex>
         ))}
@@ -1141,17 +1155,147 @@ const nodeTypes = {
         <Button
           onClick={addTargetValue}
           size="xs"
-          fontSize="10px"
+          fontSize="11px"
           width="100%"
-          mt={1}
           variant="outline"
           colorScheme="blue"
+          mb={2}
         >
           + Add Option
         </Button>
+
+        {/* Phone input and Send */}
+        {/* <Input
+        placeholder=""
+        size="xs"
+        fontSize="11px"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        mb={1}
+      />
+      <Button
+        onClick={handleSend}
+        size="xs"
+        fontSize="11px"
+        colorScheme="green"
+        width="100%"
+      >
+        Send to WhatsApp
+      </Button> */}
       </Box>
     );
-  },
+  }
+
+  // ReplyButton: ({ id, data }) => {
+  //   const { setNodes } = useReactFlow();
+  //   const [question, setQuestion] = useState(data.label || "");
+  //   const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+  //   // Sync data back to nodes
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id
+  //             ? {
+  //               ...node,
+  //               data: {
+  //                 ...node.data,
+  //                 label: question,
+  //                 targetValues: targetValues,
+  //               },
+  //             }
+  //             : node
+  //         )
+  //       );
+  //     }, 300);
+  //     return () => clearTimeout(timer);
+  //   }, [question, targetValues, id, setNodes]);
+
+  //   const handleDelete = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   const addTargetValue = () => {
+  //     setTargetValues((prev) => [...prev, ""]);
+  //   };
+
+  //   const updateTargetValue = (index, newValue) => {
+  //     setTargetValues((prev) =>
+  //       prev.map((val, i) => (i === index ? newValue : val))
+  //     );
+  //   };
+
+  //   return (
+  //     <Box bg="white" borderRadius="5px" w="150px">
+  //       <Handle type="target" position="left" style={{ background: "#555" }} />
+
+  //       {/* Header */}
+  //       <Box
+  //         color="white"
+  //         p={0.5}
+  //         borderRadius={"5px"}
+  //         bgColor="var(--active-bg)"
+  //       >
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold">
+  //             Reply Button
+  //           </Text>
+  //           <IconButton
+  //             size="xs"
+  //             variant="ghost"
+  //             colorScheme="whiteAlpha"
+  //             icon={<IoTrashOutline />}
+  //             onClick={handleDelete}
+  //             aria-label="Delete Node"
+  //           />
+  //         </Flex>
+  //       </Box>
+  //       {/* Target values */}
+
+  //       {targetValues.map((val, idx) => (
+  //         <Flex
+  //           key={idx}
+  //           position="relative"
+  //           borderRadius="md"
+  //           px={2}
+  //           py={1}
+  //           fontSize="10px"
+  //           alignItems="center"
+  //         >
+  //           <Input
+  //             key={idx}
+  //             value={val}
+  //             onChange={(e) => updateTargetValue(idx, e.target.value)}
+  //             placeholder={`button`}
+  //             size="xs"
+  //             fontSize="10px"
+  //           // mb={1}
+  //           />
+
+  //           <Handle
+  //             type="source"
+  //             position="right"
+  //             id={`option-${idx}`}
+  //             style={{ background: "#555" }}
+  //           />
+  //         </Flex>
+  //       ))}
+
+  //       <Button
+  //         onClick={addTargetValue}
+  //         size="xs"
+  //         fontSize="10px"
+  //         width="100%"
+  //         mt={1}
+  //         variant="outline"
+  //         colorScheme="blue"
+  //       >
+  //         + Add Option
+  //       </Button>
+  //     </Box>
+  //   );
+  // },
 };
 
 const blockStyle = {

@@ -28,6 +28,11 @@ app.use("/documents", express.static(path.join(__dirname, "documents/")));
 app.use("/products", express.static(path.join(__dirname, "products/")));
 app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
 app.use("/profile", express.static(path.join(__dirname, "profile/")));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads/'))); 
+app.use('/uploads', require('./routes/admin/bots'));
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
