@@ -77,7 +77,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
         }
         const fileName = document.name;
         const filePath = path.join(__dirname, '../../documents', fileName);
-        console.log( path.basename(filePath))
+        console.log([path.basename(filePath)])
      
 
         try {
@@ -89,7 +89,7 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                 }
                 try {
                     const pythonApiRes = await axios.post(`${Url}/remove_by_paths`, {
-                        filename: path.basename(filePath),
+                        paths: [path.basename(filePath)],
                     });
 
                     return res.json({
