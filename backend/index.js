@@ -29,9 +29,8 @@ app.use("/products", express.static(path.join(__dirname, "products/")));
 app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
 app.use("/profile", express.static(path.join(__dirname, "profile/")));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads/'))); 
-app.use('/uploads', require('./routes/admin/bots'));
 
+app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles')));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -55,5 +54,5 @@ app.use('/chatbot', require("./routes/users/chatbot"))
 const port = 2500;
 app.listen(port, () => {
     console.log(`http://localhost:${port}`)
- 
+
 })

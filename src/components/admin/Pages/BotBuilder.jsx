@@ -52,7 +52,7 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { IoTrashOutline } from "react-icons/io5";
+import { IoSettingsOutline, IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
@@ -603,230 +603,207 @@ const nodeTypes = {
     </Box>
   );
 },
-  // ListButton: ({ id, data }) => {
-  //   const { setNodes } = useReactFlow();
-  //   const [question, setQuestion] = useState(data.label || "");
-  //   const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
-  //   // Sync data back to nodes
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setNodes((nds) =>
-  //         nds.map((node) =>
-  //           node.id === id
-  //             ? {
-  //               ...node,
-  //               data: {
-  //                 ...node.data,
-  //                 label: question,
-  //                 targetValues: targetValues,
-  //               },
-  //             }
-  //             : node
-  //         )
-  //       );
-  //     }, 300);
-  //     return () => clearTimeout(timer);
-  //   }, [question, targetValues, id, setNodes]);
+ 
+//  ReplyButton : ({ id, data }) => {
+//   const { setNodes, getNodes, getEdges, setEdges } = useReactFlow();
+//   const options = ["Yes", "No", "none of these"];
 
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
+//   const handleDelete = () => {
+//     setNodes((nds) => nds.filter((node) => node.id !== id));
+//   };
 
-  //   const addTargetValue = () => {
-  //     setTargetValues((prev) => [...prev, ""]);
-  //   };
+//   const handleOptionClick = (optionIndex) => {
+//     const selectedOption = options[optionIndex];
 
-  //   const updateTargetValue = (index, newValue) => {
-  //     setTargetValues((prev) =>
-  //       prev.map((val, i) => (i === index ? newValue : val))
-  //     );
-  //   };
+//     // 🔍 Get all edges and find the one from this node with correct option id
+//     const edges = getEdges();
+//     const matchedEdge = edges.find(
+//       (edge) => edge.source === id && edge.sourceHandle === `option-${optionIndex}`
+//     );
 
-  //   return (
-  //     <Box bg="white" borderRadius="5px" w="150px">
-  //       <Handle type="target" position="left" style={{ background: "#555" }} />
+//     if (selectedOption === "Yes" && matchedEdge) {
+//       // Find the target node and mark it active or do something
+//       const targetNodeId = matchedEdge.target;
+//       setNodes((nds) =>
+//         nds.map((node) =>
+//           node.id === targetNodeId
+//             ? { ...node, data: { ...node.data, isActive: true } }
+//             : node
+//         )
+//       );
+//     }
 
-  //       {/* Header */}
-  //       <Box
-  //         color="white"
-  //         p={0.5}
-  //         borderRadius={"5px"}
-  //         bgColor="var(--active-bg)"
-  //       >
-  //         <Flex justifyContent="space-between" alignItems="center">
-  //           <Text fontSize="10px" fontWeight="bold">
-  //             List Button
-  //           </Text>
-  //           <IconButton
-  //             size="xs"
-  //             variant="ghost"
-  //             colorScheme="whiteAlpha"
-  //             icon={<IoTrashOutline />}
-  //             onClick={handleDelete}
-  //             aria-label="Delete Node"
-  //           />
-  //         </Flex>
-  //       </Box>
-  //       {/* Target values */}
+//     // You can also add logic to store response in DB or display a toast
+//     console.log(`User selected: ${selectedOption}`);
+//   };
 
-  //       {targetValues.map((val, idx) => (
-  //         <Flex
-  //           key={idx}
-  //           position="relative"
-  //           borderRadius="md"
-  //           px={2}
-  //           py={1}
-  //           mb={1}
-  //           fontSize="10px"
-  //           alignItems="center"
-  //         >
-  //           <Input
-  //             key={idx}
-  //             value={val}
-  //             onChange={(e) => updateTargetValue(idx, e.target.value)}
-  //             placeholder={`Option ${idx + 1}`}
-  //             size="xs"
-  //             fontSize="10px"
-  //             mb={1}
-  //           />
+//   return (
+//     <Box bg="white" borderRadius="md" boxShadow="md" w="200px" p="2">
+//       <Handle type="target" position="left" style={{ background: "#555" }} />
 
-  //           <Handle
-  //             type="source"
-  //             position="right"
-  //             id={`option-${idx}`}
-  //             style={{ background: "#555" }}
-  //           />
-  //         </Flex>
-  //       ))}
+//       <Box bg="orange.500" color="white" p="1" borderTopRadius="md">
+//         <Text fontSize="xs" fontWeight="bold">Reply Button</Text>
+//         <IconButton
+//           icon={<IoTrashOutline />}
+//           onClick={handleDelete}
+//           size="xs"
+//           float="right"
+//           aria-label="delete"
+//           variant="ghost"
+//         />
+//       </Box>
 
+//       <Box bg="gray.100" p="2" backgroundColor={"white"}>
+//         <Text fontSize="xs" mb="1">{data.label || "Reply Buttons"}</Text>
 
+//         {options.map((opt, idx) => (
+//           <Box
+//             key={idx}
+//             display="flex"
+//             alignItems="center"
+//             fontSize="xs"
+//             mt="1"
+//             justifyContent="space-between"
+//             onClick={() => handleOptionClick(idx)}
+//             cursor="pointer"
+//             _hover={{ bg: "gray.200" }}
+//             p="1"
+//             borderRadius="md"
+//           >
+//             <Text flex="1">{opt}</Text>
+//             <Handle
+//               type="source"
+//               position="right"
+//               id={`option-${idx}`}
+//               style={{ background: "#555" }}
+//             />
+//           </Box>
+//         ))}
+//       </Box>
+//     </Box>
+//   );
+// }
 
+ReplyButton : ({ id, data }) => {
+  const { setNodes } = useReactFlow();
+  const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+  const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
 
-  //       <Button
-  //         onClick={addTargetValue}
-  //         size="xs"
-  //         fontSize="10px"
-  //         width="100%"
-  //         mt={1}
-  //         variant="outline"
-  //         colorScheme="blue"
-  //       >
-  //         + Add Option
-  //       </Button>
-  //     </Box>
-  //   );
-  // },
-  ReplyButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || "");
-    const [targetValues, setTargetValues] = useState(data.targetValues || []);
-
-    // Sync data back to nodes
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id
-              ? {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === id
+            ? {
                 ...node,
                 data: {
                   ...node.data,
                   label: question,
-                  targetValues: targetValues,
+                  targetValues,
                 },
               }
-              : node
-          )
-        );
-      }, 300);
-      return () => clearTimeout(timer);
-    }, [question, targetValues, id, setNodes]);
-
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
-
-    const addTargetValue = () => {
-      setTargetValues((prev) => [...prev, ""]);
-    };
-
-    const updateTargetValue = (index, newValue) => {
-      setTargetValues((prev) =>
-        prev.map((val, i) => (i === index ? newValue : val))
+            : node
+        )
       );
-    };
+    }, 300);
 
-    return (
-      <Box bg="white" borderRadius="5px" w="150px">
-        <Handle type="target" position="left" style={{ background: "#555" }} />
+    return () => clearTimeout(timer);
+  }, [question, targetValues, id, setNodes]);
 
-        {/* Header */}
-        <Box
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              Reply Button
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        {/* Target values */}
+  
+return (
+  <div className="bg-white p-3 rounded-lg border shadow-md w-64 text-sm relative">
+    <div className="font-medium mb-1">Reply Button</div>
+    <input
+      type="text"
+      value={question}
+      onChange={(e) => setQuestion(e.target.value)}
+      className="border px-2 py-1 w-full mb-2"
+      placeholder="Enter question..."
+    />
+    {targetValues.map((value, idx) => (
+      <div key={idx} className="mb-1 flex items-center">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => {
+            const updated = [...targetValues];
+            updated[idx] = e.target.value;
+            setTargetValues(updated);
+          }}
+          className="border px-2 py-1 flex-1"
+        />
+      </div>
+    ))}
 
-        {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            fontSize="10px"
-            alignItems="center"
-          >
-            <Input
-              key={idx}
-              value={val}
-              onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`button`}
-              size="xs"
-              fontSize="10px"
-            // mb={1}
-            />
+    {/* Handles */}
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="option-0"
+      className="!absolute"
+      style={{ top: 80 }}
+    />
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="option-1"
+      className="!absolute"
+      style={{ top: 120 }}
+    />
+    <Handle
+      type="target"
+      position={Position.Left}
+    />
+  </div>
+);
+  // return (
+  //   <div className="bg-white p-3 rounded-lg border shadow-md w-64 text-sm">
+  //     <div className="font-medium mb-1">Reply Button</div>
+  //     <input
+  //       type="text"
+  //       value={question}
+  //       onChange={(e) => setQuestion(e.target.value)}
+  //       className="border px-2 py-1 w-full mb-2"
+  //       placeholder="Enter question..."
+  //     />
+  //     {targetValues.map((value, idx) => (
+  //       <div key={idx} className="mb-1 flex items-center">
+  //         {/* <span className="text-xs w-10">Option {idx + 1}</span> */}
+  //         <input
+  //           type="text"
+  //           value={value}
+  //           onChange={(e) => {
+  //             const updated = [...targetValues];
+  //             updated[idx] = e.target.value;
+  //             setTargetValues(updated);
+  //           }}
+  //           className="border px-2 py-1 flex-1"
+  //         />
+  //       </div>
+  //     ))}
+  //     <Handle
+  //       type="source"
+  //       position={Position.Right}
+  //       id="option-0"
+  //       style={{ top: 80 }}
+  //     />
+  //     <Handle
+  //       type="source"
+  //       position={Position.Right}
+  //       id="option-1"
+  //       style={{ top: 120 }}
+  //     />
+  //     <Handle
+  //       type="target"
+  //       position={Position.Left}
+  //     />
+  //   </div>
+  // );
+}
 
-            <Handle
-              type="source"
-              position="right"
-              id={`option-${idx}`}
-              style={{ background: "#555" }}
-            />
-          </Flex>
-        ))}
-
-        <Button
-          onClick={addTargetValue}
-          size="xs"
-          fontSize="10px"
-          width="100%"
-          mt={1}
-          variant="outline"
-          colorScheme="blue"
-        >
-          + Add Option
-        </Button>
-      </Box>
-    );
-  },
+  
 };
 
 const blockStyle = {

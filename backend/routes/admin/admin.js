@@ -499,7 +499,7 @@ router.get('/getAdminCount', middleware, async (req, res) => {
         // Get count of active bots in the last 30 days
         const activeBot = await executeQuery(`
       SELECT COUNT(*) AS active_bots FROM bots 
-      WHERE created_at >= NOW() - INTERVAL 30 DAY
+      WHERE status=0 AND created_at >= NOW() - INTERVAL 30 DAY
     `);
 
         // Get count of campaigns with status 'Sent'
