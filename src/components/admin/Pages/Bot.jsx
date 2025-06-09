@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Select,
@@ -41,14 +42,16 @@ import { decrypt } from '../../utils/security'
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from "react-icons/fa";
 import TemViw from "../../../assets/template.png"
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 
 export default function Bot() {
   const navigate = useNavigate();
-  const { bots, fetchBot, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext);
+  const { bots, fetchBot, sectors, fetchSector, template, fetchTemplate ,showAlert} = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
   const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const user = localStorage.getItem('user')
   const admin_id = decrypt(user).id
   // console.log(admin_id)
@@ -62,10 +65,6 @@ export default function Bot() {
     fetchSector(admin_id);
     fetchTemplate(admin_id)
   }, []);
-
-
-  const [selectedBotType, setSelectedBotType] = useState(null);
-  const [selectedSectorId, setSelectedSectorId] = useState(null);
 
   const botTypes = [
     { label: "Algorithmic", type: "algorithmic", image: Algorithmic, admin_id: admin_id },
@@ -99,6 +98,36 @@ export default function Bot() {
   const [sectorId, setSectorId] = useState(sectorid || "");
 
   const [showAll, setShowAll] = useState(false)
+  const [botid, setBotid] = useState(null)
+  const openDeleteModal = (id) => {
+    onDeleteOpen()
+    setBotid(id)
+  }
+  const deleteBot = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/delete_bot`, {
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json',
+          Authorization: localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          id: botid
+        })
+      })
+      const result = await response.json();
+      // console.log(result)
+      if (result.success) {
+        showAlert("Bot deleted successfully", 'success')
+        fetchBot(admin_id);
+        onDeleteClose();
+      }
+    } catch (error) {
+      console.log(error)
+      showAlert("Internal server error", 'error')
+    }
+  }
+
   return (
     <Card>
       <Flex
@@ -173,7 +202,7 @@ export default function Bot() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                       {item?.nodes?.[0]?.data?.label || null}
+                      {item?.nodes?.[0]?.data?.label || null}
 
                     </Td>
 
@@ -194,41 +223,11 @@ export default function Bot() {
                         <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
                           <LuEye size={20} color={"#3550FF"} onClick={() => navigate(`/view/${item.id}`)} />
                         </Box>
+                        <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                          <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(item.id)} />
+                        </Box>
                       </Flex>
-                      {/* <Menu>
-                        <MenuButton
-                          bgColor="transparent"
-                          _hover={{
-                            bgColor: "transparent",
-                            color: "var(--active-bg)",
-                          }}
-                          _active={{
-                            bgColor: "transparent",
-                            color: "var(--active-bg)",
-                          }}
-                          as={Button}
-                        >
-                          <RxDotsHorizontal />
-                        </MenuButton>
-                        <MenuList gap={2}>
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-                            onClick={() => navigate(`/view/${item.id}`)}
-                            display={"flex"}
-                            alignItems={"center"}
-                            gap={2}
-                          >
-                            <GrFormView color="green" />
-                            <Text
-                              fontSize="var(--mini-text)"
-                              fontWeight="var(--big-font-weight)"
-                            >
-                              View
-                            </Text>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu> */}
+
                     </Td>
                   </Tr>
                 );
@@ -237,6 +236,28 @@ export default function Bot() {
           </Table>
         </TableContainer>
       </Flex>
+
+      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontSize="16px" textAlign={'center'}> Delete Bot</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody textAlign={'center'}>
+            <Text fontSize='var( --text-12px)' fontWeight="var(--big-font-weight)">Are you sure you want to delete this Bot?</Text>
+          </ModalBody>
+          <ModalFooter w='100%' display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'}>
+            <Button w='100%' onClick={() => deleteBot()} fontSize='var(--mini-text)' bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+              Delete
+            </Button>
+            <Button w='100%' onClick={() => onDeleteClose()} type="button" fontSize='var(--mini-text)' size={'sm'} border={'1px solid #FF5722 '}
+              textColor={'#FF5722'} bgColor={'white'} _hover={''}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+
       {/* <Modal isOpen={isOpen} onClose={onClose} size={'xl'}>
         <ModalOverlay />
         <ModalContent padding={'20px'}>

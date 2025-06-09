@@ -676,6 +676,25 @@ router.post('/track-user-bot', async (req, res) => {
   }
 });
 
+router.post('/delete_bot', async (req, res) => {
+  const { id } = req.body;
+  
+  try {
+    const sql = `update bots set status=1 where id=?`;
+    connection.query(sql, [id], (err, data) => {
+      if (err) {
+        console.log(err)
+        return res.status(400).json({ message: "Something went wrong" })
+      }
+      return res.status(200).json({ success: "Bot deleted" })
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
   const PhoneNumber = '671909416004124'
@@ -715,7 +734,7 @@ router.post('/send-whatsapp', async (req, res) => {
 //send bot 
 router.post('/addwithwhatsup', async (req, res) => {
   const { flowName, nodes, edges, to: toRaw, admin_id, flow_id } = req.body;
-  console.log("nodes", req.body);
+  // console.log("nodes", req.body);
 
   nodes.forEach((node) => {
     if (node.type === 'ListButton') {
@@ -748,10 +767,6 @@ router.post('/addwithwhatsup', async (req, res) => {
   const parsedNodes = typeof nodes === 'string' ? JSON.parse(nodes) : nodes;
 
   const parsedEdges = typeof edges === 'string' ? JSON.parse(edges) : edges;
-  const nodesWithFlowId = nodes.map(node => ({
-    ...node,
-    flowId: flow_id
-  }));
 
   // Find start node
   const incomingMap = {};
