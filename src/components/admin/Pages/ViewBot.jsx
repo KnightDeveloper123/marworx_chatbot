@@ -615,457 +615,563 @@ const nodeTypes = {
     );
   },
 
-  ListButton: ({ id, data }) => {
-
-    const navigate = useNavigate();
-    const { setNodes, setEdges, getEdges } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || "");
+    ListButton : ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "List Button");
     const [targetValues, setTargetValues] = useState(data.targetValues || []);
-
+  
+    // Sync node data with React Flow state
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) =>
             node.id === id
               ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: question,
-                  targetValues: targetValues,
-                },
-              }
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: question,
+                    targetValues: targetValues,
+                  },
+                }
               : node
           )
         );
       }, 300);
+  
       return () => clearTimeout(timer);
     }, [question, targetValues, id, setNodes]);
-
+  
     const handleDelete = () => {
       setNodes((nds) => nds.filter((node) => node.id !== id));
     };
-
+  
     const addTargetValue = () => {
       setTargetValues((prev) => [...prev, ""]);
     };
-
-    const user = localStorage.getItem("user");
-    const admin_id = decrypt(user).id;
-    const [bots, setBots] = useState([]);
-    const { isOpen, onOpen, onClose } = useDisclosure();
-
-    const currentIdxRef = useRef(null);
-    const updateTargetValue = async (index, option) => {
-      currentIdxRef.current = index;
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL
-          }/bots/getAll?admin_id=${admin_id}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        const result = await response.json();
-        setBots(result?.data || []);
-        onOpen();
-      } catch (error) {
-        console.error("Error fetching Date & Time bot:", error);
-      }
-    };
-    const { id: bot_id } = useParams();
-
-
-    const handleBotSelect = (bot) => {
-
-      if (!bot?.nodes || !bot?.edges) return;
-
-      const parsedNodes =
-        typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
-      const parsedEdges =
-        typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
-      const filteredNodes = parsedNodes.filter(
-        (node) =>
-          node &&
-          node.id &&
-          node.type &&
-          node.data &&
-          typeof node.data === "object" &&
-          node.type !== "Custom"
-      );
-      const uniqueId = () => Math.random().toString(36).substr(2, 9);
-      const nodeIdMap = {};
-
-      const newNodes = filteredNodes.map((node) => {
-        const newId = uniqueId();
-        nodeIdMap[node.id] = newId;
-
-        return {
-          ...node,
-          id: newId,
-          position: {
-            x: (node.position?.x || 0) + 150, // avoid overlap
-            y: (node.position?.y || 0) + 150,
-          },
-        };
-      });
-
-      const newEdges = parsedEdges
-        .filter(
-          (edge) =>
-            edge &&
-            edge.source &&
-            edge.target &&
-            nodeIdMap[edge.source] &&
-            nodeIdMap[edge.target]
-        )
-        .map((edge) => ({
-          ...edge,
-          id: uniqueId(),
-          source: nodeIdMap[edge.source],
-          target: nodeIdMap[edge.target],
-        }));
-      const entryNode = newNodes[0];
-      if (entryNode) {
-        newEdges.push({
-          id: uniqueId(),
-          source: id, // this is the ListButton node ID
-          sourceHandle: `option-${currentIdxRef.current}`,
-          target: entryNode.id,
-          type: "smoothstep",
-          expanded: true
-        });
-      }
-
-      if (newNodes.length > 0) {
-        setNodes((nds) => [...nds, ...newNodes]);
-        setEdges((eds) => [...eds, ...newEdges]);
-      } else {
-        console.warn("No valid nodes to import from selected bot");
-      }
-      onClose(); // close modal
-    };
-
-    const gatherDescendants = (startIds, allEdges) => {
-      const queue = [...startIds];
-      const result = new Set(startIds);
-
-      while (queue.length) {
-        const parentId = queue.shift();
-        // find edges whose source is parentId
-        allEdges
-          .filter((e) => e.source === parentId)
-          .forEach((e) => {
-            if (!result.has(e.target)) {
-              result.add(e.target);
-              queue.push(e.target);
-            }
-          });
-      }
-
-      return Array.from(result);
-    };
-
-    const handleExpandOne = () => {
-      const allEdges = getEdges();
-      const immediateChildren = allEdges
-        .filter((e) => e.source === id)
-        .map((e) => e.target);
-
-      // If you want to toggle *all* descendants:
-      const allDescendants = gatherDescendants(immediateChildren, allEdges);
-
-      setNodes((prev) =>
-        prev.map((node) => {
-          if (allDescendants.includes(node.id)) {
-            return { ...node, hidden: !node.hidden };
-          }
-          return node;
-        })
-      );
-      setEdges((prev) =>
-        prev.map((edge) => {
-          if (
-            allDescendants.includes(edge.source) ||
-            allDescendants.includes(edge.target)
-          ) {
-            return { ...edge, hidden: !edge.hidden };
-          }
-          return edge;
-        })
+  
+    const updateTargetValue = (index, newValue) => {
+      setTargetValues((prev) =>
+        prev.map((val, i) => (i === index ? newValue : val))
       );
     };
-
-
-    // const handleExpand = () => {
-    //   const currentNodeId = id;
-    //   const allEdges = getEdges();
-
-    //   // 1) Find all edges where this ListButton is the source → those are "childEdges"
-    //   const childEdges = allEdges.filter((edge) => edge.source === currentNodeId);
-
-    //   // 2) Pull out the child node IDs (targets)
-    //   const childNodeIds = childEdges.map((edge) => edge.target);
-
-    //   if (childNodeIds.length === 0) {
-    //     // no children to toggle
-    //     console.log("No child nodes found for expansion.");
-    //     return;
-    //   }
-
-    //   // 3) Toggle hidden on each of those child nodes
-    //   setNodes((prevNodes) =>
-    //     prevNodes.map((node) => {
-    //       if (childNodeIds.includes(node.id)) {
-    //         // If this is a child, flip its hidden flag
-    //         return {
-    //           ...node,
-    //           hidden: !node.hidden,        // toggle hidden
-    //           data: {
-    //             ...node.data,
-    //             // if you still need a separate "expanded" flag in data, you can keep it.
-    //             // But React Flow cares about node.hidden. 
-    //             expanded: !node.data?.expanded,
-    //           },
-    //         };
-    //       }
-    //       return node;
-    //     })
-    //   );
-
-    //   // 4) Toggle hidden on any edge that connects to those child node IDs
-    //   setEdges((prevEdges) =>
-    //     prevEdges.map((edge) => {
-    //       // If this edge’s source or target is one of the child IDs, flip hidden
-    //       if (
-    //         childNodeIds.includes(edge.source) ||
-    //         childNodeIds.includes(edge.target)
-    //       ) {
-    //         return {
-    //           ...edge,
-    //           hidden: !edge.hidden,
-    //         };
-    //       }
-    //       return edge;
-    //     })
-    //   );
-    // };
-
-
-    // useEffect(() => {
-    //   handleExpand();
-    // }, [targetValues]);
-
-    const handleExpand = (idx) => {
-      const allEdges = getEdges();
-
-      // Find the edge for this specific option
-      const matchingEdge = allEdges.find(
-        (e) => e.source === id && e.sourceHandle === `option-${idx}`
-      );
-
-      if (!matchingEdge) {
-        console.log("No matching edge found for option", idx);
-        return;
-      }
-
-      const targetId = matchingEdge.target;
-      const allDescendants = gatherDescendants([targetId], allEdges);
-
-      // Toggle visibility of nodes (including the direct target)
-      setNodes((prev) =>
-        prev.map((node) => {
-          if (node.id === targetId || allDescendants.includes(node.id)) {
-            return { ...node, hidden: !node.hidden };
-          }
-          return node;
-        })
-      );
-
-      // Toggle visibility of edges (including the direct edge)
-      setEdges((prev) =>
-        prev.map((edge) => {
-          if (
-            edge.id === matchingEdge.id ||
-            allDescendants.includes(edge.source) ||
-            allDescendants.includes(edge.target)
-          ) {
-            return { ...edge, hidden: !edge.hidden };
-          }
-          return edge;
-        })
-      );
-    };
-
+  
     return (
-      <Box bg="white" borderRadius="5px" w="150px">
+      <Box bg="white" borderRadius="md" w="170px" boxShadow="md">
         <Handle type="target" position="left" style={{ background: "#555" }} />
-
-        {/* Header */}
-        <Box
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
+  
+        <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
-              List Button
+              {question}
             </Text>
-            <Flex alignItems={'flex-end'}>
-              <IconButton
-                size="xs"
-                variant="ghost"
-                colorScheme="whiteAlpha"
-                icon={<IoTrashOutline />}
-                onClick={handleDelete}
-                aria-label="Delete Node"
-              />
-
-              <IconButton
-                size="xs"
-                aria-label="Expand"
-                icon={<MdExpandMore fontSize={'20px'} />} // import from react-icons/md
-                onClick={handleExpandOne}
-                background={'none'}
-              />
-            </Flex>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
           </Flex>
         </Box>
-        {/* Target values */}
-
-        {/* {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            mb={1}
+  
+        <Box px={2} py={1}>
+          <Input
+            placeholder="List title"
+            size="xs"
             fontSize="10px"
-            alignItems="center"
-          >
-            <Button
-              size="xs"
-              width="100%"
-              fontSize="10px"
-              value={val}
-              onClick={(e) => {
-                currentIdxRef.current = idx; // ← Track index
-                updateTargetValue(idx, e.target.value);
-              }}
-            >
-              {val}
-            </Button>
-
-            <IconButton
-              size="xs"
-              aria-label="Expand"
-              icon={<MdExpandMore />} // import from react-icons/md
-              // onClick={handleExpand}
-              onClick={() => handleExpand(idx)}
-              ml={1}
-            />
-
-            <Handle
-              type="source"
-              position="right"
-              id={`option-${idx}`}
-              style={{ background: "#555" }}
-            />
-          </Flex>
-        ))} */}
-
-        {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            mb={1}
+            mb={2}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+  
+          {targetValues.map((val, idx) => (
+            <Flex key={idx} alignItems="center" mb={1} position="relative">
+              <Input
+                value={val}
+                onChange={(e) => updateTargetValue(idx, e.target.value)}
+                placeholder={`Option ${idx + 1}`}
+                size="xs"
+                fontSize="10px"
+                pr="20px"
+              />
+              <Handle
+                type="source"
+                position="right"
+                id={`option-${idx}`}
+                style={{ background: "#555" }}
+              />
+            </Flex>
+          ))}
+  
+          <Button
+            onClick={addTargetValue}
+            size="xs"
             fontSize="10px"
-            alignItems="center"
+            width="100%"
+            mt={2}
+            variant="outline"
+            colorScheme="blue"
           >
-            <Input
-              size="xs"
-              fontSize="10px"
-              value={val}
-              onChange={(e) => {
-                const updated = [...targetValues];
-                updated[idx] = e.target.value;
-                setTargetValues(updated);
-              }}
-            />
-
-            <IconButton
-              size="xs"
-              aria-label="Open Bot Options"
-              icon={<MdExpandMore />}
-              onClick={() => handleExpand(idx)}
-              ml={1}
-            />
-
-            <IconButton
-              size="xs"
-              aria-label="Select Bot"
-              icon={<MdOutlineLibraryAdd />}
-              onClick={(e) => {
-                currentIdxRef.current = idx;
-                updateTargetValue(idx, val);
-              }}
-              ml={1}
-            />
-
-            <Handle
-              type="source"
-              position="right"
-              id={`option-${idx}`}
-              style={{ background: "#555" }}
-            />
-          </Flex>
-        ))}
-
-
-        <Button
-          onClick={addTargetValue}
-          size="xs"
-          fontSize="10px"
-          width="100%"
-          mt={1}
-          variant="outline"
-          colorScheme="blue"
-        >
-          + Add Option
-        </Button>
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Select a Bot</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Stack spacing={2}>
-                {bots.map((bot) => (
-                  <Button
-                    key={bot.id}
-                    size="sm"
-                    // onClick={()=>navigate(`/view/${bot.id}`)}
-                    onClick={() => handleBotSelect(bot)}
-                  >
-
-                    {/* {console.log(bot.id)} */}
-                    {/* {`/view/${bot.id}`} */}
-                    {bot?.nodes?.[0]?.data?.label || null}
-                  </Button>
-                ))}
-              </Stack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+            + Add Option
+          </Button>
+        </Box>
       </Box>
     );
   },
+  
+  // ListButton: ({ id, data }) => {
+
+  //   const navigate = useNavigate();
+  //   const { setNodes, setEdges, getEdges } = useReactFlow();
+  //   const [question, setQuestion] = useState(data.label || "");
+  //   const [targetValues, setTargetValues] = useState(data.targetValues || []);
+
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id
+  //             ? {
+  //               ...node,
+  //               data: {
+  //                 ...node.data,
+  //                 label: question,
+  //                 targetValues: targetValues,
+  //               },
+  //             }
+  //             : node
+  //         )
+  //       );
+  //     }, 300);
+  //     return () => clearTimeout(timer);
+  //   }, [question, targetValues, id, setNodes]);
+
+  //   const handleDelete = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   const addTargetValue = () => {
+  //     setTargetValues((prev) => [...prev, ""]);
+  //   };
+
+  //   const user = localStorage.getItem("user");
+  //   const admin_id = decrypt(user).id;
+  //   const [bots, setBots] = useState([]);
+  //   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  //   const currentIdxRef = useRef(null);
+  //   const updateTargetValue = async (index, option) => {
+  //     currentIdxRef.current = index;
+  //     try {
+  //       const response = await fetch(
+  //         `${import.meta.env.VITE_BACKEND_URL
+  //         }/bots/getAll?admin_id=${admin_id}`,
+  //         {
+  //           method: "GET",
+  //           headers: { "Content-Type": "application/json" },
+  //         }
+  //       );
+  //       const result = await response.json();
+  //       setBots(result?.data || []);
+  //       onOpen();
+  //     } catch (error) {
+  //       console.error("Error fetching Date & Time bot:", error);
+  //     }
+  //   };
+  //   const { id: bot_id } = useParams();
+
+
+  //   const handleBotSelect = (bot) => {
+
+  //     if (!bot?.nodes || !bot?.edges) return;
+
+  //     const parsedNodes =
+  //       typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+  //     const parsedEdges =
+  //       typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
+  //     const filteredNodes = parsedNodes.filter(
+  //       (node) =>
+  //         node &&
+  //         node.id &&
+  //         node.type &&
+  //         node.data &&
+  //         typeof node.data === "object" &&
+  //         node.type !== "Custom"
+  //     );
+  //     const uniqueId = () => Math.random().toString(36).substr(2, 9);
+  //     const nodeIdMap = {};
+
+  //     const newNodes = filteredNodes.map((node) => {
+  //       const newId = uniqueId();
+  //       nodeIdMap[node.id] = newId;
+
+  //       return {
+  //         ...node,
+  //         id: newId,
+  //         position: {
+  //           x: (node.position?.x || 0) + 150, // avoid overlap
+  //           y: (node.position?.y || 0) + 150,
+  //         },
+  //       };
+  //     });
+
+  //     const newEdges = parsedEdges
+  //       .filter(
+  //         (edge) =>
+  //           edge &&
+  //           edge.source &&
+  //           edge.target &&
+  //           nodeIdMap[edge.source] &&
+  //           nodeIdMap[edge.target]
+  //       )
+  //       .map((edge) => ({
+  //         ...edge,
+  //         id: uniqueId(),
+  //         source: nodeIdMap[edge.source],
+  //         target: nodeIdMap[edge.target],
+  //       }));
+  //     const entryNode = newNodes[0];
+  //     if (entryNode) {
+  //       newEdges.push({
+  //         id: uniqueId(),
+  //         source: id, // this is the ListButton node ID
+  //         sourceHandle: `option-${currentIdxRef.current}`,
+  //         target: entryNode.id,
+  //         type: "smoothstep",
+  //         expanded: true
+  //       });
+  //     }
+
+  //     if (newNodes.length > 0) {
+  //       setNodes((nds) => [...nds, ...newNodes]);
+  //       setEdges((eds) => [...eds, ...newEdges]);
+  //     } else {
+  //       console.warn("No valid nodes to import from selected bot");
+  //     }
+  //     onClose(); // close modal
+  //   };
+
+  //   const gatherDescendants = (startIds, allEdges) => {
+  //     const queue = [...startIds];
+  //     const result = new Set(startIds);
+
+  //     while (queue.length) {
+  //       const parentId = queue.shift();
+  //       // find edges whose source is parentId
+  //       allEdges
+  //         .filter((e) => e.source === parentId)
+  //         .forEach((e) => {
+  //           if (!result.has(e.target)) {
+  //             result.add(e.target);
+  //             queue.push(e.target);
+  //           }
+  //         });
+  //     }
+
+  //     return Array.from(result);
+  //   };
+
+  //   const handleExpandOne = () => {
+  //     const allEdges = getEdges();
+  //     const immediateChildren = allEdges
+  //       .filter((e) => e.source === id)
+  //       .map((e) => e.target);
+
+  //     // If you want to toggle *all* descendants:
+  //     const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+  //     setNodes((prev) =>
+  //       prev.map((node) => {
+  //         if (allDescendants.includes(node.id)) {
+  //           return { ...node, hidden: !node.hidden };
+  //         }
+  //         return node;
+  //       })
+  //     );
+  //     setEdges((prev) =>
+  //       prev.map((edge) => {
+  //         if (
+  //           allDescendants.includes(edge.source) ||
+  //           allDescendants.includes(edge.target)
+  //         ) {
+  //           return { ...edge, hidden: !edge.hidden };
+  //         }
+  //         return edge;
+  //       })
+  //     );
+  //   };
+
+
+  //   // const handleExpand = () => {
+  //   //   const currentNodeId = id;
+  //   //   const allEdges = getEdges();
+
+  //   //   // 1) Find all edges where this ListButton is the source → those are "childEdges"
+  //   //   const childEdges = allEdges.filter((edge) => edge.source === currentNodeId);
+
+  //   //   // 2) Pull out the child node IDs (targets)
+  //   //   const childNodeIds = childEdges.map((edge) => edge.target);
+
+  //   //   if (childNodeIds.length === 0) {
+  //   //     // no children to toggle
+  //   //     console.log("No child nodes found for expansion.");
+  //   //     return;
+  //   //   }
+
+  //   //   // 3) Toggle hidden on each of those child nodes
+  //   //   setNodes((prevNodes) =>
+  //   //     prevNodes.map((node) => {
+  //   //       if (childNodeIds.includes(node.id)) {
+  //   //         // If this is a child, flip its hidden flag
+  //   //         return {
+  //   //           ...node,
+  //   //           hidden: !node.hidden,        // toggle hidden
+  //   //           data: {
+  //   //             ...node.data,
+  //   //             // if you still need a separate "expanded" flag in data, you can keep it.
+  //   //             // But React Flow cares about node.hidden. 
+  //   //             expanded: !node.data?.expanded,
+  //   //           },
+  //   //         };
+  //   //       }
+  //   //       return node;
+  //   //     })
+  //   //   );
+
+  //   //   // 4) Toggle hidden on any edge that connects to those child node IDs
+  //   //   setEdges((prevEdges) =>
+  //   //     prevEdges.map((edge) => {
+  //   //       // If this edge’s source or target is one of the child IDs, flip hidden
+  //   //       if (
+  //   //         childNodeIds.includes(edge.source) ||
+  //   //         childNodeIds.includes(edge.target)
+  //   //       ) {
+  //   //         return {
+  //   //           ...edge,
+  //   //           hidden: !edge.hidden,
+  //   //         };
+  //   //       }
+  //   //       return edge;
+  //   //     })
+  //   //   );
+  //   // };
+
+
+  //   // useEffect(() => {
+  //   //   handleExpand();
+  //   // }, [targetValues]);
+
+  //   const handleExpand = (idx) => {
+  //     const allEdges = getEdges();
+
+  //     // Find the edge for this specific option
+  //     const matchingEdge = allEdges.find(
+  //       (e) => e.source === id && e.sourceHandle === `option-${idx}`
+  //     );
+
+  //     if (!matchingEdge) {
+  //       console.log("No matching edge found for option", idx);
+  //       return;
+  //     }
+
+  //     const targetId = matchingEdge.target;
+  //     const allDescendants = gatherDescendants([targetId], allEdges);
+
+  //     // Toggle visibility of nodes (including the direct target)
+  //     setNodes((prev) =>
+  //       prev.map((node) => {
+  //         if (node.id === targetId || allDescendants.includes(node.id)) {
+  //           return { ...node, hidden: !node.hidden };
+  //         }
+  //         return node;
+  //       })
+  //     );
+
+  //     // Toggle visibility of edges (including the direct edge)
+  //     setEdges((prev) =>
+  //       prev.map((edge) => {
+  //         if (
+  //           edge.id === matchingEdge.id ||
+  //           allDescendants.includes(edge.source) ||
+  //           allDescendants.includes(edge.target)
+  //         ) {
+  //           return { ...edge, hidden: !edge.hidden };
+  //         }
+  //         return edge;
+  //       })
+  //     );
+  //   };
+
+  //   return (
+  //     <Box bg="white" borderRadius="5px" w="150px">
+  //       <Handle type="target" position="left" style={{ background: "#555" }} />
+
+  //       {/* Header */}
+  //       <Box
+  //         color="white"
+  //         p={0.5}
+  //         borderRadius={"5px"}
+  //         bgColor="var(--active-bg)"
+  //       >
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold">
+  //             List Button
+  //           </Text>
+  //           <Flex alignItems={'flex-end'}>
+  //             <IconButton
+  //               size="xs"
+  //               variant="ghost"
+  //               colorScheme="whiteAlpha"
+  //               icon={<IoTrashOutline />}
+  //               onClick={handleDelete}
+  //               aria-label="Delete Node"
+  //             />
+
+  //             <IconButton
+  //               size="xs"
+  //               aria-label="Expand"
+  //               icon={<MdExpandMore fontSize={'20px'} />} // import from react-icons/md
+  //               onClick={handleExpandOne}
+  //               background={'none'}
+  //             />
+  //           </Flex>
+  //         </Flex>
+  //       </Box>
+  //       {/* Target values */}
+
+  //       {/* {targetValues.map((val, idx) => (
+  //         <Flex
+  //           key={idx}
+  //           position="relative"
+  //           borderRadius="md"
+  //           px={2}
+  //           py={1}
+  //           mb={1}
+  //           fontSize="10px"
+  //           alignItems="center"
+  //         >
+  //           <Button
+  //             size="xs"
+  //             width="100%"
+  //             fontSize="10px"
+  //             value={val}
+  //             onClick={(e) => {
+  //               currentIdxRef.current = idx; // ← Track index
+  //               updateTargetValue(idx, e.target.value);
+  //             }}
+  //           >
+  //             {val}
+  //           </Button>
+
+  //           <IconButton
+  //             size="xs"
+  //             aria-label="Expand"
+  //             icon={<MdExpandMore />} // import from react-icons/md
+  //             // onClick={handleExpand}
+  //             onClick={() => handleExpand(idx)}
+  //             ml={1}
+  //           />
+
+  //           <Handle
+  //             type="source"
+  //             position="right"
+  //             id={`option-${idx}`}
+  //             style={{ background: "#555" }}
+  //           />
+  //         </Flex>
+  //       ))} */}
+
+  //       {targetValues.map((val, idx) => (
+  //         <Flex
+  //           key={idx}
+  //           position="relative"
+  //           borderRadius="md"
+  //           px={2}
+  //           py={1}
+  //           mb={1}
+  //           fontSize="10px"
+  //           alignItems="center"
+  //         >
+  //           <Input
+  //             size="xs"
+  //             fontSize="10px"
+  //             value={val}
+  //             onChange={(e) => {
+  //               const updated = [...targetValues];
+  //               updated[idx] = e.target.value;
+  //               setTargetValues(updated);
+  //             }}
+  //           />
+
+  //           <IconButton
+  //             size="xs"
+  //             aria-label="Open Bot Options"
+  //             icon={<MdExpandMore />}
+  //             onClick={() => handleExpand(idx)}
+  //             ml={1}
+  //           />
+
+  //           <IconButton
+  //             size="xs"
+  //             aria-label="Select Bot"
+  //             icon={<MdOutlineLibraryAdd />}
+  //             onClick={(e) => {
+  //               currentIdxRef.current = idx;
+  //               updateTargetValue(idx, val);
+  //             }}
+  //             ml={1}
+  //           />
+
+  //           <Handle
+  //             type="source"
+  //             position="right"
+  //             id={`option-${idx}`}
+  //             style={{ background: "#555" }}
+  //           />
+  //         </Flex>
+  //       ))}
+
+
+  //       <Button
+  //         onClick={addTargetValue}
+  //         size="xs"
+  //         fontSize="10px"
+  //         width="100%"
+  //         mt={1}
+  //         variant="outline"
+  //         colorScheme="blue"
+  //       >
+  //         + Add Option
+  //       </Button>
+  //       <Modal isOpen={isOpen} onClose={onClose}>
+  //         <ModalOverlay />
+  //         <ModalContent>
+  //           <ModalHeader>Select a Bot</ModalHeader>
+  //           <ModalCloseButton />
+  //           <ModalBody>
+  //             <Stack spacing={2}>
+  //               {bots.map((bot) => (
+  //                 <Button
+  //                   key={bot.id}
+  //                   size="sm"
+  //                   // onClick={()=>navigate(`/view/${bot.id}`)}
+  //                   onClick={() => handleBotSelect(bot)}
+  //                 >
+
+  //                   {/* {console.log(bot.id)} */}
+  //                   {/* {`/view/${bot.id}`} */}
+  //                   {bot?.nodes?.[0]?.data?.label || null}
+  //                 </Button>
+  //               ))}
+  //             </Stack>
+  //           </ModalBody>
+  //         </ModalContent>
+  //       </Modal>
+  //     </Box>
+  //   );
+  // },
 
  ReplyButton: ({ id, data }) => {
     const { setNodes } = useReactFlow();
