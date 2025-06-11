@@ -1173,49 +1173,184 @@ const nodeTypes = {
   //   );
   // },
 
- ReplyButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const options = ["Yes", "No"];
 
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
+   ReplyButton : ({ id, data }) => {
+  const { setNodes } = useReactFlow();
+  const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+  const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
 
-    return (
-      <Box bg="white" borderRadius="md" boxShadow="md" w="200px" p="2">
-        {/* Incoming connection */}
-        <Handle type="target" position="left" style={{ background: "#555" }} />
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === id
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues,
+                },
+              }
+            : node
+        )
+      );
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [question, targetValues, id, setNodes]);
 
-        <Box bg="orange.400" color="white" p="1" borderTopRadius="md">
-          <Text fontSize="xs" fontWeight="bold">Reply Button</Text>
-          <IconButton
-            icon={<IoTrashOutline />}
-            onClick={handleDelete}
-            size="xs"
-            float="right"
-            aria-label="delete"
-            variant="ghost"
-          />
-        </Box>
+  const updateTargetValue = (index, newValue) => {
+    const updated = [...targetValues];
+    updated[index] = newValue;
+    setTargetValues(updated);
+  };
 
-        <Box bg="gray.100" p="2">
-          <Text fontSize="xs" mb="1">{data.label || "Reply Buttons"}</Text>
+  return (
+    <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
+      <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
 
-          {options.map((opt, idx) => (
-            <Box key={idx} position="relative" display="flex" alignItems="center" fontSize="xs" mt="1">
-              <Text flex="1">{opt}</Text>
-              <Handle
-                type="source"
-                position="right"
-                id={`option-${idx}`}
-                style={{ background: "#555" }}
-              />
-            </Box>
-          ))}
-        </Box>
+      <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
+        <Flex justifyContent="space-between" alignItems="center">
+          <Text fontSize="10px" fontWeight="bold">
+            {question || 'Reply Button'}
+          </Text>
+        </Flex>
       </Box>
-    );
-  }
+
+      <Box px={2} py={2}>
+        <Input
+          placeholder="Enter question"
+          size="xs"
+          fontSize="10px"
+          mb={2}
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+
+        {targetValues.map((val, idx) => (
+          <Flex key={idx} alignItems="center" mb={1} position="relative">
+            <Input
+              value={val}
+              onChange={(e) => updateTargetValue(idx, e.target.value)}
+              placeholder={`Option ${idx + 1}`}
+              size="xs"
+              fontSize="10px"
+              pr="20px"
+            />
+            <Handle
+              type="source"
+              position={Position.Right}
+              id={`option_${idx}`} // ✅ Use underscore to match WhatsApp reply id
+              style={{
+                background: '#555',
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                position: 'absolute',
+                right: 4,
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }}
+            />
+          </Flex>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+    // ReplyButton: ({ id, data }) => {
+    //   const { setNodes } = useReactFlow();
+    //   const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+    //   const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
+  
+    //   useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //       setNodes((nds) =>
+    //         nds.map((node) =>
+    //           node.id === id
+    //             ? {
+    //               ...node,
+    //               data: {
+    //                 ...node.data,
+    //                 label: question,
+    //                 targetValues,
+    //               },
+    //             }
+    //             : node
+    //         )
+    //       );
+    //     }, 300);
+  
+    //     return () => clearTimeout(timer);
+    //   }, [question, targetValues, id, setNodes]);
+  
+
+  
+    //   return (
+    //     <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
+    //       {/* Incoming connection handle for the node */}
+    //       <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
+  
+    //       {/* Header */}
+    //       <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
+    //         <Flex justifyContent="space-between" alignItems="center">
+    //           <Text fontSize="10px" fontWeight="bold">
+    //             {question || 'Reply Button'}
+    //           </Text>
+    //         </Flex>
+    //       </Box>
+  
+        
+    //       <Box px={2} py={2}>
+    //         {/* Question input */}
+    //         <Input
+    //           placeholder="Enter question"
+    //           size="xs"
+    //           fontSize="10px"
+    //           mb={2}
+    //           value={question}
+    //           onChange={(e) => setQuestion(e.target.value)}
+    //         />
+  
+    //         {/* Options with handles on the RIGHT side on the input */}
+    //         {targetValues.map((val, idx) => (
+    //           <Flex key={idx} alignItems="center" mb={1} position="relative">
+    //             <Input
+    //               value={val}
+    //               onChange={(e) => updateTargetValue(idx, e.target.value)}
+    //               placeholder={`Option ${idx + 1}`}
+    //               size="xs"
+    //               fontSize="10px"
+    //               pr="20px" // Space for the handle on the right
+    //             />
+    //             {/* Handle on the right over input */}
+    //             <Handle
+    //               type="source"
+    //               position={Position.Right}
+    //               id={`option-${idx}`}
+    //               style={{
+    //                 background: '#555',
+    //                 width: 8,
+    //                 height: 8,
+    //                 borderRadius: '50%',
+    //                 position: 'absolute',
+    //                 right: 4, // slightly inset from the edge of input
+    //                 top: '50%',
+    //                 transform: 'translateY(-50%)',
+    //               }}
+    //             />
+    //           </Flex>
+    //         ))}
+    //       </Box>
+  
+    //     </Box>
+    //   );
+  
+  
+  
+    // }
+
 
 };
 
