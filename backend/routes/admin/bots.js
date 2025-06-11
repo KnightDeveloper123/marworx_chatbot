@@ -403,66 +403,16 @@ async function sendWhatsAppList(to, question, options) {
 }
 
 
-
-// async function sendWhatsAppReplyButtons(to, question, options = []) {
-//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '671909416004124';
-//   const token = process.env.WHATSAPP_TOKEN;
-
-//   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
-
-//   const body = {
-//     messaging_product: "whatsapp",
-//     to,
-//     type: "interactive",
-//     interactive: {
-//       type: "button",
-//       body: {
-//         text: question
-//       },
-//       action: {
-//         buttons: options.slice(0, 3).map((label, index) => ({
-//           type: "reply",
-//           reply: {
-//             id: `option_${index}`,  // ✅ consistent with frontend and backend
-//             title: label.trim()
-//           }
-//         }))
-//       }
-//     }
-//   };
-
-//   const response = await fetch(url, {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//       "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify(body)
-//   });
-
-//   const result = await response.json();
-// console.log("Body:", JSON.stringify(result, null, 2))
-//   console.log("📨 WhatsApp Reply Button Response:", result);
-
-//   if (!response.ok) {
-//     console.error("❌ Failed to send buttons:", result);
-//   }
-// }
-
 async function sendWhatsAppReplyButtons(to, question, options = []) {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '671909416004124';
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
   const token = process.env.WHATSAPP_TOKEN;
-
-  if (!phoneNumberId || !token) {
-    throw new Error("Missing WhatsApp credentials (phone number ID or token)");
-  }
 
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
 
-  const payload = {
+  const body = {
     messaging_product: "whatsapp",
     recipient_type: "individual",
-    to: to,
+    to,
     type: "interactive",
     interactive: {
       type: "button",
@@ -484,23 +434,19 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(body)
   });
 
   const result = await response.json();
-  console.log("🟢 Reply Button Result:", JSON.stringify(result, null, 2));
+  console.log("📨 WhatsApp Reply Button Response:", JSON.stringify(result, null, 2));
 
   if (!response.ok) {
-    console.error("❌ WhatsApp Reply Button Error:", JSON.stringify(result, null, 2));
-    throw new Error("Failed to send reply buttons");
+    console.error("❌ Failed to send buttons:", result);
   }
-
-  return result;
 }
-
 
 
 router.post('/webhook', async (req, res) => {
