@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.35, for Win64 (x86_64)
 --
 -- Host: localhost    Database: chatbot
 -- ------------------------------------------------------
--- Server version	8.0.41
+-- Server version	8.0.35
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -38,7 +38,7 @@ CREATE TABLE `admin` (
   `is_active` int DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +47,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-05-22 05:45:31','2025-05-22 05:45:31','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-06-11 05:12:28','2025-06-11 05:12:28','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0);
+INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-05-22 05:45:31','2025-05-22 05:45:31','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-06-11 08:30:26','2025-06-11 08:30:26','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0),(4,'Paras mehata','paras@mailinator.com','$2b$10$7H9OeldWe1MPuY6YwhmEI.XHJGjpo8HrluIkNbss7Z8hYxe/y.pca',NULL,'Admin',0,'2025-06-11 08:08:19','2025-06-11 08:09:46','2025-06-11 08:09:46',NULL,NULL,0);
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -341,7 +341,7 @@ CREATE TABLE `documents` (
   `sector_id` int DEFAULT NULL,
   `bot_type` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -350,7 +350,7 @@ CREATE TABLE `documents` (
 
 LOCK TABLES `documents` WRITE;
 /*!40000 ALTER TABLE `documents` DISABLE KEYS */;
-INSERT INTO `documents` VALUES (7,2,'chatbot dataset.csv','2025-05-13 09:52:31',1,NULL,NULL),(8,2,'thermax.csv','2025-05-13 09:52:50',0,NULL,NULL);
+INSERT INTO `documents` VALUES (7,2,'chatbot dataset.csv','2025-05-13 09:52:31',1,NULL,NULL),(8,2,'thermax.csv','2025-05-13 09:52:50',0,NULL,NULL),(9,4,'lead.csv','2025-06-11 08:22:15',0,1,'Genarative ai');
 /*!40000 ALTER TABLE `documents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -469,8 +469,11 @@ CREATE TABLE `product_service` (
   `created_on` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_on` timestamp NULL DEFAULT NULL,
   `status` int DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `sector_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_sector_id` (`sector_id`),
+  CONSTRAINT `fk_sector_id` FOREIGN KEY (`sector_id`) REFERENCES `sector` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -479,7 +482,7 @@ CREATE TABLE `product_service` (
 
 LOCK TABLES `product_service` WRITE;
 /*!40000 ALTER TABLE `product_service` DISABLE KEYS */;
-INSERT INTO `product_service` VALUES (1,2,'thermax pro1','dumy text','1745647829370-256756583.webp','2025-04-25 12:59:42',NULL,0),(2,NULL,'Thermax 1','Thermax Ltd is an Indian multinational engineering conglomerate, involved in clean air, clean energy and clean water, headquartered in Pune.','1745650438580-168009331.jpg','2025-04-26 06:53:58',NULL,0);
+INSERT INTO `product_service` VALUES (1,2,'thermax pro1','dumy text','1745647829370-256756583.webp','2025-04-25 12:59:42',NULL,0,NULL),(2,NULL,'Thermax 1','Thermax Ltd is an Indian multinational engineering conglomerate, involved in clean air, clean energy and clean water, headquartered in Pune.','1745650438580-168009331.jpg','2025-04-26 06:53:58',NULL,0,NULL),(3,2,'Teravista','Teravista.io is a startup company focused on software solutions and consultancy services. With data and technology at the core of our solutions.','1749642491331-456380696.jpg','2025-06-11 11:25:05',NULL,0,1);
 /*!40000 ALTER TABLE `product_service` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -501,7 +504,7 @@ CREATE TABLE `sector` (
   `updated_on` timestamp NULL DEFAULT NULL,
   `status` int DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -510,7 +513,7 @@ CREATE TABLE `sector` (
 
 LOCK TABLES `sector` WRITE;
 /*!40000 ALTER TABLE `sector` DISABLE KEYS */;
-INSERT INTO `sector` VALUES (1,2,'Dermatology','Healthcare','Bots for Dermatologyclinics','1745652248426-467745167.ico','2025-04-26 06:59:32',NULL,0),(2,2,'Industry','industrial','In the fast-paced manufacturing industry, scheduling meetings efficiently is critical to maintaining production timelines.','1747903453303-409849841.jpg','2025-05-14 10:13:11',NULL,0),(3,2,'Hotel','industrial',' is simply dummy text of the printing and typesetting industry.','1747475316323-467780180.jpg','2025-05-17 09:48:36',NULL,0);
+INSERT INTO `sector` VALUES (1,2,'Dermatology','Healthcare','Bots for Dermatologyclinics','1745652248426-467745167.ico','2025-04-26 06:59:32',NULL,0),(2,2,'Industry','industrial','In the fast-paced manufacturing industry, scheduling meetings efficiently is critical to maintaining production timelines.','1747903453303-409849841.jpg','2025-05-14 10:13:11',NULL,0),(3,2,'Hotel','industrial',' is simply dummy text of the printing and typesetting industry.','1747475316323-467780180.jpg','2025-05-17 09:48:36',NULL,0),(4,2,'Hospital1','industrial','A hospital is a healthcare facility that provides medical and nursing care to patients','1749636845907-63427795.jpg','2025-06-11 10:13:42',NULL,0);
 /*!40000 ALTER TABLE `sector` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -652,7 +655,7 @@ CREATE TABLE `user_node_progress` (
   `current_node_id` varchar(255) DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=464 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=466 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -661,7 +664,7 @@ CREATE TABLE `user_node_progress` (
 
 LOCK TABLES `user_node_progress` WRITE;
 /*!40000 ALTER TABLE `user_node_progress` DISABLE KEYS */;
-INSERT INTO `user_node_progress` VALUES (285,'+919022030279',1,'1','2025-06-03 11:36:39'),(459,'919022030279',300,'14','2025-06-11 06:57:07'),(460,'919022030279',314,'14','2025-06-11 06:57:07'),(461,'919022030279',315,'14','2025-06-11 06:57:07'),(462,'919022030279',315,'14','2025-06-11 06:57:07'),(463,'918308459428',315,'14','2025-06-11 06:59:17');
+INSERT INTO `user_node_progress` VALUES (285,'+919022030279',1,'1','2025-06-03 11:36:39'),(459,'919022030279',300,'14','2025-06-11 06:57:07'),(460,'919022030279',314,'14','2025-06-11 06:57:07'),(461,'919022030279',315,'14','2025-06-11 06:57:07'),(462,'919022030279',315,'14','2025-06-11 06:57:07'),(463,'918308459428',315,'14','2025-06-11 06:59:17'),(464,'918308459428',315,'0','2025-06-11 07:24:01'),(465,'918308459428',315,'0','2025-06-11 07:25:04');
 /*!40000 ALTER TABLE `user_node_progress` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -700,4 +703,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-11 12:32:36
+-- Dump completed on 2025-06-11 18:40:43

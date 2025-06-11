@@ -24,7 +24,7 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('image'), async (req, res) => {
     try {
-        const { name, description, admin_id } = req.body;
+        const { name, description, admin_id, sector_id } = req.body;
 
         if (!req.file) {
             return res.status(400).json({ error: 'Image file is required.' });
@@ -32,8 +32,8 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
 
         const file_name = req.file.filename;
 
-        const query = 'INSERT INTO product_service (name, description, image,admin_id) VALUES (?, ?, ?,?)';
-        connection.query(query, [name, description, file_name, admin_id], (err, data) => {
+        const query = 'INSERT INTO product_service (name, description, image, admin_id, sector_id) VALUES (?, ?, ?, ?, ?)';
+        connection.query(query, [name, description, file_name, admin_id, sector_id], (err, data) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({ error: "Something went wrong" });
@@ -52,10 +52,10 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
 
 router.post('/update', middleware, upload.single('image'), async (req, res) => {
     try {
-        const { name, description, product_id } = req.body;
+        const { name, description, product_id ,sector_id} = req.body;
 
-        let query = 'UPDATE product_service SET name = ?, description = ?';
-        const values = [name, description];
+        let query = 'UPDATE product_service SET name = ?, description = ?, sector_id= ?' ;
+        const values = [name, description, sector_id];
 
         if (req.file) {
             const file_name = req.file.filename;
@@ -121,8 +121,11 @@ router.get('/product_by_id', middleware, async (req, res) => {
 router.get('/get_all_product', middleware, async (req, res) => {
     try {
         const { admin_id } = req.query
-        const product = await executeQuery(`select * from  product_service where  status = 0 AND admin_id=${admin_id} order by id desc;
-    `)
+        const product = await executeQuery(`SELECT ps.*, sector.name AS sector_name
+            from  
+            product_service as ps
+            left join sector on ps.sector_id=sector.id
+             where  ps.status = 0 AND ps.admin_id=${admin_id} order by ps.id desc;`)
         return res.json({ product, })
     } catch (error) {
         console.log(error);

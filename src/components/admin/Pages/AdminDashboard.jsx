@@ -667,7 +667,7 @@ const AdminDashboard = () => {
 
 
       <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
-        <Button
+        {/* <Button
           borderRadius='var(--radius)'
           leftIcon={<IoMdAdd fontSize={'20px'} />}
           _hover={{ bgColor: 'var(--active-bg)' }}
@@ -679,7 +679,7 @@ const AdminDashboard = () => {
           onClick={() => onOpen()}
         >
           Add Documents
-        </Button>
+        </Button> */}
         <SimpleGrid h={'100%'} mt={4} columns={{ base: 1, md: 5 }} gap={2}>
           <GridItem colSpan={{ base: 1, md: 2 }}>
             <TableContainer

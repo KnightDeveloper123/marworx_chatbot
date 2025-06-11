@@ -25,18 +25,17 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('icon'), async (req, res) => {
   try {
-    let { name, category, description, products, admin_id } = req.body;
-    if (typeof products === 'string') {
-      try {
-        products = JSON.parse(products);
-      } catch (err) {
-        return res.status(400).json({ error: "Invalid products format" });
-      }
-    }
-
-    if (!Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ error: "products must be a non-empty array" });
-    }
+    let { name, category, description, admin_id } = req.body;
+    // if (typeof products === 'string') {
+    //   try {
+    //     products = JSON.parse(products);
+    //   } catch (err) {
+    //     return res.status(400).json({ error: "Invalid products format" });
+    //   }
+    // }
+    // if (!Array.isArray(products) || products.length === 0) {
+    //   return res.status(400).json({ error: "products must be a non-empty array" });
+    // }
 
     if (!req.file) {
       return res.status(400).json({ error: 'Image file is required.' });
@@ -55,19 +54,19 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
 
       const sector_id = result.insertId;
 
-      const productSector = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
+      // const productSector = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
 
-      const productValues = products.map(p => [sector_id, p.product_id || p]);
+      // const productValues = products.map(p => [sector_id, p.product_id || p]);
 
-      connection.query(productSector, [productValues], (assignErr) => {
-        if (assignErr) {
-          console.error(assignErr);
-          return res.status(400).json({ error: "Error assigning products to sector" });
-        }
+      // connection.query(productSector, [productValues], (assignErr) => {
+      //   if (assignErr) {
+      //     console.error(assignErr);
+      //     return res.status(400).json({ error: "Error assigning products to sector" });
+      //   }
 
         return res.send({ success: "Sector created" });
       });
-    });
+    // });
 
   } catch (error) {
     console.error(error);
@@ -85,17 +84,17 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
 
     let { name, category, description, products, sector_id } = req.body;
 
-    if (typeof products === 'string') {
-      try {
-        products = JSON.parse(products);
-      } catch (err) {
-        return res.status(400).json({ error: "Invalid products format" });
-      }
-    }
+    // if (typeof products === 'string') {
+    //   try {
+    //     products = JSON.parse(products);
+    //   } catch (err) {
+    //     return res.status(400).json({ error: "Invalid products format" });
+    //   }
+    // }
 
-    if (!Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ error: "Products must be a non-empty array" });
-    }
+    // if (!Array.isArray(products) || products.length === 0) {
+    //   return res.status(400).json({ error: "Products must be a non-empty array" });
+    // }
 
     let updateFields = [];
     let updateValues = [];
@@ -131,26 +130,26 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
       }
 
       // Delete old product_sector relations
-      const deleteSql = `DELETE FROM product_sector WHERE sector_id = ?`;
-      connection.query(deleteSql, [sector_id], (deleteErr) => {
-        if (deleteErr) {
-          console.error(deleteErr);
-          return res.status(400).json({ error: "Error clearing old product-sector mappings" });
-        }
+      // const deleteSql = `DELETE FROM product_sector WHERE sector_id = ?`;
+      // connection.query(deleteSql, [sector_id], (deleteErr) => {
+      //   if (deleteErr) {
+      //     console.error(deleteErr);
+      //     return res.status(400).json({ error: "Error clearing old product-sector mappings" });
+      //   }
 
         // Insert new product_sector relations
-        const insertSql = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
-        const productValues = products.map(p => [sector_id, p.product_id || p]);
+        // const insertSql = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
+        // const productValues = products.map(p => [sector_id, p.product_id || p]);
 
-        connection.query(insertSql, [productValues], (insertErr) => {
-          if (insertErr) {
-            console.error(insertErr);
-            return res.status(400).json({ error: "Error updating products in sector" });
-          }
+        // connection.query(insertSql, [productValues], (insertErr) => {
+        //   if (insertErr) {
+        //     console.error(insertErr);
+        //     return res.status(400).json({ error: "Error updating products in sector" });
+        //   }
 
-          return res.send({ success: "Sector updated successfully" });
-        });
-      });
+        // });
+        return res.send({ success: "Sector updated successfully" });
+      // });
     });
   } catch (error) {
     console.error(error);

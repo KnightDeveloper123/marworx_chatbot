@@ -1,18 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { DeleteIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Card, Divider, Flex, FormControl, FormLabel, Grid, GridItem, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip, Textarea } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, FormControl, FormLabel, Grid, GridItem, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useColorModeValue, Heading, Icon, Image, Tooltip, Textarea } from '@chakra-ui/react'
 import { Controller, useForm } from 'react-hook-form'
 import { IoMdAdd } from 'react-icons/io'
 import Select from "react-select"
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { AppContext } from '../../context/AppContext'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { FaRobot } from "react-icons/fa";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from 'react-icons/fa';
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
-import { LuCloudUpload } from "react-icons/lu";
 import TemViw from "../../../assets/template.png"
 import Algorithmic from "../../../assets/Algorithmic.png"
 import Campaign from "../../../assets/Campaign.png"
@@ -20,7 +17,7 @@ import Generative from "../../../assets/Generative.png"
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, fetchProductService, productService, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext)
+  const { showAlert, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -41,20 +38,10 @@ const Sector = () => {
     }
   });
   const navigate = useNavigate();
-  const all_productServices = productService.map(product => ({
-    value: product.id,
-    label: product.name,
-    customLabel: (
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        {/* <img src={product.iconUrl} alt="" width="20" height="20" /> */}
-        <span>{product.name}</span>
-      </div>
-    )
-  }));
+
 
   useEffect(() => {
     fetchSector(admin_id);
-    fetchProductService(admin_id);
     fetchTemplate(admin_id);
 
   }, [admin_id])
@@ -85,7 +72,7 @@ const Sector = () => {
     formData.append("category", data.category);
     formData.append("icon", data.icon[0]);
     formData.append("description", data.description);
-    formData.append("products", JSON.stringify(data.products));
+    // formData.append("products", JSON.stringify(data.products));
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/add`, {
         method: "POST",
@@ -120,7 +107,7 @@ const Sector = () => {
     }
 
     setValue('description', data.description);
-    setValue('products', data.product_ids)
+    // setValue('products', data.product_ids)
 
   };
 
@@ -685,38 +672,7 @@ const Sector = () => {
                 />
               </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
-                <Controller
-                  name="products"
-                  control={control}
-                  rules={{ required: "Please select at least one product" }}
-                  render={({ field, fieldState: { error } }) => (
-                    <>
-                      <Select
-                        isMulti
-                        options={all_productServices}
-                        placeholder="Select Products"
-                        value={all_productServices.filter(option => field.value?.includes(option.value))}
-                        onChange={(selectedOptions) => {
-                          const selectedValues = selectedOptions.map(option => option.value);
-                          field.onChange(selectedValues);
-                        }}
-                        getOptionLabel={(e) => e.customLabel || e.label}
-                        getOptionValue={(e) => e.value}
-                        styles={{
-                          control: (provided) => ({ ...provided, fontSize: "12px" }),
-                          option: (provided) => ({ ...provided, fontSize: "12px" }),
-                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                        }}
-                      />
-                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                    </>
-                  )}
-                />
-              </FormControl>
+           
               <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
 
                 <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
@@ -780,36 +736,7 @@ const Sector = () => {
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
-
-              {/* <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb="2px">
-                  Upload Icon
-                </FormLabel>
-                <Input
-                  type="file"
-                  id="icon-upload"
-                  display="none"
-                  {...register('icon')}
-                />
-                <FormLabel
-                  htmlFor="icon-upload"
-                  cursor="pointer"
-                  bg="#FF5722"
-                  color="white"
-                  px={4}
-                  py={2}
-                  borderRadius="md"
-                  display="inline-flex"
-                  alignItems="center"
-                  gap={2}
-                  fontSize="var(--text-12px)"
-                  _hover={{ bg: '#FF5722' }}
-                >
-                  <LuCloudUpload />
-                  Upload Icon
-                </FormLabel>
-              </FormControl> */}
-
+             
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb="2px">
                   Upload Icon
@@ -836,41 +763,6 @@ const Sector = () => {
                 />
               </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Products</FormLabel>
-               
-
-                <Controller
-                  name="products"
-                  control={control}
-                  rules={{ required: "Please select at least one product" }}
-                  render={({ field, fieldState: { error } }) => (
-                    <>
-                      <Select
-                        isMulti
-                        options={all_productServices}
-                        placeholder="Select Products"
-                        value={all_productServices.filter(option => field.value?.includes(option.value))}
-                        onChange={(selectedOptions) => {
-                          const selectedValues = selectedOptions.map(option => option.value);
-                          field.onChange(selectedValues);
-                        }}
-                        getOptionLabel={(e) => e.customLabel || e.label}
-                        getOptionValue={(e) => e.value}
-                        styles={{
-                          control: (provided) => ({ ...provided, fontSize: "12px" }),
-                          option: (provided) => ({ ...provided, fontSize: "12px" }),
-                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                        }}
-                      />
-                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
-                    </>
-                  )}
-                />
-
-              </FormControl>
               <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
                 <Button w={'100%'} onClick={onEditClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
                   textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>

@@ -1,31 +1,30 @@
-import { Box, Button, Card, Divider, Flex, FormControl, FormErrorMessage, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, FormControl, FormErrorMessage, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { AppContext } from '../../context/AppContext';
 import { IoMdAdd } from 'react-icons/io';
-import { RxDotsHorizontal } from 'react-icons/rx';
 import { MdOutlineModeEdit } from 'react-icons/md';
-import { DeleteIcon } from '@chakra-ui/icons';
 import { decrypt } from '../../utils/security';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { BiImageAdd } from "react-icons/bi";
 import { useNavigate } from 'react-router-dom';
 
+import Select from "react-select"
+
 const ProductService = () => {
-    const { showAlert, fetchProductService, productService } = useContext(AppContext)
+    const { showAlert, fetchProductService, productService, sectors, fetchSector, } = useContext(AppContext)
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, setValue, formState: { errors }, control } = useForm();
     const token = localStorage.getItem('token')
     const user = localStorage.getItem('user')
     const admin_id = decrypt(user).id
-    const navigate=useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchProductService(admin_id)
+        fetchSector(admin_id)
     }, [admin_id])
-
 
     const onSubmit = async (data) => {
         const formData = new FormData();
@@ -33,6 +32,7 @@ const ProductService = () => {
         formData.append("name", data.name);
         formData.append("description", data.description);
         formData.append("image", data.image[0]);
+        formData.append("sector_id", data.sector_id);
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/add`, {
                 method: "POST",
@@ -62,6 +62,8 @@ const ProductService = () => {
         setEditProductData(productData);
         setValue("name", productData.name);
         setValue("description", productData.description);
+        setValue("sector_name", productData.sector_name);
+        setValue("sector_id", productData.sector_id);
     }
 
     const onEditSubmit = async (data) => {
@@ -69,6 +71,7 @@ const ProductService = () => {
         formData.append("product_id", editProductData.id);
         formData.append("name", data.name);
         formData.append("description", data.description);
+        formData.append("sector_id", data.sector_id);
         if (data.image && data.image.length > 0) {
             formData.append("image", data.image[0]);
         }
@@ -81,7 +84,6 @@ const ProductService = () => {
                 body: formData
             })
             const result = await response.json();
-            console.log(result)
             if (result.success) {
                 showAlert("Product updated successfully", 'success')
                 fetchProductService(admin_id);
@@ -93,8 +95,6 @@ const ProductService = () => {
             showAlert("Internal server error", 'error')
         }
     }
-
-
     const [deleteProductId, setDeleteProductId] = useState(null)
     const openDeleteModal = (id) => {
         setDeleteProductId(id)
@@ -125,6 +125,17 @@ const ProductService = () => {
             showAlert("Internal server error", 'error')
         }
     }
+
+    const allSector = sectors.map(sector => ({
+        value: sector.id,
+        label: sector.name,
+        customLabel: (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>{sector.name}</span>
+            </div>
+        )
+    }));
+
     return (
         <Card>
             <Flex
@@ -133,7 +144,6 @@ const ProductService = () => {
                 flexDirection={"column"}
                 p="15px"
             >
-
                 <Flex
                     w="100%"
                     alignItems={"center"}
@@ -144,8 +154,6 @@ const ProductService = () => {
                         Product
                     </Text>
                     <Flex gap={2}>
-
-
                         <Flex>
                             <Button
                                 borderRadius="var(--radius)"
@@ -160,16 +168,12 @@ const ProductService = () => {
                             >
                                 Add Product
                             </Button>
-
                         </Flex>
                     </Flex>
                 </Flex>
-
-
                 <TableContainer
                     mt="20px"
                     borderRadius="5px 5px 0px 0px"
-
                 >
                     <Table size="sm" className="custom-striped-table">
                         <Thead border="0.5px solid #FFF5F3">
@@ -184,6 +188,11 @@ const ProductService = () => {
                                     color="var(--text-black)"
                                     fontSize="var(--mini-text)">
                                     Description
+                                </Th>
+                                <Th fontWeight="var(--big-font-weight)"
+                                    color="var(--text-black)"
+                                    fontSize="var(--mini-text)">
+                                    Sector
                                 </Th>
                                 <Th h fontWeight="var(--big-font-weight)"
                                     color="var(--text-black)"
@@ -204,12 +213,12 @@ const ProductService = () => {
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
                                             fontWeight="var(--big-font-weight)"
-                                            onClick={()=>navigate(`/home/product/${product.id}`)}>{product.name}</Td>
+                                            onClick={() => navigate(`/home/product/${product.id}`)}>{product.name}</Td>
 
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
                                             fontWeight="var(--big-font-weight)">
-                                            <Box width="450px" height="42px" overflow="hidden">
+                                            <Box width="450px" overflow="hidden">
                                                 <Tooltip label={product.description} hasArrow placement="top">
                                                     <Text
                                                         fontSize="14px"
@@ -227,6 +236,9 @@ const ProductService = () => {
                                                 </Tooltip>
                                             </Box>
                                         </Td>
+                                        <Td color={"#404040"}
+                                            fontSize="var(--mini-text)"
+                                            fontWeight="var(--big-font-weight)">{product.sector_name}</Td>
 
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
@@ -247,43 +259,6 @@ const ProductService = () => {
                                                     <RiDeleteBin6Line size={20} color={"#D50B0B"} onClick={() => openDeleteModal(product.id)} />
                                                 </Box>
                                             </Flex>
-                                            {/* <Menu >
-                                                <MenuButton
-                                                    bgColor="transparent"
-                                                    _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                                                    _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                                                    as={Button}
-                                                >
-                                                    <RxDotsHorizontal />
-                                                </MenuButton>
-                                                <MenuList gap={2} >
-                                                    <MenuItem
-                                                        w="100%"
-                                                        minW="100px"
-                                                        // onClick={() => editleads(d.id)}
-                                                        onClick={() => editProduct(product)}
-                                                        display={'flex'} alignItems={'center'} gap={2}
-                                                    >
-                                                        <MdOutlineModeEdit color="green" />
-                                                        <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
-                                                            Edit
-                                                        </Text>
-                                                    </MenuItem>
-                                                    <Divider />
-                                                    <MenuItem
-                                                        w="100%"
-                                                        minW="100px"
-                                                        cursor="pointer"
-                                                        onClick={() => openDeleteModal(product.id)}
-
-                                                    >
-                                                        <Flex gap={2} alignItems="center">
-                                                            <DeleteIcon color={"red"} />
-                                                            <Text >Delete</Text>
-                                                        </Flex>
-                                                    </MenuItem>
-                                                </MenuList>
-                                            </Menu> */}
                                         </Td>
                                     </Tr>
                                 ))
@@ -314,13 +289,39 @@ const ProductService = () => {
                                         <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>
                                     )}
                                 </FormControl>
-                                {/* <FormControl isInvalid={errors.file}>
-                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Image</FormLabel>
-                                    <Input type='file' {...register("image")} fontSize="var(--text-12px)" autoComplete='off'></Input>
-                                    {errors.file && (
-                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.image.message}</FormErrorMessage>
-                                    )}
-                                </FormControl> */}
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                        Sector
+                                    </FormLabel>
+                                    <Controller
+                                        name="sector_id"
+                                        control={control}
+                                        render={({ field, fieldState: { error } }) => (
+                                            <>
+                                                <Select
+                                                    options={allSector}
+                                                    placeholder="Select sector"
+                                                    value={allSector.find(option => option.value === field.value)}
+                                                    onChange={(selectedOption) => {
+                                                        field.onChange(selectedOption?.value || null);
+                                                    }}
+                                                    getOptionLabel={(e) => e.customLabel || e.label}
+                                                    getOptionValue={(e) => e.value}
+                                                    styles={{
+                                                        control: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        option: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                    }}
+                                                />
+                                                {/* Uncomment below to show validation error */}
+                                                {/* {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>} */}
+                                            </>
+                                        )}
+                                    />
+                                </FormControl>
+
 
                                 <FormControl isRequired>
                                     <FormLabel fontSize="var(--mini-text)" mb="2px">
@@ -367,7 +368,7 @@ const ProductService = () => {
                     onClose={onEditClose} >
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader fontSize={'18px'}>Edit Sector</ModalHeader>
+                        <ModalHeader fontSize={'18px'}>Edit Product</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
                             <Box as="form" onSubmit={handleSubmit(onEditSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
@@ -378,6 +379,38 @@ const ProductService = () => {
                                 <FormControl isRequired>
                                     <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
                                     <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                                </FormControl>
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
+                                        Sector
+                                    </FormLabel>
+                                    <Controller
+                                        name="sector_id"
+                                        control={control}
+                                        render={({ field, fieldState: { error } }) => (
+                                            <>
+                                                <Select
+                                                    options={allSector}
+                                                    placeholder="Select sector"
+                                                    value={allSector.find(option => option.value === field.value)}
+                                                    onChange={(selectedOption) => {
+                                                        field.onChange(selectedOption?.value || null);
+                                                    }}
+                                                    getOptionLabel={(e) => e.customLabel || e.label}
+                                                    getOptionValue={(e) => e.value}
+                                                    styles={{
+                                                        control: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        option: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                        placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                                                    }}
+                                                />
+                                                {/* Uncomment below to show validation error */}
+                                                {/* {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>} */}
+                                            </>
+                                        )}
+                                    />
                                 </FormControl>
 
                                 <FormControl isRequired>

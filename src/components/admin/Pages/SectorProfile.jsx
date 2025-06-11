@@ -5,11 +5,15 @@ import {
   Button,
   Divider,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   Grid,
   GridItem,
   Heading,
   Icon,
   Image,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -28,13 +32,11 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AppContext } from "../../context/AppContext";
 import Card from "../../../Card";
 import { decrypt } from "../../utils/security";
-import { LuEye } from "react-icons/lu";
 import { VscSend } from "react-icons/vsc";
 import { FaMagic, FaPencilAlt, FaPuzzlePiece } from "react-icons/fa";
 import TemViw from "../../../assets/template.png";
@@ -42,24 +44,17 @@ import Algorithmic from "../../../assets/Algorithmic.png";
 import Campaign from "../../../assets/Campaign.png";
 import Generative from "../../../assets/Generative.png";
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
+import { IoMdAdd } from "react-icons/io";
+import { useForm } from "react-hook-form";
 
 const SectorProfile = () => {
-  const {
-    getProducts,
-    products,
-    sectorData,
-    sector,
-    bots,
-    fetchBot,
-    template,
-    fetchTemplate,
-  } = useContext(AppContext);
-
+  const { getProducts, products, sectorData, sector, bots, fetchBot, template, fetchTemplate, timeAgo } = useContext(AppContext);
   const { id } = useParams();
   const navigate = useNavigate();
   const user = localStorage.getItem("user");
   const admin_id = decrypt(user).id;
-
+  const token = localStorage.getItem('token')
+      
   useEffect(() => {
     sectorData(id);
     getProducts(id);
@@ -67,27 +62,12 @@ const SectorProfile = () => {
     fetchTemplate();
   }, [id]);
 
-  function timeAgo(dateString) {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diffMs = now - past;
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(diffMs / (1000 * 60));
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (seconds < 60) return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
-    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
-    if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
-    return `${days} day${days !== 1 ? "s" : ""} ago`;
-  }
-
   // sector
 
-    const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
-    const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
-    const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
+  const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
+  const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
+  const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [bot, SetbotId] = useState();
   const options = [
     {
@@ -139,6 +119,35 @@ const SectorProfile = () => {
   ];
 
   const [showAll, setShowAll] = useState(false);
+   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+ 
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    // formData.append("admin_id", admin_id);
+    // formData.append("name", data.name);
+    // formData.append("description", data.description);
+    // formData.append("image", data.image[0]);
+    // try {
+    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/add`, {
+    //     method: "POST",
+    //     headers: {
+
+    //       Authorization: token
+    //     },
+    //     body: formData
+    //   })
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     showAlert("Product Service added successfully", 'success')
+    //     getProducts(id);
+    //     reset();
+    //     onClose();
+    //   }
+    // } catch (error) {
+    //   showAlert("Failed to add product service", 'error')
+    //   console.log(error)
+    // }
+  }
 
   return (
     <>
@@ -240,18 +249,32 @@ const SectorProfile = () => {
             >
               <TabPanels>
                 <TabPanel>
+                  <Flex justifyContent={'flex-end'}>
+                    <Button
+                      borderRadius="var(--radius)"
+                      leftIcon={<IoMdAdd fontSize={"20px"} />}
+                      _hover={{ bgColor: "var(--active-bg)" }}
+                      bgColor="var(--active-bg)"
+                      color="#fff"
+                      h={"35px"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                      onClick={() => onOpen()}
+                    >
+                      Add Product
+                    </Button>
+                  </Flex>
                   <SimpleGrid
                     spacing={4}
                     templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
                     fontSize="var(--mini-text)"
-                    fontWeight="var(--big-font-weight)"
+                    fontWeight="var(--big-font-weight)" mt='4px'
                   >
                     {products?.map((product, index) => (
                       <Card key={index}>
                         <Image
-                          src={`${import.meta.env.VITE_BACKEND_URL}/products/${
-                            product.image
-                          }`}
+                          src={`${import.meta.env.VITE_BACKEND_URL}/products/${product.image
+                            }`}
                         />
                         <Text
                           fontWeight="var(--big-font-weight)"
@@ -287,7 +310,7 @@ const SectorProfile = () => {
                             <Box spacing="3px">
                               <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
                               <Text textAlign="start" fontSize={"10px"}>
-                                {timeAgo(bot.created_at)}
+                                {/* {timeAgo(bot.created_at)} */}
                               </Text>
                             </Box>
                           </Flex>
@@ -298,7 +321,7 @@ const SectorProfile = () => {
                               p={1}
                               borderRadius={"5px"}
                               cursor={"pointer"}
-                               onClick={() =>{ botCreate(id); SetbotId(bot.id)}}
+                              onClick={() => { botCreate(id); SetbotId(bot.id) }}
                             >
                               <VscSend size={20} color={"green"} />
                             </Box>
@@ -312,6 +335,65 @@ const SectorProfile = () => {
             </Box>
           </Tabs>
         </Box>
+       <Modal isOpen={isOpen}
+          onClose={onClose} >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader fontSize={'18px'}>Add Product</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6} >
+              <Box as="form" onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+                <FormControl isRequired isInvalid={errors.name}>
+                  <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
+                  <Input type='text' {...register("name", { required: "Product name is required" })} placeholder='enter product name' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                  {errors.name && (
+                    <FormErrorMessage fontSize="var(--mini-text)">{errors.name.message}</FormErrorMessage>
+                  )}
+                </FormControl>
+                <FormControl isRequired isInvalid={errors.description}>
+                  <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
+                  <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
+                  {errors.description && (
+                    <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>
+                  )}
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel fontSize="var(--mini-text)" mb="2px">
+                    Upload Image
+                  </FormLabel>
+                  <Input
+                    type="file"
+                    {...register('image')}
+                    fontSize="var(--text-12px)"
+                    colorScheme="orange"
+                    sx={{
+                      "::file-selector-button": {
+                        backgroundColor: "#FF5722",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "var(--text-12px)",
+                      },
+                      "::file-selector-button:hover": {
+                        backgroundColor: "#e64a19",
+                      }
+                    }}
+                  />
+                </FormControl>
+                <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+                  <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                    textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                  <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
         <Modal isOpen={isBotOpen} onClose={onBotClose} size={"xl"}>
           <ModalOverlay />
           <ModalContent padding={"20px"}>
@@ -495,7 +577,7 @@ const SectorProfile = () => {
                             >
                               <Text as="span">
                                 {temp.description &&
-                                temp.description.length > 50
+                                  temp.description.length > 50
                                   ? `${temp.description.slice(0, 50)}...`
                                   : temp.description || "No description"}
                               </Text>
