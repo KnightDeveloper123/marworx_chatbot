@@ -402,8 +402,10 @@ async function sendWhatsAppList(to, question, options) {
   return result;
 }
 
+
+
 // async function sendWhatsAppReplyButtons(to, question, options = []) {
-//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ||  '671909416004124';
+//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '671909416004124';
 //   const token = process.env.WHATSAPP_TOKEN;
 
 //   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
@@ -421,7 +423,7 @@ async function sendWhatsAppList(to, question, options) {
 //         buttons: options.slice(0, 3).map((label, index) => ({
 //           type: "reply",
 //           reply: {
-//             id: `option_${index}`,
+//             id: `option_${index}`,  // ✅ consistent with frontend and backend
 //             title: label.trim()
 //           }
 //         }))
@@ -439,6 +441,7 @@ async function sendWhatsAppList(to, question, options) {
 //   });
 
 //   const result = await response.json();
+// console.log("Body:", JSON.stringify(result, null, 2))
 //   console.log("📨 WhatsApp Reply Button Response:", result);
 
 //   if (!response.ok) {
@@ -450,11 +453,16 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '671909416004124';
   const token = process.env.WHATSAPP_TOKEN;
 
+  if (!phoneNumberId || !token) {
+    throw new Error("Missing WhatsApp credentials (phone number ID or token)");
+  }
+
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
 
-  const body = {
+  const payload = {
     messaging_product: "whatsapp",
-    to,
+    recipient_type: "individual",
+    to: to,
     type: "interactive",
     interactive: {
       type: "button",
@@ -465,8 +473,8 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
         buttons: options.slice(0, 3).map((label, index) => ({
           type: "reply",
           reply: {
-            id: `option_${index}`,  // ✅ consistent with frontend and backend
-            title: label.trim()
+            id: `option_${index}`,
+            title: label
           }
         }))
       }
@@ -476,31 +484,22 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(payload)
   });
 
   const result = await response.json();
-  console.log("📨 WhatsApp Reply Button Response:", result);
+  console.log("🟢 Reply Button Result:", JSON.stringify(result, null, 2));
 
   if (!response.ok) {
-    console.error("❌ Failed to send buttons:", result);
+    console.error("❌ WhatsApp Reply Button Error:", JSON.stringify(result, null, 2));
+    throw new Error("Failed to send reply buttons");
   }
+
+  return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -672,153 +671,136 @@ router.post('/webhook', async (req, res) => {
     }
 
 
-    //     else if (currentNode.type === "ReplyButton") {
-    //   const isButtonReply = message?.interactive?.type === "button_reply";
-
-    //   if (isButtonReply) {
-    //     const replyId = message.interactive.button_reply.id; // "option_0"
-    //     const selectedIndex = parseInt(replyId.split("_")[1]);
-    //     const selectedOption = currentNode.data?.targetValues?.[selectedIndex];
-
-    //     const sourceHandle = `option-${selectedIndex}`;
-    //     const connections = graph[currentNodeId] || [];
-    //     const match = connections.find(c => c.sourceHandle === sourceHandle);
-
-    //     if (match) {
-    //       const nextNodeId = match.target;
-    //       const nextNode = nodeMap[nextNodeId];
-
-    //       if (nextNode.type === "ReplyButton") {
-    //         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else if (nextNode.type === "ListButton") {
-    //         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else {
-    //         await sendWhatsAppText(from, nextNode?.data?.label || "Next step...");
-    //       }
-
-    //       await executeQuery(
-    //         "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-    //         [nextNodeId, from]
-    //       );
-
-    //       await executeQuery(
-    //         "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-    //         [from, flow_id, currentNodeId, selectedOption]
-    //       );
-
-    //       return res.sendStatus(200);
-    //     } else {
-    //       await sendWhatsAppText(from, "⚠️ Button response did not match any connection.");
-    //       return res.sendStatus(200);
-    //     }
-    //   }
-    // }
-
     else if (currentNode.type === "ReplyButton") {
   const isButtonReply = message?.interactive?.type === "button_reply";
+  const isTextReply = message?.type === "text";
+
+  let selectedIndex = -1;
+  let selectedOption = "";
+  let replyId = "";
 
   if (isButtonReply) {
-    const replyId = message.interactive.button_reply.id; // Expected: "option_0"
-    const selectedIndex = parseInt(replyId.split(/[_-]/)[1]); // works with both option_0 and option-0
-    const selectedOption = currentNode.data?.targetValues?.[selectedIndex];
+    replyId = message.interactive.button_reply.id; // "option_0"
+    selectedIndex = parseInt(replyId.split(/[_-]/)[1]);
+    selectedOption = currentNode.data?.targetValues?.[selectedIndex];
+  } else if (isTextReply) {
+    const userText = message.text.body.trim().toLowerCase();
+    selectedIndex = currentNode.data.targetValues.findIndex(
+      (opt) => opt.trim().toLowerCase() === userText
+    );
+    if (selectedIndex !== -1) {
+      selectedOption = currentNode.data.targetValues[selectedIndex];
+    }
+  }
 
-    const normalizedSourceHandle = `option_${selectedIndex}`;
-    const connections = graph[currentNodeId] || [];
+  if (selectedIndex === -1 || !selectedOption) {
+    await sendWhatsAppText(from, "⚠️ Please choose a valid option.");
+    return res.sendStatus(200);
+  }
 
-    const match = connections.find(c => {
-      // Normalize both sides: "option-0" becomes "option_0"
-      const edgeHandle = c.sourceHandle?.replace("-", "_");
-      return edgeHandle === normalizedSourceHandle;
-    });
+  const normalizedSourceHandle = `option_${selectedIndex}`;
+  const connections = graph[currentNodeId] || [];
 
-    console.log("🔎 Match found:", match);
-    if (match) {
-      const nextNodeId = match.target;
-      const nextNode = nodeMap[nextNodeId];
+  const match = connections.find((c) => {
+    const edgeHandle = c.sourceHandle?.replace("-", "_");
+    return edgeHandle === normalizedSourceHandle;
+  });
 
-      if (!nextNode) {
-        console.error("❌ Next node not found for ID:", nextNodeId);
-        await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-        return res.sendStatus(200);
-      }
+  if (match) {
+    const nextNodeId = match.target;
+    const nextNode = nodeMap[nextNodeId];
 
-      if (nextNode.type === "ReplyButton") {
-        await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-      } else if (nextNode.type === "ListButton") {
-        await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-      } else {
-        await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-      }
-
-      await executeQuery(
-        "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-        [nextNodeId, from]
-      );
-
-      await executeQuery(
-        "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-        [from, flow_id, currentNodeId, selectedOption]
-      );
-
-      return res.sendStatus(200);
-    } else {
-      await sendWhatsAppText(from, "⚠️ Button response did not match any connection.");
+    if (!nextNode) {
+      await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
       return res.sendStatus(200);
     }
+
+    // Send next message type
+    if (nextNode.type === "ReplyButton") {
+      await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+    } else if (nextNode.type === "ListButton") {
+      await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+    } else {
+      await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+    }
+
+    // Save progress
+    await executeQuery(
+      "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+      [nextNodeId, from]
+    );
+
+    await executeQuery(
+      "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+      [from, flow_id, currentNodeId, selectedOption]
+    );
+
+    return res.sendStatus(200);
+  } else {
+    await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+    return res.sendStatus(200);
   }
 }
 
 
-    // else if (currentNode.type === "ReplyButton") {
-    //   const isButtonReply = message?.interactive?.type === "button_reply";
+//     else if (currentNode.type === "ReplyButton") {
+//   const isButtonReply = message?.interactive?.type === "button_reply";
 
-    //   if (isButtonReply) {
-        
-    //     const replyId = message.interactive.button_reply.id; // "option_0"
-    //     const selectedIndex = parseInt(replyId.split("_")[1]);
-    //     const selectedOption = currentNode.data?.targetValues?.[selectedIndex];
+//   if (isButtonReply) {
+//     const replyId = message.interactive.button_reply.id; // Expected: "option_0"
+//     console.log("replay",replyId)
+//     const selectedIndex = parseInt(replyId.split(/[_-]/)[1]); // works with both option_0 and option-0
+//     console.log("selectedIndex",selectedIndex)
+//     const selectedOption = currentNode.data?.targetValues?.[selectedIndex];
 
-    //     const sourceHandle = `option_${selectedIndex}`; // ✅ match frontend
-    //     const connections = graph[currentNodeId] || [];
+//     const normalizedSourceHandle = `option_${selectedIndex}`;
+//     const connections = graph[currentNodeId] || [];
 
-    //     const match = connections.find(c => c.sourceHandle === sourceHandle);
+//     const match = connections.find(c => {
+//       // Normalize both sides: "option-0" becomes "option_0"
+//       const edgeHandle = c.sourceHandle?.replace("-", "_");
+//       return edgeHandle === normalizedSourceHandle;
+//     });
 
-    //     console.log("🔎 Match found:", match);
-    //     if (match) {
-    //       const nextNodeId = match.target;
-    //       const nextNode = nodeMap[nextNodeId];
+//     console.log("🔎 Match found:", match);
+//     if (match) {
+//       const nextNodeId = match.target;
+//       const nextNode = nodeMap[nextNodeId];
 
-    //       if (!nextNode) {
-    //         console.error("❌ Next node not found for ID:", nextNodeId);
-    //         await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-    //         return res.sendStatus(200);
-    //       }
+//       if (!nextNode) {
+//         console.error("❌ Next node not found for ID:", nextNodeId);
+//         await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
+//         return res.sendStatus(200);
+//       }
 
-    //       if (nextNode.type === "ReplyButton") {
-    //         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else if (nextNode.type === "ListButton") {
-    //         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else {
-    //         await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-    //       }
+//       if (nextNode.type === "ReplyButton") {
+//         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+//       } else if (nextNode.type === "ListButton") {
+//         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+//       } else {
+//         await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+//       }
 
-    //       await executeQuery(
-    //         "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-    //         [nextNodeId, from]
-    //       );
+//       await executeQuery(
+//         "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+//         [nextNodeId, from]
+//       );
 
-    //       await executeQuery(
-    //         "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-    //         [from, flow_id, currentNodeId, selectedOption]
-    //       );
+//       await executeQuery(
+//         "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+//         [from, flow_id, currentNodeId, selectedOption]
+//       );
 
-    //       return res.sendStatus(200);
-    //     } else {
-    //       await sendWhatsAppText(from, "⚠️ Button response did not match any connection.");
-    //       return res.sendStatus(200);
-    //     }
-    //   }
-    // }
+//       return res.sendStatus(200);
+//     } else {
+//       await sendWhatsAppText(from, "⚠️ Button response did not match any connection.");
+//       return res.sendStatus(200);
+//     }
+//   }
+// }
+
+
+   
 
 
 

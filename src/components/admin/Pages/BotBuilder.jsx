@@ -605,85 +605,8 @@ const nodeTypes = {
   },
 
 
-  //  ReplyButton : ({ id, data }) => {
-  //   const { setNodes, getNodes, getEdges, setEdges } = useReactFlow();
-  //   const options = ["Yes", "No", "none of these"];
-
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
-
-  //   const handleOptionClick = (optionIndex) => {
-  //     const selectedOption = options[optionIndex];
-
-  //     // 🔍 Get all edges and find the one from this node with correct option id
-  //     const edges = getEdges();
-  //     const matchedEdge = edges.find(
-  //       (edge) => edge.source === id && edge.sourceHandle === `option-${optionIndex}`
-  //     );
-
-  //     if (selectedOption === "Yes" && matchedEdge) {
-  //       // Find the target node and mark it active or do something
-  //       const targetNodeId = matchedEdge.target;
-  //       setNodes((nds) =>
-  //         nds.map((node) =>
-  //           node.id === targetNodeId
-  //             ? { ...node, data: { ...node.data, isActive: true } }
-  //             : node
-  //         )
-  //       );
-  //     }
-
-  //     // You can also add logic to store response in DB or display a toast
-  //     console.log(`User selected: ${selectedOption}`);
-  //   };
-
-  //   return (
-  //     <Box bg="white" borderRadius="md" boxShadow="md" w="200px" p="2">
-  //       <Handle type="target" position="left" style={{ background: "#555" }} />
-
-  //       <Box bg="orange.500" color="white" p="1" borderTopRadius="md">
-  //         <Text fontSize="xs" fontWeight="bold">Reply Button</Text>
-  //         <IconButton
-  //           icon={<IoTrashOutline />}
-  //           onClick={handleDelete}
-  //           size="xs"
-  //           float="right"
-  //           aria-label="delete"
-  //           variant="ghost"
-  //         />
-  //       </Box>
-
-  //       <Box bg="gray.100" p="2" backgroundColor={"white"}>
-  //         <Text fontSize="xs" mb="1">{data.label || "Reply Buttons"}</Text>
-
-  //         {options.map((opt, idx) => (
-  //           <Box
-  //             key={idx}
-  //             display="flex"
-  //             alignItems="center"
-  //             fontSize="xs"
-  //             mt="1"
-  //             justifyContent="space-between"
-  //             onClick={() => handleOptionClick(idx)}
-  //             cursor="pointer"
-  //             _hover={{ bg: "gray.200" }}
-  //             p="1"
-  //             borderRadius="md"
-  //           >
-  //             <Text flex="1">{opt}</Text>
-  //             <Handle
-  //               type="source"
-  //               position="right"
-  //               id={`option-${idx}`}
-  //               style={{ background: "#555" }}
-  //             />
-  //           </Box>
-  //         ))}
-  //       </Box>
-  //     </Box>
-  //   );
-  // }
+ 
+  
 
    ReplyButton : ({ id, data }) => {
    const { setNodes } = useReactFlow();
