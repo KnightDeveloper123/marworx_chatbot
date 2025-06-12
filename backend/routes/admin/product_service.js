@@ -137,7 +137,7 @@ router.get('/get_all_product', middleware, async (req, res) => {
 router.get('/get_all_sector_bots', async (req, res) => {
     try {
         const { product_id } = req.query
-        const product = await executeQuery(`select product_sector.product_id ,product_sector.sector_id,sector.name as s_name,bots.name,bots.id from product_sector
+        const product = await executeQuery(`select product_sector.product_id ,product_sector.sector_id,sector.name as s_name,bots.name,bots.id,bots.nodes,bots.created_at as createdAt from product_sector
             left join sector on  product_sector.sector_id =sector.id
            left join bots on bots.sector_id=sector.id
             where product_id=${product_id}`)

@@ -17,7 +17,7 @@ import Generative from "../../../assets/Generative.png"
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, sectors, fetchSector, template, fetchTemplate } = useContext(AppContext)
+  const { showAlert, sectors, fetchSector, template, fetchTemplate,fetchAllEmployees, employees } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -43,6 +43,7 @@ const Sector = () => {
   useEffect(() => {
     fetchSector(admin_id);
     fetchTemplate(admin_id);
+    fetchAllEmployees(admin_id)
 
   }, [admin_id])
 
@@ -64,15 +65,24 @@ const Sector = () => {
   },
   ]
 
-  const onSubmit = async (data) => {
+   const allEmployee = employees.map(emp => ({
+        value: emp.id,
+        label: emp.name,
+        customLabel: (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>{emp.name}</span>
+            </div>
+        )
+    }));
 
+  const onSubmit = async (data) => {
     const formData = new FormData();
     formData.append("admin_id", admin_id);
     formData.append("name", data.name);
     formData.append("category", data.category);
     formData.append("icon", data.icon[0]);
     formData.append("description", data.description);
-    // formData.append("products", JSON.stringify(data.products));
+    formData.append("employee_id", data.employee_id);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/add`, {
         method: "POST",
@@ -107,7 +117,7 @@ const Sector = () => {
     }
 
     setValue('description', data.description);
-    // setValue('products', data.product_ids)
+    setValue('employee_id', data.employee_id);
 
   };
 
@@ -120,7 +130,7 @@ const Sector = () => {
       formData.append("icon", data.icon[0]);
     }
     formData.append("description", data.description);
-    formData.append("products", JSON.stringify(data.products));
+    formData.append("employee_id", data.employee_id);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/update`, {
         method: "POST",
@@ -202,11 +212,8 @@ const Sector = () => {
   ];
 
   const bg = useColorModeValue('gray.50');
-
   const [selectedSectorId, setSelectedSectorId] = useState(null);
   const [selectedBotType, setSelectedBotType] = useState(null)
-
-
   const botCreate = (id) => {
     setSelectedSectorId(id);  // Save the sector ID
     onBotOpen();              // Open the modal
@@ -316,6 +323,15 @@ const Sector = () => {
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius=""
+                  fontSize="var(--mini-text)"
+
+                >
+                  Assignee Name
+                </Th>
+                <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  borderRadius=""
 
                   fontSize="var(--mini-text)"
                 >
@@ -361,6 +377,7 @@ const Sector = () => {
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.id}</Td>
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.name}</Td>
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.category}</Td>
+                    <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.emp_name}</Td>
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.description}</Td>
 
                     <Td onClick={() => navigate(`/home/sector/${sector.id}`)} _hover={{ cursor: "pointer" }} >{sector.bot_count}</Td>
@@ -607,13 +624,13 @@ const Sector = () => {
 
             <Box as='form' onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Category</FormLabel>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Category</FormLabel>
                 <Controller
                   name="category"
                   control={control}
@@ -639,15 +656,42 @@ const Sector = () => {
                   )}
                 />
               </FormControl>
+               <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Assignee</FormLabel>
+                <Controller
+                  name="employee_id"
+                  control={control}
+                  rules={{ required: "Please select a Assignee" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={allEmployee}
+                        placeholder="Select Assignee"
+                        value={allEmployee.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.employee_id}</p>}
+                    </>
+                  )}
+                />
+              </FormControl>
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Description</FormLabel>
                 <Textarea type='text' {...register('description')} 
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off' />
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb="2px">
+                <FormLabel fontSize="var(--mini-text)" mb="0px">
                   Upload Icon
                 </FormLabel>
                 <Input
@@ -698,7 +742,7 @@ const Sector = () => {
 
             <Box as='form' onSubmit={handleSubmit(onEditSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Name</FormLabel>
                 <Input type='text' {...register('name', { required: 'Name is required' })}
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
@@ -730,8 +774,35 @@ const Sector = () => {
                   )}
                 />
               </FormControl>
+                <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Assignee</FormLabel>
+                <Controller
+                  name="employee_id"
+                  control={control}
+                  rules={{ required: "Please select a Assignee" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={allEmployee}
+                        placeholder="Select Assignee"
+                        value={allEmployee.find(option => option.value === field.value)}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.employee_id}</p>}
+                    </>
+                  )}
+                />
+              </FormControl>
               <FormControl isRequired>
-                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>description</FormLabel>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>description</FormLabel>
                 <Input type='text' {...register('description')}
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}

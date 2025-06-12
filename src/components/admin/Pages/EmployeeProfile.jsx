@@ -47,7 +47,7 @@ import { HiOutlineArrowSmLeft } from "react-icons/hi";
 import { IoMdAdd } from "react-icons/io";
 import { useForm } from "react-hook-form";
 
-const SectorProfile = () => {
+const EmployeeProfile = () => {
   const { getProducts, products, sectorData, sector, bots, fetchBot, template, fetchTemplate, timeAgo } = useContext(AppContext);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -310,7 +310,7 @@ const SectorProfile = () => {
                             <Box spacing="3px">
                               <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
                               <Text textAlign="start" fontSize={"10px"}>
-                                {timeAgo(bot.created_at)}
+                                {/* {timeAgo(bot.created_at)} */}
                               </Text>
                             </Box>
                           </Flex>
@@ -624,4 +624,4 @@ const SectorProfile = () => {
   );
 };
 
-export default SectorProfile;
+export default EmployeeProfile;

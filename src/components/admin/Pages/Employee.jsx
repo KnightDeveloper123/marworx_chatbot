@@ -283,13 +283,13 @@ const Employee = () => {
                     <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
                       
                       <Flex gap={2}>
-                                              <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
-                                                  <MdOutlineModeEdit size={20} color={"#3550FF"}  onClick={() => editEmployee(employee)} />
-                                              </Box>
-                                               <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
-                                                  <RiDeleteBin6Line  size={20} color={"#D50B0B"} onClick={() => openDeleteModal(employee.id)} />
-                                              </Box>
-                                            </Flex>
+                        <Box bgColor={"#E7EAFB"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                            <MdOutlineModeEdit size={20} color={"#3550FF"}  onClick={() => editEmployee(employee)} />
+                        </Box>
+                          <Box bgColor={"#F7E3E3"} p={1} borderRadius={"5px"} cursor={"pointer"}>
+                            <RiDeleteBin6Line  size={20} color={"#D50B0B"} onClick={() => openDeleteModal(employee.id)} />
+                        </Box>
+                      </Flex>
                       {/* <Menu>
                         <MenuButton
                           bgColor="transparent"

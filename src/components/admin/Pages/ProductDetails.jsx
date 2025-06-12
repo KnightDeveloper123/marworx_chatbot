@@ -1,15 +1,17 @@
-import { Box, Image, SimpleGrid, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react'
+import { Avatar, Box, Flex, Image, SimpleGrid, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
+import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Card from "../../../Card";
-import TemViw from "../../../assets/template.png"
+import TemViw from "../../../assets/template.png";
+import { AppContext } from "../../context/AppContext";
 
 const ProductDetails = () => {
     const { id } = useParams();
     const [sectors, setSectors] = useState([]);
     const navigate = useNavigate();
     const token = localStorage.getItem("token")
-    const [productBots, setProductBots] = useState([])
+    const [productBots, setProductBots] = useState([]);
+    const {timeAgo }=useContext(AppContext);
 
     const fetchLinkedBots = async () => {
         try {
@@ -131,11 +133,30 @@ const ProductDetails = () => {
                                     </TabPanel>
 
                                     <TabPanel>
-                                        <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
-                                            {productBots.map((bot, index) => (
+                                        <SimpleGrid spacing={4} _hover={{ cursor: "pointer" }}>
+                                            {productBots?.map((bot, index) => (
                                                 <Card key={index}>
-                                                    <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
-                                                    <Text textAlign="center" mt={2} >{bot.name}</Text>
+                                                    <Flex
+                                                        justify="space-between"
+                                                        align="center"
+                                                        //   p={4}
+                                                        gap="15px"
+                                                    >
+                                                        <Flex gap={2}>
+                                                            <Box spacing="3px">
+                                                                <Avatar
+                                                                    src={TemViw}
+                                                                    onClick={() => navigate(`/view/${bot.id}`)}
+                                                                />
+                                                            </Box>
+                                                            <Box spacing="3px">
+                                                                <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
+                                                                <Text textAlign="start" fontSize={"10px"}>
+                                                                    {timeAgo(bot.createdAt)}
+                                                                </Text>
+                                                            </Box>
+                                                        </Flex>
+                                                    </Flex>
                                                 </Card>
                                             ))}
                                         </SimpleGrid>

@@ -78,7 +78,7 @@ function Navbar() {
    const superAdminNavbar = [
       { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
       { title: "Admin", url: "/home/admin", icon: <Icon as={FaCircleUser} mr={2} /> },
-      { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
+      // { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
       { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
       { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
       { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },

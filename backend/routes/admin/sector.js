@@ -25,7 +25,7 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('icon'), async (req, res) => {
   try {
-    let { name, category, description, admin_id } = req.body;
+    let { name, category, description, admin_id, employee_id } = req.body;
     // if (typeof products === 'string') {
     //   try {
     //     products = JSON.parse(products);
@@ -43,8 +43,8 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
 
     const file_name = req.file.filename;
 
-    const sql = `INSERT INTO sector (name, category, description, icon,admin_id) VALUES (?, ?, ?, ?,?)`;
-    const values = [name, category, description, file_name, admin_id];
+    const sql = `INSERT INTO sector (name, category, description, icon,admin_id,employee_id) VALUES (?, ?, ?, ?,?, ?)`;
+    const values = [name, category, description, file_name, admin_id,employee_id];
 
     connection.query(sql, values, (err, result) => {
       if (err) {
@@ -82,7 +82,7 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
 
     //   console.log(req.body);
 
-    let { name, category, description, products, sector_id } = req.body;
+    let { name, category, description, products, sector_id, employee_id} = req.body;
 
     // if (typeof products === 'string') {
     //   try {
@@ -110,6 +110,10 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
     if (description) {
       updateFields.push("description = ?");
       updateValues.push(description);
+    }
+    if (employee_id) {
+      updateFields.push("employee_id = ?");
+      updateValues.push(employee_id);
     }
     if (req.file) {
       updateFields.push("icon = ?");
@@ -202,11 +206,14 @@ router.get('/get_all_sector', middleware, async (req, res) => {
         sector.category,
         sector.description,
         sector.icon,
+        employee.name as emp_name,
+        employee.id as employee_id,
         COUNT(bots.id) AS bot_count,
-        GROUP_CONCAT(DISTINCT product_sector.product_id) AS psId
+        GROUP_CONCAT(DISTINCT product_service.sector_id) AS psId
       FROM sector
       LEFT JOIN bots ON bots.sector_id = sector.id
-      LEFT JOIN product_sector ON product_sector.sector_id = sector.id
+      LEFT JOIN product_service ON product_service.sector_id = sector.id
+      LEFT JOIN employee ON sector.employee_id = employee.id
       WHERE sector.status = 0 AND sector.admin_id = ${admin_id}
       GROUP BY
         sector.id,
@@ -215,7 +222,9 @@ router.get('/get_all_sector', middleware, async (req, res) => {
         sector.created_on,
         sector.category,
         sector.description,
-        sector.icon
+        sector.icon,
+        employee.name,
+        employee.id
       ORDER BY sector.id DESC;`)
 
              const formattedData = data.map(sector => ({
@@ -233,12 +242,15 @@ router.get('/get_all_sector', middleware, async (req, res) => {
 router.get('/get_all_product_sector', middleware, async (req, res) => {
   try {
     const { sector_id } = req.query
-    const data = await executeQuery(`select sector.*, 
-        p.name as product_name,
-        p.description as product_description, p.id as product_id,
-        p.image from sector
-         left join product_sector as ps on ps.sector_id=sector.id
-         left join product_service as p on p.id=ps.product_id   where sector.id=${sector_id}`)
+    const data = await executeQuery(`SELECT 
+    sector.*, 
+    ps.name AS product_name,
+    ps.description AS product_description,
+    ps.id AS product_id,
+    ps.image
+  FROM sector
+  LEFT JOIN product_service AS ps ON ps.sector_id = sector.id
+           where sector.id=${sector_id}`)
     return res.json({ data })
 
   } catch (error) {

@@ -7,13 +7,13 @@ import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
 import Guest from './components/user/Guest';
 // import Sector from './components/admin/Pages/Sector';
-import ProductService from './components/admin/Pages/ProductService';
+// import ProductService from './components/admin/Pages/ProductService';
 // import BotBuilder from './components/admin/Pages/BotBuilder';
-import Campaign from './components/admin/Pages/Campaign';
-import GenerativeBot from './components/admin/Pages/GenerativeBot';
-import SectorProfile from './components/admin/Pages/SectorProfile';
-import Employee from './components/admin/Pages/Employee';
-import ProductDetails from './components/admin/Pages/ProductDetails';
+// import Campaign from './components/admin/Pages/Campaign';
+// import GenerativeBot from './components/admin/Pages/GenerativeBot';
+// import SectorProfile from './components/admin/Pages/SectorProfile';
+// import Employee from './components/admin/Pages/Employee';
+// import ProductDetails from './components/admin/Pages/ProductDetails';
 // import UserProfile from './components/admin/UserProfile';
 
 
@@ -33,7 +33,13 @@ const ViewBot = lazy(() => import('./components/admin/Pages/ViewBot'));
 const Template = lazy(()=>import ('./components/admin/Pages/Template'));
 const CreateTemplate = lazy(()=> import('./components/admin/Pages/CreateTemplate'))
 const ViewTemplate = lazy(()=> import('./components/admin/Pages/ViewTemplate'))
-// const MainPage = lazy(() => import('./components/user/MainPage'));
+const EmployeeProfile = lazy(() => import('./components/admin/Pages/EmployeeProfile'));
+const Employee = lazy(() => import('./components/admin/Pages/Employee'));
+const ProductDetails = lazy(() => import('./components/admin/Pages/ProductDetails'));
+const SectorProfile = lazy(() => import('./components/admin/Pages/SectorProfile'));
+const GenerativeBot = lazy(() => import('./components/admin/Pages/GenerativeBot'));
+const Campaign = lazy(() => import('./components/admin/Pages/Campaign'));
+const ProductService = lazy(() => import('./components/admin/Pages/ProductService'));
 
 
 
@@ -64,6 +70,7 @@ return (
             <Route path="employee" element={<Employee />} />
             <Route path='sector' element={<Sector />} />
             <Route path='sector/:id' element={<SectorProfile />} />
+            <Route path='employee/:id' element={<EmployeeProfile />} />
             <Route path='product' element={<ProductService />} />
             <Route path='product/:id' element={<ProductDetails />}> </Route>
             <Route path='bot' element={<Bot />} />

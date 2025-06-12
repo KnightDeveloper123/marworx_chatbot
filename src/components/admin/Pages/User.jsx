@@ -161,7 +161,7 @@ function User({ flag }) {
                       fontWeight="var(--big-font-weight)"
                     // onClick={() => editleads(d.id)} _hover={{ cursor: "pointer", color: "navy" }}
                     >
-                      <Flex display={"flex"} alignItems={"center"} gap={"5px"} onClick={() => navigate(`/admin/user/${user.id}`)}>
+                      <Flex display={"flex"} alignItems={"center"} gap={"5px"} onClick={() => navigate(`/home/user/${user.id}`)}>
                         <Avatar size={"xs"} name={user.name} />
                         {user.name}
                       </Flex>
