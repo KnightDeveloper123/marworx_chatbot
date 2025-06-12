@@ -403,6 +403,51 @@ async function sendWhatsAppList(to, question, options) {
 }
 
 
+// async function sendWhatsAppReplyButtons(to, question, options = []) {
+//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
+//   const token = process.env.WHATSAPP_TOKEN;
+
+//   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+
+//   const body = {
+//     messaging_product: "whatsapp",
+//     recipient_type: "individual",
+//     to,
+//     type: "interactive",
+//     interactive: {
+//       type: "button",
+//       body: {
+//         text: question
+//       },
+//       action: {
+//         buttons: options.slice(0, 3).map((label, index) => ({
+//           type: "reply",
+//           reply: {
+//             id: `option_${index}`,
+//             title: label
+//           }
+//         }))
+//       }
+//     }
+//   };
+
+//   const response = await fetch(url, {
+//     method: "POST",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(body)
+//   });
+
+//   const result = await response.json();
+//   console.log("📨 WhatsApp Reply Button Response:", JSON.stringify(result, null, 2));
+
+//   if (!response.ok) {
+//     console.error("❌ Failed to send buttons:", result);
+//   }
+// }
+
 async function sendWhatsAppReplyButtons(to, question, options = []) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
   const token = process.env.WHATSAPP_TOKEN;
@@ -417,35 +462,38 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
     interactive: {
       type: "button",
       body: {
-        text: question
+        text: question || "Please choose an option",
       },
       action: {
         buttons: options.slice(0, 3).map((label, index) => ({
           type: "reply",
           reply: {
-            id: `option_${index}`,
-            title: label
-          }
-        }))
-      }
-    }
+            id: `option_${index}`, // ✅ short id
+            title: label.slice(0, 20), // ✅ max 20 characters
+          },
+        })),
+      },
+    },
   };
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   const result = await response.json();
   console.log("📨 WhatsApp Reply Button Response:", JSON.stringify(result, null, 2));
 
   if (!response.ok) {
-    console.error("❌ Failed to send buttons:", result);
+    console.error("❌ Failed to send reply buttons:", result);
+    throw new Error(`WhatsApp API error: ${JSON.stringify(result)}`);
   }
+
+  return result;
 }
 
 
@@ -652,40 +700,83 @@ router.post('/webhook', async (req, res) => {
     return edgeHandle === normalizedSourceHandle;
   });
 
+
+
   if (match) {
-    const nextNodeId = match.target;
-    const nextNode = nodeMap[nextNodeId];
+  const nextNodeId = match.target;
+  const nextNode = nodeMap[nextNodeId];
 
-    if (!nextNode) {
-      await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-      return res.sendStatus(200);
-    }
-
-    // Send next message type
-    if (nextNode.type === "ReplyButton") {
-      await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-    } else if (nextNode.type === "ListButton") {
-      await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-    } else {
-      await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-    }
-
-    // Save progress
-    await executeQuery(
-      "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-      [nextNodeId, from]
-    );
-
-    await executeQuery(
-      "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-      [from, flow_id, currentNodeId, selectedOption]
-    );
-
-    return res.sendStatus(200);
-  } else {
-    await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+  if (!nextNode) {
+    await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
     return res.sendStatus(200);
   }
+
+  // ✅ Delay before sending interactive messages
+  await new Promise((res) => setTimeout(res, 1500)); // 1.5 second delay
+
+  // Send next message type
+  if (nextNode.type === "ReplyButton") {
+    await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+  } else if (nextNode.type === "ListButton") {
+    await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+  } else {
+    await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+  }
+
+  // Save progress
+  await executeQuery(
+    "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+    [nextNodeId, from]
+  );
+
+  await executeQuery(
+    "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+    [from, flow_id, currentNodeId, selectedOption]
+  );
+
+  return res.sendStatus(200);
+} else {
+  await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+  return res.sendStatus(200);
+}
+
+  
+  // if (match) {
+  //   const nextNodeId = match.target;
+  //   const nextNode = nodeMap[nextNodeId];
+
+  //   if (!nextNode) {
+  //     await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
+  //     return res.sendStatus(200);
+  //   }
+
+  //   // Send next message type
+  //   if (nextNode.type === "ReplyButton") {
+    
+
+  //     await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+  //   } else if (nextNode.type === "ListButton") {
+  //     await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+  //   } else {
+  //     await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+  //   }
+
+  //   // Save progress
+  //   await executeQuery(
+  //     "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+  //     [nextNodeId, from]
+  //   );
+
+  //   await executeQuery(
+  //     "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+  //     [from, flow_id, currentNodeId, selectedOption]
+  //   );
+
+  //   return res.sendStatus(200);
+  // } else {
+  //   await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+  //   return res.sendStatus(200);
+  // }
 }
 
 
@@ -833,6 +924,8 @@ router.post('/webhook', async (req, res) => {
     return res.sendStatus(500);
   }
 });
+
+
 
 
 

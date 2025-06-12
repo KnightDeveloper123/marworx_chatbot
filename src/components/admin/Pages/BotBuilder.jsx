@@ -12,6 +12,7 @@ import {
   Image,
   Input,
   Menu,
+  Stack,
   MenuButton,
   MenuList,
   Modal,
@@ -36,10 +37,11 @@ import { IoIosListBox } from "react-icons/io";
 import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import { useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { LiaTrashAlt } from "react-icons/lia";
 import { FaWhatsapp } from "react-icons/fa";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { decrypt } from "../../utils/security";
 import ReactFlow, {
   Background,
@@ -53,6 +55,8 @@ import ReactFlow, {
   useReactFlow,
 } from "reactflow";
 import { IoSettingsOutline, IoTrashOutline } from "react-icons/io5";
+import { MdExpandMore, MdOutlineLibraryAdd } from "react-icons/md";
+
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
@@ -199,7 +203,7 @@ const nodeTypes = {
       <Box bg="white" borderRadius={"15px"}>
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box
-          bg="blue.500"
+
           color="white"
           p={0.5}
           borderRadius={"5px"}
@@ -499,7 +503,8 @@ const nodeTypes = {
   },
 
   ListButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
+    const navigate = useNavigate();                //*** */
+    const { setNodes, getEdges, setEdges } = useReactFlow();
     const [question, setQuestion] = useState(data.label || "List Button");
     const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
@@ -533,9 +538,201 @@ const nodeTypes = {
       setTargetValues((prev) => [...prev, ""]);
     };
 
-    const updateTargetValue = (index, newValue) => {
-      setTargetValues((prev) =>
-        prev.map((val, i) => (i === index ? newValue : val))
+    // const updateTargetValue = (index, newValue) => {
+    //   setTargetValues((prev) =>
+    //     prev.map((val, i) => (i === index ? newValue : val))
+    //   );
+    // };
+
+    const user = localStorage.getItem("user");
+    const admin_id = decrypt(user).id;
+    const [bots, setBots] = useState([]);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const currentIdxRef = useRef(null);
+    const updateTargetValue = async (index, option) => {
+      currentIdxRef.current = index;
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL
+          }/bots/getAll?admin_id=${admin_id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const result = await response.json();
+        setBots(result?.data || []);
+        onOpen();
+      } catch (error) {
+        console.error("Error fetching Date & Time bot:", error);
+      }
+    };
+    const { id: bot_id } = useParams();
+
+
+    const handleBotSelect = (bot) => {
+
+      if (!bot?.nodes || !bot?.edges) return;
+
+      const parsedNodes =
+        typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+      const parsedEdges =
+        typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
+      const filteredNodes = parsedNodes.filter(
+        (node) =>
+          node &&
+          node.id &&
+          node.type &&
+          node.data &&
+          typeof node.data === "object" &&
+          node.type !== "Custom"
+      );
+      const uniqueId = () => Math.random().toString(36).substr(2, 9);
+      const nodeIdMap = {};
+
+      const newNodes = filteredNodes.map((node) => {
+        const newId = uniqueId();
+        nodeIdMap[node.id] = newId;
+
+        return {
+          ...node,
+          id: newId,
+          position: {
+            x: (node.position?.x || 0) + 150, // avoid overlap
+            y: (node.position?.y || 0) + 150,
+          },
+        };
+      });
+
+      const newEdges = parsedEdges
+        .filter(
+          (edge) =>
+            edge &&
+            edge.source &&
+            edge.target &&
+            nodeIdMap[edge.source] &&
+            nodeIdMap[edge.target]
+        )
+        .map((edge) => ({
+          ...edge,
+          id: uniqueId(),
+          source: nodeIdMap[edge.source],
+          target: nodeIdMap[edge.target],
+        }));
+      const entryNode = newNodes[0];
+      if (entryNode) {
+        newEdges.push({
+          id: uniqueId(),
+          source: id, // this is the ListButton node ID
+          sourceHandle: `option-${currentIdxRef.current}`,
+          target: entryNode.id,
+          type: "smoothstep",
+          expanded: true
+        });
+      }
+
+      if (newNodes.length > 0) {
+        setNodes((nds) => [...nds, ...newNodes]);
+        setEdges((eds) => [...eds, ...newEdges]);
+      } else {
+        console.warn("No valid nodes to import from selected bot");
+      }
+      onClose(); // close modal
+    };
+
+    const gatherDescendants = (startIds, allEdges) => {
+      const queue = [...startIds];
+      const result = new Set(startIds);
+
+      while (queue.length) {
+        const parentId = queue.shift();
+        // find edges whose source is parentId
+        allEdges
+          .filter((e) => e.source === parentId)
+          .forEach((e) => {
+            if (!result.has(e.target)) {
+              result.add(e.target);
+              queue.push(e.target);
+            }
+          });
+      }
+
+      return Array.from(result);
+    };
+
+    const handleExpandOne = () => {
+      const allEdges = getEdges();
+      const immediateChildren = allEdges
+        .filter((e) => e.source === id)
+        .map((e) => e.target);
+
+      // If you want to toggle *all* descendants:
+      const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
+      );
+    };
+
+    useEffect(() => {
+      handleExpand();
+    }, [targetValues]);
+
+    const handleExpand = (idx) => {
+      const allEdges = getEdges();
+
+      // Find the edge for this specific option
+      const matchingEdge = allEdges.find(
+        (e) => e.source === id && e.sourceHandle === `option-${idx}`
+      );
+
+      if (!matchingEdge) {
+        console.log("No matching edge found for option", idx);
+        return;
+      }
+
+      const targetId = matchingEdge.target;
+      const allDescendants = gatherDescendants([targetId], allEdges);
+
+      // Toggle visibility of nodes (including the direct target)
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (node.id === targetId || allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+
+      // Toggle visibility of edges (including the direct edge)
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            edge.id === matchingEdge.id ||
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
       );
     };
 
@@ -543,25 +740,271 @@ const nodeTypes = {
       <Box bg="white" borderRadius="md" w="170px" boxShadow="md">
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
-        <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              {question}
+
+
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+
+
+          <Flex justifyContent="space-between" alignItems="center"    >
+            <Text fontSize="10px" fontWeight="bold" >
+              List Button
             </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
+            <Flex alignItems={'flex-end'}>
+              <IconButton
+                size="xs"
+              
+                colorScheme="white"
+                icon={<IoTrashOutline />}
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
+
+              <IconButton
+                size="xs"
+                aria-label="Expand"
+                icon={<MdExpandMore fontSize={'20px'} />} // import from react-icons/md
+                onClick={handleExpandOne}
+                background={'none'}
+              />
+            </Flex>
           </Flex>
         </Box>
-
         <Box px={2} py={1}>
           <Input
             placeholder="List title"
+            size="xs"
+            fontSize="10px"
+            mb={2}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+
+          {targetValues.map((val, idx) => (
+            <Flex
+              key={idx}
+              position="relative"
+              borderRadius="md"
+              px={2}
+              py={1}
+              mb={1}
+              fontSize="10px"
+              alignItems="center"
+            >
+              <Input
+                size="xs"
+                fontSize="10px"
+                value={val}
+                onChange={(e) => {
+                  const updated = [...targetValues];
+                  updated[idx] = e.target.value;
+                  setTargetValues(updated);
+                }}
+              // onChange={(e) => updateTargetValue(idx, e.target.value)}
+              // placeholder={`Option ${idx + 1}`}
+              // value={val}
+              // onChange={(e) => {
+              //   const updated = [...targetValues];
+              //   updated[idx] = e.target.value;
+              //   setTargetValues(updated);
+              // }}
+              />
+
+              <IconButton
+                size="xs"
+                aria-label="Open Bot Options"
+                icon={<MdExpandMore />}
+                onClick={() => handleExpand(idx)}
+                ml={1}
+              />
+
+              <IconButton
+                size="xs"
+                aria-label="Select Bot"
+                icon={<MdOutlineLibraryAdd />}
+                onClick={(e) => {
+                  currentIdxRef.current = idx;
+                  updateTargetValue(idx, val);
+                }}
+                ml={1}
+              />
+
+              <Handle
+                type="source"
+                position="right"
+                id={`option-${idx}`}
+                style={{ background: "#555" }}
+              />
+            </Flex>
+          ))}
+
+
+          <Button
+            onClick={addTargetValue}
+            size="xs"
+            fontSize="10px"
+            width="100%"
+            mt={1}
+            variant="outline"
+            colorScheme="blue"
+          >
+            + Add Option
+          </Button>
+
+
+        </Box>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Select a Bot</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Stack spacing={2}>
+                {bots.map((bot) => (
+                  <Button
+                    key={bot.id}
+                    size="sm"
+                    // onClick={()=>navigate(`/view/${bot.id}`)}
+                    onClick={() => handleBotSelect(bot)}
+                  >
+
+                    {/* {console.log(bot.id)} */}
+                    {/* {`/view/${bot.id}`} */}
+                    {bot?.nodes?.[0]?.data?.label || null}
+                  </Button>
+                ))}
+              </Stack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </Box>
+    );
+  },
+
+
+
+
+  ReplyButton: ({ id, data }) => {
+    const { setNodes, getEdges, setEdges } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+    const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: question,
+                  targetValues,
+                },
+              }
+              : node
+          )
+        );
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [question, targetValues, id, setNodes]);
+
+    const updateTargetValue = (index, newValue) => {
+      const updated = [...targetValues];
+      updated[index] = newValue;
+      setTargetValues(updated);
+    };
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    const gatherDescendants = (startIds, allEdges) => {
+      const queue = [...startIds];
+      const result = new Set(startIds);
+
+      while (queue.length) {
+        const parentId = queue.shift();
+        allEdges
+          .filter((e) => e.source === parentId)
+          .forEach((e) => {
+            if (!result.has(e.target)) {
+              result.add(e.target);
+              queue.push(e.target);
+            }
+          });
+      }
+
+      return Array.from(result);
+    };
+
+    const handleExpand = () => {
+      const allEdges = getEdges();
+      const immediateChildren = allEdges
+        .filter((e) => e.source === id)
+        .map((e) => e.target);
+
+      const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
+      );
+    };
+
+    return (
+      <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
+        <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
+
+        <Box    bgColor="var(--active-bg)" color="white" px={2} py={1} borderTopRadius="md">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              {question || 'Reply Button'}
+            </Text>
+            <Flex gap={1}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="white"
+                icon={<MdExpandMore />}
+                aria-label="Expand"
+                onClick={handleExpand}
+              />
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="white"
+                icon={<IoTrashOutline />}
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
+            </Flex>
+          </Flex>
+        </Box>
+
+        <Box px={2} py={2}>
+          <Input
+            placeholder="Enter question"
             size="xs"
             fontSize="10px"
             mb={2}
@@ -581,117 +1024,125 @@ const nodeTypes = {
               />
               <Handle
                 type="source"
-                position="right"
-                id={`option-${idx}`}
-                style={{ background: "#555" }}
+                position={Position.Right}
+                id={`option_${idx}`}
+                style={{
+                  background: '#555',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  right: 4,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
               />
             </Flex>
           ))}
-
-          <Button
-            onClick={addTargetValue}
-            size="xs"
-            fontSize="10px"
-            width="100%"
-            mt={2}
-            variant="outline"
-            colorScheme="blue"
-          >
-            + Add Option
-          </Button>
         </Box>
       </Box>
     );
-  },
+  }
+
+  // ReplyButton: ({ id, data }) => {
+  //   const { setNodes } = useReactFlow();
+  //   const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+  //   const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
+
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id
+  //             ? {
+  //               ...node,
+  //               data: {
+  //                 ...node.data,
+  //                 label: question,
+  //                 targetValues,
+  //               },
+  //             }
+  //             : node
+  //         )
+  //       );
+  //     }, 300);
+  //     return () => clearTimeout(timer);
+  //   }, [question, targetValues, id, setNodes]);
+
+  //   const updateTargetValue = (index, newValue) => {
+  //     const updated = [...targetValues];
+  //     updated[index] = newValue;
+  //     setTargetValues(updated);
+  //   };
+  //   const handleDelete = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   return (
+  //     <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
+  //       <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
+
+  //       <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold">
+  //             {question || 'Reply Button'}
+  //           </Text>
+  //           <IconButton
+  //             size="xs"
+  //             variant="ghost"
+  //             colorScheme="red"
+  //             icon={<IoTrashOutline />}
+  //             onClick={handleDelete}
+  //             aria-label="Delete Node"
+  //           />
+  //         </Flex>
+  //       </Box>
+
+  //       <Box px={2} py={2}>
+  //         <Input
+  //           placeholder="Enter question"
+  //           size="xs"
+  //           fontSize="10px"
+  //           mb={2}
+  //           value={question}
+  //           onChange={(e) => setQuestion(e.target.value)}
+  //         />
 
 
- 
-  
 
-   ReplyButton : ({ id, data }) => {
-   const { setNodes } = useReactFlow();
-   const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
-   const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
- 
-   useEffect(() => {
-     const timer = setTimeout(() => {
-       setNodes((nds) =>
-         nds.map((node) =>
-           node.id === id
-             ? {
-                 ...node,
-                 data: {
-                   ...node.data,
-                   label: question,
-                   targetValues,
-                 },
-               }
-             : node
-         )
-       );
-     }, 300);
-     return () => clearTimeout(timer);
-   }, [question, targetValues, id, setNodes]);
- 
-   const updateTargetValue = (index, newValue) => {
-     const updated = [...targetValues];
-     updated[index] = newValue;
-     setTargetValues(updated);
-   };
- 
-   return (
-     <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
-       <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
- 
-       <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
-         <Flex justifyContent="space-between" alignItems="center">
-           <Text fontSize="10px" fontWeight="bold">
-             {question || 'Reply Button'}
-           </Text>
-         </Flex>
-       </Box>
- 
-       <Box px={2} py={2}>
-         <Input
-           placeholder="Enter question"
-           size="xs"
-           fontSize="10px"
-           mb={2}
-           value={question}
-           onChange={(e) => setQuestion(e.target.value)}
-         />
- 
-         {targetValues.map((val, idx) => (
-           <Flex key={idx} alignItems="center" mb={1} position="relative">
-             <Input
-               value={val}
-               onChange={(e) => updateTargetValue(idx, e.target.value)}
-               placeholder={`Option ${idx + 1}`}
-               size="xs"
-               fontSize="10px"
-               pr="20px"
-             />
-             <Handle
-               type="source"
-               position={Position.Right}
-               id={`option_${idx}`} // ✅ Use underscore to match WhatsApp reply id
-               style={{
-                 background: '#555',
-                 width: 8,
-                 height: 8,
-                 borderRadius: '50%',
-                 position: 'absolute',
-                 right: 4,
-                 top: '50%',
-                 transform: 'translateY(-50%)',
-               }}
-             />
-           </Flex>
-         ))}
-       </Box>
-     </Box>
-   );
- }
+  //         {targetValues.map((val, idx) => (
+  //           <Flex key={idx} alignItems="center" mb={1} position="relative" gap={'3px'}>
+  //             <Input
+  //               value={val}
+  //               onChange={(e) => updateTargetValue(idx, e.target.value)}
+  //               placeholder={`Option ${idx + 1}`}
+  //               size="xs"
+  //               fontSize="10px"
+  //               pr="20px"
+  //             />
+  //             <Handle
+  //               type="source"
+  //               position={Position.Right}
+  //               id={`option_${idx}`} // ✅ Use underscore to match WhatsApp reply id
+  //               style={{
+  //                 background: '#555',
+  //                 width: 8,
+  //                 height: 8,
+  //                 borderRadius: '50%',
+  //                 position: 'absolute',
+  //                 right: 4,
+  //                 top: '50%',
+  //                 transform: 'translateY(-50%)',
+  //               }}
+  //             />
+
+  //           </Flex>
+
+  //         ))}
+  //       </Box>
+  //     </Box>
+  //   );
+  // }
 
 
 };
