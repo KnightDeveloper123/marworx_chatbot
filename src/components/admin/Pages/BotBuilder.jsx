@@ -247,96 +247,206 @@ const nodeTypes = {
     );
   },
 
-  imageNode: ({ id, data }) => {
-    const [image, setImage] = useState(data.image || null);
-    const { setNodes } = useReactFlow(); // ✅ FIXED: access setNodes properly
-    const [fileName, setFileName] = useState(data.fileName || "");
-    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+imageNode: ({ id, data }) => {
+  const [image, setImage] = useState(data.fileUrl || null);
+  const [fileName, setFileName] = useState(data.fileName || "");
+  const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+  const { setNodes } = useReactFlow();
 
-    console.log(fileUrl);
-    console.log(fileName);
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
 
-    const handleImageUpload = (e) => {
-      const file = e.target.files[0];
-      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-        setFileName(file.name);
-        setFileUrl(URL.createObjectURL(file));
-        setImage(URL.createObjectURL(file));
-      } else {
-        alert("Only JPG and PNG files are allowed");
+    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+      // const serverFileName = `${Date.now()}-${file.name}`;
+      const cleanName = file.name.replace(/\s+/g, "_");  // ✅ replaces spaces
+const serverFileName = `${Date.now()}-${cleanName}`;
+
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        // Upload to backend
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-image?fileName=${serverFileName}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await res.json();
+        const publicUrl = `${import.meta.env.VITE_BACKEND_URL}/uploads/${result.fileName}`;
+
+        setImage(publicUrl);
+        setFileName(result.fileName);
+        setFileUrl(publicUrl);
+      } catch (err) {
+        console.error("Upload failed", err);
+        alert("Upload failed");
       }
-    };
+    } else {
+      alert("Only JPG and PNG files are allowed");
+    }
+  };
 
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
+  const handleDelete = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+  };
 
-    useEffect(() => {
-      if (fileUrl) {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id
-              ? {
+  useEffect(() => {
+    if (fileUrl && fileName) {
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === id
+            ? {
                 ...node,
                 data: {
                   ...node.data,
                   fileName,
                   fileUrl,
+                  caption: data.caption || "", // include caption if needed
                 },
               }
-              : node
-          )
-        );
-      }
-    }, [fileUrl]);
+            : node
+        )
+      );
+    }
+  }, [fileUrl, fileName]);
 
-    return (
-      <Box bg="white" borderRadius={"15px"}>
-        <Handle type="target" position="left" style={{ background: "#555" }} />
-        <Box
-          bg="blue.500"
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              Image
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="white"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        <Divider />
-        <Input
-          fontSize="8px"
-          fontWeight="var(--big-font-weight)"
-          border={"none"}
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          size="sm"
-        />
-        <Box position="relative" top="0px">
-          {image && (
-            <Image src={image} alt="node drawing" width="189px" height="auto" />
-          )}
-        </Box>
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#555" }}
-        />
+  return (
+    <Box bg="white" borderRadius="15px" p={2} boxShadow="md" w="200px">
+      <Handle type="target" position="left" style={{ background: "#555" }} />
+
+      <Box bg="blue.500" color="white" p={1} borderRadius="md">
+        <Flex justifyContent="space-between" alignItems="center">
+          <Text fontSize="10px" fontWeight="bold">Image</Text>
+          <IconButton
+            size="xs"
+            variant="ghost"
+            icon={<IoTrashOutline />}
+            onClick={handleDelete}
+            aria-label="Delete Node"
+            color="white"
+          />
+        </Flex>
       </Box>
-    );
-  },
+
+      <Divider my={2} />
+
+      <Input
+        type="file"
+        accept="image/jpeg, image/png"
+        onChange={handleImageUpload}
+        fontSize="10px"
+        size="xs"
+        border="none"
+      />
+
+      {image && (
+        <Box mt={2}>
+          <Image
+            src={image}
+            alt="Uploaded"
+            width="100%"
+            borderRadius="md"
+            objectFit="contain"
+          />
+        </Box>
+      )}
+
+      <Handle type="source" position="bottom" style={{ background: "#555" }} />
+    </Box>
+  );
+}
+,
+  // imageNode: ({ id, data }) => {
+  //   const [image, setImage] = useState(data.image || null);
+  //   const { setNodes } = useReactFlow(); // ✅ FIXED: access setNodes properly
+  //   const [fileName, setFileName] = useState(data.fileName || "");
+  //   const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+
+  //   console.log(fileUrl);
+  //   console.log(fileName);
+
+  //   const handleImageUpload = (e) => {
+  //     const file = e.target.files[0];
+  //     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+  //       setFileName(file.name);
+  //       setFileUrl(URL.createObjectURL(file));
+  //       setImage(URL.createObjectURL(file));
+  //     } else {
+  //       alert("Only JPG and PNG files are allowed");
+  //     }
+  //   };
+
+  //   const handleDelete = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   useEffect(() => {
+  //     if (fileUrl) {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id
+  //             ? {
+  //               ...node,
+  //               data: {
+  //                 ...node.data,
+  //                 fileName,
+  //                 fileUrl,
+  //               },
+  //             }
+  //             : node
+  //         )
+  //       );
+  //     }
+  //   }, [fileUrl]);
+
+  //   return (
+  //     <Box bg="white" borderRadius={"15px"}>
+  //       <Handle type="target" position="left" style={{ background: "#555" }} />
+  //       <Box
+  //         bg="blue.500"
+  //         color="white"
+  //         p={0.5}
+  //         borderRadius={"5px"}
+  //         bgColor="var(--active-bg)"
+  //       >
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold">
+  //             Image
+  //           </Text>
+  //           <IconButton
+  //             size="xs"
+  //             variant="ghost"
+  //             colorScheme="white"
+  //             icon={<IoTrashOutline />}
+  //             onClick={handleDelete}
+  //             aria-label="Delete Node"
+  //           />
+  //         </Flex>
+  //       </Box>
+  //       <Divider />
+  //       <Input
+  //         fontSize="8px"
+  //         fontWeight="var(--big-font-weight)"
+  //         border={"none"}
+  //         type="file"
+  //         accept="image/*"
+  //         onChange={handleImageUpload}
+  //         size="sm"
+  //       />
+  //       <Box position="relative" top="0px">
+  //         {image && (
+  //           <Image src={image} alt="node drawing" width="189px" height="auto" />
+  //         )}
+  //       </Box>
+  //       <Handle
+  //         type="source"
+  //         position="bottom"
+  //         style={{ background: "#555" }}
+  //       />
+  //     </Box>
+  //   );
+  // },
 
   VideoNode: ({ id, data }) => {
     const { setNodes } = useReactFlow();
@@ -1483,8 +1593,38 @@ const FlowCanvas = () => {
 
 
   // save on database
+  // const saveFlow = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           // Authorization: token
+  //         },
+  //         body: JSON.stringify({
+  //           flowName: "New Bot",
+  //           nodes,
+  //           edges,
+  //           sector_id: sectorId,
+  //           bot_type: botType,
+  //           admin_id,
+  //         }),
+  //       }
+  //     );
+
+  //     const data = await response.json();
+  //     // console.log('save sucessfully')
+  //     navigate("/home/bot");
+  //   } catch (error) {
+  //     console.log(error);
+  //     // showAlert("Failed to add Campaign", "error");
+  //   }
+  // };
   const saveFlow = async () => {
     try {
+      const lable=nodes?.[0]?.data?.label
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/bots/add`,
         {
@@ -1494,7 +1634,7 @@ const FlowCanvas = () => {
             // Authorization: token
           },
           body: JSON.stringify({
-            flowName: "New Bot",
+            flowName: lable,
             nodes,
             edges,
             sector_id: sectorId,
@@ -1505,8 +1645,13 @@ const FlowCanvas = () => {
       );
 
       const data = await response.json();
+      if(data.message){
+        showAlert(data.message, "success");
+        navigate("/home/bot");
+      }else{
+        showAlert(data.error, "danger"); 
+      }
       // console.log('save sucessfully')
-      navigate("/home/bot");
     } catch (error) {
       console.log(error);
       // showAlert("Failed to add Campaign", "error");

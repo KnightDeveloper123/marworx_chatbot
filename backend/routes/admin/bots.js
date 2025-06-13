@@ -12,8 +12,8 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../../uploadFiles');
-    console.log('Upload path:', path.join(__dirname, '../../uploadFiles'));
+    const uploadPath = path.join(__dirname, '../../uploads');
+    console.log('Upload path:', path.join(__dirname, '../../uploads'));
 
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
@@ -29,12 +29,30 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+router.post('/upload-image', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      console.error("No file uploaded");
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-router.post('/upload-sheet', upload.single('file'), (req, res) => {
-  const fileName = req.file.filename;
-
-  res.json({ success: true, fileName });
+    const fileName = req.file.filename;
+    res.json({ success: true, fileName });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ error: "Server Error" });
+  }
 });
+
+
+// router.post('/upload-image', upload.single('file'), (req, res) => {
+//   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+//     const fileName = req.file.filename;
+//   res.json({ success: true, fileName });
+// });
+  
+
 
 
 // const fetch = require('node-fetch');
@@ -61,29 +79,50 @@ router.post('/upload-sheet', upload.single('file'), (req, res) => {
 //   res.json({ success: true, fileName });
 // });
 
-router.post('/add', (req, res) => {
+router.post('/add', async(req, res) => {
   const { flowName, nodes, edges, sector_id, bot_type, admin_id } = req.body;
-
+  const checkResult = await executeQuery(`SELECT * FROM bots WHERE name = ?`, [flowName]);
+  if (checkResult.length > 0) {
+    return res.status(400).json({ error: "Bot name already exists." });
+  }
   const sql = `INSERT INTO bots(name, nodes, edges,sector_id,bot_type, admin_id) VALUES (?, ?, ?, ?, ?, ?)`;
   connection.query(sql, [flowName, JSON.stringify(nodes), JSON.stringify(edges), sector_id, bot_type, admin_id], (err, result) => {
     if (err) {
       console.error('Error saving flow:', err);
       return res.status(500).json({ message: 'Database error' });
     }
-    res.status(200).json({ message: 'Flow saved successfully', flowId: result.insertId });
+    res.status(200).json({ message: 'Bot saved successfully.', flowId: result.insertId });
   });
 });
 
 router.get('/getAll', async (req, res) => {
   try {
     const { admin_id } = req.query;
-    const data = await executeQuery(`SELECT * FROM bots where status=0 AND admin_id=${admin_id} ORDER BY created_at DESC`)
+    const data = await executeQuery(`SELECT 
+    bots.*, 
+    sector.id AS sectorId, 
+    sector.name AS sector_name
+  FROM bots
+  LEFT JOIN sector ON bots.sector_id = sector.id
+  WHERE bots.admin_id = ${admin_id} AND bots.status = 0 ORDER BY created_at DESC;
+  `)
     return res.json({ data })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: "Internal Server Error" })
   }
 });
+
+// router.get('/getAll', async (req, res) => {
+//   try {
+//     const { admin_id } = req.query;
+//     const data = await executeQuery(`SELECT * FROM bots where status=0 AND admin_id=${admin_id} ORDER BY created_at DESC`)
+//     return res.json({ data })
+//   } catch (error) {
+//     console.log(error)
+//     return res.status(500).json({ error: "Internal Server Error" })
+//   }
+// });
 
 router.get('/getbyid', async (req, res) => {
   try {
@@ -135,6 +174,16 @@ router.post('/track-user-bot', async (req, res) => {
   }
 });
 
+router.get('/getAllbotSector', async (req, res) => {
+  try {
+    const { id } = req.query;
+    const data = await executeQuery(`SELECT * FROM bots where status=0 AND sector_id=${id} ORDER BY id DESC`)
+    return res.json({ data })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: "Internal Server Error" })
+  }
+});
 router.post('/delete_bot', async (req, res) => {
   const { id } = req.body;
 
@@ -154,28 +203,47 @@ router.post('/delete_bot', async (req, res) => {
   }
 })
 
+// router.get('/getAlldeletebot', async (req, res) => {
+//   const { admin_id } = req.query;
+
+//   if (!admin_id) {
+//     return res.status(400).json({ error: "Missing admin_id" });
+//   }
+
+//   try {
+//     const sql = `SELECT * FROM bots WHERE admin_id = ? AND status = 1`;
+//     connection.query(sql, [admin_id], (err, data) => {
+//       if (err) {
+//         console.error(err);
+//         return res.status(400).json({ message: "Something went wrong" });
+//       }
+//       return res.status(200).json({ success: true, data });
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
 router.get('/getAlldeletebot', async (req, res) => {
   const { admin_id } = req.query;
-
-  if (!admin_id) {
-    return res.status(400).json({ error: "Missing admin_id" });
-  }
-
   try {
-    const sql = `SELECT * FROM bots WHERE admin_id = ? AND status = 1`;
-    connection.query(sql, [admin_id], (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(400).json({ message: "Something went wrong" });
-      }
+    const data= await executeQuery(`SELECT 
+  bots.*, 
+  sector.id AS sectorId, 
+  sector.name AS sector_name
+FROM bots
+LEFT JOIN sector ON bots.sector_id = sector.id
+WHERE bots.admin_id = ${admin_id} AND bots.status = 1;
+`)
+   
       return res.status(200).json({ success: true, data });
-    });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
@@ -547,7 +615,7 @@ router.post('/webhook', async (req, res) => {
     const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
     const { graph, nodeMap } = buildFlowGraph(nodes, edges);
 
-    //  console.log("nodes",nodes)
+     console.log("nodes",nodes)
 
     let currentNodeId = progress?.current_node_id;
     console.log("currentNodeId", currentNodeId)
@@ -756,65 +824,102 @@ router.post('/webhook', async (req, res) => {
   // }
 }
 
+else if (currentNode.type === 'imageNode') {
+  let fileName = currentNode.data?.fileName;
+  const caption = currentNode.data?.caption || '';
 
-//     else if (currentNode.type === "ReplyButton") {
-//   const isButtonReply = message?.interactive?.type === "button_reply";
+  if (!fileName) {
+    await sendWhatsAppText(from, `⚠️ No image found.`);
+    return res.sendStatus(200);
+  }
 
-//   if (isButtonReply) {
-//     const replyId = message.interactive.button_reply.id; // Expected: "option_0"
-//     console.log("replay",replyId)
-//     const selectedIndex = parseInt(replyId.split(/[_-]/)[1]); // works with both option_0 and option-0
-//     console.log("selectedIndex",selectedIndex)
-//     const selectedOption = currentNode.data?.targetValues?.[selectedIndex];
+  // ✅ Construct & encode public URL
+  let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
+  imageUrl = encodeURI(imageUrl);
 
-//     const normalizedSourceHandle = `option_${selectedIndex}`;
-//     const connections = graph[currentNodeId] || [];
+  console.log("Final image URL to send:", imageUrl);
 
-//     const match = connections.find(c => {
-//       // Normalize both sides: "option-0" becomes "option_0"
-//       const edgeHandle = c.sourceHandle?.replace("-", "_");
-//       return edgeHandle === normalizedSourceHandle;
-//     });
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-//     console.log("🔎 Match found:", match);
-//     if (match) {
-//       const nextNodeId = match.target;
-//       const nextNode = nodeMap[nextNodeId];
+  const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to: from,
+      type: "image",
+      image: {
+        link: imageUrl,
+        caption,
+      },
+    }),
+  });
 
-//       if (!nextNode) {
-//         console.error("❌ Next node not found for ID:", nextNodeId);
-//         await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-//         return res.sendStatus(200);
-//       }
+  const result = await response.json();
+  console.log("WhatsApp response:", result);
+}
 
-//       if (nextNode.type === "ReplyButton") {
-//         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-//       } else if (nextNode.type === "ListButton") {
-//         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-//       } else {
-//         await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-//       }
 
-//       await executeQuery(
-//         "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-//         [nextNodeId, from]
-//       );
+// else if (currentNode.type === 'imageNode') {
+//   let fileName = currentNode.data?.fileName;
+//   const caption = currentNode.data?.caption || '';
 
-//       await executeQuery(
-//         "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-//         [from, flow_id, currentNodeId, selectedOption]
-//       );
-
-//       return res.sendStatus(200);
-//     } else {
-//       await sendWhatsAppText(from, "⚠️ Button response did not match any connection.");
-//       return res.sendStatus(200);
-//     }
+//   if (!fileName) {
+//     await sendWhatsAppText(from, `⚠️ No image found.`);
+//     return res.sendStatus(200);
 //   }
+
+//   // ✅ Construct and encode URL
+//   let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
+//   imageUrl = encodeURI(imageUrl); // ✅ encode special characters
+
+//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+//   const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+//     method: 'POST',
+//     headers: {
+//       Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       messaging_product: "whatsapp",
+//       to: from,
+//       type: "image",
+//       image: {
+//         link: imageUrl,
+//         caption,
+//       },
+//     }),
+//   });
+
+//   const result = await response.json();
+//   console.log("WhatsApp API response:", result); // ✅ log the result
+
+//   await executeQuery(
+//     'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+//     [from, flow_id, currentNodeId, '[image sent]']
+//   );
+
+//   // continue to next node
+//   const connections = graph[currentNodeId];
+//   if (connections?.length > 0) {
+//     const nextNodeId = connections[0].target;
+//     await executeQuery(
+//       'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+//       [nextNodeId, from]
+//     );
+//   }
+
+//   return res.sendStatus(200);
 // }
 
 
-   
+
+
+
 
 
 
@@ -866,10 +971,7 @@ router.post('/webhook', async (req, res) => {
     }
 
 
-
-
-
-    // ✅ DEFAULT PROGRESSION
+ // ✅ DEFAULT PROGRESSION
     else if (!nextNodeId && graph[currentNodeId] && graph[currentNodeId].length > 0) {
       nextNodeId = graph[currentNodeId][0].target;
     }

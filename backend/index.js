@@ -28,9 +28,10 @@ app.use("/documents", express.static(path.join(__dirname, "documents/")));
 app.use("/products", express.static(path.join(__dirname, "products/")));
 app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
 app.use("/profile", express.static(path.join(__dirname, "profile/")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads/")));
 
 
-app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles')));
+// app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles')));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
