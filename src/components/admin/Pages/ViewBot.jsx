@@ -739,7 +739,7 @@ const nodeTypes = {
         newEdges.push({
           id: uniqueId(),
           source: id, // this is the ListButton node ID
-          sourceHandle: `option-${currentIdxRef.current}`,
+          sourceHandle: `option_${currentIdxRef.current}`,
           target: entryNode.id,
           type: "smoothstep",
           expanded: true

@@ -425,52 +425,6 @@ async function sendWhatsAppList(to, question, options) {
   return result;
 }
 
-
-// async function sendWhatsAppReplyButtons(to, question, options = []) {
-//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
-//   const token = process.env.WHATSAPP_TOKEN;
-
-//   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
-
-//   const body = {
-//     messaging_product: "whatsapp",
-//     recipient_type: "individual",
-//     to,
-//     type: "interactive",
-//     interactive: {
-//       type: "button",
-//       body: {
-//         text: question
-//       },
-//       action: {
-//         buttons: options.slice(0, 3).map((label, index) => ({
-//           type: "reply",
-//           reply: {
-//             id: `option_${index}`,
-//             title: label
-//           }
-//         }))
-//       }
-//     }
-//   };
-
-//   const response = await fetch(url, {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//       "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify(body)
-//   });
-
-//   const result = await response.json();
-//   console.log("📨 WhatsApp Reply Button Response:", JSON.stringify(result, null, 2));
-
-//   if (!response.ok) {
-//     console.error("❌ Failed to send buttons:", result);
-//   }
-// }
-
 async function sendWhatsAppReplyButtons(to, question, options = []) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
   const token = process.env.WHATSAPP_TOKEN;
@@ -631,7 +585,7 @@ router.post('/webhook', async (req, res) => {
         if (selectedIndex !== -1) {
           const connections = graph[currentNodeId] || [];
           const match = connections.find(
-            conn => conn.sourceHandle === `option-${selectedIndex}`
+            conn => conn.sourceHandle === `option_${selectedIndex}`
           );
 
           if (match) {

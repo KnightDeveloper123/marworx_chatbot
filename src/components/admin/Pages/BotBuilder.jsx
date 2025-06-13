@@ -625,7 +625,7 @@ const nodeTypes = {
         newEdges.push({
           id: uniqueId(),
           source: id, // this is the ListButton node ID
-          sourceHandle: `option-${currentIdxRef.current}`,
+          sourceHandle: `option_${currentIdxRef.current}`,
           target: entryNode.id,
           type: "smoothstep",
           expanded: true
@@ -700,7 +700,7 @@ const nodeTypes = {
 
       // Find the edge for this specific option
       const matchingEdge = allEdges.find(
-        (e) => e.source === id && e.sourceHandle === `option-${idx}`
+        (e) => e.source === id && e.sourceHandle === `option_${idx}`
       );
 
       if (!matchingEdge) {
@@ -816,7 +816,7 @@ const nodeTypes = {
               />
 
               <IconButton
-                size="xs"
+                size="10px"
                 aria-label="Open Bot Options"
                 icon={<MdExpandMore />}
                 onClick={() => handleExpand(idx)}
@@ -824,7 +824,7 @@ const nodeTypes = {
               />
 
               <IconButton
-                size="xs"
+                size="10px"
                 aria-label="Select Bot"
                 icon={<MdOutlineLibraryAdd />}
                 onClick={(e) => {
@@ -837,7 +837,7 @@ const nodeTypes = {
               <Handle
                 type="source"
                 position="right"
-                id={`option-${idx}`}
+                id={`option_${idx}`}
                 style={{ background: "#555" }}
               />
             </Flex>
@@ -1012,7 +1012,7 @@ const nodeTypes = {
             onChange={(e) => setQuestion(e.target.value)}
           />
 
-          {targetValues.map((val, idx) => (
+          {/* {targetValues.map((val, idx) => (
             <Flex key={idx} alignItems="center" mb={1} position="relative">
               <Input
                 value={val}
@@ -1038,7 +1038,38 @@ const nodeTypes = {
                 }}
               />
             </Flex>
-          ))}
+          ))} */}
+
+          {targetValues.map((val, idx) => (
+  <Flex key={idx} alignItems="center" mb={1} position="relative">
+    {/* Handle on the left border */}
+    <Handle
+      type="source"
+      position={Position.Right}
+      id={`option_${idx}`}
+      style={{
+        background: '#555',
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+        position: 'absolute',
+        right: -10, // Moves the dot to the left of the box
+        top: '50%',
+        transform: 'translateY(-50%)',
+      }}
+    />
+    {/* Input box */}
+    <Input
+      value={val}
+      onChange={(e) => updateTargetValue(idx, e.target.value)}
+      placeholder={`Option ${idx + 1}`}
+      size="xs"
+      fontSize="10px"
+      pl="20px" // Padding left to avoid overlap with Handle
+    />
+  </Flex>
+))}
+
         </Box>
       </Box>
     );
