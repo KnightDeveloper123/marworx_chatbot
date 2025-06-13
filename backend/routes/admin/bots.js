@@ -154,6 +154,29 @@ router.post('/delete_bot', async (req, res) => {
   }
 })
 
+router.get('/getAlldeletebot', async (req, res) => {
+  const { admin_id } = req.query;
+
+  if (!admin_id) {
+    return res.status(400).json({ error: "Missing admin_id" });
+  }
+
+  try {
+    const sql = `SELECT * FROM bots WHERE admin_id = ? AND status = 1`;
+    connection.query(sql, [admin_id], (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(400).json({ message: "Something went wrong" });
+      }
+      return res.status(200).json({ success: true, data });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
   const PhoneNumber = '671909416004124'
