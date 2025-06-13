@@ -36,13 +36,47 @@ router.post('/upload-image', upload.single('file'), (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const fileName = req.file.filename;
-    res.json({ success: true, fileName });
+    const originalName = req.query.fileName; // from frontend (without extension)
+    const baseName = path.basename(originalName, path.extname(originalName)); // removes extension
+    const extension = path.extname(req.file.originalname); // ✅ use req.file here
+
+    const fileName = `${Date.now()}-${baseName}${extension}`;
+
+    // Move file to uploads directory with new name
+    const fs = require("fs");
+    const uploadPath = path.join(__dirname, "../../uploads", fileName);
+
+    fs.rename(req.file.path, uploadPath, (err) => {
+      if (err) {
+        console.error("Rename failed:", err);
+        return res.status(500).json({ error: "File rename failed" });
+      }
+
+      return res.json({ success: true, fileName });
+    });
+
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ error: "Server Error" });
   }
 });
+// router.post('/upload-image', upload.single('file'), (req, res) => {
+//   try {
+//     if (!req.file) {
+//       console.error("No file uploaded");
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+//     const originalName = req.query.fileName; // from frontend
+//     const baseName = path.basename(originalName, path.extname(originalName)); // removes extension
+//     const extension = path.extname(file.originalname); // gets correct .jpg or .png
+
+//     const fileName = `${Date.now()}-${baseName}${extension}`;
+//     res.json({ success: true, fileName });
+//   } catch (error) {
+//     console.error("Upload error:", error);
+//     res.status(500).json({ error: "Server Error" });
+//   }
+// });
 
 
 // router.post('/upload-image', upload.single('file'), (req, res) => {
@@ -51,7 +85,7 @@ router.post('/upload-image', upload.single('file'), (req, res) => {
 //     const fileName = req.file.filename;
 //   res.json({ success: true, fileName });
 // });
-  
+
 
 
 
@@ -79,7 +113,7 @@ router.post('/upload-image', upload.single('file'), (req, res) => {
 //   res.json({ success: true, fileName });
 // });
 
-router.post('/add', async(req, res) => {
+router.post('/add', async (req, res) => {
   const { flowName, nodes, edges, sector_id, bot_type, admin_id } = req.body;
   const checkResult = await executeQuery(`SELECT * FROM bots WHERE name = ?`, [flowName]);
   if (checkResult.length > 0) {
@@ -228,7 +262,7 @@ router.post('/delete_bot', async (req, res) => {
 router.get('/getAlldeletebot', async (req, res) => {
   const { admin_id } = req.query;
   try {
-    const data= await executeQuery(`SELECT 
+    const data = await executeQuery(`SELECT 
   bots.*, 
   sector.id AS sectorId, 
   sector.name AS sector_name
@@ -236,8 +270,8 @@ FROM bots
 LEFT JOIN sector ON bots.sector_id = sector.id
 WHERE bots.admin_id = ${admin_id} AND bots.status = 1;
 `)
-   
-      return res.status(200).json({ success: true, data });
+
+    return res.status(200).json({ success: true, data });
 
   } catch (error) {
     console.error(error);
@@ -615,7 +649,7 @@ router.post('/webhook', async (req, res) => {
     const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
     const { graph, nodeMap } = buildFlowGraph(nodes, edges);
 
-     console.log("nodes",nodes)
+    console.log("nodes", nodes)
 
     let currentNodeId = progress?.current_node_id;
     console.log("currentNodeId", currentNodeId)
@@ -711,210 +745,211 @@ router.post('/webhook', async (req, res) => {
 
 
     else if (currentNode.type === "ReplyButton") {
-  const isButtonReply = message?.interactive?.type === "button_reply";
-  const isTextReply = message?.type === "text";
+      const isButtonReply = message?.interactive?.type === "button_reply";
+      const isTextReply = message?.type === "text";
 
-  let selectedIndex = -1;
-  let selectedOption = "";
-  let replyId = "";
+      let selectedIndex = -1;
+      let selectedOption = "";
+      let replyId = "";
 
-  if (isButtonReply) {
-    replyId = message.interactive.button_reply.id; // "option_0"
-    selectedIndex = parseInt(replyId.split(/[_-]/)[1]);
-    selectedOption = currentNode.data?.targetValues?.[selectedIndex];
-  } else if (isTextReply) {
-    const userText = message.text.body.trim().toLowerCase();
-    selectedIndex = currentNode.data.targetValues.findIndex(
-      (opt) => opt.trim().toLowerCase() === userText
-    );
-    if (selectedIndex !== -1) {
-      selectedOption = currentNode.data.targetValues[selectedIndex];
+      if (isButtonReply) {
+        replyId = message.interactive.button_reply.id; // "option_0"
+        selectedIndex = parseInt(replyId.split(/[_-]/)[1]);
+        selectedOption = currentNode.data?.targetValues?.[selectedIndex];
+      } else if (isTextReply) {
+        const userText = message.text.body.trim().toLowerCase();
+        selectedIndex = currentNode.data.targetValues.findIndex(
+          (opt) => opt.trim().toLowerCase() === userText
+        );
+        if (selectedIndex !== -1) {
+          selectedOption = currentNode.data.targetValues[selectedIndex];
+        }
+      }
+
+      if (selectedIndex === -1 || !selectedOption) {
+        await sendWhatsAppText(from, "⚠️ Please choose a valid option.");
+        return res.sendStatus(200);
+      }
+
+      const normalizedSourceHandle = `option_${selectedIndex}`;
+      const connections = graph[currentNodeId] || [];
+
+      const match = connections.find((c) => {
+        const edgeHandle = c.sourceHandle?.replace("-", "_");
+        return edgeHandle === normalizedSourceHandle;
+      });
+
+
+
+      if (match) {
+        const nextNodeId = match.target;
+        const nextNode = nodeMap[nextNodeId];
+
+        if (!nextNode) {
+          await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
+          return res.sendStatus(200);
+        }
+
+        // ✅ Delay before sending interactive messages
+        await new Promise((res) => setTimeout(res, 1500)); // 1.5 second delay
+
+        // Send next message type
+        if (nextNode.type === "ReplyButton") {
+          await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+        } else if (nextNode.type === "ListButton") {
+          await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+        } else {
+          await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+        }
+
+        // Save progress
+        await executeQuery(
+          "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+          [nextNodeId, from]
+        );
+
+        await executeQuery(
+          "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+          [from, flow_id, currentNodeId, selectedOption]
+        );
+
+        return res.sendStatus(200);
+      } else {
+        await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+        return res.sendStatus(200);
+      }
+
+
+      // if (match) {
+      //   const nextNodeId = match.target;
+      //   const nextNode = nodeMap[nextNodeId];
+
+      //   if (!nextNode) {
+      //     await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
+      //     return res.sendStatus(200);
+      //   }
+
+      //   // Send next message type
+      //   if (nextNode.type === "ReplyButton") {
+
+
+      //     await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+      //   } else if (nextNode.type === "ListButton") {
+      //     await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+      //   } else {
+      //     await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
+      //   }
+
+      //   // Save progress
+      //   await executeQuery(
+      //     "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
+      //     [nextNodeId, from]
+      //   );
+
+      //   await executeQuery(
+      //     "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
+      //     [from, flow_id, currentNodeId, selectedOption]
+      //   );
+
+      //   return res.sendStatus(200);
+      // } else {
+      //   await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
+      //   return res.sendStatus(200);
+      // }
     }
-  }
 
-  if (selectedIndex === -1 || !selectedOption) {
-    await sendWhatsAppText(from, "⚠️ Please choose a valid option.");
-    return res.sendStatus(200);
-  }
+    else if (currentNode.type === 'imageNode') {
+      let fileName = currentNode.data?.fileName;
+      const caption = currentNode.data?.caption || '';
 
-  const normalizedSourceHandle = `option_${selectedIndex}`;
-  const connections = graph[currentNodeId] || [];
+      if (!fileName) {
+        await sendWhatsAppText(from, `⚠️ No image found.`);
+        return res.sendStatus(200);
+      }
 
-  const match = connections.find((c) => {
-    const edgeHandle = c.sourceHandle?.replace("-", "_");
-    return edgeHandle === normalizedSourceHandle;
-  });
+      // ✅ Construct & encode public URL
+      let imageUrl =`${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
+      console.log("ngrok url",imageUrl)
+      imageUrl = encodeURI(imageUrl);
 
+      console.log("Final image URL to send:", imageUrl);
 
+      const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-  if (match) {
-  const nextNodeId = match.target;
-  const nextNode = nodeMap[nextNodeId];
+      const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: from,
+          type: "image",
+          image: {
+            link: imageUrl,
+            caption,
+          },
+        }),
+      });
 
-  if (!nextNode) {
-    await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-    return res.sendStatus(200);
-  }
-
-  // ✅ Delay before sending interactive messages
-  await new Promise((res) => setTimeout(res, 1500)); // 1.5 second delay
-
-  // Send next message type
-  if (nextNode.type === "ReplyButton") {
-    await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-  } else if (nextNode.type === "ListButton") {
-    await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-  } else {
-    await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-  }
-
-  // Save progress
-  await executeQuery(
-    "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-    [nextNodeId, from]
-  );
-
-  await executeQuery(
-    "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-    [from, flow_id, currentNodeId, selectedOption]
-  );
-
-  return res.sendStatus(200);
-} else {
-  await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
-  return res.sendStatus(200);
-}
-
-  
-  // if (match) {
-  //   const nextNodeId = match.target;
-  //   const nextNode = nodeMap[nextNodeId];
-
-  //   if (!nextNode) {
-  //     await sendWhatsAppText(from, "⚠️ Something went wrong. Please try again.");
-  //     return res.sendStatus(200);
-  //   }
-
-  //   // Send next message type
-  //   if (nextNode.type === "ReplyButton") {
-    
-
-  //     await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-  //   } else if (nextNode.type === "ListButton") {
-  //     await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-  //   } else {
-  //     await sendWhatsAppText(from, nextNode.data?.label || "Next step...");
-  //   }
-
-  //   // Save progress
-  //   await executeQuery(
-  //     "UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?",
-  //     [nextNodeId, from]
-  //   );
-
-  //   await executeQuery(
-  //     "INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)",
-  //     [from, flow_id, currentNodeId, selectedOption]
-  //   );
-
-  //   return res.sendStatus(200);
-  // } else {
-  //   await sendWhatsAppText(from, "⚠️ Option not found in flow. Please try again.");
-  //   return res.sendStatus(200);
-  // }
-}
-
-else if (currentNode.type === 'imageNode') {
-  let fileName = currentNode.data?.fileName;
-  const caption = currentNode.data?.caption || '';
-
-  if (!fileName) {
-    await sendWhatsAppText(from, `⚠️ No image found.`);
-    return res.sendStatus(200);
-  }
-
-  // ✅ Construct & encode public URL
-  let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
-  imageUrl = encodeURI(imageUrl);
-
-  console.log("Final image URL to send:", imageUrl);
-
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-
-  const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to: from,
-      type: "image",
-      image: {
-        link: imageUrl,
-        caption,
-      },
-    }),
-  });
-
-  const result = await response.json();
-  console.log("WhatsApp response:", result);
-}
+      const result = await response.json();
+      console.log("WhatsApp response:", result);
+    }
 
 
-// else if (currentNode.type === 'imageNode') {
-//   let fileName = currentNode.data?.fileName;
-//   const caption = currentNode.data?.caption || '';
+    // else if (currentNode.type === 'imageNode') {
+    //   let fileName = currentNode.data?.fileName;
+    //   const caption = currentNode.data?.caption || '';
 
-//   if (!fileName) {
-//     await sendWhatsAppText(from, `⚠️ No image found.`);
-//     return res.sendStatus(200);
-//   }
+    //   if (!fileName) {
+    //     await sendWhatsAppText(from, `⚠️ No image found.`);
+    //     return res.sendStatus(200);
+    //   }
 
-//   // ✅ Construct and encode URL
-//   let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
-//   imageUrl = encodeURI(imageUrl); // ✅ encode special characters
+    //   // ✅ Construct and encode URL
+    //   let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
+    //   imageUrl = encodeURI(imageUrl); // ✅ encode special characters
 
-//   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    //   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-//   const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
-//     method: 'POST',
-//     headers: {
-//       Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({
-//       messaging_product: "whatsapp",
-//       to: from,
-//       type: "image",
-//       image: {
-//         link: imageUrl,
-//         caption,
-//       },
-//     }),
-//   });
+    //   const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+    //     method: 'POST',
+    //     headers: {
+    //       Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       messaging_product: "whatsapp",
+    //       to: from,
+    //       type: "image",
+    //       image: {
+    //         link: imageUrl,
+    //         caption,
+    //       },
+    //     }),
+    //   });
 
-//   const result = await response.json();
-//   console.log("WhatsApp API response:", result); // ✅ log the result
+    //   const result = await response.json();
+    //   console.log("WhatsApp API response:", result); // ✅ log the result
 
-//   await executeQuery(
-//     'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
-//     [from, flow_id, currentNodeId, '[image sent]']
-//   );
+    //   await executeQuery(
+    //     'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+    //     [from, flow_id, currentNodeId, '[image sent]']
+    //   );
 
-//   // continue to next node
-//   const connections = graph[currentNodeId];
-//   if (connections?.length > 0) {
-//     const nextNodeId = connections[0].target;
-//     await executeQuery(
-//       'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
-//       [nextNodeId, from]
-//     );
-//   }
+    //   // continue to next node
+    //   const connections = graph[currentNodeId];
+    //   if (connections?.length > 0) {
+    //     const nextNodeId = connections[0].target;
+    //     await executeQuery(
+    //       'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+    //       [nextNodeId, from]
+    //     );
+    //   }
 
-//   return res.sendStatus(200);
-// }
+    //   return res.sendStatus(200);
+    // }
 
 
 
@@ -971,7 +1006,7 @@ else if (currentNode.type === 'imageNode') {
     }
 
 
- // ✅ DEFAULT PROGRESSION
+    // ✅ DEFAULT PROGRESSION
     else if (!nextNodeId && graph[currentNodeId] && graph[currentNodeId].length > 0) {
       nextNodeId = graph[currentNodeId][0].target;
     }
