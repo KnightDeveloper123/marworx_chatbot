@@ -48,7 +48,7 @@ import { IoMdAdd } from "react-icons/io";
 import { useForm } from "react-hook-form";
 
 const SectorProfile = () => {
-  const { getProducts, products, sectorData, sector, bots, fetchBot, template, fetchTemplate, timeAgo } = useContext(AppContext);
+  const { getProducts, products, sectorData, sector, botSector,getAllinSector, template, fetchTemplate, timeAgo ,showAlert} = useContext(AppContext);
   const { id } = useParams();
   const navigate = useNavigate();
   const user = localStorage.getItem("user");
@@ -58,7 +58,7 @@ const SectorProfile = () => {
   useEffect(() => {
     sectorData(id);
     getProducts(id);
-    fetchBot(admin_id);
+    getAllinSector(id);
     fetchTemplate();
   }, [id]);
 
@@ -121,33 +121,34 @@ const SectorProfile = () => {
   const [showAll, setShowAll] = useState(false);
    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
  
-  const onSubmit = async (data) => {
-    const formData = new FormData();
-    // formData.append("admin_id", admin_id);
-    // formData.append("name", data.name);
-    // formData.append("description", data.description);
-    // formData.append("image", data.image[0]);
-    // try {
-    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/add`, {
-    //     method: "POST",
-    //     headers: {
+   const onSubmit = async (data) => {
+        const formData = new FormData();
+        formData.append("admin_id", admin_id);
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("image", data.image[0]);
+        formData.append("sector_id", id);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/add`, {
+                method: "POST",
+                headers: {
 
-    //       Authorization: token
-    //     },
-    //     body: formData
-    //   })
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showAlert("Product Service added successfully", 'success')
-    //     getProducts(id);
-    //     reset();
-    //     onClose();
-    //   }
-    // } catch (error) {
-    //   showAlert("Failed to add product service", 'error')
-    //   console.log(error)
-    // }
-  }
+                    Authorization: token
+                },
+                body: formData
+            })
+            const result = await response.json();
+            if (result.success) {
+                showAlert("Product Service added successfully", 'success')
+                getProducts(id)
+                reset();
+                onClose();
+            }
+        } catch (error) {
+            showAlert("Failed to add product service", 'error')
+            console.log(error)
+        }
+    }
 
   return (
     <>
@@ -270,21 +271,22 @@ const SectorProfile = () => {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)" mt='4px'
                   >
-                    {products?.map((product, index) => (
+                    {products && products?.map((product, index) => (
                       <Card key={index}>
+                        {product?.image===null ? '' : 
                         <Image
-                          src={`${import.meta.env.VITE_BACKEND_URL}/products/${product.image
+                          src={`${import.meta.env.VITE_BACKEND_URL}/products/${product?.image
                             }`}
-                        />
+                        />}
                         <Text
                           fontWeight="var(--big-font-weight)"
                           textAlign={"center"}
                           mt={2}
                         >
-                          {product.product_name}
+                          {product?.product_name}
                         </Text>
                         <Text textAlign={"center"} mt={2}>
-                          {product.product_description}
+                          {product?.product_description}
                         </Text>
                       </Card>
                     ))}
@@ -292,7 +294,7 @@ const SectorProfile = () => {
                 </TabPanel>
                 <TabPanel>
                   <SimpleGrid spacing={4} _hover={{ cursor: "pointer" }}>
-                    {bots?.map((bot, index) => (
+                    {botSector?.map((bot, index) => (
                       <Card key={index}>
                         <Flex
                           justify="space-between"

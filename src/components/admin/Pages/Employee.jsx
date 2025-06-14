@@ -275,11 +275,11 @@ const Employee = () => {
               {
                 filteredData && filteredData.map((employee, i) => (
                   <Tr key={i+1}>
-                    <Td _hover={{ cursor: "pointer" }}>E-{employee.id}</Td>
-                    <Td _hover={{ cursor: "pointer" }}>{employee.name}</Td>
-                    <Td _hover={{ cursor: "pointer" }}>{employee.email}</Td>
-                    <Td _hover={{ cursor: "pointer" }}>{employee.mobile_no}</Td>
-                    <Td _hover={{ cursor: "pointer" }}>{formatDate(employee.date_of_birth)}</Td>
+                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>E-{employee.id}</Td>
+                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.name}</Td>
+                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.email}</Td>
+                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.mobile_no}</Td>
+                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{formatDate(employee.date_of_birth)}</Td>
                     <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
                       
                       <Flex gap={2}>
@@ -290,43 +290,6 @@ const Employee = () => {
                             <RiDeleteBin6Line  size={20} color={"#D50B0B"} onClick={() => openDeleteModal(employee.id)} />
                         </Box>
                       </Flex>
-                      {/* <Menu>
-                        <MenuButton
-                          bgColor="transparent"
-                          _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          _active={{ bgColor: "transparent", color: "var(--active-bg)" }}
-                          as={Button}
-                        >
-                          <RxDotsHorizontal />
-                        </MenuButton>
-                        <MenuList gap={2} >
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-
-                            onClick={() => editEmployee(employee)}
-                            display={'flex'} alignItems={'center'} gap={2}
-                          >
-                            <MdOutlineModeEdit color="green" />
-                            <Text fontSize="var(--mini-text)" fontWeight="var(--big-font-weight)" >
-                              Edit
-                            </Text>
-                          </MenuItem>
-                          <Divider />
-                          <MenuItem
-                            w="100%"
-                            minW="100px"
-                            cursor="pointer"
-                            onClick={() => openDeleteModal(employee.id)}
-
-                          >
-                            <Flex gap={2} alignItems="center">
-                              <DeleteIcon color={"red"} />
-                              <Text >Delete</Text>
-                            </Flex>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu> */}
                     </Td>
                   </Tr>
                 ))

@@ -40,6 +40,7 @@ const SectorProfile = lazy(() => import('./components/admin/Pages/SectorProfile'
 const GenerativeBot = lazy(() => import('./components/admin/Pages/GenerativeBot'));
 const Campaign = lazy(() => import('./components/admin/Pages/Campaign'));
 const ProductService = lazy(() => import('./components/admin/Pages/ProductService'));
+const RecycleBin = lazy(() => import('./components/admin/Pages/RecycleBin'));
 
 
 
@@ -81,6 +82,7 @@ return (
             <Route path="user/:id" element={<UserProfile />} />
             <Route path="admin/:id" element={<AdminProfile />} />
             <Route path="template" element={ <Template /> } />
+            <Route path="recycle_bin" element={ <RecycleBin /> } />
             
           </Route>
 

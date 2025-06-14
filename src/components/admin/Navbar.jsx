@@ -43,7 +43,7 @@ import { IoSettingsSharp, IoNotifications } from "react-icons/io5";
 import { decrypt } from "../utils/security";
 import { useForm } from "react-hook-form";
 import { AppContext } from "../context/AppContext";
-import { PiBagSimpleFill } from "react-icons/pi";
+import { PiBagSimpleFill ,PiRecycleFill} from "react-icons/pi";
 import { LuBot, LuSection } from "react-icons/lu";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { RiAiGenerate2, RiTelegram2Line } from "react-icons/ri";
@@ -73,7 +73,9 @@ function Navbar() {
     { title: "Bot Builder", url: "/home/bot_builder", icon: <Icon as={LuBot } mr={2} /> },
     { title: "Campaign", url: "/home/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
     { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
+    { title: "Recycle bin", url: "/home/recycle_bin", icon: <Icon as={PiRecycleFill} mr={2} /> },
   ]; // admin
+
 
    const superAdminNavbar = [
       { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },

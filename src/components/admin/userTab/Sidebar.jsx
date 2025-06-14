@@ -1,16 +1,14 @@
+import React from "react";
 // Sidebar.jsx
 import { Box, VStack, Text, Icon } from "@chakra-ui/react";
-import { FaTachometerAlt, FaUser, FaUserPlus } from "react-icons/fa";
-import { SiGooglebigquery } from "react-icons/si";
-import { FaCircleUser } from "react-icons/fa6";
+import { FaTachometerAlt, } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { RiTelegram2Line } from "react-icons/ri";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { LuBot } from "react-icons/lu";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { LuSection } from "react-icons/lu";
-import React from "react";
-import { PiBagSimpleFill } from "react-icons/pi";
+import { PiBagSimpleFill, PiRecycleFill } from "react-icons/pi";
 
 const Sidebar = () => {
 
@@ -26,7 +24,7 @@ const Sidebar = () => {
     { title: "Bot Builder", url: "/home/bot", icon: <Icon as={LuBot } mr={2} /> },
     { title: "Campaign", url: "/home/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
     { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
-    // { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
+    { title: "Recycle bin", url: "/home/recycle_bin", icon: <Icon as={PiRecycleFill} mr={2} /> },
   ];
   return (
     <Box w="240px"  p={5} height="100vh" bg="#fff5f3" boxShadow='base'>

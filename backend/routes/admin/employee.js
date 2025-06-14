@@ -119,6 +119,53 @@ router.get('/getAllEmployee', middleware, async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" })
     }
 });
+
+router.get('/getAllAssignBots', middleware, async (req,res)=>{
+    try{
+        const {employee_id} =req.query
+        const data=await executeQuery(`SELECT 
+            sector.id AS sector_id,
+            sector.name AS sector_name,
+            employee.id AS employee_id,
+            employee.name AS employee_name,
+            bots.id AS bot_id,
+            bots.name AS bot_name,
+            bots.nodes ,
+            bots.created_at as createdAt,
+            bots.edges
+            FROM sector
+            LEFT JOIN employee ON sector.employee_id = employee.id
+            LEFT JOIN bots ON bots.sector_id = sector.id
+            WHERE sector.employee_id=${employee_id} `)
+        return res.json({success:"success", data})
+    } catch(error){
+        console.log(error)
+        return res.status(500).json({error: "Internal Server Error"})
+    }
+})
+
+router.get('/getAllAssignGenerativeBots', middleware, async (req,res)=>{
+    try{
+        const {employee_id} =req.query
+        const data=await executeQuery(`SELECT 
+            sector.id AS sector_id,
+            sector.name AS sector_name,
+            employee.id AS employee_id,
+            employee.name AS employee_name,
+            documents.id AS documents_id,
+            documents.created_at as createdAt,
+            documents.name
+            FROM sector
+            LEFT JOIN employee ON sector.employee_id = employee.id
+            LEFT JOIN documents ON documents.sector_id = sector.id
+            WHERE sector.employee_id=${employee_id} `)
+        return res.json({success:"success", data})
+    } catch(error){
+        console.log(error)
+        return res.status(500).json({error: "Internal Server Error"})
+    }
+})
+
 router.get('/getAllEmployeeQUery', middleware, async (req, res) => {
     try {
         

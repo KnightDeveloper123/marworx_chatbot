@@ -395,27 +395,125 @@ export const AppProvider = ({ children }) => {
         }
     }
 
-     function timeAgo(dateString) {
+    function timeAgo(dateString) {
         const now = new Date();
         const past = new Date(dateString);
         const diffMs = now - past;
-    
+
         const seconds = Math.floor(diffMs / 1000);
         const minutes = Math.floor(diffMs / (1000 * 60));
         const hours = Math.floor(diffMs / (1000 * 60 * 60));
         const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
         if (seconds < 60) return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
         if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
         if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
         return `${days} day${days !== 1 ? "s" : ""} ago`;
-      }
+    }
 
+    const [genBotforEmployee, setGenBotforEmployee] = useState([]);
+    const getGenBotforEmployee = async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getAllAssignGenerativeBots?employee_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${token}`
+                }
+            })
+            const result = await response.json();
+            setGenBotforEmployee(result.data)
+
+            // console.log("allnum", result.data?.phone_number)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const [algBotforEmployee, setAlgBotforEmployee] = useState([]);
+    const getAlgBotforEmployee = async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getAllAssignBots?employee_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${token}`
+                }
+            })
+            const result = await response.json();
+            setAlgBotforEmployee(result.data)
+
+            // console.log("allnum", result.data?.phone_number)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const [employeeId, setEmployeeId] = useState({});
+    const getEmployeeId = async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/employee/getEmployeeId?user_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${token}`
+                }
+            })
+            const result = await response.json();
+            setEmployeeId(result.data)
+
+            // console.log("allnum", result.data?.phone_number)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const [botSector, setBotSector] = useState([])
+    const  getAllinSector= async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAllbotSector?sector_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    // Authorization: token
+                },
+
+            })
+            const result = await response.json();
+            //    console.log("bot",result.data)
+            setBotSector(result.data)
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
+  const [botDeletebot, setDeleteBot ]= useState([])
+    const  getAlldeletebot= async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAlldeletebot?admin_id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    // Authorization: token
+                },
+
+            })
+            const result = await response.json();
+            //    console.log("bot",result.data)
+            setDeleteBot(result.data)
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
+    
     return (
         <AppContext.Provider
             value={{
+                getEmployeeId,employeeId,botSector,getAllinSector,botDeletebot,getAlldeletebot,
+                getGenBotforEmployee, genBotforEmployee,getAlgBotforEmployee, algBotforEmployee,
                 showAlert, loading, fetchLinkedBots, linkedBots, getProducts, products, sectorData, sector,
-                fetchAllEmployees, employees,timeAgo,
+                fetchAllEmployees, employees, timeAgo,
                 fetchAllEmployee, employee,
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout, productService

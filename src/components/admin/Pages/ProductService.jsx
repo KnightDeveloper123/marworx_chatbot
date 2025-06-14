@@ -213,7 +213,8 @@ const ProductService = () => {
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
                                             fontWeight="var(--big-font-weight)"
-                                            onClick={() => navigate(`/home/product/${product.id}`)}>{product.name}</Td>
+                                            // onClick={() => navigate(`/home/product/${product.id}`)}
+                                            >{product.name}</Td>
 
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"

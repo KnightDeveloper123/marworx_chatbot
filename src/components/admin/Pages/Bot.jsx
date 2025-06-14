@@ -47,7 +47,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 export default function Bot() {
   const navigate = useNavigate();
-  const { bots, fetchBot, sectors, fetchSector, template, fetchTemplate ,showAlert} = useContext(AppContext);
+  const { bots, fetchBot, sectors, fetchSector, template, fetchTemplate ,showAlert, timeAgo} = useContext(AppContext);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
   const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
@@ -182,9 +182,22 @@ export default function Bot() {
                 >
                   Sector name
                 </Th>
+                 <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Bot Type
+                </Th>
+                   <Th
+                  fontWeight="var(--big-font-weight)"
+                  color="var(--text-black)"
+                  fontSize="var(--mini-text)"
+                >
+                  Created At
+                </Th>
 
                 <Th
-                  h
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   fontSize="var(--mini-text)"
@@ -211,7 +224,21 @@ export default function Bot() {
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      Automobile
+                      {item.sector_name}
+                    </Td>
+                      <Td
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      {item.bot_type}
+                    </Td>
+                      <Td
+                      color={"#404040"}
+                      fontSize="var(--mini-text)"
+                      fontWeight="var(--big-font-weight)"
+                    >
+                      {timeAgo(item.created_at)}
                     </Td>
 
                     <Td
