@@ -859,98 +859,58 @@ router.post('/webhook', async (req, res) => {
       // }
     }
 
-    else if (currentNode.type === 'imageNode') {
-      let fileName = currentNode.data?.fileName;
-      const caption = currentNode.data?.caption || '';
 
-      if (!fileName) {
-        await sendWhatsAppText(from, `⚠️ No image found.`);
-        return res.sendStatus(200);
-      }
 
-      // ✅ Construct & encode public URL
-      let imageUrl =`${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
-      console.log("ngrok url",imageUrl)
-      imageUrl = encodeURI(imageUrl);
+        else if (currentNode.type === 'imageNode') {
+      try {
+        console.log("📸 Handling image node...");
 
-      console.log("Final image URL to send:", imageUrl);
+        const fileName = currentNode.data?.fileName;
+        const caption = currentNode.data?.caption || '';
 
-      const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+        if (!fileName) {
+          console.warn("⚠️ Image node has no fileName");
+          await sendWhatsAppText(from, `⚠️ No image found.`);
+          return res.sendStatus(200);
+        }
 
-      const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to: from,
-          type: "image",
-          image: {
-            link: imageUrl,
-            caption,
+        let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
+        imageUrl = encodeURI(imageUrl);
+
+        console.log("✅ Final image URL to send:", imageUrl);
+
+        const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
+
+        const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+            'Content-Type': 'application/json',
           },
-        }),
-      });
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            type: "image",
+            image: {
+              link: imageUrl,
+              caption,
+            },
+          }),
+        });
 
-      const result = await response.json();
-      console.log("WhatsApp response:", result);
+        const result = await response.json();
+        console.log("📤 WhatsApp API Response:", result);
+
+        if (!response.ok) {
+          console.error("❌ Error sending image to WhatsApp:", result);
+        }
+
+        return res.sendStatus(200);
+      } catch (err) {
+        console.error("🚨 Unexpected error handling image node:", err);
+        return res.sendStatus(500);
+      }
     }
-
-
-    // else if (currentNode.type === 'imageNode') {
-    //   let fileName = currentNode.data?.fileName;
-    //   const caption = currentNode.data?.caption || '';
-
-    //   if (!fileName) {
-    //     await sendWhatsAppText(from, `⚠️ No image found.`);
-    //     return res.sendStatus(200);
-    //   }
-
-    //   // ✅ Construct and encode URL
-    //   let imageUrl = `${process.env.NGROK_PUBLIC_URL}/uploads/${fileName}`;
-    //   imageUrl = encodeURI(imageUrl); // ✅ encode special characters
-
-    //   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-
-    //   const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       messaging_product: "whatsapp",
-    //       to: from,
-    //       type: "image",
-    //       image: {
-    //         link: imageUrl,
-    //         caption,
-    //       },
-    //     }),
-    //   });
-
-    //   const result = await response.json();
-    //   console.log("WhatsApp API response:", result); // ✅ log the result
-
-    //   await executeQuery(
-    //     'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
-    //     [from, flow_id, currentNodeId, '[image sent]']
-    //   );
-
-    //   // continue to next node
-    //   const connections = graph[currentNodeId];
-    //   if (connections?.length > 0) {
-    //     const nextNodeId = connections[0].target;
-    //     await executeQuery(
-    //       'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
-    //       [nextNodeId, from]
-    //     );
-    //   }
-
-    //   return res.sendStatus(200);
-    // }
 
 
 
