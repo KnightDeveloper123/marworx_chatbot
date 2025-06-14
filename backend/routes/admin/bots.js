@@ -210,8 +210,8 @@ router.post('/track-user-bot', async (req, res) => {
 
 router.get('/getAllbotSector', async (req, res) => {
   try {
-    const { id } = req.query;
-    const data = await executeQuery(`SELECT * FROM bots where status=0 AND sector_id=${id} ORDER BY id DESC`)
+    const { sector_id } = req.query;
+    const data = await executeQuery(`SELECT * FROM bots where status=0 AND sector_id=${sector_id} ORDER BY id DESC`)
     return res.json({ data })
   } catch (error) {
     console.log(error)
@@ -268,7 +268,8 @@ router.get('/getAlldeletebot', async (req, res) => {
   sector.name AS sector_name
 FROM bots
 LEFT JOIN sector ON bots.sector_id = sector.id
-WHERE bots.admin_id = ${admin_id} AND bots.status = 1;
+WHERE bots.admin_id = ${admin_id} AND bots.status = 1
+LIMIT 15;
 `)
 
     return res.status(200).json({ success: true, data });
