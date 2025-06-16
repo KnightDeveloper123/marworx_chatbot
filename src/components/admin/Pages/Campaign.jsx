@@ -83,9 +83,9 @@ import { LuCloudUpload } from 'react-icons/lu'
 import { Link } from '@chakra-ui/react'
 
 const Campaign = () => {
+
   const token = localStorage.getItem('token')
-  const { showAlert, fetchCampaign, campaign, formatDate } =
-    useContext(AppContext)
+  const { showAlert, fetchCampaign, campaign, formatDate } = useContext(AppContext)
   const [filteredSectors, setFilteredSectors] = useState('')
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
@@ -105,12 +105,7 @@ const Campaign = () => {
   } = useDisclosure()
 
   const user = localStorage.getItem('user')
-
   const admin_id = decrypt(user).id
-  const location = useLocation()
-  const { type, sectorId } = location.state || {}
-
-
   const sectorid = localStorage.getItem("sectorId");
   //  console.log("sector",sectorid)
 
@@ -181,16 +176,6 @@ const Campaign = () => {
   }
 
   const [campaignData, setCampaignData] = useState({
-    // channel_name: 'WhatsApp',
-    // campaign_name: '',
-    // to: '',
-    // // message_content: '',
-    // sector_id: '1',
-    // template_name: '',
-    // template_type: '',
-    // template_lang: '',
-    // header: '',
-    // body: ''
 
     channel_name: 'WhatsApp',
     campaign_name: "",
@@ -241,10 +226,10 @@ const Campaign = () => {
       const result = await response.json()
       if (result.success) {
         showAlert('Campaign added successfully', 'success')
+        setCampaignData({})
         fetchCampaign(admin_id)
         onStepClose()
       }
-      console.log("id", result.flowId)
       if (response.ok && result.flowId) {
         const res = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`,
@@ -269,11 +254,8 @@ const Campaign = () => {
 
   const [selectedCampaign, setSelectedCampaign] = useState(null)
 
-  // console.log(selectedCampaign.id)
-
   const editCampaign = data => {
     setSelectedCampaign(data)
-
     setCampaignData({
       channel_name: data.channel_name || 'WhatsApp',
       campaign_name: data.campaign_name || '',
@@ -318,29 +300,22 @@ const Campaign = () => {
       showAlert('failed to update campaign', 'error')
     }
   }
-
-  const sectors = [
-    {
-      name: 'Education',
-      value: 1
-    },
-
-    {
-      name: 'Healthcare',
-      value: 2
-    },
-    {
-      name: 'Retail',
-      value: 3
-    }
-  ]
   const [isSwitchOn, setIsSwitchOn] = useState(false)
 
   const handleSwitchChange = e => {
     setIsSwitchOn(e.target.checked)
+    campaignData.header=''
+  }
+  const [isSwitchBtn, setIsSwitchBtn] = useState(false)
+
+  const handleSwitchBtn = e => {
+    setIsSwitchBtn(e.target.checked)
+  }
+  const [showData, setShowData] = useState(false);
+  const onclickApply=()=>{
+  setShowData(true); 
   }
 
-  const [selectedFile, setSelectedFile] = useState(null)
   const {
     isOpen: isFileOpen,
     onOpen: onFileOpen,
@@ -914,8 +889,8 @@ const Campaign = () => {
                           <Td>{item?.id}</Td>
                           <Td>{item?.name}</Td>
                           <Td>{item?.contact_name}</Td>
-                          <Td>{item?.email}</Td>
                           <Td>{item?.phone}</Td>
+                          <Td>{item?.email}</Td>
                           <Td>{formatDate(item?.created_at)}</Td>
                           {/* <Td>
                               <Flex onClick={(e) => { e.stopPropagation(); deleteContacts(item.id) }} cursor={'pointer'} _hover={{ color: 'white', bg: 'red' }} color={'red'} justifyContent={'center'} alignItems={'center'} h={'20px'} w={'20px'} border={'1px solid red'} borderRadius={'full'}>
@@ -1108,26 +1083,6 @@ const Campaign = () => {
                 </>
               )}
               <Text fontSize={'18px'}></Text>
-
-              {/* <Stepper index={activeStep} mb={6} size="sm" >
-                        {steps.map((step, index) => (
-                          <Step key={index}>
-                            <StepIndicator>
-                              <StepStatus
-                                complete={<StepIcon />}
-                                incomplete={<StepNumber />}
-                                active={<StepNumber />}
-                              />
-                            </StepIndicator>
-                            <Box flexShrink="0">
-                              <StepTitle>{step.title}</StepTitle>
-                             
-                             </Box>
-                            <StepSeparator />
-                          </Step>
-                        ))}
-                      </Stepper>  */}
-
               <Stepper
                 px='5%'
                 index={activeStep}
@@ -1762,7 +1717,7 @@ const Campaign = () => {
                               </Box>
                               <Box>
                                 <Switch
-                                  id='email-alerts'
+                                  id='header-alerts'
                                   isChecked={isSwitchOn}
                                   onChange={handleSwitchChange}
                                 />
@@ -1810,7 +1765,21 @@ const Campaign = () => {
                             mb={5}
                           >
                             <Heading fontSize={'20px'}>Buttons</Heading>
-                            <Switch id='email-alerts' />
+                            <Switch id='email-alerts' isChecked={isSwitchBtn} onChange={handleSwitchBtn} />
+                          </Flex>
+                          <Flex justifyContent={'space-between'} mt={10}
+                            px={'5px'}
+                            alignItems={'center'}>
+                             <Button
+                                size={'sm'}
+                                width={'50%'}
+                               onClick={onclickApply}
+                                _hover={{ bgColor: 'var(--active-bg)' }}
+                                bgColor='var(--active-bg)'
+                                color='#fff'
+                              >
+                                Apply
+                              </Button>
                           </Flex>
                         </Flex>
 
@@ -1853,12 +1822,40 @@ const Campaign = () => {
                                 <IoCallOutline size={20} />
                               </Flex>
                             </Flex>
-                            <Flex>
+                            <Flex position="relative" w="100%" h="auto">
                               <Image
-                                h={'65%'}
-                                w={'100%'}
+                             w="100%"
+                              h="54%"
+                              objectFit="cover"
                                 src='https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'
-                              ></Image>
+                              />
+                              {showData && (
+                             <Box
+                              position="absolute"
+                              top="10%"
+                              left="25%"
+                              transform="translate(-50%, -50%)"
+                             fontSize='var(--mini-text)'
+                             color='var(--text-black)'
+                            >
+                              <Text  fontSize='var(--mini-text)'
+                             color='var(--text-black)' >
+                                {campaignData.header}
+                              </Text>
+                              <Text  fontSize='var(--mini-text)'
+                             color='var(--text-black)' >
+                                {campaignData.body}
+                              </Text>
+                             <Button
+                                size={'sm'}
+                                _hover={{ bgColor: 'var(--active-bg)' }}
+                                bgColor='var(--active-bg)'
+                                color='#fff'
+                              >
+                                Send
+                              </Button>
+                            </Box>
+                              )}
                             </Flex>
                           </Flex>
                         </Flex>
