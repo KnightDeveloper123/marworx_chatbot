@@ -1213,7 +1213,7 @@ router.post('/webhook', async (req, res) => {
     console.log('=== NEW WEBHOOK REQUEST ===');
     const body = req.body;
     console.log("Raw incoming data:", JSON.stringify(body, null, 2));
-    
+
     // Validate incoming message
     if (!body?.object === 'whatsapp_business_account') {
       console.log('Invalid object type');
@@ -1234,7 +1234,7 @@ router.post('/webhook', async (req, res) => {
     if (message.type === 'text') {
       msg = message.text?.body?.trim().toLowerCase();
     } else if (message.interactive) {
-      msg = message.interactive.type === 'list_reply' 
+      msg = message.interactive.type === 'list_reply'
         ? message.interactive.list_reply.title.toLowerCase()
         : message.interactive.button_reply?.title.toLowerCase();
     }
@@ -1269,12 +1269,12 @@ router.post('/webhook', async (req, res) => {
 
       flow_id = defaultBot.id;
       const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
-      
+
       // Parse bot flow
       const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
       const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
       const { graph, nodeMap } = buildFlowGraph(nodes, edges);
-      
+
       const firstNode = nodes[0];
       console.log('First node:', firstNode);
 
@@ -1386,7 +1386,7 @@ router.post('/webhook', async (req, res) => {
         selectedOption = targetValues[selectedIndex];
       } else if (message.type === "text") {
         const userText = message.text.body.trim().toLowerCase();
-        selectedOption = targetValues.find(opt => 
+        selectedOption = targetValues.find(opt =>
           opt.trim().toLowerCase() === userText
         );
       }
@@ -1416,10 +1416,10 @@ router.post('/webhook', async (req, res) => {
     // Media Nodes
     else if (['GoogleSheetsNode', 'VideoNode', 'imageNode'].includes(currentNode.type)) {
       console.log(`Processing ${currentNode.type}`);
-      const mediaType = currentNode.type === 'GoogleSheetsNode' ? 'document' : 
-                      currentNode.type === 'VideoNode' ? 'video' : 'image';
+      const mediaType = currentNode.type === 'GoogleSheetsNode' ? 'document' :
+        currentNode.type === 'VideoNode' ? 'video' : 'image';
       await handleMediaNode(mediaType, currentNode, from, flow_id);
-      
+
       const connections = graph[currentNodeId] || [];
       if (connections.length > 0) {
         nextNodeId = connections[0].target;
@@ -1434,7 +1434,7 @@ router.post('/webhook', async (req, res) => {
           [from, flow_id, currentNodeId, msg]
         );
       }
-      
+
       const connections = graph[currentNodeId] || [];
       if (connections.length > 0) {
         nextNodeId = connections[0].target;
@@ -1445,7 +1445,7 @@ router.post('/webhook', async (req, res) => {
     if (nextNodeId) {
       console.log(`Moving to next node: ${nextNodeId}`);
       const nextNode = nodeMap[nextNodeId];
-      
+
       // Update progress first
       await executeQuery(
         'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
@@ -1484,7 +1484,7 @@ async function handleMediaNode(type, node, to, flow_id) {
   try {
     console.log(`Handling ${type} node`);
     let fileName, urlPath;
-    
+
     if (type === 'document') {
       fileName = node.data?.file;
       urlPath = 'uploadFiles';
