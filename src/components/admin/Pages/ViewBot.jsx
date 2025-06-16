@@ -535,165 +535,79 @@ const nodeTypes = {
   //   );
   // },
 
-  VideoNode: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [fileName, setFileName] = useState(data.fileName || "");
-    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
-
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes((nodes) =>
-          nodes.map((node) =>
-            node.id === id
-              ? { ...node, data: { ...node.data, fileName, fileUrl } }
-              : node
-          )
-        );
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }, [fileName, fileUrl, id, setNodes]);
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
-
-    const handleFileChange = async (e) => {
-      const file = e.target.files[0];
-      if (file && file.type === "video/mp4") {
-        // Step 1: Set local preview
-        setFileName(file.name);
-        setFileUrl(URL.createObjectURL(file));
-
-        // Step 2: Upload to server (example)
-        const formData = new FormData();
-        formData.append("video", file);
-        const res = await fetch("/upload", { method: "POST", body: formData });
-        const data = await res.json();
-
-        // data.url should contain the uploaded video URL
-        setFileUrl(data.url);
-      } else {
-        alert("Please upload a valid .mp4 video file.");
-      }
-    };
-
-    return (
-      <Box bg="white" borderRadius={"15px"}>
-        <Handle type="target" position="top" style={{ background: "#555" }} />
-        <Box
-          bg="blue.500"
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
-              Video
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="white"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        <Divider />
-        <Input
-          fontSize="8px"
-          fontWeight="var(--big-font-weight)"
-          type="file"
-          accept="video/mp4"
-          onChange={handleFileChange}
-          style={{ marginTop: 4 }}
-          size={"sm"}
-        />
-        {fileUrl && (
-          <video
-            src={fileUrl}
-            controls
-            style={{ width: "189px", height: "auto" }}
-          />
-        )}
-        {/* {fileName && (
-             <p style={{ fontSize: 12, marginTop: 3, color: '#eb2f96' }}>
-               {fileName}
-             </p>
-           )} */}
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#555" }}
-        />
-      </Box>
-    );
-  },
-
-  GoogleSheetsNode: ({ id, data }) => {
-  const [file, setFile] = useState(data.file || null);
+ VideoNode: ({ id, data }) => {
   const { setNodes } = useReactFlow();
+  const [fileName, setFileName] = useState(data.fileName || "");
+  const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === id ? { ...node, data: { ...node.data, file } } : node
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === id
+            ? { ...node, data: { ...node.data, fileName, fileUrl } }
+            : node
         )
       );
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [file, id, setNodes]);
+  }, [fileName, fileUrl, id, setNodes]);
 
-  const handleFileChange = (e) => {
-  const uploadedFile = e.target.files[0];
-  if (uploadedFile) {
-    const baseName = uploadedFile.name.split('.')[0]; // get name without extension
-    const formData = new FormData();
-    formData.append("file", uploadedFile);
-
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setFile(data.fileName); // Store the uploaded file name
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
-          )
-        );
-      })
-      .catch(console.error);
-  }
-};
-
-
-  const handleDeleteFile = () => {
-    setFile(null);
-    // Optionally: call backend to delete uploaded file using fetch()
-  };
-
-  const handleDeleteNode = () => {
+  const handleDelete = () => {
     setNodes((nds) => nds.filter((node) => node.id !== id));
   };
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file || file.type !== "video/mp4") {
+      alert("Please upload a valid .mp4 video file.");
+      return;
+    }
+
+    const baseName = file.name.split(".")[0];
+    const formData = new FormData();
+    formData.append("video", file); // ✅ Field name matches multer.single('video')
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Video upload failed");
+      }
+
+      setFileName(data.fileName);
+      setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
+    } catch (error) {
+      console.error("❌ Video upload failed:", error.message);
+      alert("Upload failed: " + error.message);
+    }
+  };
+
   return (
-    <Box bg="white" borderRadius="4px">
+    <Box bg="white" borderRadius={"15px"}>
       <Handle type="target" position="left" style={{ background: "#555" }} />
-      <Box color="white" p={0.5} borderRadius="5px" bgColor="var(--active-bg)">
+      <Box
+        bg="blue.500"
+        color="white"
+        p={0.5}
+        borderRadius={"5px"}
+        bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
+      >
         <Flex justifyContent="space-between" alignItems="center">
-          <Text fontSize="10px" fontWeight="bold">Google Sheet</Text>
+          <Text fontSize="10px" fontWeight="bold">Video</Text>
           <IconButton
             size="xs"
             variant="ghost"
             colorScheme="white"
             icon={<IoTrashOutline />}
-            onClick={handleDeleteNode}
+            onClick={handleDelete}
             aria-label="Delete Node"
           />
         </Flex>
@@ -701,41 +615,133 @@ const nodeTypes = {
       <Divider />
 
       <Input
-        type="file"
-        accept=".xlsx,.xls,.csv"
-        onChange={handleFileChange}
-        fontSize="var(--text-12px)"
+        fontSize="8px"
         fontWeight="var(--big-font-weight)"
+        type="file"
+        accept="video/mp4"
+        onChange={handleFileChange}
+        style={{ marginTop: 4 }}
         size="sm"
       />
 
-      {file && (
-        <Box mt={2} fontSize="xs" color="gray.700">
-          <Flex justifyContent="space-between" alignItems="center">
-            <a
-              href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "underline", color: "#3182ce" }}
-            >
-              📄 {file}
-            </a>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="red"
-              icon={<IoTrashOutline />}
-              onClick={handleDeleteFile}
-              aria-label="Delete File"
-            />
-          </Flex>
-        </Box>
+      {fileUrl && (
+        <video
+          src={fileUrl}
+          controls
+          style={{ width: "189px", height: "auto" }}
+        />
       )}
 
       <Handle type="source" position="bottom" style={{ background: "#555" }} />
     </Box>
   );
-},
+}
+,
+
+  GoogleSheetsNode: ({ id, data }) => {
+    const [file, setFile] = useState(data.file || null);
+    const { setNodes } = useReactFlow();
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id ? { ...node, data: { ...node.data, file } } : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [file, id, setNodes]);
+
+    const handleFileChange = (e) => {
+      const uploadedFile = e.target.files[0];
+      if (uploadedFile) {
+        const baseName = uploadedFile.name.split('.')[0]; // get name without extension
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setFile(data.fileName); // Store the uploaded file name
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
+              )
+            );
+          })
+          .catch(console.error);
+      }
+    };
+
+
+    const handleDeleteFile = () => {
+      setFile(null);
+      // Optionally: call backend to delete uploaded file using fetch()
+    };
+
+    const handleDeleteNode = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    return (
+      <Box bg="white" borderRadius="4px">
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box color="white" p={0.5} borderRadius="5px" bgColor="var(--active-bg)">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">Google Sheet</Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDeleteNode}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Divider />
+
+        <Input
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          onChange={handleFileChange}
+          fontSize="var(--text-12px)"
+          fontWeight="var(--big-font-weight)"
+          size="sm"
+        />
+
+        {file && (
+          <Box mt={2} fontSize="xs" color="gray.700">
+            <Flex justifyContent="space-between" alignItems="center">
+              <a
+                href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "underline", color: "#3182ce" }}
+              >
+                📄 {file}
+              </a>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="red"
+                icon={<IoTrashOutline />}
+                onClick={handleDeleteFile}
+                aria-label="Delete File"
+              />
+            </Flex>
+          </Box>
+        )}
+
+        <Handle type="source" position="bottom" style={{ background: "#555" }} />
+      </Box>
+    );
+  },
   // GoogleSheetsNode: ({ id, data }) => {
   //   const [file, setFile] = useState(data.file || null);
   //   const { setNodes } = useReactFlow();

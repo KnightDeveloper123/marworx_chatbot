@@ -30,6 +30,8 @@ app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
 app.use("/profile", express.static(path.join(__dirname, "profile/")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads/")));
 
+app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles/')));
+app.use('/videoFiles', express.static(path.join(__dirname, 'videoFiles/')));
 
 // app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles')));
 
