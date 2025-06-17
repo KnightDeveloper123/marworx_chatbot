@@ -889,7 +889,7 @@ const nodeTypes = {
     const admin_id = decrypt(user).id;
     const [bots, setBots] = useState([]);
     const { isOpen, onOpen, onClose } = useDisclosure();
-
+    const { id: bot_id } = useParams();
     const currentIdxRef = useRef(null);
     const updateTargetValue = async (index, option) => {
       currentIdxRef.current = index;
@@ -909,8 +909,6 @@ const nodeTypes = {
         console.error("Error fetching Date & Time bot:", error);
       }
     };
-    const { id: bot_id } = useParams();
-
 
     const handleBotSelect = (bot) => {
 
@@ -1033,10 +1031,14 @@ const nodeTypes = {
     };
 
     useEffect(() => {
-      handleExpand();
+      // handleExpand(idx);
     }, [targetValues]);
 
     const handleExpand = (idx) => {
+      if (typeof idx !== "number") {
+    console.log("handleExpand: Invalid index", idx);
+    return;
+  }
       const allEdges = getEdges();
 
       // Find the edge for this specific option
@@ -1146,14 +1148,7 @@ const nodeTypes = {
                   updated[idx] = e.target.value;
                   setTargetValues(updated);
                 }}
-              // onChange={(e) => updateTargetValue(idx, e.target.value)}
-              // placeholder={`Option ${idx + 1}`}
-              // value={val}
-              // onChange={(e) => {
-              //   const updated = [...targetValues];
-              //   updated[idx] = e.target.value;
-              //   setTargetValues(updated);
-              // }}
+             
               />
 
               <IconButton
@@ -1206,19 +1201,23 @@ const nodeTypes = {
             <ModalCloseButton />
             <ModalBody>
               <Stack spacing={2}>
-                {bots.map((bot) => (
+                {bots.map((bot) =>{
+                    let label = null;
+                  try {
+                    const parsedNodes =
+                      typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+                    label = parsedNodes?.[0]?.data?.label || null;
+                  } catch (error) {
+                    console.error("Invalid bot.nodes JSON", error);
+                  }
+                  return(
                   <Button
                     key={bot.id}
                     size="sm"
-                    // onClick={()=>navigate(`/view/${bot.id}`)}
-                    onClick={() => handleBotSelect(bot)}
-                  >
-
-                    {/* {console.log(bot.id)} */}
-                    {/* {`/view/${bot.id}`} */}
-                    {bot?.nodes?.[0]?.data?.label || null}
+                    onClick={() => handleBotSelect(bot)} >
+                     {label}
                   </Button>
-                ))}
+                ) })}
               </Stack>
             </ModalBody>
           </ModalContent>

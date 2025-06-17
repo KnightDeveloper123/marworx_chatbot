@@ -294,7 +294,17 @@ const SectorProfile = () => {
                 </TabPanel>
                 <TabPanel>
                   <SimpleGrid spacing={4} _hover={{ cursor: "pointer" }}>
-                    {botSector?.map((bot, index) => (
+                    {botSector?.map((bot, index) => {
+                      let label = null;
+
+                        try {
+                          const parsedNodes =
+                            typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+                          label = parsedNodes?.[0]?.data?.label || null;
+                        } catch (error) {
+                          console.error("Invalid bot.nodes JSON", error);
+                        }
+                      return(
                       <Card key={index}>
                         <Flex
                           justify="space-between"
@@ -310,7 +320,7 @@ const SectorProfile = () => {
                               />
                             </Box>
                             <Box spacing="3px">
-                              <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
+                              <Text textAlign="start">{label}</Text>
                               <Text textAlign="start" fontSize={"10px"}>
                                 {timeAgo(bot.created_at)}
                               </Text>
@@ -330,7 +340,7 @@ const SectorProfile = () => {
                           </Flex>
                         </Flex>
                       </Card>
-                    ))}
+                     )})}
                   </SimpleGrid>
                 </TabPanel>
               </TabPanels>
