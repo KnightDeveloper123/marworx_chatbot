@@ -7,6 +7,7 @@ const { format } = require('fast-csv');
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const router = express.Router();
+const axios = require('axios');
 
 // router.post("/add", middleware, async (req, res) => {
 //     try {
@@ -48,7 +49,7 @@ router.post("/add", middleware, async (req, res) => {
     const insertQuery = `
       INSERT INTO campaign 
       (channel_name, campaign_name, template_name, template_type, template_lang, header, body, is_status, admin_id, sector_id, \`to\`) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, "Sent", ?, ?, ?);
+      VALUES (?, ?, ?, ?, ?, ?, ?, "Pending", ?, ?, ?);
     `;
 
     const values = [
@@ -80,6 +81,113 @@ router.post("/add", middleware, async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error." });
   }
 });
+
+const db = connection.promise();
+
+async function sendWhatsAppMessage({ phone, message }) {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneNumberId =  process.env.PHONE_NUMBER_ID;
+
+  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+
+  try {
+    const response = await axios.post(
+      url,
+      {
+        messaging_product: 'whatsapp',
+        to: phone,
+        type: 'text',
+        text: { body: message },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log('Message sent:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to send message:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+async function sendMessageToUser({ campaignIds = [], contactIds = [] }) {
+  if (!campaignIds.length || !contactIds.length) {
+    throw new Error('Please provide both campaignIds and contactIds');
+  }
+
+  console.log(campaignIds);
+  console.log(contactIds);
+
+  // ✅ use await db.query() instead
+  const [campaigns] = await db.query(
+    `SELECT id, channel_name, campaign_name, body, message_content
+     FROM campaign WHERE id IN (?)`,
+    [campaignIds]
+  );
+
+  const [contacts] = await db.query(
+    `SELECT id, contact_name, phone, email
+     FROM contacts WHERE id IN (?)`,
+    [contactIds]
+  );
+
+  console.log(campaigns); // should now show an array
+
+  const results = [];
+
+  for (const campaign of campaigns) {
+    for (const contact of contacts) {
+      try {
+       await sendWhatsAppMessage({
+          phone: contact.phone,
+          message: campaign.body || campaign.message_content,
+        });
+
+        await db.query(
+          `INSERT INTO messages_log
+           (campaign_id, contact_id, status, sent_at)
+           VALUES (?, ?, 'sent', NOW())`,
+          [campaign.id, contact.id]
+        );
+
+        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'sent' });
+      } catch (err) {
+        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'failed' });
+      }
+    }
+  }
+
+  return results;
+}
+
+
+router.post('/send-campaign', async (req, res) => {
+  const { campaign_ids, contact_ids } = req.body;
+
+  if (!campaign_ids?.length || !contact_ids?.length) {
+    return res.status(400).json({ message: 'Please select campaigns and contacts' });
+  }
+console.log("hi"+campaign_ids)
+console.log("hello"+contact_ids)
+  try {
+    const result = await sendMessageToUser({
+      campaignIds: campaign_ids,
+      contactIds: contact_ids,
+    });
+
+    res.json({ message: 'Campaign(s) sent successfully', result });
+  } catch (error) {
+    console.error('Error sending campaign:', error);
+    res.status(500).json({ message: 'Failed to send campaign' });
+  }
+});
+
+
 
 router.post("/update", middleware, async (req, res) => {
   try {
@@ -244,7 +352,6 @@ router.get('/export', async (req, res) => {
 
 
 // for export csv
-
 router.get('/export/campaigns/csv', async (req, res) => {
   try {
     const campaigns = await executeQuery(`

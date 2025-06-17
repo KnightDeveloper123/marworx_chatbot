@@ -506,10 +506,32 @@ export const AppProvider = ({ children }) => {
             showAlert('Internal server error', 'error')
         }
     }
+
+    const [deleteProduct, setDeleteProduct ]= useState([])
+    const  getAllDeleteProduct= async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/allDeletedProduct`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    // Authorization: token
+                },
+
+            })
+            const result = await response.json();
+            //    console.log("bot",result.data)
+            setDeleteProduct(result.data)
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
     
     return (
         <AppContext.Provider
             value={{
+                deleteProduct,getAllDeleteProduct,setDeleteProduct,
                 getEmployeeId,employeeId,botSector,getAllinSector,botDeletebot,getAlldeletebot,
                 getGenBotforEmployee, genBotforEmployee,getAlgBotforEmployee, algBotforEmployee,
                 showAlert, loading, fetchLinkedBots, linkedBots, getProducts, products, sectorData, sector,

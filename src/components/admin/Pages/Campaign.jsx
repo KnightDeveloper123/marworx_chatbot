@@ -63,7 +63,8 @@ import {
   Avatar,
   SimpleGrid,
   GridItem,
-  TableCaption
+  TableCaption,
+  Checkbox
 } from '@chakra-ui/react'
 import { useContext, useEffect, useState } from 'react'
 import { RiDeleteBin6Line } from 'react-icons/ri'
@@ -71,7 +72,7 @@ import Card from '../../../Card'
 import { IoMdAdd } from 'react-icons/io'
 import { AppContext } from '../../context/AppContext'
 import { RxDotsHorizontal } from 'react-icons/rx'
-import { MdOutlineModeEdit } from 'react-icons/md'
+import { MdOutlineModeEdit, MdOutlineSendToMobile } from 'react-icons/md'
 import { TbFileExport } from 'react-icons/tb'
 import { FcBiohazard } from 'react-icons/fc'
 import { CiVideoOn } from 'react-icons/ci'
@@ -85,7 +86,7 @@ import { Link } from '@chakra-ui/react'
 const Campaign = () => {
 
   const token = localStorage.getItem('token')
-  const { showAlert, fetchCampaign, campaign, formatDate } = useContext(AppContext)
+  const { showAlert, fetchCampaign, campaign, formatDate, sectors, fetchSector, } = useContext(AppContext)
   const [filteredSectors, setFilteredSectors] = useState('')
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
@@ -102,6 +103,11 @@ const Campaign = () => {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose
+  } = useDisclosure()
+  const {
+    isOpen: isModalSendCmp,
+    onOpen: onModalOpenSendCmp,
+    onClose: onModalCloseSendCmp
   } = useDisclosure()
 
   const user = localStorage.getItem('user')
@@ -137,6 +143,7 @@ const Campaign = () => {
 
   useEffect(() => {
     fetchCampaign(admin_id)
+    fetchSector(admin_id)
   }, [])
 
   const filteredData = campaign?.filter(item =>
@@ -304,7 +311,7 @@ const Campaign = () => {
 
   const handleSwitchChange = e => {
     setIsSwitchOn(e.target.checked)
-    campaignData.header=''
+    campaignData.header = ''
   }
   const [isSwitchBtn, setIsSwitchBtn] = useState(false)
 
@@ -312,8 +319,8 @@ const Campaign = () => {
     setIsSwitchBtn(e.target.checked)
   }
   const [showData, setShowData] = useState(false);
-  const onclickApply=()=>{
-  setShowData(true); 
+  const onclickApply = () => {
+    setShowData(true);
   }
 
   const {
@@ -461,8 +468,60 @@ const Campaign = () => {
     Pending: '#EFEAD2'
   }
 
-  // const exportUrl = `${import.meta.env.VITE_BACKEND_URL}/campaign/export/campaigns/csv`;
-  // console.log(exportUrl)
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const handleCheckboxChange = (id) => {
+    setSelectedRowIds((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
+  };
+  const handleRowSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((val) => val !== id) : [...prev, id]
+    );
+  };
+  const handleSelectAll = () => {
+    if (selectedIds.length === filteredData.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredData.map((d) => d.id));
+    }
+  };
+  const handleSendCampaign = async () => {
+  const payload = {
+    campaign_ids: selectedIds,
+    contact_ids: selectedRowIds,
+  };
+console.log(payload)
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/send-campaign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log(response)
+      // toast({
+      //   title: 'Success',
+      //   description: 'Campaign sent successfully.',
+      //   status: 'success',
+      //   duration: 4000,
+      //   isClosable: true,
+      // });
+    } else {
+     console.log("error")
+    }
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+
   return (
     <Card>
       <Flex
@@ -520,24 +579,19 @@ const Campaign = () => {
                     >
                       Create Campaign
                     </Button>
-
-                    {/* export file  */}
-                    {/* <Link href={exportUrl} isExternal>
-                      <Button colorScheme="blue">Export CSV</Button>
-                    </Link>
-                    <Box textAlign={'center'} onClick={() => window.open(`${import.meta.env.VITE_BACKEND_URL}/campaign/export`, '_blank')}>
-                      <TbFileExport fontSize={'25px'} />
-                    </Box> */}
-
-                    {/* <Box>
-                      <Link
-                        href={`http://localhost:2500/campaign/export/campaigns/pdf`}
-                        isExternal
-                      >
-                        <Button >Export pdf</Button>
-                        
-                      </Link>
-                    </Box> */}
+                    <Button
+                      borderRadius='var(--radius)'
+                      leftIcon={<MdOutlineSendToMobile fontSize={'20px'} />}
+                      _hover={{ bgColor: 'var(--active-bg)' }}
+                      bgColor='var(--active-bg)'
+                      color='#fff'
+                      h={'35px'}
+                      fontSize='var(--mini-text)'
+                      fontWeight='var(--big-font-weight)'
+                      onClick={onModalOpenSendCmp}
+                    >
+                      Send Campaign
+                    </Button>
                   </Flex>
 
                 </Flex>
@@ -1349,12 +1403,13 @@ const Campaign = () => {
                             value={campaignData.to}
                             onChange={handleChange}
                             placeholder='select contact'
+                            cursor={'not-allowed'}
                           >
-                            {documents.map((d, index) => (
+                            {/* {documents.map((d, index) => (
                               <option key={index} value={d.contact_name}>
                                 {d.contact_name}
                               </option>
-                            ))}
+                            ))} */}
                           </Select>
                           {/* <Text fontSize="sm" color="gray.500">Select a list of recipients</Text> */}
                         </Box>
@@ -1486,49 +1541,7 @@ const Campaign = () => {
                           </TabPanels>
                         </Tabs>
                       </Box>
-                      {/* <Box>
-                        <Tabs>
-                          <TabList bg="gray.200" p="2px" borderRadius="md" width={'70%'}>
 
-                            <Tab _selected={{ bg: "white", fontWeight: "bold", borderRadius: "md" }} fontSize={'14px'}> Use Template</Tab>
-                            <Tab _selected={{ bg: "white", fontWeight: "bold", borderRadius: "md" }} fontSize={'14px'}>Start from Scratch</Tab>
-
-                          </TabList>
-
-                          <TabPanels>
-                            <TabPanel display={'flex'} flexDirection={'column'} gap={'10px'}>
-                              <Text fontSize="sm" color="gray.600">
-                                Choose the template that you want  to reuse .Note that the templates that were already approved can not be edited
-                              </Text>
-                              <FormControl>
-                                <Select placeholder="Select a template" borderRadius={'full'}>
-                                  <option value='template'>abc</option>
-                                </Select>
-                              </FormControl>
-                            </TabPanel>
-                            <TabPanel>
-                              <Flex direction="column" height="400px" justify="space-between">
-                                <Text fontSize={'14px'}>
-                                  Meta will review new messages before you can send them
-                                </Text>
-
-                                <Flex justify="flex-end">
-                                  <Button
-
-                                    onClick={onModalOpen}
-                                    fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}
-                                  >
-                                    Start Creating
-                                  </Button>
-                                </Flex>
-                              </Flex>
-
-                            </TabPanel>
-
-                          </TabPanels>
-                        </Tabs>
-
-                      </Box> */}
                     </DrawerBody>
                   </DrawerContent>
                 </Drawer>
@@ -1556,14 +1569,14 @@ const Campaign = () => {
                           before it can be sent.
                         </Text>
                         <Box display={'flex'} flexDirection={'column'}>
-                          {/* <FormControl mt={7} isRequired>
+                          <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
                             <Select fontSize="var(--text-12px)" name="sector" placeholder="Select sector" value={campaignData.sector} onChange={handleChange}>
                               {sectors.map((sector) => (
                                 <option value={sector.value} key={sector.value}>{sector.name}</option>
                               ))}
                             </Select>
-                          </FormControl> */}
+                          </FormControl>
                           <FormControl mt={5} isRequired>
                             <FormLabel fontSize='var(--mini-text)' mb={'2px'}>
                               Template Name
@@ -1770,16 +1783,16 @@ const Campaign = () => {
                           <Flex justifyContent={'space-between'} mt={10}
                             px={'5px'}
                             alignItems={'center'}>
-                             <Button
-                                size={'sm'}
-                                width={'50%'}
-                               onClick={onclickApply}
-                                _hover={{ bgColor: 'var(--active-bg)' }}
-                                bgColor='var(--active-bg)'
-                                color='#fff'
-                              >
-                                Apply
-                              </Button>
+                            <Button
+                              size={'sm'}
+                              width={'50%'}
+                              onClick={onclickApply}
+                              _hover={{ bgColor: 'var(--active-bg)' }}
+                              bgColor='var(--active-bg)'
+                              color='#fff'
+                            >
+                              Apply
+                            </Button>
                           </Flex>
                         </Flex>
 
@@ -1824,37 +1837,37 @@ const Campaign = () => {
                             </Flex>
                             <Flex position="relative" w="100%" h="auto">
                               <Image
-                             w="100%"
-                              h="54%"
-                              objectFit="cover"
+                                w="100%"
+                                h="54%"
+                                objectFit="cover"
                                 src='https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'
                               />
                               {showData && (
-                             <Box
-                              position="absolute"
-                              top="10%"
-                              left="25%"
-                              transform="translate(-50%, -50%)"
-                             fontSize='var(--mini-text)'
-                             color='var(--text-black)'
-                            >
-                              <Text  fontSize='var(--mini-text)'
-                             color='var(--text-black)' >
-                                {campaignData.header}
-                              </Text>
-                              <Text  fontSize='var(--mini-text)'
-                             color='var(--text-black)' >
-                                {campaignData.body}
-                              </Text>
-                             <Button
-                                size={'sm'}
-                                _hover={{ bgColor: 'var(--active-bg)' }}
-                                bgColor='var(--active-bg)'
-                                color='#fff'
-                              >
-                                Send
-                              </Button>
-                            </Box>
+                                <Box
+                                  position="absolute"
+                                  top="10%"
+                                  left="25%"
+                                  transform="translate(-50%, -50%)"
+                                  fontSize='var(--mini-text)'
+                                  color='var(--text-black)'
+                                >
+                                  <Text fontSize='var(--mini-text)'
+                                    color='var(--text-black)' >
+                                    {campaignData.header}
+                                  </Text>
+                                  <Text fontSize='var(--mini-text)'
+                                    color='var(--text-black)' >
+                                    {campaignData.body}
+                                  </Text>
+                                  <Button
+                                    size={'sm'}
+                                    _hover={{ bgColor: 'var(--active-bg)' }}
+                                    bgColor='var(--active-bg)'
+                                    color='#fff'
+                                  >
+                                    Send
+                                  </Button>
+                                </Box>
                               )}
                             </Flex>
                           </Flex>
@@ -1917,6 +1930,331 @@ const Campaign = () => {
           </ModalContent>
         </Modal>
       </Box>
+      <Modal isOpen={isModalSendCmp} onClose={onModalCloseSendCmp} size='2xl'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+          </ModalBody>
+          <Tabs>
+            <TabList>
+              <Tab>Contact List</Tab>
+              <Tab>Campaign</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <TableContainer
+                  mt='20px'
+                  width={'100%'}
+                  borderRadius='5px 5px 0px 0px'
+                >
+                  <Table size='sm' className='custom-striped-table'>
+                    <TableCaption>
+                      DATA SETS UPLOADED FOR MODEL TRAINING
+                    </TableCaption>
+                    <Thead border='0.5px solid #FFF5F3'>
+                      {documents.length === 0 ? (
+                        <Tr h='40px' bgColor='#FFF5F3'>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='5px 0px 0px 0px'
+                            fontSize='var(--mini-text)'
+                            border={'1px solid #b4b4b4'}
+                            colSpan={'4'}
+                            textAlign={'center'}
+                          >
+                            No Documents Uploaded
+                          </Th>
+                        </Tr>
+                      ) : (
+                        <Tr h='40px' bgColor='#FFF5F3' >
+                          <Th>
+                            <Checkbox
+                              isChecked={selectedRowIds.length === documents.length}
+                              isIndeterminate={
+                                selectedRowIds.length > 0 &&
+                                selectedRowIds.length < documents.length
+                              }
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedRowIds(documents.map((doc) => doc.id));
+                                } else {
+                                  setSelectedRowIds([]);
+                                }
+                              }}
+                            />
+                          </Th>
+
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='5px 0px 0px 0px'
+                            fontSize='var(--mini-text)'
+                          >
+                            ID
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            name
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            phone
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius=''
+                            fontSize='var(--mini-text)'
+                          >
+                            email
+                          </Th>
+                          <Th
+                            fontWeight='var(--big-font-weight)'
+                            color='var(--text-black)'
+                            borderRadius='0px 5px 5px 0px'
+                            fontSize='var(--mini-text)'
+                          >
+                            Created At
+                          </Th>
+                          {/* <Th>Action</Th> */}
+                        </Tr>
+                      )}
+                    </Thead>
+                    <Tbody>
+                      {documents?.map(item => (
+                        <Tr fontSize={'14px'}
+                          cursor={'pointer'}
+                          key={item?.id}
+                        >
+                          <Td>
+                            <Checkbox
+                              isChecked={selectedRowIds.includes(item.id)}
+                              onChange={() => handleCheckboxChange(item.id)}
+                            /></Td>
+                          <Td>{item?.id}</Td>
+                          <Td>{item?.contact_name}</Td>
+                          <Td>{item?.phone}</Td>
+                          <Td>{item?.email}</Td>
+                          <Td>{formatDate(item?.created_at)}</Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </TabPanel>
+              <TabPanel>
+                <TableContainer
+                  mt='20px'
+                  width={'100%'}
+                  borderRadius='5px 5px 0px 0px' >
+                  <Table size='sm' className='custom-striped-table'>
+                    <Thead border='0.5px solid #FFF5F3'>
+                      <Tr h='40px' bgColor='#FFF5F3'>
+                        <Th>
+                          <Checkbox
+                            isChecked={selectedIds.length === filteredData.length}
+                            isIndeterminate={
+                              selectedIds.length > 0 && selectedIds.length < filteredData.length
+                            }
+                            onChange={handleSelectAll}
+                          />
+                        </Th>
+                        <Th
+                          fontWeight='var(--big-font-weight)'
+                          color='var(--text-black)'
+                          borderRadius='5px 0px 0px 0px'
+                          fontSize='var(--mini-text)'
+                        >
+                          ID
+                        </Th>
+                        <Th
+                          fontWeight='var(--big-font-weight)'
+                          color='var(--text-black)'
+                          borderRadius=''
+                          fontSize='var(--mini-text)'
+                        >
+                          channel
+                        </Th>
+                        <Th
+                          fontWeight='var(--big-font-weight)'
+                          color='var(--text-black)'
+                          borderRadius=''
+                          fontSize='var(--mini-text)'
+                        >
+                          Campaign name
+                        </Th>
+                        <Th
+                          fontWeight='var(--big-font-weight)'
+                          color='var(--text-black)'
+                          borderRadius=''
+                          fontSize='var(--mini-text)'
+                        >
+                          Template name
+                        </Th>
+                        <Th
+                          fontWeight='var(--big-font-weight)'
+                          color='var(--text-black)'
+                          borderRadius=''
+                          fontSize='var(--mini-text)'
+                        >
+                          Template type
+                        </Th>
+                      </Tr>
+                    </Thead>
+
+                    <Tbody>
+                      {filteredData &&
+                        filteredData.map((d, index) => (
+                          <Tr
+                            key={index}
+                            border='0.5px solid #F2F4F8'
+                            h='40px'
+                            textAlign='start'
+                          >
+                            <Td>
+                              <Checkbox
+                                isChecked={selectedIds.includes(d.id)}
+                                onChange={() => handleRowSelect(d.id)}
+                              />
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              C-{d.id}
+                            </Td>
+
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.channel_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.campaign_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.template_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.template_type}
+                            </Td>
+                          </Tr>
+                        ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        <Flex flexDirection={'column'} justifyContent={'space-between'} >
+            {selectedRowIds.length > 0 && (
+            <Box mt={4}>
+              <Heading fontSize="md" mb={2}>Selected Rows:</Heading>
+              <Table size="sm" variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>ID</Th>
+                    <Th>Name</Th>
+                    <Th>Phone</Th>
+                    <Th>Email</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {documents
+                    .filter((doc) => selectedRowIds.includes(doc.id))
+                    .map((row) => (
+                      <Tr key={row.id}>
+                        <Td>{row.id}</Td>
+                        <Td>{row.contact_name}</Td>
+                        <Td>{row.phone}</Td>
+                        <Td>{row.email}</Td>
+                      </Tr>
+                    ))}
+                </Tbody>
+              </Table>
+            </Box>
+          )}
+          {selectedIds.length > 0 && (
+            <Box mt={4}>
+              <Text fontWeight="bold" mb={2}>
+                Selected Rows:
+              </Text>
+              <TableContainer>
+                <Table size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th>ID</Th>
+                      <Th>Channel</Th>
+                      <Th>Campaign</Th>
+                      <Th>Template</Th>
+                      <Th>Type</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {filteredData
+                      .filter((d) => selectedIds.includes(d.id))
+                      .map((item) => (
+                        <Tr key={item.id}>
+                          <Td>C-{item.id}</Td>
+                          <Td>{item.channel_name}</Td>
+                          <Td>{item.campaign_name}</Td>
+                          <Td>{item.template_name}</Td>
+                          <Td>{item.template_type}</Td>
+                        </Tr>
+                      ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        
+        </Flex>
+          <Box textAlign={'center'} p={1}>
+         {selectedIds.length > 0 && selectedRowIds.length > 0 && (
+          <Button
+            mt={4}
+             _hover={{ bgColor: 'var(--active-bg)' }}
+                      bgColor='var(--active-bg)'
+                      color='#fff'
+            onClick={handleSendCampaign}
+          >
+            Send Campaign
+          </Button>
+        )}
+        </Box>
+        </ModalContent>
+      </Modal>
+
     </Card>
   )
 }

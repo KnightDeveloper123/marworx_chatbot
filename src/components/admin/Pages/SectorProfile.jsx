@@ -70,11 +70,11 @@ const SectorProfile = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [bot, SetbotId] = useState();
   const options = [
-    {
-      icon: FaMagic,
-      title: "Build it for me!",
-      description: "Tell what you need and we will create it automatically",
-    },
+    // {
+    //   icon: FaMagic,
+    //   title: "Build it for me!",
+    //   description: "Tell what you need and we will create it automatically",
+    // },
     {
       icon: FaPencilAlt,
       title: "Start from scratch",

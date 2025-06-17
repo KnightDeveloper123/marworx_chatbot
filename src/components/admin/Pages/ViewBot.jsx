@@ -1,10 +1,18 @@
 import {
+  Avatar,
+  Badge,
   Box,
   Button,
   Card,
+  Center,
   Checkbox,
   Collapse,
   Divider,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   Heading,
   Icon,
@@ -60,7 +68,7 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { IoTrashOutline } from "react-icons/io5";
+import { IoNotifications, IoTrashOutline } from "react-icons/io5";
 import "reactflow/dist/style.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { decrypt } from "../../utils/security";
@@ -337,7 +345,6 @@ const nodeTypes = {
     );
   },
 
-
   imageNode: ({ id, data }) => {
     const [image, setImage] = useState(data.fileUrl || null);
     const [fileName, setFileName] = useState(data.fileName || "");
@@ -535,108 +542,108 @@ const nodeTypes = {
   //   );
   // },
 
- VideoNode: ({ id, data }) => {
-  const { setNodes } = useReactFlow();
-  const [fileName, setFileName] = useState(data.fileName || "");
-  const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+  VideoNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [fileName, setFileName] = useState(data.fileName || "");
+    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setNodes((nodes) =>
-        nodes.map((node) =>
-          node.id === id
-            ? { ...node, data: { ...node.data, fileName, fileUrl } }
-            : node
-        )
-      );
-    }, 500);
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, fileName, fileUrl } }
+              : node
+          )
+        );
+      }, 500);
 
-    return () => clearTimeout(timer);
-  }, [fileName, fileUrl, id, setNodes]);
+      return () => clearTimeout(timer);
+    }, [fileName, fileUrl, id, setNodes]);
 
-  const handleDelete = () => {
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-  };
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+    const handleFileChange = async (e) => {
+      const file = e.target.files[0];
 
-    if (!file || file.type !== "video/mp4") {
-      alert("Please upload a valid .mp4 video file.");
-      return;
-    }
-
-    const baseName = file.name.split(".")[0];
-    const formData = new FormData();
-    formData.append("video", file); // ✅ Field name matches multer.single('video')
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Video upload failed");
+      if (!file || file.type !== "video/mp4") {
+        alert("Please upload a valid .mp4 video file.");
+        return;
       }
 
-      setFileName(data.fileName);
-      setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
-    } catch (error) {
-      console.error("❌ Video upload failed:", error.message);
-      alert("Upload failed: " + error.message);
-    }
-  };
+      const baseName = file.name.split(".")[0];
+      const formData = new FormData();
+      formData.append("video", file); // ✅ Field name matches multer.single('video')
 
-  return (
-    <Box bg="white" borderRadius={"15px"}>
-      <Handle type="target" position="left" style={{ background: "#555" }} />
-      <Box
-        bg="blue.500"
-        color="white"
-        p={0.5}
-        borderRadius={"5px"}
-        bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
-      >
-        <Flex justifyContent="space-between" alignItems="center">
-          <Text fontSize="10px" fontWeight="bold">Video</Text>
-          <IconButton
-            size="xs"
-            variant="ghost"
-            colorScheme="white"
-            icon={<IoTrashOutline />}
-            onClick={handleDelete}
-            aria-label="Delete Node"
-          />
-        </Flex>
-      </Box>
-      <Divider />
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        });
 
-      <Input
-        fontSize="8px"
-        fontWeight="var(--big-font-weight)"
-        type="file"
-        accept="video/mp4"
-        onChange={handleFileChange}
-        style={{ marginTop: 4 }}
-        size="sm"
-      />
+        const data = await res.json();
 
-      {fileUrl && (
-        <video
-          src={fileUrl}
-          controls
-          style={{ width: "189px", height: "auto" }}
+        if (!res.ok) {
+          throw new Error(data.error || "Video upload failed");
+        }
+
+        setFileName(data.fileName);
+        setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
+      } catch (error) {
+        console.error("❌ Video upload failed:", error.message);
+        alert("Upload failed: " + error.message);
+      }
+    };
+
+    return (
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">Video</Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Divider />
+
+        <Input
+          fontSize="8px"
+          fontWeight="var(--big-font-weight)"
+          type="file"
+          accept="video/mp4"
+          onChange={handleFileChange}
+          style={{ marginTop: 4 }}
+          size="sm"
         />
-      )}
 
-      <Handle type="source" position="bottom" style={{ background: "#555" }} />
-    </Box>
-  );
-}
-,
+        {fileUrl && (
+          <video
+            src={fileUrl}
+            controls
+            style={{ width: "189px", height: "auto" }}
+          />
+        )}
+
+        <Handle type="source" position="bottom" style={{ background: "#555" }} />
+      </Box>
+    );
+  }
+  ,
 
   GoogleSheetsNode: ({ id, data }) => {
     const [file, setFile] = useState(data.file || null);
@@ -1220,8 +1227,6 @@ const nodeTypes = {
     );
   },
 
-
-
   ReplyButton: ({ id, data }) => {
     const { setNodes, getEdges, setEdges } = useReactFlow();
     const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
@@ -1698,7 +1703,7 @@ const FlowCanvas = () => {
 
 
   const { screenToFlowPosition } = useReactFlow();
-  const { phoneNumbers, getAllNumbers } = useContext(AppContext);
+  const { phoneNumbers, getAllNumbers, deleteProduct, getAllDeleteProduct,setDeleteProduct } = useContext(AppContext);
 
   const botType = localStorage.getItem("botType");
   const sectorId = localStorage.getItem("sectorId");
@@ -1797,7 +1802,7 @@ const FlowCanvas = () => {
   useEffect(() => {
     fetchBot();
     getAllNumbers();
-
+    getAllDeleteProduct();
   }, []);
 
 
@@ -1832,8 +1837,7 @@ const FlowCanvas = () => {
       alert("Please select at least one number to send test.");
       return;
     }
-    console.log(nodes)
-    console.log(edges)
+
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/addwithwhatsup`,
         {
@@ -1902,6 +1906,17 @@ const FlowCanvas = () => {
       console.log(error);
     }
   };
+const { isOpen: isNotificationOpen, onOpen: onNotificationOpen, onClose: onNotificationClose } = useDisclosure()
+// const [Notificati,setNotification]=useState(false)
+const onNotification = () => {
+  onNotificationOpen(true)
+
+  const updatedProducts = deleteProduct.map((item) => ({
+    ...item,
+    seen: true,
+  }));
+  setDeleteProduct(updatedProducts);
+};
 
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
@@ -1951,6 +1966,65 @@ const FlowCanvas = () => {
           >
             Update
           </Button>
+          <Box _hover={{ cursor: "pointer" }}>
+            <Button
+              borderRadius="var(--radius)"
+              _hover={{ bgColor: "var(--active-bg)" }}
+              bgColor="var(--active-bg)"
+              color="#fff"
+              h={"35px"}
+              fontSize="var(--mini-text)"
+              fontWeight="var(--big-font-weight)"
+              paddingInlineEnd={'6px'}
+              leftIcon={<IoNotifications color="#fff" />}
+              onClick={onNotification}
+            ></Button>
+            {deleteProduct?.some(item => !item.seen) && (
+              <Badge
+                position="absolute"
+                top="3px"
+                right="15px"
+                borderRadius="full"
+                bg="red.500"
+                color="white"
+                fontSize="0.7rem"
+                h="18px"
+                minW="18px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                zIndex={1}
+              >
+                {deleteProduct?.filter(item => !item.seen).length}
+
+              </Badge>
+            )}
+            <Drawer placement={"right"} onClose={onNotificationClose} isOpen={isNotificationOpen}>
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerHeader borderBottomWidth='1px'>Delete Product</DrawerHeader>
+                <DrawerBody p='-0.5'>
+                  {deleteProduct.map((item, i) => {
+                    return (
+                      <Box>
+                        <Flex justifyContent='start' alignItems={'center'} gap={'1px'}>
+                          <Box p='5px'>
+                            <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/products/${item.image}`} />
+                          </Box>
+                          <Box p={2}>
+                            <Text fontSize="var(--mini-text)"
+                              fontWeight="var(--big-font-weight)">{item.name}</Text>
+                            <Text fontSize="var(--mini-text)">{item.description}</Text>
+                          </Box>
+                        </Flex>
+                        <Divider />
+                      </Box>
+                    )
+                  })}
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
+          </Box>
         </Flex>
       </Box>
       <Box
