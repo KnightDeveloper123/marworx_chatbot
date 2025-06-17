@@ -208,14 +208,22 @@ export default function Bot() {
             </Thead>
             <Tbody>
               {bots.map((item, i) => {
-                return (
+                    let label = null;
+                  try {
+                    const parsedNodes =
+                      typeof item.nodes === "string" ? JSON.parse(item.nodes) : item.nodes;
+                    label = parsedNodes?.[0]?.data?.label || null;
+                  } catch (error) {
+                    console.error("Invalid bot.nodes JSON", error);
+                  }
+                  return(
                   <Tr key={item.id}>
                     <Td
                       color={"#404040"}
                       fontSize="var(--mini-text)"
                       fontWeight="var(--big-font-weight)"
                     >
-                      {item?.nodes?.[0]?.data?.label || null}
+                      {label}
 
                     </Td>
 
