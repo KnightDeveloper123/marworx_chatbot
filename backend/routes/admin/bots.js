@@ -4,7 +4,7 @@ const connection = require('../../database/db');
 const executeQuery = require('../../utils/executeQuery');
 // const multer = require('multer')
 const { middleware } = require('../../middleware/middleware');
-
+const { default: axios } = require('axios');
 
 const multer = require('multer');
 const path = require('path');
@@ -1381,73 +1381,76 @@ router.post('/webhook', async (req, res) => {
         return res.sendStatus(200);
       }
     }
-    //  else if (currentNode.type === 'CustomNode') {
-    //   console.log('Processing CustomNode (Q&A Node)');
+    else if (currentNode.type === 'CustomNode') {
+  console.log('Processing CustomNode (Q&A Node)');
 
-    //   if (message?.type === 'text') {
-    //     const userQuestion = message?.text?.body;
+  if (message?.type === 'text') {
+    const userQuestion = message?.text?.body.trim();
 
-    //     // 1. Save user question to DB
-    //     await executeQuery(
-    //       'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
-    //       [from, flow_id, currentNodeId, userQuestion]
-    //     );
+    // Exit condition
+    if (userQuestion.toLowerCase() === 'done' || userQuestion.toLowerCase() === 'exit') {
+      // Move to next node
+      const connections = graph[currentNodeId] || [];
+      if (connections.length > 0) {
+        const nextNodeId = connections[0].target;
 
-    //     try {
-    //       // 2. Send user input to Python API
-    //       const response = await axios.get(
-    //         `http://216.10.251.154:5000/get_info?query=${encodeURIComponent(userQuestion)}`
-    //       );
-    //       const answer = response.data.answer || response.data;
+        await executeQuery(
+          'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+          [nextNodeId, from]
+        );
 
-    //       // 3. Send Python answer back to user on WhatsApp
-    //       await sendWhatsAppText(from, `🤖 ${answer}`);
-    //     } catch (err) {
-    //       console.error('Python API error:', err.message);
-    //       await sendWhatsAppText(from, '❌ Failed to get answer from Python bot.');
-    //     }
+        const nextNode = nodeMap[nextNodeId];
 
-    //     // 4. Move to next node in flow
-    //     const connections = graph[currentNodeId] || [];
-    //     if (connections.length > 0) {
-    //       const nextNodeId = connections[0].target;
+        // Send next node content
+        if (nextNode.type === 'ListButton') {
+          await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
+        } else if (nextNode.type === 'ReplyButton') {
+          await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
+        } else if (nextNode.type === 'GoogleSheetsNode') {
+          await handleMediaNode('document', nextNode, from, flow_id);
+        } else if (nextNode.type === 'VideoNode') {
+          await handleMediaNode('video', nextNode, from, flow_id);
+        } else if (nextNode.type === 'imageNode') {
+          await handleMediaNode('image', nextNode, from, flow_id);
+        } else if (nextNode.type === 'CustomNode') {
+          await sendWhatsAppText(from, nextNode.data.label || 'Please ask your question');
+        } else {
+          await sendWhatsAppText(from, nextNode?.data?.label || '...');
+        }
 
-    //       await executeQuery(
-    //         'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
-    //         [nextNodeId, from]
-    //       );
+        return res.sendStatus(200);
+      } else {
+        await sendWhatsAppText(from, '✅ Q&A complete. Type *restart* to begin again.');
+        await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
+        return res.sendStatus(200);
+      }
+    }
 
-    //       const nextNode = nodeMap[nextNodeId];
+    // Save question to DB
+    await executeQuery(
+      'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+      [from, flow_id, currentNodeId, userQuestion]
+    );
 
-    //       // 5. Handle next node type
-    //       if (nextNode.type === 'ListButton') {
-    //         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else if (nextNode.type === 'ReplyButton') {
-    //         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-    //       } else if (nextNode.type === 'GoogleSheetsNode') {
-    //         await handleMediaNode('document', nextNode, from, flow_id);
-    //       } else if (nextNode.type === 'VideoNode') {
-    //         await handleMediaNode('video', nextNode, from, flow_id);
-    //       } else if (nextNode.type === 'imageNode') {
-    //         await handleMediaNode('image', nextNode, from, flow_id);
-    //       } else if (nextNode.type === 'CustomNode') {
-    //         await sendWhatsAppText(from, nextNode.data.label || 'Please ask your question');
-    //       } else {
-    //         await sendWhatsAppText(from, nextNode?.data?.label || '...');
-    //       }
-    //     } else {
-    //       // End of flow
-    //       await sendWhatsAppText(from, '✅ Q&A complete. Type *restart* to begin again.');
-    //       await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
-    //     }
+    try {
+      // Call Python API
+      const response = await axios.get(`http://216.10.251.154:5000/get_info?query=${encodeURIComponent(userQuestion)}`);
+      const answer = response.data.answer || response.data;
 
-    //     return res.sendStatus(200);
-    //   } else {
-    //     // Wait for user input (text)
-    //     await sendWhatsAppText(from, '❓ Please type your question.');
-    //     return res.sendStatus(200);
-    //   }
-    // }
+      await sendWhatsAppText(from, `🤖 ${answer}`);
+      await sendWhatsAppText(from, '💬 You can ask another question, or type *done* to continue.');
+    } catch (err) {
+      console.error('Python API error:', err.message);
+      await sendWhatsAppText(from, '❌ Failed to get answer from Python bot.');
+    }
+
+    return res.sendStatus(200);
+  } else {
+    await sendWhatsAppText(from, '❓ Please type your question.');
+    return res.sendStatus(200);
+  }
+}
+
     else if (currentNode.type === "ReplyButton") {
       const targetValues = currentNode.data.targetValues || [];
       let selectedOption = null;
