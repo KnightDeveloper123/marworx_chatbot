@@ -397,9 +397,9 @@ router.post('/addwithwhatsup', async (req, res) => {
   for (const to of toNumbers) {
     try {
       if (startNode?.type === 'imageNode' && startNode?.data?.fileUrl) {
-        await sendWhatsAppImage(to, startNode.data.fileUrl);
+        await sendWhatsAppImage(to, startNode?.data.fileUrl);
       } else if (startNode?.data?.label) {
-        await sendWhatsAppText(to, startNode.data.label);
+        await sendWhatsAppText(to, startNode?.data.label);
       } else {
         await sendWhatsAppText(to, '👋 Hello! Let\'s begin.');
       }
