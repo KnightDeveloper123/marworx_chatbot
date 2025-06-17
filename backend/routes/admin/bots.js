@@ -142,6 +142,7 @@ router.post('/upload-video', (req, res) => {
     res.json({ fileName: req.file.filename });
   });
 });
+
 router.post('/upload-video', uploadVideo.single('video'), (req, res) => {
   res.json({ fileName: req.file.filename });
 });
@@ -1208,14 +1209,16 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
 // Helper functions for media nodes
 
 
+
+
+
 router.post('/webhook', async (req, res) => {
   try {
     console.log('=== NEW WEBHOOK REQUEST ===');
     const body = req.body;
     console.log("Raw incoming data:", JSON.stringify(body, null, 2));
 
-    // Validate incoming message
-    if (!body?.object === 'whatsapp_business_account') {
+    if (body?.object !== 'whatsapp_business_account') {
       console.log('Invalid object type');
       return res.status(200).send('Invalid object type');
     }
@@ -1227,9 +1230,6 @@ router.post('/webhook', async (req, res) => {
     }
 
     const from = message.from;
-    console.log(`Processing message from: ${from}`);
-
-    // Handle text or interactive messages
     let msg = '';
     if (message.type === 'text') {
       msg = message.text?.body?.trim().toLowerCase();
@@ -1240,29 +1240,24 @@ router.post('/webhook', async (req, res) => {
     }
     console.log(`Message content: ${msg}`);
 
-    // RESET FLOW
+    // RESET
     if (msg === 'restart') {
-      console.log('Restarting flow...');
       await sendWhatsAppText(from, '🔄 Flow reset. Type *hi* to begin again.');
       await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
+      await executeQuery('DELETE FROM user_answers WHERE phone_number = ?', [from]);
       return res.sendStatus(200);
     }
 
-    // GET USER PROGRESS
     const [progress] = await executeQuery(
       'SELECT * FROM user_node_progress WHERE phone_number = ? ORDER BY id DESC LIMIT 1',
       [from]
     );
-    console.log('User progress:', progress);
 
     let flow_id = progress?.flow_id;
 
-    // START NEW FLOW IF NO PROGRESS AND USER SAYS HI/HELLO
     if ((msg === 'hi' || msg === 'hello') && !progress) {
-      console.log('Starting new flow...');
       const [defaultBot] = await executeQuery('SELECT id FROM bots LIMIT 1');
       if (!defaultBot) {
-        console.log('No default bot found');
         await sendWhatsAppText(from, '❌ No default bot is configured.');
         return res.sendStatus(400);
       }
@@ -1270,25 +1265,24 @@ router.post('/webhook', async (req, res) => {
       flow_id = defaultBot.id;
       const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
 
-      // Parse bot flow
       const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
       const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
       const { graph, nodeMap } = buildFlowGraph(nodes, edges);
 
       const firstNode = nodes[0];
-      console.log('First node:', firstNode);
 
-      // Handle first node based on type
       if (firstNode.type === 'ListButton') {
         await sendWhatsAppList(from, firstNode.data.label, firstNode.data.targetValues);
       } else if (firstNode.type === 'ReplyButton') {
         await sendWhatsAppReplyButtons(from, firstNode.data.label, firstNode.data.targetValues);
-      } else if (firstNode.type === 'GoogleSheetsNode') {
-        await handleMediaNode('document', firstNode, from, flow_id);
-      } else if (firstNode.type === 'VideoNode') {
-        await handleMediaNode('video', firstNode, from, flow_id);
-      } else if (firstNode.type === 'imageNode') {
-        await handleMediaNode('image', firstNode, from, flow_id);
+      } else if (['GoogleSheetsNode', 'VideoNode', 'imageNode'].includes(firstNode.type)) {
+        const mediaType = firstNode.type === 'GoogleSheetsNode' ? 'document' :
+          firstNode.type === 'VideoNode' ? 'video' : 'image';
+        await handleMediaNode(mediaType, firstNode, from, flow_id);
+      } else if (firstNode.type === 'LinkNode') {
+        const { linkText, linkUrl } = firstNode.data;
+        const linkMessage = `🔗 *${linkText || linkUrl}*\n${linkUrl}`;
+        await sendWhatsAppText(from, linkMessage);
       } else {
         await sendWhatsAppText(from, firstNode?.data?.label || '👋 Hello!');
       }
@@ -1301,67 +1295,37 @@ router.post('/webhook', async (req, res) => {
       return res.sendStatus(200);
     }
 
-    // CONTINUE EXISTING FLOW
     if (!flow_id) {
-      console.log('No active flow found');
       return res.status(400).send('No active flow');
     }
 
-    console.log(`Continuing flow ${flow_id}...`);
     const [bot] = await executeQuery('SELECT nodes, edges FROM bots WHERE id = ?', [flow_id]);
     const nodes = typeof bot.nodes === 'string' ? JSON.parse(bot.nodes) : bot.nodes;
     const edges = typeof bot.edges === 'string' ? JSON.parse(bot.edges) : bot.edges;
     const { graph, nodeMap } = buildFlowGraph(nodes, edges);
 
     let currentNodeId = progress?.current_node_id;
-    console.log(`Current node ID: ${currentNodeId}`);
-
-    // Reset to first node if current node not found
     if (!nodeMap[currentNodeId]) {
-      console.log('Current node not found, resetting to first node');
-      const firstNode = nodes[0];
-      currentNodeId = firstNode.id;
-      await executeQuery(
-        'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
-        [currentNodeId, from]
-      );
+      currentNodeId = nodes[0].id;
+      await executeQuery('UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?', [currentNodeId, from]);
     }
 
     const currentNode = nodeMap[currentNodeId];
-    if (!currentNode) {
-      console.log('Node mapping failed, restarting flow');
-      await sendWhatsAppText(from, '⚠️ Flow error. Restarting...');
-      await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
-      return res.sendStatus(200);
-    }
-
-    console.log(`Processing node ${currentNodeId} of type ${currentNode.type}`);
-
-    // HANDLE NODE TYPES
     let nextNodeId = null;
 
-    // ListButton Node
     if (currentNode.type === "ListButton") {
-      console.log('Processing ListButton node');
       const targetValues = currentNode.data.targetValues || [];
-      const isListReply = message?.interactive?.type === "list_reply";
-
-      if (isListReply) {
+      if (message?.interactive?.type === "list_reply") {
         const selectedTitle = message.interactive.list_reply.title;
         const selectedIndex = targetValues.findIndex(
           val => val.toLowerCase().trim() === selectedTitle.toLowerCase().trim()
         );
-
         if (selectedIndex !== -1) {
-          const connections = graph[currentNodeId] || [];
-          const match = connections.find(
+          const match = (graph[currentNodeId] || []).find(
             conn => conn.sourceHandle === `option_${selectedIndex}`
           );
-
           if (match) {
             nextNodeId = match.target;
-            console.log(`User selected option ${selectedIndex}, moving to node ${nextNodeId}`);
-
             await executeQuery(
               'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
               [from, flow_id, currentNodeId, selectedTitle]
@@ -1369,14 +1333,10 @@ router.post('/webhook', async (req, res) => {
           }
         }
       } else {
-        console.log('Sending list buttons');
         await sendWhatsAppList(from, currentNode.data.label, targetValues);
         return res.sendStatus(200);
       }
-    }
-    // ReplyButton Node
-    else if (currentNode.type === "ReplyButton") {
-      console.log('Processing ReplyButton node');
+    } else if (currentNode.type === "ReplyButton") {
       const targetValues = currentNode.data.targetValues || [];
       let selectedOption = null;
 
@@ -1393,41 +1353,69 @@ router.post('/webhook', async (req, res) => {
 
       if (selectedOption) {
         const selectedIndex = targetValues.indexOf(selectedOption);
-        const connections = graph[currentNodeId] || [];
-        const match = connections.find(
+        const match = (graph[currentNodeId] || []).find(
           conn => conn.sourceHandle === `option_${selectedIndex}`
         );
-
         if (match) {
           nextNodeId = match.target;
-          console.log(`User selected option ${selectedIndex}, moving to node ${nextNodeId}`);
-
           await executeQuery(
             'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
             [from, flow_id, currentNodeId, selectedOption]
           );
         }
       } else {
-        console.log('Invalid option selected');
         await sendWhatsAppReplyButtons(from, '⚠️ Please choose a valid option:', targetValues);
         return res.sendStatus(200);
       }
     }
-    // Media Nodes
+    else if (currentNode.type === 'LinkNode') {
+      const { linkText, linkUrl } = currentNode.data;
+      const messageText = `🔗 *${linkText || linkUrl}*\n${linkUrl}`;
+      await sendWhatsAppText(from, messageText);
+
+      await executeQuery(
+        'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+        [from, flow_id, currentNodeId, linkUrl]
+      );
+
+      const connections = graph[currentNodeId] || [];
+      if (connections.length > 0) nextNodeId = connections[0].target;
+    }
+    //      else if (currentNode.type === 'LinkNode') {
+    //   const { linkText, linkUrl } = currentNode.data;
+    //   const messageText = `🔗 *${linkText || linkUrl}*\n${linkUrl}`;
+    //   await sendWhatsAppText(from, messageText);
+
+    //   await executeQuery(
+    //     'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+    //     [from, flow_id, currentNodeId, linkUrl]
+    //   );
+
+    //   const connections = graph[currentNodeId] || [];
+    //   if (connections.length > 0) {
+    //     nextNodeId = connections[0].target;
+    //    skipNextNodeProcessing = true;
+    //     // ✅ Update progress now to avoid sending again later
+    //     await executeQuery(
+    //       'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
+    //       [nextNodeId, from]
+    //     );
+
+    //     return res.sendStatus(200); // ✅ Exit here to avoid duplicate send
+    //   }
+    // }
+
+
+
+
     else if (['GoogleSheetsNode', 'VideoNode', 'imageNode'].includes(currentNode.type)) {
-      console.log(`Processing ${currentNode.type}`);
       const mediaType = currentNode.type === 'GoogleSheetsNode' ? 'document' :
         currentNode.type === 'VideoNode' ? 'video' : 'image';
       await handleMediaNode(mediaType, currentNode, from, flow_id);
 
       const connections = graph[currentNodeId] || [];
-      if (connections.length > 0) {
-        nextNodeId = connections[0].target;
-      }
-    }
-    // Default Text Node
-    else {
-      console.log('Processing default node');
+      if (connections.length > 0) nextNodeId = connections[0].target;
+    } else {
       if (message.type === 'text') {
         await executeQuery(
           'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
@@ -1436,38 +1424,32 @@ router.post('/webhook', async (req, res) => {
       }
 
       const connections = graph[currentNodeId] || [];
-      if (connections.length > 0) {
-        nextNodeId = connections[0].target;
-      }
+      if (connections.length > 0) nextNodeId = connections[0].target;
     }
 
-    // MOVE TO NEXT NODE
     if (nextNodeId) {
-      console.log(`Moving to next node: ${nextNodeId}`);
       const nextNode = nodeMap[nextNodeId];
 
-      // Update progress first
       await executeQuery(
         'UPDATE user_node_progress SET current_node_id = ? WHERE phone_number = ?',
         [nextNodeId, from]
       );
 
-      // Handle next node
+
+
       if (nextNode.type === 'ListButton') {
         await sendWhatsAppList(from, nextNode.data.label, nextNode.data.targetValues);
       } else if (nextNode.type === 'ReplyButton') {
         await sendWhatsAppReplyButtons(from, nextNode.data.label, nextNode.data.targetValues);
-      } else if (nextNode.type === 'GoogleSheetsNode') {
-        await handleMediaNode('document', nextNode, from, flow_id);
-      } else if (nextNode.type === 'VideoNode') {
-        await handleMediaNode('video', nextNode, from, flow_id);
-      } else if (nextNode.type === 'imageNode') {
-        await handleMediaNode('image', nextNode, from, flow_id);
+      } else if (['GoogleSheetsNode', 'VideoNode', 'imageNode'].includes(nextNode.type)) {
+        const mediaType = nextNode.type === 'GoogleSheetsNode' ? 'document' :
+          nextNode.type === 'VideoNode' ? 'video' : 'image';
+        await handleMediaNode(mediaType, nextNode, from, flow_id);
       } else {
         await sendWhatsAppText(from, nextNode?.data?.label || '...');
       }
+
     } else {
-      console.log('Flow complete');
       await sendWhatsAppText(from, '✅ Flow complete. Type *restart* to try again.');
       await executeQuery('DELETE FROM user_node_progress WHERE phone_number = ?', [from]);
     }
@@ -1479,9 +1461,24 @@ router.post('/webhook', async (req, res) => {
   }
 });
 
-// Unified media handler
+
+
+
+
+
 async function handleMediaNode(type, node, to, flow_id) {
   try {
+    // ✅ Check if this node is already answered
+    const [existingAnswer] = await executeQuery(
+      'SELECT id FROM user_answers WHERE phone_number = ? AND flow_id = ? AND node_id = ? LIMIT 1',
+      [to, flow_id, node.id]
+    );
+
+    if (existingAnswer) {
+      console.log(`Media node ${node.id} already answered. Skipping.`);
+      return;
+    }
+
     console.log(`Handling ${type} node`);
     let fileName, urlPath;
 
@@ -1541,7 +1538,6 @@ async function handleMediaNode(type, node, to, flow_id) {
     console.error(`❌ Error handling ${type} node:`, err);
   }
 }
-
 
 router.post('/save_number', async (req, res) => {
   const { phone_number } = req.body;

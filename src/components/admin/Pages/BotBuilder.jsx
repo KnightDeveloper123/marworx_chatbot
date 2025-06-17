@@ -143,7 +143,7 @@ const nodeTypes = {
           bgColor="var(--active-bg)"
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px">Question</Text>
+            <Text fontSize="10px" pl={'8px'}>Question</Text>
             <IconButton
               size="xs"
               variant="ghost"
@@ -211,7 +211,7 @@ const nodeTypes = {
           bgColor="var(--active-bg)"
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
               Message
             </Text>
             <IconButton
@@ -314,12 +314,12 @@ const nodeTypes = {
     }, [fileUrl, fileName]);
 
     return (
-      <Box bg="white" borderRadius="15px" p={2} boxShadow="md" w="200px">
+      <Box bg="white" borderRadius="15px"  boxShadow="md" w="200px">
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
-        <Box bg="blue.500" color="white" p={1} borderRadius="md">
+        <Box bgColor="var(--active-bg)"  color="white"  borderRadius="md">
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">Image</Text>
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Image</Text>
             <IconButton
               size="xs"
               variant="ghost"
@@ -470,108 +470,108 @@ const nodeTypes = {
   // }
   // ,
 
-VideoNode: ({ id, data }) => {
-  const { setNodes } = useReactFlow();
-  const [fileName, setFileName] = useState(data.fileName || "");
-  const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+  VideoNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+    const [fileName, setFileName] = useState(data.fileName || "");
+    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setNodes((nodes) =>
-        nodes.map((node) =>
-          node.id === id
-            ? { ...node, data: { ...node.data, fileName, fileUrl } }
-            : node
-        )
-      );
-    }, 500);
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, fileName, fileUrl } }
+              : node
+          )
+        );
+      }, 500);
 
-    return () => clearTimeout(timer);
-  }, [fileName, fileUrl, id, setNodes]);
+      return () => clearTimeout(timer);
+    }, [fileName, fileUrl, id, setNodes]);
 
-  const handleDelete = () => {
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-  };
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+    const handleFileChange = async (e) => {
+      const file = e.target.files[0];
 
-    if (!file || file.type !== "video/mp4") {
-      alert("Please upload a valid .mp4 video file.");
-      return;
-    }
-
-    const baseName = file.name.split(".")[0];
-    const formData = new FormData();
-    formData.append("video", file); // ✅ Field name matches multer.single('video')
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Video upload failed");
+      if (!file || file.type !== "video/mp4") {
+        alert("Please upload a valid .mp4 video file.");
+        return;
       }
 
-      setFileName(data.fileName);
-      setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
-    } catch (error) {
-      console.error("❌ Video upload failed:", error.message);
-      alert("Upload failed: " + error.message);
-    }
-  };
+      const baseName = file.name.split(".")[0];
+      const formData = new FormData();
+      formData.append("video", file); // ✅ Field name matches multer.single('video')
 
-  return (
-    <Box bg="white" borderRadius={"15px"}>
-      <Handle type="target" position="left" style={{ background: "#555" }} />
-      <Box
-        bg="blue.500"
-        color="white"
-        p={0.5}
-        borderRadius={"5px"}
-        bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
-      >
-        <Flex justifyContent="space-between" alignItems="center">
-          <Text fontSize="10px" fontWeight="bold">Video</Text>
-          <IconButton
-            size="xs"
-            variant="ghost"
-            colorScheme="white"
-            icon={<IoTrashOutline />}
-            onClick={handleDelete}
-            aria-label="Delete Node"
-          />
-        </Flex>
-      </Box>
-      <Divider />
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        });
 
-      <Input
-        fontSize="8px"
-        fontWeight="var(--big-font-weight)"
-        type="file"
-        accept="video/mp4"
-        onChange={handleFileChange}
-        style={{ marginTop: 4 }}
-        size="sm"
-      />
+        const data = await res.json();
 
-      {fileUrl && (
-        <video
-          src={fileUrl}
-          controls
-          style={{ width: "189px", height: "auto" }}
+        if (!res.ok) {
+          throw new Error(data.error || "Video upload failed");
+        }
+
+        setFileName(data.fileName);
+        setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
+      } catch (error) {
+        console.error("❌ Video upload failed:", error.message);
+        alert("Upload failed: " + error.message);
+      }
+    };
+
+    return (
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Video</Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Divider />
+
+        <Input
+          fontSize="8px"
+          fontWeight="var(--big-font-weight)"
+          type="file"
+          accept="video/mp4"
+          onChange={handleFileChange}
+          style={{ marginTop: 4 }}
+          size="sm"
         />
-      )}
 
-      <Handle type="source" position="bottom" style={{ background: "#555" }} />
-    </Box>
-  );
-}
-,
+        {fileUrl && (
+          <video
+            src={fileUrl}
+            controls
+            style={{ width: "189px", height: "auto" }}
+          />
+        )}
+
+        <Handle type="source" position="bottom" style={{ background: "#555" }} />
+      </Box>
+    );
+  }
+  ,
 
   GoogleSheetsNode: ({ id, data }) => {
     const [file, setFile] = useState(data.file || null);
@@ -589,29 +589,29 @@ VideoNode: ({ id, data }) => {
       return () => clearTimeout(timer);
     }, [file, id, setNodes]);
 
-  const handleFileChange = (e) => {
-  const uploadedFile = e.target.files[0];
-  if (uploadedFile) {
-    const baseName = uploadedFile.name.split('.')[0]; // get name without extension
-    const formData = new FormData();
-    formData.append("file", uploadedFile);
+    const handleFileChange = (e) => {
+      const uploadedFile = e.target.files[0];
+      if (uploadedFile) {
+        const baseName = uploadedFile.name.split('.')[0]; // get name without extension
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
 
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setFile(data.fileName); // Store the uploaded file name
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
-          )
-        );
-      })
-      .catch(console.error);
-  }
-};
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setFile(data.fileName); // Store the uploaded file name
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
+              )
+            );
+          })
+          .catch(console.error);
+      }
+    };
 
 
     // const handleFileChange = (e) => {
@@ -664,7 +664,7 @@ VideoNode: ({ id, data }) => {
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box color="white" p={0.5} borderRadius={"5px"} bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold">Google Sheet</Text>
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Google Sheet</Text>
             <IconButton size="xs" variant="ghost" colorScheme="white" icon={<IoTrashOutline />} onClick={handleDelete} aria-label="Delete Node" />
           </Flex>
         </Box>
@@ -1000,7 +1000,7 @@ VideoNode: ({ id, data }) => {
 
 
           <Flex justifyContent="space-between" alignItems="center"    >
-            <Text fontSize="10px" fontWeight="bold" >
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
               List Button
             </Text>
             <Flex alignItems={'flex-end'}>
@@ -1134,8 +1134,147 @@ VideoNode: ({ id, data }) => {
     );
   },
 
+  // LinkNode : ({ id, data }) => {
+  //   const { setNodes } = useReactFlow();
+
+  //   const [label, setLabel] = useState(data.label || '');
+  //   const [linkText, setLinkText] = useState(data.linkText || '');
+  //   const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
+
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nodes) =>
+  //         nodes.map((node) =>
+  //           node.id === id
+  //             ? {
+  //                 ...node,
+  //                 data: { label, linkText, linkUrl },
+  //               }
+  //             : node
+  //         )
+  //       );
+  //     }, 500);
+
+  //     return () => clearTimeout(timer);
+  //   }, [label, linkText, linkUrl]);
+
+  //   return (
+  //     <Box display={'flex'}  flexDirection={'column'} bgColor={'red.100'}>
+  //       <Box>🔗 Link Node</Box>
+
+  //       <label className="text-xs font-medium">Label</label>
+  //       <input
+  //         type="text"
+  //         className="border px-2 py-1 w-full mb-2"
+  //         placeholder="Intro text"
+  //         value={label}
+  //         onChange={(e) => setLabel(e.target.value)}
+  //       />
+
+  //       <label className="text-xs font-medium">Link Text</label>
+  //       <input
+  //         type="text"
+  //         className="border px-2 py-1 w-full mb-2"
+  //         placeholder="e.g. View Report"
+  //         value={linkText}
+  //         onChange={(e) => setLinkText(e.target.value)}
+  //       />
+
+  //       <label className="text-xs font-medium">Link URL</label>
+  //       <input
+  //         type="text"
+  //         className="border px-2 py-1 w-full"
+  //         placeholder="e.g. https://example.com"
+  //         value={linkUrl}
+  //         onChange={(e) => setLinkUrl(e.target.value)}
+  //       />
+  //     </Box>
+  //   );
+  // },
+
+  LinkNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
 
 
+    const [linkText, setLinkText] = useState(data.linkText || '');
+    const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: { ...node.data, linkText, linkUrl },
+              }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [linkText, linkUrl]);
+
+
+     const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+    return (
+
+      <Box bgColor={'white'} width={'200px'}  >
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+          padding={'4px'}
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Link Node
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
+        <Input
+          size="xs"
+          fontSize="8px"
+          value={linkText}
+          onChange={(e) => setLinkText(e.target.value)}
+          placeholder="e.g. View Report"
+          mb={1}
+          
+        />
+
+        <Text fontSize={'9px'}>Link URL</Text>
+        <Input
+          size="xs"
+          fontSize="8px"
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          placeholder="e.g. https://example.com"
+          mb={1}
+        />
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
+  },
 
   ReplyButton: ({ id, data }) => {
     const { setNodes, getEdges, setEdges } = useReactFlow();
@@ -1323,106 +1462,7 @@ VideoNode: ({ id, data }) => {
     );
   }
 
-  // ReplyButton: ({ id, data }) => {
-  //   const { setNodes } = useReactFlow();
-  //   const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
-  //   const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
-
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setNodes((nds) =>
-  //         nds.map((node) =>
-  //           node.id === id
-  //             ? {
-  //               ...node,
-  //               data: {
-  //                 ...node.data,
-  //                 label: question,
-  //                 targetValues,
-  //               },
-  //             }
-  //             : node
-  //         )
-  //       );
-  //     }, 300);
-  //     return () => clearTimeout(timer);
-  //   }, [question, targetValues, id, setNodes]);
-
-  //   const updateTargetValue = (index, newValue) => {
-  //     const updated = [...targetValues];
-  //     updated[index] = newValue;
-  //     setTargetValues(updated);
-  //   };
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
-
-  //   return (
-  //     <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
-  //       <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
-
-  //       <Box bg="blue.500" color="white" px={2} py={1} borderTopRadius="md">
-  //         <Flex justifyContent="space-between" alignItems="center">
-  //           <Text fontSize="10px" fontWeight="bold">
-  //             {question || 'Reply Button'}
-  //           </Text>
-  //           <IconButton
-  //             size="xs"
-  //             variant="ghost"
-  //             colorScheme="red"
-  //             icon={<IoTrashOutline />}
-  //             onClick={handleDelete}
-  //             aria-label="Delete Node"
-  //           />
-  //         </Flex>
-  //       </Box>
-
-  //       <Box px={2} py={2}>
-  //         <Input
-  //           placeholder="Enter question"
-  //           size="xs"
-  //           fontSize="10px"
-  //           mb={2}
-  //           value={question}
-  //           onChange={(e) => setQuestion(e.target.value)}
-  //         />
-
-
-
-  //         {targetValues.map((val, idx) => (
-  //           <Flex key={idx} alignItems="center" mb={1} position="relative" gap={'3px'}>
-  //             <Input
-  //               value={val}
-  //               onChange={(e) => updateTargetValue(idx, e.target.value)}
-  //               placeholder={`Option ${idx + 1}`}
-  //               size="xs"
-  //               fontSize="10px"
-  //               pr="20px"
-  //             />
-  //             <Handle
-  //               type="source"
-  //               position={Position.Right}
-  //               id={`option_${idx}`} // ✅ Use underscore to match WhatsApp reply id
-  //               style={{
-  //                 background: '#555',
-  //                 width: 8,
-  //                 height: 8,
-  //                 borderRadius: '50%',
-  //                 position: 'absolute',
-  //                 right: 4,
-  //                 top: '50%',
-  //                 transform: 'translateY(-50%)',
-  //               }}
-  //             />
-
-  //           </Flex>
-
-  //         ))}
-  //       </Box>
-  //     </Box>
-  //   );
-  // }
-
+ 
 
 };
 
@@ -1470,6 +1510,11 @@ const SidePanel = () => {
       type: "CustomNode",
       icon: <Icon as={FcPhoneAndroid} mr={2} />,
     },
+    // {
+    //   label: "Ask for link?",
+    //   type: "LinkNode",
+    //   icon: <Icon as={FcPhoneAndroid} mr={2} />,
+    // },
   ];
 
   // const logicBlocks = [
@@ -1493,6 +1538,7 @@ const SidePanel = () => {
     },
   ];
 
+
   const integrations = [
     {
       label: "Google Sheets",
@@ -1504,7 +1550,14 @@ const SidePanel = () => {
       type: "VideoNode",
       icon: <Icon as={FaRegFileVideo} mr={2} />,
     },
+    {
+      label: "Link",
+      type: "LinkNode",
+      icon: <Icon as={FcPhoneAndroid} mr={2} />,
+    },
   ];
+
+
 
   const handleDragStart = (e, block) => {
     const payload = JSON.stringify({ label: block.label, type: block.type });
