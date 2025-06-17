@@ -138,7 +138,16 @@ const EmployeeProfile = () => {
                     fontSize="var(--mini-text)"
                     fontWeight="var(--big-font-weight)" mt='4px'
                   >
-                    {algBotforEmployee?.map((bot, index) => (
+                    {algBotforEmployee?.map((bot, index) => {
+                    let label = null;
+                  try {
+                    const parsedNodes =
+                      typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+                    label = parsedNodes?.[0]?.data?.label || null;
+                  } catch (error) {
+                    console.error("Invalid bot.nodes JSON", error);
+                  }
+                  return(
                       <Card key={index}>
                         <Flex
                           justify="space-between"
@@ -153,20 +162,21 @@ const EmployeeProfile = () => {
                               />
                             </Box>
                             <Box spacing="3px">
-                              <Text textAlign="start">{bot?.nodes?.[0]?.data?.label || null}</Text>
+                              <Text textAlign="start">{label}</Text>
                               <Text textAlign="start" fontSize={"10px"}> {timeAgo(bot.createdAt)}
                               </Text>
                             </Box>
                           </Flex>
                         </Flex>
                       </Card>
-                    ))}
+                    )})}
                   </SimpleGrid>
                 </TabPanel>
                 <TabPanel>
                   <SimpleGrid spacing={4} _hover={{ cursor: "pointer" }}>
                     {genBotforEmployee?.map((bot, index) => (
                       <Card key={index}>
+                        {/* {console.log(bot)} */}
                         <Flex
                           justify="space-between"
                           align="center"
