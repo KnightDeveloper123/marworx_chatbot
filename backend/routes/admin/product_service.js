@@ -5,7 +5,8 @@ const executeQuery = require('../../utils/executeQuery');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 const multer = require('multer')
-const path = require('path')
+const path = require('path');
+const { Await } = require('react-router-dom');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -98,6 +99,18 @@ router.post('/delete_product', middleware, (req, res) => {
                 res.json({ data, success: "Product Deleted!" })
             }
         })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Internal server error!" })
+    }
+})
+
+router.get('/allDeletedProduct', async(req, res) => {
+    try {
+        const data=await executeQuery(`select * from product_service where status=1`)
+      
+        return res.json({ data, success: "Product Deleted!" })
+        
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Internal server error!" })
