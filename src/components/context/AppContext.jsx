@@ -309,9 +309,11 @@ export const AppProvider = ({ children }) => {
                 },
             })
             const result = await response.json();
-            setTemplate(result.data)
+           
+            setTemplate(result?.data || [])
         } catch (error) {
             console.log(error)
+            setTemplate([])
             showAlert('Internal server error', 'error')
         }
     }

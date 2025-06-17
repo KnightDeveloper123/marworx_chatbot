@@ -558,8 +558,9 @@ const SectorProfile = () => {
             <ModalBody pb={6}>
               <Box maxHeight="380px" overflowY={showAll ? "auto" : "hidden"}>
                 <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                  {(showAll ? template : template.slice(0, 3)).map(
-                    (temp, index) => (
+                  {/* {(showAll ? template : template.slice(0, 3)).map(
+                    (temp, index) => ( */}
+                      {(showAll ? (template || []) : (template || []).slice(0, 3)).map((temp, index) => (
                       <GridItem
                         key={index}
                         boxShadow="lg"
