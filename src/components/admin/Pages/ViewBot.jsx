@@ -124,74 +124,193 @@ const nodeTypes = {
     );
   },
 
-  CustomNode: ({ id, data }) => {
-    const [value, setValue] = useState(data.label || null);
-    const { setNodes } = useReactFlow();
+  // CustomNode: ({ id, data }) => {
+  //   const [value, setValue] = useState(data.label || null);
+  //   const { setNodes } = useReactFlow();
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id
+  //             ? { ...node, data: { ...node.data, label: value } }
+  //             : node
+  //         )
+  //       );
+  //     }, 500);
+
+  //     return () => clearTimeout(timer);
+  //   }, [value, id, setNodes]);
+
+  //   const handleDelete = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   return (
+  //     <Box bg="white" borderRadius={"15px"}>
+  //       <Handle type="target" position="top" style={{ background: "#555" }} />
+  //       <Box
+  //         bg="blue.500"
+  //         color="white"
+  //         p={0.5}
+  //         borderRadius={"5px"}
+  //         bgColor="var(--active-bg)"
+  //       >
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
+  //             Type
+  //           </Text>
+  //           <IconButton
+  //             size="xs"
+  //             variant="ghost"
+  //             colorScheme="white"
+  //             icon={<IoTrashOutline />}
+  //             onClick={handleDelete}
+  //             aria-label="Delete Node"
+  //           />
+  //         </Flex>
+  //       </Box>
+
+  //       <Textarea
+  //         value={value}
+  //         onChange={(e) => setValue(e.target.value)}
+  //         placeholder="Enter text..."
+  //         fontSize="8px"
+  //         border="none"
+  //         resize="none"
+  //         size="xs"
+  //         rows="2"
+  //         _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+  //       // px={2}
+  //       // py={1}
+  //       />
+
+  //       <Handle
+  //         type="source"
+  //         position="bottom"
+  //         style={{ background: "#555" }}
+  //       />
+  //     </Box>
+  //   );
+  // },
+
+  CustomNode: ({ id, data }) => {
+    const { setNodes, deleteElements } = useReactFlow();
+    const [question, setQuestion] = useState('');
+    const [answer, setAnswer] = useState('');
+
+    const handleAsk = async () => {
+      if (!question.trim()) return;
+
+      try {
+        const response = await axios.get(`http://216.10.251.154:5000/get_info?query=${encodeURIComponent(question)}`);
+        const answerText = response.data.answer || response.data;
+        setAnswer(answerText);
+
+        // Optional: Update node data with last Q&A
         setNodes((nds) =>
           nds.map((node) =>
             node.id === id
-              ? { ...node, data: { ...node.data, label: value } }
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  lastQuestion: question,
+                  lastAnswer: answerText,
+                },
+              }
               : node
           )
         );
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }, [value, id, setNodes]);
+      } catch (error) {
+        console.error('Error fetching from Python API:', error);
+        setAnswer('❌ Failed to get response from Python API.');
+      }
+    };
 
     const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
+      deleteElements({ nodes: [{ id }] });
     };
 
     return (
-      <Box bg="white" borderRadius={"15px"}>
-        <Handle type="target" position="top" style={{ background: "#555" }} />
-        <Box
-          bg="blue.500"
-          color="white"
-          p={0.5}
-          borderRadius={"5px"}
-          bgColor="var(--active-bg)"
-        >
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
-              Type
-            </Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="white"
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label="Delete Node"
-            />
-          </Flex>
+      <Box bgColor={'white'} borderRadius={'2px'}>
+        {/* Handles for connecting nodes */}
+        <Handle type="target" position={Position.Top} />
+        <Handle type="source" position={Position.Bottom} />
+
+        {/* Node Title */}
+        <Box bgColor="var(--active-bg)" color="white" borderRadius={'2px'}
+          display={'flex'} justifyContent={'space-between'} padding={'4px'}>
+          <Text fontSize={'10px'}>{data.label}</Text>
+          <IoTrashOutline onClick={handleDelete}></IoTrashOutline>
         </Box>
 
-        <Textarea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter text..."
+        {/* Question Input */}
+        <Input
+          type="text"
+          backgroundColor={'white'}
+          placeholder="ask a question"
+          value={question}
           fontSize="8px"
-          border="none"
-          resize="none"
-          size="xs"
-          rows="2"
-          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-        // px={2}
-        // py={1}
+          onChange={(e) => setQuestion(e.target.value)}
         />
 
-        <Handle
-          type="source"
-          position="bottom"
-          style={{ background: "#555" }}
-        />
+
+
+
+        {/* Show Answer */}
+        {answer && (
+          <div className="mt-3 text-sm bg-gray-100 p-2 rounded">
+            <span className="font-semibold text-gray-700">Answer:</span> {answer}
+          </div>
+        )}
       </Box>
     );
+    // return (
+    //   <Box width={'200px'} bgColor={'white'}>
+    //     {/* Handles for connecting nodes */}
+    //     <Handle type="target" position={Position.Top} />
+    //     <Handle type="source" position={Position.Bottom} />
+
+    //     {/* Node Title */}
+    //     <Box>
+    //       {data.label || 'Ask a Question'}
+    //     </Box>
+
+    //     <Box display={'flex'} flexDirection={'column'} padding={"10px"} gap={'3px'}>
+    //       {/* Question Input */}
+    //       <Input
+    //         type="text"
+
+    //         placeholder="Type your question"
+    //         value={question}
+    //         onChange={(e) => setQuestion(e.target.value)}
+    //       />
+
+    //       {/* Ask Button */}
+    //       <Button size={"xs"}
+    //         onClick={handleAsk}
+    //       >
+    //         Ask
+    //       </Button>
+
+    //       {/* Delete Button */}
+    //       <Button 
+    //       size={"xs"}
+    //         onClick={handleDelete}
+    //       >
+    //         Delete
+    //       </Button>
+    //     </Box>
+
+    //     {/* Show Answer */}
+    //     {answer && (
+    //       <div className="mt-3 text-sm bg-gray-100 p-2 rounded">
+    //         <span className="font-semibold text-gray-700">Answer:</span> {answer}
+    //       </div>
+    //     )}
+    //   </Box>
+    // );
   },
   CustomQuestion: ({ id, data }) => {
     const [value, setValue] = useState(data.label || null);
@@ -345,89 +464,89 @@ const nodeTypes = {
     );
   },
 
-   LinkNode: ({ id, data }) => {
-      const { setNodes } = useReactFlow();
-  
-  
-      const [linkText, setLinkText] = useState(data.linkText || '');
-      const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
-  
-      useEffect(() => {
-        const timer = setTimeout(() => {
-          setNodes((nodes) =>
-            nodes.map((node) =>
-              node.id === id
-                ? {
-                  ...node,
-                  data: { ...node.data, linkText, linkUrl },
-                }
-                : node
-            )
-          );
-        }, 500);
-  
-        return () => clearTimeout(timer);
-      }, [linkText, linkUrl]);
-  
-  
-       const handleDelete = () => {
-        setNodes((nds) => nds.filter((node) => node.id !== id));
-      };
-      return (
-  
-        <Box bgColor={'white'} width={'200px'}  >
-          <Handle type="target" position="left" style={{ background: "#555" }} />
-          <Box
-  
-            color="white"
-            p={0.5}
-            borderRadius={"5px"}
-            bgColor="var(--active-bg)"
-            padding={'4px'}
-          >
-            <Flex justifyContent="space-between" alignItems="center">
-              <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
-                Link Node
-              </Text>
-              <IconButton
-                size="xs"
-                variant="ghost"
-                colorScheme="white"
-                icon={<IoTrashOutline />}
-                onClick={handleDelete}
-                aria-label="Delete Node"
-              />
-            </Flex>
-          </Box>
-          <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
-          <Input
-            size="xs"
-            fontSize="8px"
-            value={linkText}
-            onChange={(e) => setLinkText(e.target.value)}
-            placeholder="e.g. View Report"
-            mb={1}
-            
-          />
-  
-          <Text fontSize={'9px'}>Link URL</Text>
-          <Input
-            size="xs"
-            fontSize="8px"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="e.g. https://example.com"
-            mb={1}
-          />
-  
-          <Handle
-            type="source"
-            position="bottom"
-            style={{ background: "#555" }}
-          />
+  LinkNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+
+
+    const [linkText, setLinkText] = useState(data.linkText || '');
+    const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: { ...node.data, linkText, linkUrl },
+              }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [linkText, linkUrl]);
+
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+    return (
+
+      <Box bgColor={'white'} width={'200px'}  >
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+          padding={'4px'}
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
+              Link Node
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
         </Box>
-      );
-    },
+        <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
+        <Input
+          size="xs"
+          fontSize="8px"
+          value={linkText}
+          onChange={(e) => setLinkText(e.target.value)}
+          placeholder="e.g. View Report"
+          mb={1}
+
+        />
+
+        <Text fontSize={'9px'}>Link URL</Text>
+        <Input
+          size="xs"
+          fontSize="8px"
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          placeholder="e.g. https://example.com"
+          mb={1}
+        />
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
+  },
   imageNode: ({ id, data }) => {
     const [image, setImage] = useState(data.fileUrl || null);
     const [fileName, setFileName] = useState(data.fileName || "");
@@ -493,10 +612,10 @@ const nodeTypes = {
     }, [fileUrl, fileName]);
 
     return (
-      <Box bg="white" borderRadius="15px"  boxShadow="md" w="200px">
+      <Box bg="white" borderRadius="15px" boxShadow="md" w="200px">
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
-        <Box bgColor="var(--active-bg)" color="white"  borderRadius="md">
+        <Box bgColor="var(--active-bg)" color="white" borderRadius="md">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Image</Text>
             <IconButton
@@ -1119,9 +1238,9 @@ const nodeTypes = {
 
     const handleExpand = (idx) => {
       if (typeof idx !== "number") {
-    console.log("handleExpand: Invalid index", idx);
-    return;
-  }
+        console.log("handleExpand: Invalid index", idx);
+        return;
+      }
       const allEdges = getEdges();
 
       // Find the edge for this specific option
@@ -1231,7 +1350,7 @@ const nodeTypes = {
                   updated[idx] = e.target.value;
                   setTargetValues(updated);
                 }}
-             
+
               />
 
               <IconButton
@@ -1284,8 +1403,8 @@ const nodeTypes = {
             <ModalCloseButton />
             <ModalBody>
               <Stack spacing={2}>
-                {bots.map((bot) =>{
-                    let label = null;
+                {bots.map((bot) => {
+                  let label = null;
                   try {
                     const parsedNodes =
                       typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
@@ -1293,14 +1412,15 @@ const nodeTypes = {
                   } catch (error) {
                     console.error("Invalid bot.nodes JSON", error);
                   }
-                  return(
-                  <Button
-                    key={bot.id}
-                    size="sm"
-                    onClick={() => handleBotSelect(bot)} >
-                     {label}
-                  </Button>
-                ) })}
+                  return (
+                    <Button
+                      key={bot.id}
+                      size="sm"
+                      onClick={() => handleBotSelect(bot)} >
+                      {label}
+                    </Button>
+                  )
+                })}
               </Stack>
             </ModalBody>
           </ModalContent>
@@ -1465,7 +1585,7 @@ const nodeTypes = {
   }
 
 
- 
+
 
 
 };
@@ -1672,7 +1792,7 @@ const FlowCanvas = () => {
 
 
   const { screenToFlowPosition } = useReactFlow();
-  const { phoneNumbers, getAllNumbers, deleteProduct, getAllDeleteProduct,setDeleteProduct } = useContext(AppContext);
+  const { phoneNumbers, getAllNumbers, deleteProduct, getAllDeleteProduct, setDeleteProduct } = useContext(AppContext);
 
   const botType = localStorage.getItem("botType");
   const sectorId = localStorage.getItem("sectorId");
@@ -1875,17 +1995,17 @@ const FlowCanvas = () => {
       console.log(error);
     }
   };
-const { isOpen: isNotificationOpen, onOpen: onNotificationOpen, onClose: onNotificationClose } = useDisclosure()
-// const [Notificati,setNotification]=useState(false)
-const onNotification = () => {
-  onNotificationOpen(true)
+  const { isOpen: isNotificationOpen, onOpen: onNotificationOpen, onClose: onNotificationClose } = useDisclosure()
+  // const [Notificati,setNotification]=useState(false)
+  const onNotification = () => {
+    onNotificationOpen(true)
 
-  const updatedProducts = deleteProduct.map((item) => ({
-    ...item,
-    seen: true,
-  }));
-  setDeleteProduct(updatedProducts);
-};
+    const updatedProducts = deleteProduct.map((item) => ({
+      ...item,
+      seen: true,
+    }));
+    setDeleteProduct(updatedProducts);
+  };
 
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
