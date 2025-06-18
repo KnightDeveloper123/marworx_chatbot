@@ -47,7 +47,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-06-12 06:09:32','2025-06-12 06:09:32','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-06-13 05:14:11','2025-06-13 05:14:11','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0),(4,'Paras mehata','paras@mailinator.com','$2b$10$7H9OeldWe1MPuY6YwhmEI.XHJGjpo8HrluIkNbss7Z8hYxe/y.pca',NULL,'Admin',0,'2025-06-11 08:08:19','2025-06-11 08:09:46','2025-06-11 08:09:46',NULL,NULL,0);
+INSERT INTO `admin` VALUES (1,'Animesh Pradhan','priyanka123@mailinator.com','$2b$10$Czhow0YK6axeda2Whpet3./nI29mE8.xSuDqdlf6yHLZv0ZOkBCX.','1234567899','Super-Admin',0,'2025-03-27 06:57:22','2025-06-18 09:08:39','2025-06-18 09:08:39','2025-02-23 18:30:00','1745844099857-919036082.png',0),(2,'priyanka','priyanka@mailinator.com','$2b$10$PNredsQm8ld0m.JBLWvkY.dZSrXep3lARrEJtgJCHdvLwdS5vqkrO','1234567898','Admin',0,'2025-04-28 10:04:41','2025-06-13 05:14:11','2025-06-13 05:14:11','2025-04-15 18:30:00','1745836640644-101652830.jpg',0),(3,'sushil','sushil@mailintor.com',NULL,'2345678987','Admin',0,'2025-04-30 07:47:45','2025-04-30 07:47:45',NULL,'2025-04-09 18:30:00',NULL,0),(4,'Paras mehata','paras@mailinator.com','$2b$10$7H9OeldWe1MPuY6YwhmEI.XHJGjpo8HrluIkNbss7Z8hYxe/y.pca',NULL,'Admin',0,'2025-06-11 08:08:19','2025-06-11 08:09:46','2025-06-11 08:09:46',NULL,NULL,0);
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -341,7 +341,7 @@ CREATE TABLE `documents` (
   `sector_id` int DEFAULT NULL,
   `bot_type` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -350,7 +350,7 @@ CREATE TABLE `documents` (
 
 LOCK TABLES `documents` WRITE;
 /*!40000 ALTER TABLE `documents` DISABLE KEYS */;
-INSERT INTO `documents` VALUES (7,2,'chatbot dataset.csv','2025-05-13 09:52:31',1,NULL,NULL),(8,2,'thermax.csv','2025-05-13 09:52:50',0,NULL,NULL),(9,4,'lead.csv','2025-06-11 08:22:15',0,1,'Genarative ai');
+INSERT INTO `documents` VALUES (7,2,'chatbot dataset.csv','2025-05-13 09:52:31',1,NULL,NULL),(8,2,'thermax.csv','2025-05-13 09:52:50',0,NULL,NULL),(9,4,'lead.csv','2025-06-11 08:22:15',0,1,'Genarative ai'),(10,2,'employeedata6.csv','2025-06-17 12:07:13',0,1,'Genarative ai');
 /*!40000 ALTER TABLE `documents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -425,6 +425,39 @@ LOCK TABLES `end_employee` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `interactions_log`
+--
+
+DROP TABLE IF EXISTS `interactions_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `interactions_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `bot_id` int NOT NULL,
+  `campaign_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `message` text,
+  `interaction_type` enum('click','view','submit','message') DEFAULT 'message',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `bot_id` (`bot_id`),
+  KEY `campaign_id` (`campaign_id`),
+  CONSTRAINT `interactions_log_ibfk_1` FOREIGN KEY (`bot_id`) REFERENCES `bots` (`id`),
+  CONSTRAINT `interactions_log_ibfk_2` FOREIGN KEY (`campaign_id`) REFERENCES `campaign` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `interactions_log`
+--
+
+LOCK TABLES `interactions_log` WRITE;
+/*!40000 ALTER TABLE `interactions_log` DISABLE KEYS */;
+INSERT INTO `interactions_log` VALUES (1,1,6,101,'User clicked CTA','click','2025-06-18 15:14:32');
+/*!40000 ALTER TABLE `interactions_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `messages_log`
 --
 
@@ -438,11 +471,14 @@ CREATE TABLE `messages_log` (
   `status` enum('sent','failed') DEFAULT 'sent',
   `sent_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `error_message` text,
+  `bot_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_campaign` (`campaign_id`),
   KEY `fk_contact` (`contact_id`),
+  KEY `bot_id` (`bot_id`),
   CONSTRAINT `fk_campaign` FOREIGN KEY (`campaign_id`) REFERENCES `campaign` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_contact` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_contact` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `messages_log_ibfk_1` FOREIGN KEY (`bot_id`) REFERENCES `bots` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -452,7 +488,7 @@ CREATE TABLE `messages_log` (
 
 LOCK TABLES `messages_log` WRITE;
 /*!40000 ALTER TABLE `messages_log` DISABLE KEYS */;
-INSERT INTO `messages_log` VALUES (1,6,5,'sent','2025-06-17 10:36:35',NULL),(2,6,7,'sent','2025-06-17 10:36:36',NULL),(3,7,5,'sent','2025-06-17 10:36:36',NULL),(4,7,7,'sent','2025-06-17 10:36:36',NULL),(5,7,5,'sent','2025-06-17 10:36:51',NULL),(6,7,7,'sent','2025-06-17 10:36:51',NULL);
+INSERT INTO `messages_log` VALUES (1,6,5,'sent','2025-06-17 10:36:35',NULL,NULL),(2,6,7,'sent','2025-06-17 10:36:36',NULL,NULL),(3,7,5,'sent','2025-06-17 10:36:36',NULL,NULL),(4,7,7,'sent','2025-06-17 10:36:36',NULL,NULL),(5,7,5,'sent','2025-06-17 10:36:51',NULL,NULL),(6,7,7,'sent','2025-06-17 10:36:51',NULL,NULL);
 /*!40000 ALTER TABLE `messages_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -548,7 +584,7 @@ CREATE TABLE `sector` (
 
 LOCK TABLES `sector` WRITE;
 /*!40000 ALTER TABLE `sector` DISABLE KEYS */;
-INSERT INTO `sector` VALUES (1,2,'Dermatology','Healthcare','Bots for Dermatologyclinics','1745652248426-467745167.ico','2025-04-26 06:59:32',NULL,0,NULL),(2,2,'Industry','industrial','In the fast-paced manufacturing industry, scheduling meetings efficiently is critical to maintaining production timelines.','1747903453303-409849841.jpg','2025-05-14 10:13:11',NULL,0,NULL),(3,2,'Hotel','industrial',' is simply dummy text of the printing and typesetting industry.','1747475316323-467780180.jpg','2025-05-17 09:48:36',NULL,0,NULL),(4,2,'Hospital1','industrial','A hospital is a healthcare facility that provides medical and nursing care to patients','1749636845907-63427795.jpg','2025-06-11 10:13:42',NULL,0,NULL),(5,2,'Hospital','chemicals','A grocery shop is a retailing shop where a general range freshly packed food products are available.','1749727013310-986260454.jpg','2025-06-12 11:16:53',NULL,0,2);
+INSERT INTO `sector` VALUES (1,2,'Dermatology','industrial','Bots for Dermatologyclinics','1750162095331-408396237.jpg','2025-04-26 06:59:32',NULL,0,2),(2,2,'Industry','industrial','In the fast-paced manufacturing industry, scheduling meetings efficiently is critical to maintaining production timelines.','1747903453303-409849841.jpg','2025-05-14 10:13:11',NULL,0,NULL),(3,2,'Hotel','industrial',' is simply dummy text of the printing and typesetting industry.','1747475316323-467780180.jpg','2025-05-17 09:48:36',NULL,0,NULL),(4,2,'Hospital1','industrial','A hospital is a healthcare facility that provides medical and nursing care to patients','1749636845907-63427795.jpg','2025-06-11 10:13:42',NULL,0,NULL),(5,2,'Hospital','chemicals','A grocery shop is a retailing shop where a general range freshly packed food products are available.','1749727013310-986260454.jpg','2025-06-12 11:16:53',NULL,0,2);
 /*!40000 ALTER TABLE `sector` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -738,4 +774,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-17 10:56:48
+-- Dump completed on 2025-06-18 18:19:14
