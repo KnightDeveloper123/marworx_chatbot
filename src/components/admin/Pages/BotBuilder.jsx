@@ -1320,6 +1320,7 @@ const nodeTypes = {
             />
           </Flex>
         </Box>
+        <Box   paddingX={'6px'}>
         <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
         <Input
           size="xs"
@@ -1335,11 +1336,13 @@ const nodeTypes = {
         <Input
           size="xs"
           fontSize="8px"
+        
           value={linkUrl}
           onChange={(e) => setLinkUrl(e.target.value)}
           placeholder="e.g. https://example.com"
           mb={1}
         />
+        </Box>
 
         <Handle
           type="source"
