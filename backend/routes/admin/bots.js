@@ -1858,20 +1858,84 @@ router.post('/webhook', async (req, res) => {
 });
 
 
+// async function handleMediaNode(type, node, to, flow_id) {
+//   try {
+//     console.log(`Handling ${type} node`);
+
+//     let fileName, urlPath;
+
+//     if (type === 'document') {
+//       fileName = node.data?.file;
+//       urlPath = 'uploadFiles';
+//     } else if (type === 'video') {
+//       fileName = node.data?.fileName;
+//       urlPath = 'videoFiles';
+//     } else { // image
+//       fileName = node.data?.fileName;
+//       urlPath = 'uploads';
+//     }
+
+//     if (!fileName) {
+//       console.log(`No file specified for ${type} node`);
+//       return;
+//     }
+
+//     const mediaUrl = `${process.env.NGROK_PUBLIC_URL}/${urlPath}/${encodeURIComponent(fileName)}`;
+//     console.log(`Media URL: ${mediaUrl}`);
+
+//     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
+//     const payload = {
+//       messaging_product: "whatsapp",
+//       to: to,
+//       type: type,
+//       [type]: type === 'document' ? {
+//         link: mediaUrl,
+//         filename: fileName
+//       } : type === 'video' ? {
+//         link: mediaUrl
+//       } : {
+//         link: mediaUrl,
+//         caption: node.data?.caption || ''
+//       }
+//     };
+
+//     console.log('Sending media payload:', JSON.stringify(payload, null, 2));
+//     const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
+//       method: 'POST',
+//       headers: {
+//         'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(payload),
+//     });
+
+//     const result = await response.json();
+//     console.log('Media send result:', result);
+
+//     // ✅ Save answer every time (optional; can remove if you don’t want duplicates)
+//     await executeQuery(
+//       'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
+//       [to, flow_id, node.id, fileName]
+//     );
+//   } catch (err) {
+//     console.error(`❌ Error handling ${type} node:`, err);
+//   }
+// }
 async function handleMediaNode(type, node, to, flow_id) {
   try {
     console.log(`Handling ${type} node`);
 
     let fileName, urlPath;
+    let captionText = node.data?.caption || ''; // Get caption from node.data, default to empty
 
     if (type === 'document') {
-      fileName = node.data?.file;
+      fileName = node.data?.file; // Assuming 'file' for document upload
       urlPath = 'uploadFiles';
     } else if (type === 'video') {
-      fileName = node.data?.fileName;
+      fileName = node.data?.fileUrl; // Assuming 'fileName' for video upload
       urlPath = 'videoFiles';
     } else { // image
-      fileName = node.data?.fileName;
+      fileName = node.data?.fileName; // Assuming 'fileName' for image upload
       urlPath = 'uploads';
     }
 
@@ -1884,19 +1948,27 @@ async function handleMediaNode(type, node, to, flow_id) {
     console.log(`Media URL: ${mediaUrl}`);
 
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
+
+    // Dynamically build the media object based on type, including caption for all
+    const mediaObject = {};
+    mediaObject.link = mediaUrl;
+
+    if (type === 'document') {
+      mediaObject.filename = fileName; // Documents also require 'filename'
+    }
+
+    
+    // Add caption for all media types if present
+    if (captionText) { // Only add if captionText is not empty
+      mediaObject.caption = captionText;
+    }
+
+
     const payload = {
       messaging_product: "whatsapp",
       to: to,
       type: type,
-      [type]: type === 'document' ? {
-        link: mediaUrl,
-        filename: fileName
-      } : type === 'video' ? {
-        link: mediaUrl
-      } : {
-        link: mediaUrl,
-        caption: node.data?.caption || ''
-      }
+      [type]: mediaObject // Use the dynamically built mediaObject
     };
 
     console.log('Sending media payload:', JSON.stringify(payload, null, 2));
@@ -1912,11 +1984,17 @@ async function handleMediaNode(type, node, to, flow_id) {
     const result = await response.json();
     console.log('Media send result:', result);
 
+    if (!response.ok) {
+      console.error("❌ WhatsApp Media API error:", result);
+      throw new Error(`WhatsApp Media API error: ${JSON.stringify(result)}`);
+    }
+
     // ✅ Save answer every time (optional; can remove if you don’t want duplicates)
     await executeQuery(
       'INSERT INTO user_answers (phone_number, flow_id, node_id, answer) VALUES (?, ?, ?, ?)',
-      [to, flow_id, node.id, fileName]
+      [to, flow_id, node.id, fileName] // You might want to save `captionText` here too if relevant
     );
+
   } catch (err) {
     console.error(`❌ Error handling ${type} node:`, err);
   }

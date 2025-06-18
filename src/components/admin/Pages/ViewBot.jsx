@@ -587,6 +587,8 @@ const nodeTypes = {
       </Box>
     );
   },
+
+  
   
   VideoNode: ({ id, data }) => {
     const { setNodes } = useReactFlow();
@@ -688,114 +690,236 @@ const nodeTypes = {
         <Handle type="source" position="bottom" style={{ background: "#555" }} />
       </Box>
     );
-  }
-  ,
-
-  GoogleSheetsNode: ({ id, data }) => {
-    const [file, setFile] = useState(data.file || null);
-    const { setNodes } = useReactFlow();
-
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === id ? { ...node, data: { ...node.data, file } } : node
-          )
-        );
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }, [file, id, setNodes]);
-
-    const handleFileChange = (e) => {
-      const uploadedFile = e.target.files[0];
-      if (uploadedFile) {
-        const baseName = uploadedFile.name.split('.')[0]; // get name without extension
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
-          method: "POST",
-          body: formData,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            setFile(data.fileName); // Store the uploaded file name
-            setNodes((nds) =>
-              nds.map((node) =>
-                node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
-              )
-            );
-          })
-          .catch(console.error);
-      }
-    };
-
-
-    const handleDeleteFile = () => {
-      setFile(null);
-      // Optionally: call backend to delete uploaded file using fetch()
-    };
-
-    const handleDeleteNode = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
-
-    return (
-      <Box bg="white" borderRadius="4px">
-        <Handle type="target" position="left" style={{ background: "#555" }} />
-        <Box color="white" p={0.5} borderRadius="5px" bgColor="var(--active-bg)">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Google Sheet</Text>
-            <IconButton
-              size="xs"
-              variant="ghost"
-              colorScheme="white"
-              icon={<IoTrashOutline />}
-              onClick={handleDeleteNode}
-              aria-label="Delete Node"
-            />
-          </Flex>
-        </Box>
-        <Divider />
-
-        <Input
-          type="file"
-          accept=".xlsx,.xls,.csv"
-          onChange={handleFileChange}
-          fontSize="var(--text-12px)"
-          fontWeight="var(--big-font-weight)"
-          size="sm"
-        />
-
-        {file && (
-          <Box mt={2} fontSize="xs" color="gray.700">
-            <Flex justifyContent="space-between" alignItems="center">
-              <a
-                href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "underline", color: "#3182ce" }}
-              >
-                📄 {file}
-              </a>
-              <IconButton
-                size="xs"
-                variant="ghost"
-                colorScheme="red"
-                icon={<IoTrashOutline />}
-                onClick={handleDeleteFile}
-                aria-label="Delete File"
-              />
-            </Flex>
-          </Box>
-        )}
-
-        <Handle type="source" position="bottom" style={{ background: "#555" }} />
-      </Box>
-    );
   },
 
+
+
+  // GoogleSheetsNode: ({ id, data }) => {
+  //   const [file, setFile] = useState(data.file || null);
+  //   const { setNodes } = useReactFlow();
+
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.id === id ? { ...node, data: { ...node.data, file } } : node
+  //         )
+  //       );
+  //     }, 500);
+
+  //     return () => clearTimeout(timer);
+  //   }, [file, id, setNodes]);
+
+  //   const handleFileChange = (e) => {
+  //     const uploadedFile = e.target.files[0];
+  //     if (uploadedFile) {
+  //       const baseName = uploadedFile.name.split('.')[0]; // get name without extension
+  //       const formData = new FormData();
+  //       formData.append("file", uploadedFile);
+
+  //       fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+  //         method: "POST",
+  //         body: formData,
+  //       })
+  //         .then((res) => res.json())
+  //         .then((data) => {
+  //           setFile(data.fileName); // Store the uploaded file name
+  //           setNodes((nds) =>
+  //             nds.map((node) =>
+  //               node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
+  //             )
+  //           );
+  //         })
+  //         .catch(console.error);
+  //     }
+  //   };
+
+
+  //   const handleDeleteFile = () => {
+  //     setFile(null);
+  //     // Optionally: call backend to delete uploaded file using fetch()
+  //   };
+
+  //   const handleDeleteNode = () => {
+  //     setNodes((nds) => nds.filter((node) => node.id !== id));
+  //   };
+
+  //   return (
+  //     <Box bg="white" borderRadius="4px">
+  //       <Handle type="target" position="left" style={{ background: "#555" }} />
+  //       <Box color="white" p={0.5} borderRadius="5px" bgColor="var(--active-bg)">
+  //         <Flex justifyContent="space-between" alignItems="center">
+  //           <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Google Sheet</Text>
+  //           <IconButton
+  //             size="xs"
+  //             variant="ghost"
+  //             colorScheme="white"
+  //             icon={<IoTrashOutline />}
+  //             onClick={handleDeleteNode}
+  //             aria-label="Delete Node"
+  //           />
+  //         </Flex>
+  //       </Box>
+  //       <Divider />
+
+  //       <Input
+  //         type="file"
+  //         accept=".xlsx,.xls,.csv"
+  //         onChange={handleFileChange}
+  //         fontSize="var(--text-12px)"
+  //         fontWeight="var(--big-font-weight)"
+  //         size="sm"
+  //       />
+
+  //       {file && (
+  //         <Box mt={2} fontSize="xs" color="gray.700">
+  //           <Flex justifyContent="space-between" alignItems="center">
+  //             <a
+  //               href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
+  //               target="_blank"
+  //               rel="noopener noreferrer"
+  //               style={{ textDecoration: "underline", color: "#3182ce" }}
+  //             >
+  //               📄 {file}
+  //             </a>
+  //             <IconButton
+  //               size="xs"
+  //               variant="ghost"
+  //               colorScheme="red"
+  //               icon={<IoTrashOutline />}
+  //               onClick={handleDeleteFile}
+  //               aria-label="Delete File"
+  //             />
+  //           </Flex>
+  //         </Box>
+  //       )}
+
+  //       <Handle type="source" position="bottom" style={{ background: "#555" }} />
+  //     </Box>
+  //   );
+  // },
+
+   GoogleSheetsNode: ({ id, data }) => {
+      const [file, setFile] = useState(data.file || null);
+      const [caption, setCaption] = useState(data.caption || '');
+      const { setNodes } = useReactFlow();
+  
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === id ? { ...node, data: { ...node.data, file, caption } } : node
+            )
+          );
+        }, 500);
+  
+        return () => clearTimeout(timer);
+      }, [file, caption, id, setNodes]);
+  
+      const handleFileChange = (e) => {
+        const uploadedFile = e.target.files[0];
+        if (uploadedFile) {
+          const baseName = uploadedFile.name.split('.')[0]; // get name without extension
+          const formData = new FormData();
+          formData.append("file", uploadedFile);
+  
+          fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              setFile(data.fileName); // Store the uploaded file name
+              setNodes((nds) =>
+                nds.map((node) =>
+                  node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
+                )
+              );
+            })
+            .catch(console.error);
+        }
+      };
+  
+  
+      const handleCaptionChange = (e) => {
+        setCaption(e.target.value);
+      };
+  
+      const handleDeleteFile = () => {
+        setFile(null);
+        setCaption(''); // Clear caption when file is deleted
+        // Optionally: call backend to delete uploaded file
+      };
+      const handleDelete = () => {
+        setNodes((nds) => nds.filter((node) => node.id !== id));
+      };
+  
+      return (
+        <Box bg="white" borderRadius={"4px"} width={'250px'} >
+          <Handle type="target" position="left" style={{ background: "#555" }} />
+          <Box color="white" p={0.5} borderRadius={"5px"} bgColor="var(--active-bg)">
+            <Flex justifyContent="space-between" alignItems="center">
+              <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Google Sheet</Text>
+              <IconButton size="xs" variant="ghost" colorScheme="white" icon={<IoTrashOutline />} onClick={handleDelete} aria-label="Delete Node" />
+            </Flex>
+          </Box>
+          <Divider />
+  
+          <Box display={'flex'} flexDirection={'column'} padding={'5px'} gap={'3px'}>
+            <Input
+              placeholder="Enter the name"
+              value={caption}
+              onChange={handleCaptionChange}
+              fontSize="10px"
+              // fontWeight="var(--big-font-weight)"
+              size="xs"
+            // Add some padding
+            />
+            <Input
+              type="file"
+              accept=".xlsx,.xls,.csv,.pdf,.txt"
+              onChange={handleFileChange}
+              fontSize="10px"
+              // fontWeight="var(--big-font-weight)"
+              size="xs"
+            />
+  
+  
+  
+            {/* {file &&
+  
+            <p>📄 {file}</p>} */}
+  
+            {file && (
+              <Box mt={2} fontSize="xs" color="gray.700" > {/* Added padding here */}
+  
+                <Flex justifyContent="space-between" alignItems="center">
+                  <a
+                    href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "underline", color: "#3182ce" }}
+                  >
+                    📄 {file}
+                  </a>
+                  <IconButton
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="red"
+                    icon={<IoTrashOutline />}
+                    onClick={handleDeleteFile}
+                    aria-label="Delete File"
+                  />
+                </Flex>
+              </Box>
+            )}
+  
+  
+            <Handle type="source" position="bottom" style={{ background: "#555" }} />
+          </Box>
+        </Box>
+      );
+    },
 
   ListButton: ({ id, data }) => {
     const navigate = useNavigate();                //*** */
