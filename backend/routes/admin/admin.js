@@ -497,23 +497,35 @@ router.post("/getActiveStatus", middleware, async (req, res) => {
 router.get('/getAdminCount', middleware, async (req, res) => {
     try {
         // Get count of active bots in the last 30 days
+        const { admin_id } =req.query
         const activeBot = await executeQuery(`
       SELECT COUNT(*) AS active_bots FROM bots 
-      WHERE status=0 AND created_at >= NOW() - INTERVAL 30 DAY
+      WHERE status=0 AND admin_id=${admin_id} AND created_at >= NOW() - INTERVAL 30 DAY
     `);
 
         // Get count of campaigns with status 'Sent'
         const campaignSent = await executeQuery(`
-      SELECT COUNT(*) AS campaigns_sent FROM campaign 
-      WHERE is_status = 'Sent'
+            SELECT 
+        c.admin_id,
+        COUNT(ml.id) AS total_messages_sent
+        FROM 
+        messages_log ml
+        JOIN 
+        campaign c ON ml.campaign_id = c.id
+        WHERE 
+        ml.status = 'sent' AND c.admin_id=${admin_id} IS NOT NULL
+        GROUP BY 
+        c.admin_id;
+
     `);
+    // console.log(activeBot)
 
         // Send response in the expected format
         return res.json({
             success: true,
             data: {
                 activeBots: activeBot[0].active_bots,
-                campaignsSent: campaignSent[0].campaigns_sent
+                campaignsSent: campaignSent[0].total_messages_sent
             }
         });
 
@@ -577,6 +589,35 @@ router.get('/sector-performance', middleware, async (req, res) => {
     `);
 
         return res.json({ success: true, data: result });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// sector-wise number of bots
+router.get('/sectorNumberWiseBots', middleware, async (req, res) => {
+    const {admin_id}=req.query
+    try {
+        const result = await executeQuery(`SELECT s.name AS sector_name, COUNT(*) AS bot_count
+            FROM bots b
+            JOIN sector s ON b.sector_id = s.id
+            WHERE b.status = 0 AND b.admin_id = ${admin_id}
+            GROUP BY s.name;
+            ;
+         `);
+
+       const  generativeData= await executeQuery(`SELECT s.name AS sector_name, COUNT(*) AS bot_count
+        FROM documents d
+        JOIN sector s ON d.sector_id = s.id
+        WHERE d.bot_type = 'Genarative ai'
+        AND d.status = 0
+        AND d.admin_id =  ${admin_id}
+        GROUP BY s.name;
+        `)
+
+
+        return res.json({ success: true, data: result,generativeData:generativeData });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Internal Server Error" });

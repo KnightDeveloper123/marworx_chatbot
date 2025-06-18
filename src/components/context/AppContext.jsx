@@ -309,7 +309,7 @@ export const AppProvider = ({ children }) => {
                 },
             })
             const result = await response.json();
-           
+
             setTemplate(result?.data || [])
         } catch (error) {
             console.log(error)
@@ -469,7 +469,7 @@ export const AppProvider = ({ children }) => {
         }
     }
     const [botSector, setBotSector] = useState([])
-    const  getAllinSector= async (id) => {
+    const getAllinSector = async (id) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAllbotSector?sector_id=${id}`, {
                 method: "GET",
@@ -488,8 +488,8 @@ export const AppProvider = ({ children }) => {
             showAlert('Internal server error', 'error')
         }
     }
-  const [botDeletebot, setDeleteBot ]= useState([])
-    const  getAlldeletebot= async (id) => {
+    const [botDeletebot, setDeleteBot] = useState([])
+    const getAlldeletebot = async (id) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/getAlldeletebot?admin_id=${id}`, {
                 method: "GET",
@@ -509,8 +509,8 @@ export const AppProvider = ({ children }) => {
         }
     }
 
-    const [deleteProduct, setDeleteProduct ]= useState([])
-    const  getAllDeleteProduct= async () => {
+    const [deleteProduct, setDeleteProduct] = useState([])
+    const getAllDeleteProduct = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/allDeletedProduct`, {
                 method: "GET",
@@ -529,13 +529,119 @@ export const AppProvider = ({ children }) => {
             showAlert('Internal server error', 'error')
         }
     }
-    
+
+    const [sectorBots, setSectorBots] = useState([]);
+    const [sectorGenAi, setSectorGenAi] = useState([]);
+    const fetchSectorBots = async (admin_id) => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/sectorNumberWiseBots?admin_id=${admin_id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                }
+            })
+            const response = await res.json();
+            setSectorBots(response.data)
+            setSectorGenAi(response.generativeData)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const [metrics, setMetrics] = useState({ activeBots: 0, campaignsSent: 0 });
+    const fetchMetrics = useCallback(async (admin_id) => {
+        if (!token) {
+            console.warn("Missing token, skipping metrics fetch");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const res = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/admin/getAdminCount?admin_id=${admin_id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token,
+                    },
+                }
+            );
+
+            const result = await res.json();
+
+            if (result?.success) {
+                const activeBots = result.data?.activeBots ?? 0;
+                const campaignsSent = result.data?.campaignsSent ?? 0;
+                setMetrics({ activeBots, campaignsSent });
+            } else {
+                console.error('API error:', result?.error || 'Unknown error');
+            }
+        } catch (err) {
+            console.error('Fetch error:', err.message || err);
+        } finally {
+            setLoading(false);
+        }
+    }, [token]);
+
+    const [months, setMonths] = useState([]);
+    const [botData, setBotData] = useState([]);
+    const [campaignData, setCampaignData] = useState([]);
+
+    const fetchMonthlyMetrics = async () => {
+        try {
+            if (!token) {
+                console.error('No token found in localStorage.');
+                return;
+            }
+
+            const response = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/admin/getMonthlyMetrics`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: token
+                    }
+                }
+            );
+
+            const { success, data, error } = await response.json();
+
+            if (!success) {
+                console.error('API Error:', error);
+                return;
+            }
+
+            const { botsByMonth = [], campaignsByMonth = [] } = data;
+
+            const allMonths = Array.from(
+                new Set([...botsByMonth, ...campaignsByMonth].map(item => item.month))
+            ).sort();
+
+            const botMap = new Map(botsByMonth.map(({ month, count }) => [month, count]));
+            const campaignMap = new Map(campaignsByMonth.map(({ month, count }) => [month, count]));
+
+            const botSeries = allMonths.map(month => botMap.get(month) || 0);
+            const campaignSeries = allMonths.map(month => campaignMap.get(month) || 0);
+
+            setMonths(allMonths);
+            setBotData(botSeries);
+            setCampaignData(campaignSeries);
+
+        } catch (error) {
+            console.error('Error fetching monthly metrics:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <AppContext.Provider
             value={{
-                deleteProduct,getAllDeleteProduct,setDeleteProduct,
-                getEmployeeId,employeeId,botSector,getAllinSector,botDeletebot,getAlldeletebot,
-                getGenBotforEmployee, genBotforEmployee,getAlgBotforEmployee, algBotforEmployee,
+                fetchMetrics, metrics,months,botData,campaignData,fetchMonthlyMetrics,
+                deleteProduct, getAllDeleteProduct, setDeleteProduct, fetchSectorBots, sectorBots, sectorGenAi,
+                getEmployeeId, employeeId, botSector, getAllinSector, botDeletebot, getAlldeletebot,
+                getGenBotforEmployee, genBotforEmployee, getAlgBotforEmployee, algBotforEmployee,
                 showAlert, loading, fetchLinkedBots, linkedBots, getProducts, products, sectorData, sector,
                 fetchAllEmployees, employees, timeAgo,
                 fetchAllEmployee, employee,
