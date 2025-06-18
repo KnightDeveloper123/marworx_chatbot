@@ -481,23 +481,10 @@ router.post("/getActiveStatus", middleware, async (req, res) => {
 });
 
 
-// router.get('/getAdminCount', middleware, async (req, res) => {
-//     try {
-//       const activeBot=await executeQuery(`SELECT COUNT(*) AS active_bots FROM bots WHERE created_at >= NOW() - INTERVAL 30 DAY`)
-//       const campaignSent= await executeQuery(`SELECT COUNT(*) AS sent_campaigan FROM campaign WHERE is_status='Sent'`)
-
-//             return res.json({ success: "success", activeBot: activeBot[0],campaignSent: campaignSent[0]})
-//         // })
-//     } catch (error) {
-//         console.error("Error in /getAllQueriesById:", error.message);
-//         return res.status(500).json({ error: "Internal Server Error" });
-//     }
-// })
-
 router.get('/getAdminCount', middleware, async (req, res) => {
     try {
         // Get count of active bots in the last 30 days
-        const { admin_id } =req.query
+        const { admin_id } = req.query
         const activeBot = await executeQuery(`
       SELECT COUNT(*) AS active_bots FROM bots 
       WHERE status=0 AND admin_id=${admin_id} AND created_at >= NOW() - INTERVAL 30 DAY
@@ -518,7 +505,7 @@ router.get('/getAdminCount', middleware, async (req, res) => {
         c.admin_id;
 
     `);
-    // console.log(activeBot)
+        // console.log(activeBot)
 
         // Send response in the expected format
         return res.json({
@@ -597,7 +584,7 @@ router.get('/sector-performance', middleware, async (req, res) => {
 
 // sector-wise number of bots
 router.get('/sectorNumberWiseBots', middleware, async (req, res) => {
-    const {admin_id}=req.query
+    const { admin_id } = req.query
     try {
         const result = await executeQuery(`SELECT s.name AS sector_name, COUNT(*) AS bot_count
             FROM bots b
@@ -607,7 +594,7 @@ router.get('/sectorNumberWiseBots', middleware, async (req, res) => {
             ;
          `);
 
-       const  generativeData= await executeQuery(`SELECT s.name AS sector_name, COUNT(*) AS bot_count
+        const generativeData = await executeQuery(`SELECT s.name AS sector_name, COUNT(*) AS bot_count
         FROM documents d
         JOIN sector s ON d.sector_id = s.id
         WHERE d.bot_type = 'Genarative ai'
@@ -617,7 +604,7 @@ router.get('/sectorNumberWiseBots', middleware, async (req, res) => {
         `)
 
 
-        return res.json({ success: true, data: result,generativeData:generativeData });
+        return res.json({ success: true, data: result, generativeData: generativeData });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -730,47 +717,57 @@ router.get('/top-performing-campaigns', async (req, res) => {
 });
 
 
-// top campaign using clicks rate
-// router.get('/top-performing-campaigns-by-clicks', async (req, res) => {
-//   try {
-//     const topClickedCampaigns = await executeQuery(`
-//       SELECT 
-//         c.campaign_name,
-//         COUNT(cc.id) AS click_count
-//       FROM campaign c
-//       LEFT JOIN campaign_clicks cc ON c.id = cc.campaign_id
-//       GROUP BY c.id, c.campaign_name
-//       ORDER BY click_count DESC
-//       LIMIT 5;
-//     `);
-
-//     res.json({
-//       success: true,
-//       data: topClickedCampaigns
-//     });
-//   } catch (err) {
-//     console.error('Error fetching top campaigns by clicks:', err);
-//     res.status(500).json({ success: false, message: 'Internal server error' });
-//   }
-// });
-
-
-router.get('/getActiveUser', middleware, async (req, res) => {
+// using clicks rate bot id,admin-id,campiagan_id
+router.get('/botcampaigns-by-clicks', async (req, res) => {
     try {
-        const monthlyUser = await executeQuery(`SELECT DATE_FORMAT(created_at, '%Y-%m') AS registration_month, COUNT(*) AS monthly_active_users
-            FROM admin
-            WHERE created_at IS NOT NULL
-            GROUP BY registration_month
-            ORDER BY registration_month DESC;
-            `)
+        const topClickedCampaigns = await executeQuery(`SELECT
+    b.admin_id,
+    COUNT(DISTINCT il_submit.id) AS completed_interactions,
+    COUNT(DISTINCT il_click.id) AS total_clicks,
+    COUNT(DISTINCT ml.id) AS total_messages,
+    ROUND((COUNT(DISTINCT il_submit.id) / NULLIF(COUNT(DISTINCT ml.id), 0)) * 100, 2) AS completion_rate,
+    ROUND((COUNT(DISTINCT il_click.id) / NULLIF(COUNT(DISTINCT ml.id), 0)) * 100, 2) AS click_through_rate
+FROM bots b
+LEFT JOIN messages_log ml ON b.id = ml.bot_id
+LEFT JOIN interactions_log il_submit ON b.id = il_submit.bot_id AND il_submit.interaction_type = 'submit'
+LEFT JOIN interactions_log il_click ON b.id = il_click.bot_id AND il_click.interaction_type = 'click'
+GROUP BY b.admin_id;
 
-        return res.json({ success: "success", monthlyUser: monthlyUser[0] })
-        // })
-    } catch (error) {
-        console.error("Error in /getAllQueriesById:", error.message);
-        return res.status(500).json({ error: "Internal Server Error" });
+ `);
+        res.json({
+            success: true,
+            data: topClickedCampaigns
+        });
+        // console.log(topClickedCampaigns)
+    } catch (err) {
+        console.error('Error fetching top campaigns by clicks:', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
-})
+});
+
+
+router.get('/getActiveUser', middleware,async (req, res) => {
+  try {
+    const [daily, monthly] = await Promise.all([
+      executeQuery(`SELECT DATE(last_login) AS day, COUNT(DISTINCT id) AS daily_active_users
+                    FROM admin
+                    WHERE last_login >= CURDATE() - INTERVAL 30 DAY
+                    GROUP BY day ORDER BY day;`),
+
+      executeQuery(`SELECT DATE_FORMAT(last_login, '%Y-%m') AS month, COUNT(DISTINCT id) AS monthly_active_users
+                    FROM admin
+                    WHERE last_login >= CURDATE() - INTERVAL 12 MONTH
+                    GROUP BY month ORDER BY month;`)
+    ]);
+// console.log(daily)
+// console.log(monthly)
+    res.json({ success: true, daily, monthly });
+  } catch (err) {
+    console.error('Error fetching active users:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 
 
 

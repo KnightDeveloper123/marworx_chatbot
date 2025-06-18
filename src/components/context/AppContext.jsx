@@ -634,10 +634,50 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const [botcampaigns, setBotcampaigns] = useState([])
+    const getbotcampaigns = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/botcampaigns-by-clicks`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    // Authorization: token
+                },
+            })
+            const result = await response.json();
+            setBotcampaigns(result.data)
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
+
+     const [activeUser, setActiveUser] = useState({ daily: [], monthly: [] })
+    const getActiveUser = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getActiveUser`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    Authorization: token
+                },
+            })
+            const result = await response.json();
+            // console.log(result)
+            setActiveUser({ daily: result.daily, monthly: result.monthly })
+
+        } catch (error) {
+            console.log(error)
+            showAlert('Internal server error', 'error')
+        }
+    }
+    
 
     return (
         <AppContext.Provider
             value={{
+                getbotcampaigns,botcampaigns,getActiveUser,activeUser,
                 fetchMetrics, metrics,months,botData,campaignData,fetchMonthlyMetrics,
                 deleteProduct, getAllDeleteProduct, setDeleteProduct, fetchSectorBots, sectorBots, sectorGenAi,
                 getEmployeeId, employeeId, botSector, getAllinSector, botDeletebot, getAlldeletebot,

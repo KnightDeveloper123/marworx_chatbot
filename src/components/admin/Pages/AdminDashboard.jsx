@@ -43,10 +43,10 @@ import { FaUserCircle, FaUsers } from 'react-icons/fa'
 import { HiMiniUsers } from 'react-icons/hi2'
 
 
-import { PieSectorWiseBots ,BarChartTopBotAndCampaigan,PieSectorWisesectorGenAi } from '../../admin/Chart'
+import { PieSectorWiseBots, BarChartTopBotAndCampaigan, PieSectorWisesectorGenAi, EngagementBarChart, MonthlyActiveUser } from '../../admin/Chart'
 
 const AdminDashboard = () => {
-  const { showAlert, formatDate,fetchSectorBots,sectorBots, sectorGenAi,fetchMetrics,metrics,months,botData,campaignData,fetchMonthlyMetrics, } = useContext(AppContext)
+  const { showAlert, formatDate, fetchSectorBots, sectorBots, sectorGenAi, fetchMetrics, metrics, months, botData, campaignData, fetchMonthlyMetrics, getbotcampaigns, botcampaigns, getActiveUser, activeUser } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [dashboardData, setDashboardData] = useState({})
   const [documents, setDocuments] = useState([])
@@ -118,10 +118,11 @@ const AdminDashboard = () => {
     fetchSectorBots(admin_id);
     fetchMetrics(admin_id);
     fetchMonthlyMetrics();
-  }, [fetchDashboardData, fetchAllDocuments,fetchMetrics, admin_id])
+    getbotcampaigns();
+    getActiveUser();
+  }, [fetchDashboardData, fetchAllDocuments, fetchMetrics, admin_id])
 
   const [loading, setLoading] = useState(true);
-
   const [file, setFile] = useState({
     fileName: '',
     file: []
@@ -196,7 +197,7 @@ const AdminDashboard = () => {
   }
 
   //sector wise bots
- 
+
 
 
 
@@ -320,106 +321,107 @@ const AdminDashboard = () => {
   //   },
   // };
 
+  // console.log(activeUser)
+
 
   return (
     <Flex flexDirection='column' w='100%' h='100%' pt={'20px'} >
-      {location.pathname === '/home/dashboard' && (
-        <Box >
-          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-            {user_role === 'Admin' && (
-              <>
-                <GridItem
-                  display={'flex'}
-                  alignItems={'center'}
-                  justifyContent={'space-between'}
-                  p={4}
-                  bg='#f8f3ff'
-                  borderRadius={'10px'}
-                  boxShadow={'lg'}
+
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+        {user_role === 'Admin' && (
+          <>
+            <GridItem
+              display={'flex'}
+              alignItems={'center'}
+              justifyContent={'space-between'}
+              p={4}
+              bg='#f8f3ff'
+              borderRadius={'10px'}
+              boxShadow={'lg'}
+            >
+              <Flex flexDir={'column'}>
+                <Text fontSize={'20px'}>
+                  {metrics.activeBots}
+                </Text>
+                <Text
+                  color={'#a4a4a4'}
+                  fontSize={{ base: '12px', md: '14px' }}
                 >
-                  <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>
-                      {metrics.activeBots}
-                    </Text>
-                    <Text
-                      color={'#a4a4a4'}
-                      fontSize={{ base: '12px', md: '14px' }}
-                    >
-                      Number of Active Bots
-                    </Text>
-                  </Flex>
-                  <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
-                    <Text
-                      fontSize={{ base: '18px', md: '24px' }}
-                      color={'#490287'}
-                    >
-                      <RiRobot2Fill />
-                    </Text>
-                  </Box>
-                </GridItem>
-
-                <GridItem
-                  display={'flex'}
-                  alignItems={'center'}
-                  justifyContent={'space-between'}
-                  p={4}
-                  bg='#FFFDF2'
-                  borderRadius={'10px'}
-                  boxShadow={'lg'}
+                  Number of Active Bots
+                </Text>
+              </Flex>
+              <Box p={2} borderRadius={'full'} bg={'#9726fb59'}>
+                <Text
+                  fontSize={{ base: '18px', md: '24px' }}
+                  color={'#490287'}
                 >
-                  <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>{metrics.campaignsSent}</Text>
-                    <Text
-                      color={'#a4a4a4'}
-                      fontSize={{ base: '12px', md: '14px' }}
-                    >
-                      Number of campaigns sent 
-                    </Text>
-                  </Flex>
+                  <RiRobot2Fill />
+                </Text>
+              </Box>
+            </GridItem>
 
-
-                  <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
-                    <Text
-                      fontSize={{ base: '18px', md: '24px' }}
-                      color={'#db7100'}
-                    >
-                      <IoIosSend />{' '}
-                    </Text>
-                  </Box>
-                </GridItem>
-              </>
-            )}
-
-            {user_role === 'Super-Admin' && (
-              <>
-                <GridItem
-                  display={'flex'}
-                  alignItems={'center'}
-                  justifyContent={'space-between'}
-                  p={4}
-                  bg='#F8F3FF'
-                  borderRadius={'10px'}
-                  boxShadow={'lg'}
+            <GridItem
+              display={'flex'}
+              alignItems={'center'}
+              justifyContent={'space-between'}
+              p={4}
+              bg='#FFFDF2'
+              borderRadius={'10px'}
+              boxShadow={'lg'}
+            >
+              <Flex flexDir={'column'}>
+                <Text fontSize={'20px'}>{metrics.campaignsSent}</Text>
+                <Text
+                  color={'#a4a4a4'}
+                  fontSize={{ base: '12px', md: '14px' }}
                 >
-                  <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
-                    <Text
-                      color={'#a4a4a4'}
-                      fontSize={{ base: '12px', md: '14px' }}
-                    >
-                      Number of Admin
-                    </Text>
-                  </Flex>
-                  <Box p={2} borderRadius={'full'} bg={'#E8DAFA'}>
-                    <Text
-                      fontSize={{ base: '18px', md: '24px' }}
-                      color={'#7919FF'}
-                    >
-                      <FaUserCircle />{' '}
-                    </Text>
-                  </Box>
-                </GridItem>
-                <GridItem
+                  Number of campaigns sent
+                </Text>
+              </Flex>
+
+
+              <Box p={2} borderRadius={'full'} bg={'#fbcf2659'}>
+                <Text
+                  fontSize={{ base: '18px', md: '24px' }}
+                  color={'#db7100'}
+                >
+                  <IoIosSend />{' '}
+                </Text>
+              </Box>
+            </GridItem>
+          </>
+        )}
+
+        {user_role === 'Super-Admin' && (
+          <>
+            <GridItem
+              display={'flex'}
+              alignItems={'center'}
+              justifyContent={'space-between'}
+              p={4}
+              bg='#F8F3FF'
+              borderRadius={'10px'}
+              boxShadow={'lg'}
+            >
+              <Flex flexDir={'column'}>
+                <Text fontSize={'20px'}>{dashboardData.total_admin}</Text>
+                <Text
+                  color={'#a4a4a4'}
+                  fontSize={{ base: '12px', md: '14px' }}
+                >
+                  Number of Admin
+                </Text>
+              </Flex>
+              <Box p={2} borderRadius={'full'} bg={'#E8DAFA'}>
+                <Text
+                  fontSize={{ base: '18px', md: '24px' }}
+                  color={'#7919FF'}
+                >
+                  <FaUserCircle />{' '}
+                </Text>
+              </Box>
+            </GridItem>
+            {/* <GridItem
                   display={'flex'}
                   alignItems={'center'}
                   justifyContent={'space-between'}
@@ -447,53 +449,54 @@ const AdminDashboard = () => {
                       <HiMiniUsers />{' '}
                     </Text>
                   </Box>
-                </GridItem>
-                <GridItem
-                  display={'flex'}
-                  alignItems={'center'}
-                  justifyContent={'space-between'}
-                  p={4}
-                  bg='#F2FFF2'
-                  borderRadius={'10px'}
-                  boxShadow={'lg'}
+                </GridItem> */}
+            <GridItem
+              display={'flex'}
+              alignItems={'center'}
+              justifyContent={'space-between'}
+              p={4}
+              bg='#F2FFF2'
+              borderRadius={'10px'}
+              boxShadow={'lg'}
+            >
+              <Flex flexDir={'column'}>
+                <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
+                <Text
+                  color={'#a4a4a4'}
+                  fontSize={{ base: '12px', md: '14px' }}
                 >
-                  <Flex flexDir={'column'}>
-                    <Text fontSize={'20px'}>{dashboardData.total_user}</Text>
-                    <Text
-                      color={'#a4a4a4'}
-                      fontSize={{ base: '12px', md: '14px' }}
-                    >
-                      Number of User
-                    </Text>
-                  </Flex>
-                  <Box p={2} borderRadius={'full'} bg={'#CDFFCE'}>
-                    <Text
-                      fontSize={{ base: '18px', md: '24px' }}
-                      color={'#029D07'}
-                    >
-                      <FaUsers />{' '}
-                    </Text>
-                  </Box>
-                </GridItem>
-              </>
-            )}
-          </SimpleGrid>
-          <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
-              <GridItem w={'100%'} py={2} px={'40px'}  border={'1px solid #f3ebeb'} borderRadius={'15px'}>
-                <Text fontSize="var(--text-12px)" textAlign={'center'} mb={2}>Number Of Chatbot Sector Wise</Text>
-                  <PieSectorWiseBots data={sectorBots} />
-              </GridItem>
-              <GridItem  colSpan={2}  w={'100%'} py={2} px={'40px'}  border={'1px solid #f3ebeb'} borderRadius={'15px'}>
-                  <Text textAlign={'center'} mb={2}>Monthly metrics (bots and campaigns)</Text>
-                  <BarChartTopBotAndCampaigan   months={months}
-                  botData={botData}
-                  campaignData={campaignData} />
-                </GridItem>
-          </SimpleGrid>
+                  Number of User
+                </Text>
+              </Flex>
+              <Box p={2} borderRadius={'full'} bg={'#CDFFCE'}>
+                <Text
+                  fontSize={{ base: '18px', md: '24px' }}
+                  color={'#029D07'}
+                >
+                  <FaUsers />{' '}
+                </Text>
+              </Box>
+            </GridItem>
+          </>
+        )}
+      </SimpleGrid>
+      {user_role === 'Admin' && (<>
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
+          <GridItem w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text fontSize="var(--text-12px)" textAlign={'center'} mb={2}>Number Of Chatbot Sector Wise</Text>
+            <PieSectorWiseBots data={sectorBots} />
+          </GridItem>
+          <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text textAlign={'center'} mb={2}>Monthly metrics (bots and campaigns)</Text>
+            <BarChartTopBotAndCampaigan months={months}
+              botData={botData}
+              campaignData={campaignData} />
+          </GridItem>
+        </SimpleGrid>
 
-           <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
-              <GridItem  colSpan={2} w={'100%'} py={2} px={'40px'}  border={'1px solid #f3ebeb'} borderRadius={'15px'}>
-                 <TableContainer
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
+          <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <TableContainer
               mt='20px'
               width={'100%'}
               borderRadius='5px 5px 0px 0px'
@@ -516,7 +519,7 @@ const AdminDashboard = () => {
                     </Tr>
                   ) : (
                     <Tr h='40px' bgColor='#FFF5F3'>
-                     
+
                       <Th
                         fontWeight='var(--big-font-weight)'
                         color='var(--text-black)'
@@ -552,7 +555,7 @@ const AdminDashboard = () => {
                       key={item?.id}
                       onClick={() => setSelectedFile(item)}
                     >
-                      
+
                       <Td>{item?.name}</Td>
                       <Td>{formatDate(item?.created_at)}</Td>
                       <Td>
@@ -579,28 +582,45 @@ const AdminDashboard = () => {
                 </Tbody>
               </Table>
             </TableContainer>
-              </GridItem>
-              <GridItem   w={'100%'} py={2} px={'40px'}  border={'1px solid #f3ebeb'} borderRadius={'15px'}>
-                  <Text textAlign={'center'} mb={2}>Number Of generative chat bot Sector </Text>
-                 <PieSectorWisesectorGenAi data={sectorGenAi} />
-                </GridItem>
-          </SimpleGrid>
-
-        </Box>
-      )}
-
-
-      <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
-       
-        <SimpleGrid h={'100%'} mt={4} columns={1} gap={2}>
-          <GridItem colSpan={{ base: 1, md: 2 }}>
-           
-          <FileViewer selectedFile={selectedFile} />
           </GridItem>
-
+          <GridItem w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text textAlign={'center'} mb={2}>Number Of generative chat bot Sector </Text>
+            <PieSectorWisesectorGenAi data={sectorGenAi} />
+          </GridItem>
         </SimpleGrid>
-      </Box>
+      </>)}
+      {user_role === 'Super-Admin' && (<>
+        <SimpleGrid columns={1} gap={4} mt={5}>
+          <GridItem w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text fontSize="var(--text-12px)" textAlign={'center'} mb={2}>User engagement metrics</Text>
+            <EngagementBarChart adminMetrics={botcampaigns} />
+          </GridItem>
+          <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text textAlign={'center'} mb={2}>Monthly metrics (bots and campaigns)</Text>
+            <BarChartTopBotAndCampaigan months={months}
+              botData={botData}
+              campaignData={campaignData} />
+          </GridItem>
+          <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+            <Text textAlign={'center'} mb={2}>Monthly Active Users</Text>
+            <MonthlyActiveUser data={activeUser} formatDate={formatDate} />
+          </GridItem>
+        </SimpleGrid>
+      </>)}
 
+
+      {user_role === 'Admin' && (<>
+        <Box p={4} bg={'#fff'} mt={4} borderRadius={'lg'} boxShadow={'md'}>
+
+          <SimpleGrid h={'100%'} mt={4} columns={1} gap={2}>
+            <GridItem colSpan={{ base: 1, md: 2 }}>
+
+              <FileViewer selectedFile={selectedFile} />
+            </GridItem>
+
+          </SimpleGrid>
+        </Box>
+      </>)}
       <Modal
         size={'sm'}
         isOpen={isOpen}

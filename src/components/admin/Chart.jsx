@@ -189,64 +189,121 @@ export const PieSectorWisesectorGenAi = ({ data }) => {
     return <Pie data={chartData} options={options} />;
 };
 
-export const MonthlyTrainingTrend = ({ data }) => {
- 
-    
-    const labels = data?.map(item => item.month) ;
-    const completionData = data?.map(item => item.completed);
-    const chartData = {
-        labels,
-        datasets: [
-            {
-                label: "Completed Trainings",
-                data: completionData,
-                borderColor: "#4BC0C0",
-                backgroundColor: "rgba(75,192,192,0.4)",
-                tension: 0.4,
-                fill: true,
-                pointRadius: 5,
-                pointBackgroundColor: "#4BC0C0"
-            }
-        ],
-    };
 
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: "bottom"
-            },
-            title: {
-                display: true,
-                text: "Monthly Training Completion Trend",
-                font: {
-                    size: 18
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    // label: context => ${context.dataset.label}: ${context.raw}
-                    }
-            }
+export const EngagementBarChart = ({ adminMetrics }) => {
+const labels = adminMetrics.map(item => `Admin ${item.admin_id}`);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'Click-Through Rate (%)',
+        data: adminMetrics.map(item => item.click_through_rate || 0),
+        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Completion Rate (%)',
+        data: adminMetrics.map(item => item.completion_rate || 0),
+        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.raw}%`,
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: "Completed Trainings"
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: "Month"
-                }
-            }
-        }
-    };
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        title: {
+          display: true,
+          text: 'Percentage (%)',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Admins',
+        },
+      },
+    },
+  };
+    return <Bar data={data} options={options} />;
 
+};
+
+export const MonthlyActiveUser = ({ data ,formatDate}) => {
+
+
+  const allLabelsSet = new Set([
+    ...data.daily.map(d => d.day),
+    ...data.monthly.map(m => m.month + '-01') 
+  ]);
+  const allLabels = Array.from(allLabelsSet).sort(); 
+
+  const dailyDataMap = new Map(data.daily.map(d => [d.day, d.daily_active_users]));
+  const monthlyDataMap = new Map(data.monthly.map(m => [m.month + '-01', m.monthly_active_users]));
+
+  const dailyDataset = allLabels.map(label => dailyDataMap.get(label) ?? null);
+  const monthlyDataset = allLabels.map(label => monthlyDataMap.get(label) ?? null);
+
+  const chartData = {
+    labels: allLabels.map(label => formatDate(label)),
+    datasets: [
+      {
+        label: 'Daily Active Users',
+        data: dailyDataset,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        tension: 0.4,
+        fill: false,
+      },
+      {
+        label: 'Monthly Active Users',
+        data: monthlyDataset,
+        borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+        tension: 0.4,
+        fill: false,
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Daily and Monthly Active Users'
+      },
+      legend: {
+        position: 'bottom'
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Date' },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 45,
+        }
+      },
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Users' }
+      }
+    }
+  };
     return <Box  height='400px'><Line data={chartData} options={options} /></Box>;
 };
 // Performance analtytics

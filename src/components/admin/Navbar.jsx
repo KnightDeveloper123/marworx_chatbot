@@ -241,7 +241,7 @@ function Navbar() {
           >
 
             <Box _hover={{ cursor: "pointer" }}>
-              <IoNotifications onClick={onNotificationOpen} />
+              {/* <IoNotifications onClick={onNotificationOpen} /> */}
               <Drawer placement={"right"} onClose={onNotificationClose} isOpen={isNotificationOpen}>
                 <DrawerOverlay />
                 <DrawerContent>
