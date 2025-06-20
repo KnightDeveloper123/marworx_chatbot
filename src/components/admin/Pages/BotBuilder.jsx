@@ -1154,7 +1154,7 @@ const nodeTypes = {
         <Box bgColor="var(--active-bg)" color="white" px={2} py={1} borderTopRadius="md">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
-              {question || 'Reply Button'}
+            Reply Button
             </Text>
             <Flex gap={1}>
               <IconButton
