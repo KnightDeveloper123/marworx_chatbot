@@ -110,73 +110,6 @@ const nodeTypes = {
     );
   },
 
-  // CustomNode: ({ id, data }) => {
-  //   const [value, setValue] = useState(data.label || null);
-  //   const { setNodes } = useReactFlow();
-
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setNodes((nds) =>
-  //         nds.map((node) =>
-  //           node.id === id
-  //             ? { ...node, data: { ...node.data, label: value } }
-  //             : node
-  //         )
-  //       );
-  //     }, 500);
-
-  //     return () => clearTimeout(timer);
-  //   }, [value, id, setNodes]);
-
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
-
-  //   return (
-  //     <Box bg="white" borderRadius={"15px"}>
-  //       <Handle type="target" position="left" style={{ background: "#555" }} />
-  //       <Box
-  //         bg="blue.500"
-  //         color="white"
-  //         p={0.5}
-  //         borderRadius={"5px"}
-  //         bgColor="var(--active-bg)"
-  //       >
-  //         <Flex justifyContent="space-between" alignItems="center">
-  //           <Text fontSize="10px" pl={'8px'}>Question</Text>
-  //           <IconButton
-  //             size="xs"
-  //             variant="ghost"
-  //             colorScheme="white"
-  //             icon={<IoTrashOutline />}
-  //             onClick={handleDelete}
-  //             aria-label="Delete Node"
-  //           />
-  //         </Flex>
-  //       </Box>
-
-  //       <Textarea
-  //         value={value}
-  //         onChange={(e) => setValue(e.target.value)}
-  //         placeholder="Enter text..."
-  //         fontSize="8px"
-  //         border="none"
-  //         resize="none"
-  //         size="xs"
-  //         rows="1"
-  //         _focusVisible={{ borderColor: "none", boxShadow: "none" }}
-  //       // px={2}
-  //       // py={1}
-  //       />
-
-  //       <Handle
-  //         type="source"
-  //         position="bottom"
-  //         style={{ background: "#555" }}
-  //       />
-  //     </Box>
-  //   );
-  // },
 
   CustomNode: ({ id, data }) => {
     const { setNodes, deleteElements } = useReactFlow();
@@ -223,16 +156,16 @@ const nodeTypes = {
         <Handle type="source" position={Position.Bottom} />
 
         {/* Node Title */}
-        <Box  bgColor="var(--active-bg)" color="white" borderRadius={'2px'} 
-         display={'flex'} justifyContent={'space-between'} padding={'4px'}>
-          <Text fontSize={'10px'}>{data.label}</Text> 
+        <Box bgColor="var(--active-bg)" color="white" borderRadius={'2px'}
+          display={'flex'} justifyContent={'space-between'} padding={'4px'}>
+          <Text fontSize={'10px'}>{data.label}</Text>
           <IoTrashOutline onClick={handleDelete}></IoTrashOutline>
         </Box>
 
         {/* Question Input */}
         <Input
           type="text"
-         backgroundColor={'white'}
+          backgroundColor={'white'}
           placeholder="ask a question"
           value={question}
           fontSize="8px"
@@ -432,117 +365,6 @@ const nodeTypes = {
       </Box>
     );
   },
-  // imageNode: ({ id, data }) => {
-  //   const [image, setImage] = useState(data.fileUrl || null);
-  //   const [fileName, setFileName] = useState(data.fileName || "");
-  //   const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
-  //   const { setNodes } = useReactFlow();
-
-  //   const handleImageUpload = async (e) => {
-  //     const file = e.target.files[0];
-
-  //     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-  //       // const serverFileName = `${Date.now()}-${file.name}`;
-
-  //       const cleanName = file.name.replace(/\s+/g, "_");
-  //       const baseName = cleanName.replace(/\.[^/.]+$/, ""); // remove extension
-  //       const serverFileName = `${Date.now()}-${baseName}`;
-
-  //       const formData = new FormData();
-  //       formData.append("file", file);
-
-  //       try {
-  //         // Upload to backend
-  //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-image?fileName=${serverFileName}`, {
-  //           method: "POST",
-  //           body: formData,
-  //         });
-
-  //         const result = await res.json();
-  //         const publicUrl = `${import.meta.env.VITE_BACKEND_URL}/uploads/${result.fileName}`;
-
-  //         setImage(publicUrl);
-  //         setFileName(result.fileName);
-  //         setFileUrl(publicUrl);
-  //       } catch (err) {
-  //         console.error("Upload failed", err);
-  //         alert("Upload failed");
-  //       }
-  //     } else {
-  //       alert("Only JPG and PNG files are allowed");
-  //     }
-  //   };
-
-  //   const handleDelete = () => {
-  //     setNodes((nodes) => nodes.filter((node) => node.id !== id));
-  //   };
-
-  //   useEffect(() => {
-  //     if (fileUrl && fileName) {
-  //       setNodes((nodes) =>
-  //         nodes.map((node) =>
-  //           node.id === id
-  //             ? {
-  //               ...node,
-  //               data: {
-  //                 ...node.data,
-  //                 fileName,
-  //                 fileUrl,
-  //                 caption: data.caption || "", // include caption if needed
-  //               },
-  //             }
-  //             : node
-  //         )
-  //       );
-  //     }
-  //   }, [fileUrl, fileName]);
-
-  //   return (
-  //     <Box bg="white" borderRadius="15px" p={2} boxShadow="md" w="200px">
-  //       <Handle type="target" position="left" style={{ background: "#555" }} />
-
-  //       <Box bg="blue.500" color="white" p={1} borderRadius="md">
-  //         <Flex justifyContent="space-between" alignItems="center">
-  //           <Text fontSize="10px" fontWeight="bold">Image</Text>
-  //           <IconButton
-  //             size="xs"
-  //             variant="ghost"
-  //             icon={<IoTrashOutline />}
-  //             onClick={handleDelete}
-  //             aria-label="Delete Node"
-  //             color="white"
-  //           />
-  //         </Flex>
-  //       </Box>
-
-  //       <Divider my={2} />
-
-  //       <Input
-  //         type="file"
-  //         accept="image/jpeg, image/png"
-  //         onChange={handleImageUpload}
-  //         fontSize="10px"
-  //         size="xs"
-  //         border="none"
-  //       />
-
-  //       {image && (
-  //         <Box mt={2}>
-  //           <Image
-  //             src={image}
-  //             alt="Uploaded"
-  //             width="100%"
-  //             borderRadius="md"
-  //             objectFit="contain"
-  //           />
-  //         </Box>
-  //       )}
-
-  //       <Handle type="source" position="bottom" style={{ background: "#555" }} />
-  //     </Box>
-  //   );
-  // }
-  // ,
 
   VideoNode: ({ id, data }) => {
     const { setNodes } = useReactFlow();
@@ -649,19 +471,20 @@ const nodeTypes = {
 
   GoogleSheetsNode: ({ id, data }) => {
     const [file, setFile] = useState(data.file || null);
+    const [caption, setCaption] = useState(data.caption || '');
     const { setNodes } = useReactFlow();
 
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) =>
-            node.id === id ? { ...node, data: { ...node.data, file } } : node
+            node.id === id ? { ...node, data: { ...node.data, file, caption } } : node
           )
         );
       }, 500);
 
       return () => clearTimeout(timer);
-    }, [file, id, setNodes]);
+    }, [file, caption, id, setNodes]);
 
     const handleFileChange = (e) => {
       const uploadedFile = e.target.files[0];
@@ -688,53 +511,21 @@ const nodeTypes = {
     };
 
 
-    // const handleFileChange = (e) => {
-    //   const uploadedFile = e.target.files[0];
-    //   if (uploadedFile) {
-    //     const formData = new FormData();
-    //     formData.append("file", uploadedFile);
+    const handleCaptionChange = (e) => {
+      setCaption(e.target.value);
+    };
 
-
-    //     fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${uploadedFile.name.split(".")[0]}`, {
-    //       method: "POST",
-    //       body: formData,
-    //     })
-    //       .then((res) => res.json())
-    //       .then((data) => {
-    //         if (data.fileName) {
-    //           setFile(data.fileName);
-
-    //           // ✅ Immediately sync to node state
-    //           setNodes((nds) =>
-    //             nds.map((node) =>
-    //               node.id === id
-    //                 ? { ...node, data: { ...node.data, file: data.fileName } }
-    //                 : node
-    //             )
-    //           );
-    //         }
-    //       })
-
-
-
-    //       // fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet`, {
-    //       //   method: "POST",
-    //       //   body: formData,
-    //       // })
-    //       //   .then((res) => res.json())
-    //       //   .then((data) => {
-    //       //     setFile(data.filename); // store just filename
-    //       //   })
-    //       .catch(console.error);
-    //   }
-    // };
-
+    const handleDeleteFile = () => {
+      setFile(null);
+      setCaption(''); // Clear caption when file is deleted
+      // Optionally: call backend to delete uploaded file
+    };
     const handleDelete = () => {
       setNodes((nds) => nds.filter((node) => node.id !== id));
     };
 
     return (
-      <Box bg="white" borderRadius={"4px"}>
+      <Box bg="white" borderRadius={"4px"} width={'250px'} >
         <Handle type="target" position="left" style={{ background: "#555" }} />
         <Box color="white" p={0.5} borderRadius={"5px"} bgColor="var(--active-bg)">
           <Flex justifyContent="space-between" alignItems="center">
@@ -743,86 +534,63 @@ const nodeTypes = {
           </Flex>
         </Box>
         <Divider />
-        <Input
-          type="file"
-          accept=".xlsx,.xls,.csv"
-          onChange={handleFileChange}
-          fontSize="var(--text-12px)"
-          fontWeight="var(--big-font-weight)"
-          size="sm"
-        />
-        {file && <p>📄 {file}</p>}
-        <Handle type="source" position="bottom" style={{ background: "#555" }} />
+
+        <Box display={'flex'} flexDirection={'column'} padding={'5px'} gap={'3px'}>
+          <Input
+            placeholder="Enter the name"
+            value={caption}
+            onChange={handleCaptionChange}
+            fontSize="10px"
+            // fontWeight="var(--big-font-weight)"
+            size="xs"
+          // Add some padding
+          />
+          <Input
+            type="file"
+            accept=".xlsx,.xls,.csv.pdf,.txt"
+            onChange={handleFileChange}
+            fontSize="10px"
+            // fontWeight="var(--big-font-weight)"
+            size="xs"
+          />
+
+
+
+          {/* {file &&
+
+          <p>📄 {file}</p>} */}
+
+          {file && (
+            <Box mt={2} fontSize="xs" color="gray.700" > {/* Added padding here */}
+
+              <Flex justifyContent="space-between" alignItems="center">
+                <a
+                  href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "underline", color: "#3182ce" }}
+                >
+                  📄 {file}
+                </a>
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  icon={<IoTrashOutline />}
+                  onClick={handleDeleteFile}
+                  aria-label="Delete File"
+                />
+              </Flex>
+            </Box>
+          )}
+
+
+          <Handle type="source" position="bottom" style={{ background: "#555" }} />
+        </Box>
       </Box>
     );
   },
 
-  // GoogleSheetsNode: ({ id, data }) => {
-  //   const [file, setFile] = useState(data.file || null);
-  //   const { setNodes } = useReactFlow();
-
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setNodes((nds) =>
-  //         nds.map((node) =>
-  //           node.id === id ? { ...node, data: { ...node.data, file } } : node
-  //         )
-  //       );
-  //     }, 500);
-
-  //     return () => clearTimeout(timer);
-  //   }, [file, id, setNodes]);
-
-  //   const handleFileChange = (e) => {
-  //     const uploadedFile = e.target.files[0];
-  //     if (uploadedFile) {
-  //       setFile(uploadedFile.name);
-  //     }
-  //   };
-  //   const handleDelete = () => {
-  //     setNodes((nds) => nds.filter((node) => node.id !== id));
-  //   };
-  //   return (
-  //     <Box bg="white" borderRadius={"4px"}>
-  //       <Handle type="target" position="left" style={{ background: "#555" }} />
-  //       <Box
-  //         color="white"
-  //         p={0.5}
-  //         borderRadius={"5px"}
-  //         bgColor="var(--active-bg)"
-  //       >
-  //         <Flex justifyContent="space-between" alignItems="center">
-  //           <Text fontSize="10px" fontWeight="bold">
-  //             GoogleSheet
-  //           </Text>
-  //           <IconButton
-  //             size="xs"
-  //             variant="ghost"
-  //             colorScheme="white"
-  //             icon={<IoTrashOutline />}
-  //             onClick={handleDelete}
-  //             aria-label="Delete Node"
-  //           />
-  //         </Flex>
-  //       </Box>
-  //       <Divider />
-  //       <Input
-  //         type="file"
-  //         accept=".xlsx,.xls,.csv"
-  //         onChange={handleFileChange}
-  //         fontSize="var( --text-12px)"
-  //         fontWeight="var(--big-font-weight)"
-  //         size="sm"
-  //       />
-  //       {file && <p>📄 {file}</p>}
-  //       <Handle
-  //         type="source"
-  //         position="bottom"
-  //         style={{ background: "#555" }}
-  //       />
-  //     </Box>
-  //   );
-  // },
 
   ListButton: ({ id, data }) => {
     const navigate = useNavigate();                //*** */
@@ -1208,63 +976,6 @@ const nodeTypes = {
     );
   },
 
-  // LinkNode : ({ id, data }) => {
-  //   const { setNodes } = useReactFlow();
-
-  //   const [label, setLabel] = useState(data.label || '');
-  //   const [linkText, setLinkText] = useState(data.linkText || '');
-  //   const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
-
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setNodes((nodes) =>
-  //         nodes.map((node) =>
-  //           node.id === id
-  //             ? {
-  //                 ...node,
-  //                 data: { label, linkText, linkUrl },
-  //               }
-  //             : node
-  //         )
-  //       );
-  //     }, 500);
-
-  //     return () => clearTimeout(timer);
-  //   }, [label, linkText, linkUrl]);
-
-  //   return (
-  //     <Box display={'flex'}  flexDirection={'column'} bgColor={'red.100'}>
-  //       <Box>🔗 Link Node</Box>
-
-  //       <label className="text-xs font-medium">Label</label>
-  //       <input
-  //         type="text"
-  //         className="border px-2 py-1 w-full mb-2"
-  //         placeholder="Intro text"
-  //         value={label}
-  //         onChange={(e) => setLabel(e.target.value)}
-  //       />
-
-  //       <label className="text-xs font-medium">Link Text</label>
-  //       <input
-  //         type="text"
-  //         className="border px-2 py-1 w-full mb-2"
-  //         placeholder="e.g. View Report"
-  //         value={linkText}
-  //         onChange={(e) => setLinkText(e.target.value)}
-  //       />
-
-  //       <label className="text-xs font-medium">Link URL</label>
-  //       <input
-  //         type="text"
-  //         className="border px-2 py-1 w-full"
-  //         placeholder="e.g. https://example.com"
-  //         value={linkUrl}
-  //         onChange={(e) => setLinkUrl(e.target.value)}
-  //       />
-  //     </Box>
-  //   );
-  // },
 
   LinkNode: ({ id, data }) => {
     const { setNodes } = useReactFlow();
@@ -1320,28 +1031,28 @@ const nodeTypes = {
             />
           </Flex>
         </Box>
-        <Box   paddingX={'6px'}>
-        <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
-        <Input
-          size="xs"
-          fontSize="8px"
-          value={linkText}
-          onChange={(e) => setLinkText(e.target.value)}
-          placeholder="e.g. View Report"
-          mb={1}
+        <Box paddingX={'6px'}>
+          <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
+            value={linkText}
+            onChange={(e) => setLinkText(e.target.value)}
+            placeholder="e.g. View Report"
+            mb={1}
 
-        />
+          />
 
-        <Text fontSize={'9px'}>Link URL</Text>
-        <Input
-          size="xs"
-          fontSize="8px"
-        
-          value={linkUrl}
-          onChange={(e) => setLinkUrl(e.target.value)}
-          placeholder="e.g. https://example.com"
-          mb={1}
-        />
+          <Text fontSize={'9px'}>Link URL</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
+
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="e.g. https://example.com"
+            mb={1}
+          />
         </Box>
 
         <Handle
@@ -1587,20 +1298,10 @@ const SidePanel = () => {
       type: "CustomNode",
       icon: <Icon as={FcPhoneAndroid} mr={2} />,
     },
-    // {
-    //   label: "Ask for link?",
-    //   type: "LinkNode",
-    //   icon: <Icon as={FcPhoneAndroid} mr={2} />,
-    // },
+
   ];
 
-  // const logicBlocks = [
-  //   {
-  //     label: 'Condition',
-  //     type: 'CustomNode',
-  //     icon: <Icon as={TiArrowShuffle} mr={2} />
-  //   }
-  // ]
+
 
   const WhatsAppEssential = [
     {
