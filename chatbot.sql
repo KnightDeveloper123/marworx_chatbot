@@ -553,7 +553,7 @@ CREATE TABLE `product_service` (
 
 LOCK TABLES `product_service` WRITE;
 /*!40000 ALTER TABLE `product_service` DISABLE KEYS */;
-INSERT INTO `product_service` VALUES (1,2,'thermax pro1',NULL,'dumy text','1745647829370-256756583.webp',NULL,NULL,'2025-04-25 12:59:42',NULL,0,NULL),(2,NULL,'thermax1','Thermax1','dummy text1','1750401979556-281751815.jpg','30001','https://dummyjson.com/products','2025-04-26 06:53:58',NULL,0,1),(3,2,'Teravista',NULL,'Teravista.io is a startup company focused on software solutions and consultancy services. With data and technology at the core of our solutions.','1749642491331-456380696.jpg',NULL,NULL,'2025-06-11 11:25:05',NULL,0,1),(4,NULL,NULL,NULL,NULL,'1750400417785-669049916.jpg',NULL,NULL,'2025-06-20 06:20:17',NULL,0,NULL),(5,2,'thermax','Thermax','dummy text','1750403660801-806354055.png','35000','https://dummyjson.com/products','2025-06-20 06:23:21',NULL,0,1),(6,2,'Teravista1','teravista','lorem ipsum lorem ipsum  lorem ipsum','1750403984795-376001958.jpg','47000','teravista  click here- https://dummyjson.com/docs/products#products-all','2025-06-20 07:16:29',NULL,0,3);
+INSERT INTO `product_service` VALUES (1,2,'thermax pro1',NULL,'dumy text','1745647829370-256756583.webp',NULL,NULL,'2025-04-25 12:59:42',NULL,0,NULL),(2,2,'thermax1','Thermax1','dummy text1','1750401979556-281751815.jpg','30001','https://dummyjson.com/products','2025-04-26 06:53:58',NULL,0,1),(3,2,'Teravista',NULL,'Teravista.io is a startup company focused on software solutions and consultancy services. With data and technology at the core of our solutions.','1749642491331-456380696.jpg',NULL,NULL,'2025-06-11 11:25:05',NULL,0,1),(4,NULL,NULL,NULL,NULL,'1750400417785-669049916.jpg',NULL,NULL,'2025-06-20 06:20:17',NULL,0,NULL),(5,2,'thermax','Thermax','dummy text','1750403660801-806354055.png','35000','https://dummyjson.com/products','2025-06-20 06:23:21',NULL,0,1),(6,2,'Teravista1','teravista','lorem ipsum lorem ipsum  lorem ipsum','1750403984795-376001958.jpg','47000','teravista  click here- https://dummyjson.com/docs/products#products-all','2025-06-20 07:16:29',NULL,0,3);
 /*!40000 ALTER TABLE `product_service` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -777,4 +777,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-20 13:13:46
+-- Dump completed on 2025-06-20 14:24:59
