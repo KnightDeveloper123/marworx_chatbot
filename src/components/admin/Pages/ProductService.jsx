@@ -1,4 +1,4 @@
-import { Box, Button, Card, Flex, FormControl, FormErrorMessage, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Card, Checkbox, Flex, FormControl, FormErrorMessage, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tooltip, Tr, useDisclosure } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form';
 import { AppContext } from '../../context/AppContext';
@@ -29,9 +29,14 @@ const ProductService = () => {
     const onSubmit = async (data) => {
         const formData = new FormData();
         formData.append("admin_id", admin_id);
+
         formData.append("name", data.name);
+        formData.append("display_name", data.display_name)
         formData.append("description", data.description);
+
         formData.append("image", data.image[0]);
+        formData.append("price", data.price);
+        formData.append("cta", data.cta);
         formData.append("sector_id", data.sector_id);
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product_service/add`, {
@@ -61,17 +66,23 @@ const ProductService = () => {
         onEditOpen();
         setEditProductData(productData);
         setValue("name", productData.name);
+        setValue("display_name", productData.display_name);
         setValue("description", productData.description);
         setValue("sector_name", productData.sector_name);
         setValue("sector_id", productData.sector_id);
+        setValue("price", productData.price);
+        setValue("cta", productData.cta);
     }
 
     const onEditSubmit = async (data) => {
         const formData = new FormData();
         formData.append("product_id", editProductData.id);
         formData.append("name", data.name);
+        formData.append("display_name", data.display_name);
         formData.append("description", data.description);
         formData.append("sector_id", data.sector_id);
+        formData.append("price", data.price);
+        formData.append("cta", data.cta);
         if (data.image && data.image.length > 0) {
             formData.append("image", data.image[0]);
         }
@@ -136,6 +147,9 @@ const ProductService = () => {
         )
     }));
 
+    const [showPrice, setShowPrice] = useState(true);
+    const [showCTA, setShowCTA] = useState(true);
+    const [showImage, setShowImage] = useState(true);
     return (
         <Card>
             <Flex
@@ -187,7 +201,22 @@ const ProductService = () => {
                                 <Th fontWeight="var(--big-font-weight)"
                                     color="var(--text-black)"
                                     fontSize="var(--mini-text)">
+                                    Display Name
+                                </Th>
+                                <Th fontWeight="var(--big-font-weight)"
+                                    color="var(--text-black)"
+                                    fontSize="var(--mini-text)">
                                     Description
+                                </Th>
+                                <Th fontWeight="var(--big-font-weight)"
+                                    color="var(--text-black)"
+                                    fontSize="var(--mini-text)">
+                                    Price
+                                </Th>
+                                <Th fontWeight="var(--big-font-weight)"
+                                    color="var(--text-black)"
+                                    fontSize="var(--mini-text)">
+                                    CTA
                                 </Th>
                                 <Th fontWeight="var(--big-font-weight)"
                                     color="var(--text-black)"
@@ -213,9 +242,12 @@ const ProductService = () => {
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
                                             fontWeight="var(--big-font-weight)"
-                                            // onClick={() => navigate(`/home/product/${product.id}`)}
-                                            >{product.name}</Td>
+                                        // onClick={() => navigate(`/home/product/${product.id}`)}
+                                        >{product.name}</Td>
 
+                                        <Td color={"#404040"}
+                                            fontSize="var(--mini-text)"
+                                            fontWeight="var(--big-font-weight)">{product.display_name}</Td>
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
                                             fontWeight="var(--big-font-weight)">
@@ -236,6 +268,14 @@ const ProductService = () => {
                                                     </Text>
                                                 </Tooltip>
                                             </Box>
+                                        </Td>
+                                        <Td color={"#404040"}
+                                            fontSize="var(--mini-text)"
+                                            fontWeight="var(--big-font-weight)">{product.price
+                                            }</Td>
+                                        <Td color={"#404040"}
+                                            fontSize="var(--mini-text)"
+                                            fontWeight="var(--big-font-weight)">{product.cta}
                                         </Td>
                                         <Td color={"#404040"}
                                             fontSize="var(--mini-text)"
@@ -268,102 +308,132 @@ const ProductService = () => {
                     </Table>
                 </TableContainer>
 
-                <Modal isOpen={isOpen}
-                    onClose={onClose} >
+
+
+                <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
                     <ModalContent>
                         <ModalHeader fontSize={'18px'}>Add Product</ModalHeader>
                         <ModalCloseButton />
-                        <ModalBody pb={6} >
+                        <ModalBody pb={6}>
                             <Box as="form" onSubmit={handleSubmit(onSubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+                                {/* Name */}
                                 <FormControl isRequired isInvalid={errors.name}>
-                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Name</FormLabel>
-                                    <Input type='text' {...register("name", { required: "Product name is required" })} placeholder='enter product name' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                                    {errors.name && (
-                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.name.message}</FormErrorMessage>
-                                    )}
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">Name</FormLabel>
+                                    <Input type="text" {...register("name", { required: "Product name is required" })} placeholder="Enter product name" fontSize="var(--text-12px)" />
+                                    {errors.name && <FormErrorMessage fontSize="var(--mini-text)">{errors.name.message}</FormErrorMessage>}
                                 </FormControl>
+
+                                {/* Display Name */}
+                                <FormControl>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">Display Name</FormLabel>
+                                    <Input type="text" {...register("display_name")} placeholder="Enter product display name" fontSize="var(--text-12px)" />
+                                </FormControl>
+
+                                {/* Description */}
                                 <FormControl isRequired isInvalid={errors.description}>
-                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Description</FormLabel>
-                                    <Input type='text' {...register("description", { required: "description is required" })} placeholder='enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
-                                    {errors.description && (
-                                        <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>
-                                    )}
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">Description</FormLabel>
+                                    <Input type="text" {...register("description", { required: "Description is required" })} placeholder="Enter description" fontSize="var(--text-12px)" />
+                                    {errors.description && <FormErrorMessage fontSize="var(--mini-text)">{errors.description.message}</FormErrorMessage>}
                                 </FormControl>
+
+                                {/* Sector */}
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
-                                        Sector
-                                    </FormLabel>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">Sector</FormLabel>
                                     <Controller
                                         name="sector_id"
                                         control={control}
-                                        render={({ field, fieldState: { error } }) => (
-                                            <>
-                                                <Select
-                                                    options={allSector}
-                                                    placeholder="Select sector"
-                                                    value={allSector.find(option => option.value === field.value)}
-                                                    onChange={(selectedOption) => {
-                                                        field.onChange(selectedOption?.value || null);
-                                                    }}
-                                                    getOptionLabel={(e) => e.customLabel || e.label}
-                                                    getOptionValue={(e) => e.value}
-                                                    styles={{
-                                                        control: (provided) => ({ ...provided, fontSize: "12px" }),
-                                                        option: (provided) => ({ ...provided, fontSize: "12px" }),
-                                                        singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
-                                                        menu: (provided) => ({ ...provided, fontSize: "12px" }),
-                                                        placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
-                                                    }}
-                                                />
-                                                {/* Uncomment below to show validation error */}
-                                                {/* {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>} */}
-                                            </>
+                                        render={({ field }) => (
+                                            <Select
+                                                options={allSector}
+                                                placeholder="Select sector"
+                                                value={allSector.find(option => option.value === field.value)}
+                                                onChange={(selectedOption) => field.onChange(selectedOption?.value || null)}
+                                                getOptionLabel={(e) => e.customLabel || e.label}
+                                                getOptionValue={(e) => e.value}
+                                                styles={{
+                                                    control: (base) => ({ ...base, fontSize: '12px' }),
+                                                    option: (base) => ({ ...base, fontSize: '12px' }),
+                                                    singleValue: (base) => ({ ...base, fontSize: '12px' }),
+                                                    placeholder: (base) => ({ ...base, fontSize: '12px' }),
+                                                }}
+                                            />
                                         )}
                                     />
                                 </FormControl>
 
 
-                                <FormControl isRequired>
-                                    <FormLabel fontSize="var(--mini-text)" mb="2px">
-                                        Upload Image
-                                    </FormLabel>
-                                    <Input
-                                        type="file"
-                                        {...register('image')}
-                                        fontSize="var(--text-12px)"
-                                        colorScheme="orange"
-                                        sx={{
-                                            "::file-selector-button": {
-                                                backgroundColor: "#FF5722",
-                                                color: "white",
-                                                border: "none",
-                                                padding: "6px 12px",
-                                                borderRadius: "6px",
-                                                cursor: "pointer",
-                                                fontSize: "var(--text-12px)",
-                                            },
-                                            "::file-selector-button:hover": {
-                                                backgroundColor: "#e64a19",
-                                            }
-                                        }}
-                                    />
-                                </FormControl>
 
 
-                                <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
+                                <Box display={'flex'} gap={'6px'} alignItems={'center'}  justifyContent={'center'}>
+                                    <Box width={'full'}>
+                                        {showPrice && (
 
-                                    <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
-                                        textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
-                                    <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
-                                        Save
-                                    </Button>
+                                            <FormControl>
+                                                <FormLabel fontSize="var(--mini-text)" mb="2px">Price</FormLabel>
+                                                <Input type="text" {...register("price")} placeholder="Enter product price" fontSize="var(--text-12px)" />
+                                            </FormControl>
+
+
+                                        )}
+                                    </Box>
+
+                                    <FormLabel fontSize="var(--mini-text)"><input type="checkbox" checked={showPrice} onChange={() => setShowPrice(!showPrice)} />  Price</FormLabel>
+
+                                </Box>
+
+                                <Box>
+                                    {showCTA && (
+                                        <FormControl>
+                                            <FormLabel fontSize="var(--mini-text)" mb="2px">CTA</FormLabel>
+                                            <Textarea
+                                                {...register("cta")}
+                                                placeholder="Enter CTA text or link"
+                                                fontSize="var(--text-12px)"
+                                                autoComplete="off"
+                                                rows={3}
+                                            />
+                                        </FormControl>
+                                    )}
+                                    <label><input type="checkbox" checked={showCTA} onChange={() => setShowCTA(!showCTA)} /> Include CTA</label>
+                                </Box>
+
+                                <Box>
+                                    {showImage && (
+                                        <FormControl isRequired>
+                                            <FormLabel fontSize="var(--mini-text)" mb="2px">Upload Image</FormLabel>
+                                            <Input
+                                                type="file"
+                                                {...register('image')}
+                                                fontSize="var(--text-12px)"
+                                                sx={{
+                                                    "::file-selector-button": {
+                                                        backgroundColor: "#FF5722",
+                                                        color: "white",
+                                                        border: "none",
+                                                        padding: "6px 12px",
+                                                        borderRadius: "6px",
+                                                        cursor: "pointer",
+                                                        fontSize: "var(--text-12px)",
+                                                    },
+                                                    "::file-selector-button:hover": {
+                                                        backgroundColor: "#e64a19",
+                                                    }
+                                                }}
+                                            />
+                                        </FormControl>
+                                    )}
+                                    <label><input type="checkbox" checked={showImage} onChange={() => setShowImage(!showImage)} />  Image</label>
+                                </Box>
+                                {/* Buttons */}
+                                <Box display="flex" alignItems="center" justifyContent="center" mt="10px" gap="10px">
+                                    <Button type="button" size="sm" fontSize="13px" border="1px solid #FF5722" textColor="#FF5722" bg="white" onClick={onClose}>Cancel</Button>
+                                    <Button type="submit" fontSize="13px" bg="#FF5722" textColor="white" size="sm">Save</Button>
                                 </Box>
                             </Box>
                         </ModalBody>
                     </ModalContent>
                 </Modal>
-
 
                 <Modal isOpen={isEditOpen}
                     onClose={onEditClose} >
@@ -413,6 +483,28 @@ const ProductService = () => {
                                         )}
                                     />
                                 </FormControl>
+                                <FormControl  >
+                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}> Display Name</FormLabel>
+                                    <Input type='text' {...register("display_name")} placeholder='enter product display name' fontSize="var(--text-12px)" autoComplete='off'></Input>
+
+                                </FormControl>
+                                <FormControl  >
+                                    <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Price</FormLabel>
+                                    <Input type='text' {...register("price")} placeholder='enter product price' fontSize="var(--text-12px)" autoComplete='off'></Input>
+
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel fontSize="var(--mini-text)" mb="2px">CTA</FormLabel>
+                                    <Textarea
+                                        {...register("cta")}
+                                        placeholder="Enter CTA text or link"
+                                        fontSize="var(--text-12px)"
+                                        autoComplete="off"
+                                        rows={3}
+                                    />
+                                </FormControl>
+
 
                                 <FormControl isRequired>
                                     <FormLabel fontSize="var(--mini-text)" mb="2px">

@@ -25,7 +25,7 @@ const upload = multer({
 
 router.post('/add', middleware, upload.single('image'), async (req, res) => {
     try {
-        const { name, description, admin_id, sector_id } = req.body;
+        const { name, display_name, description, admin_id, sector_id, price, cta } = req.body;
 
         if (!req.file) {
             return res.status(400).json({ error: 'Image file is required.' });
@@ -33,8 +33,8 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
 
         const file_name = req.file.filename;
 
-        const query = 'INSERT INTO product_service (name, description, image, admin_id, sector_id) VALUES (?, ?, ?, ?, ?)';
-        connection.query(query, [name, description, file_name, admin_id, sector_id], (err, data) => {
+        const query = 'INSERT INTO product_service (name,display_name, description, image, admin_id, sector_id,price,cta) VALUES (?, ?, ?, ?, ?,?,?,?)';
+        connection.query(query, [name, display_name, description, file_name, admin_id, sector_id, price, cta], (err, data) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({ error: "Something went wrong" });
@@ -53,10 +53,10 @@ router.post('/add', middleware, upload.single('image'), async (req, res) => {
 
 router.post('/update', middleware, upload.single('image'), async (req, res) => {
     try {
-        const { name, description, product_id ,sector_id} = req.body;
+        const { name, display_name, description, product_id, sector_id, price, cta } = req.body;
 
-        let query = 'UPDATE product_service SET name = ?, description = ?, sector_id= ?' ;
-        const values = [name, description, sector_id];
+        let query = 'UPDATE product_service SET name = ?, display_name=?,description = ?, sector_id= ?,price=?,cta=?';
+        const values = [name, display_name, description, sector_id, price, cta];
 
         if (req.file) {
             const file_name = req.file.filename;
@@ -105,12 +105,12 @@ router.post('/delete_product', middleware, (req, res) => {
     }
 })
 
-router.get('/allDeletedProduct', async(req, res) => {
+router.get('/allDeletedProduct', async (req, res) => {
     try {
-        const data=await executeQuery(`select * from product_service where status=1`)
-      
+        const data = await executeQuery(`select * from product_service where status=1`)
+
         return res.json({ data, success: "Product Deleted!" })
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Internal server error!" })
