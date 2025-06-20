@@ -531,6 +531,14 @@ const AdminDashboard = () => {
                       <Th
                         fontWeight='var(--big-font-weight)'
                         color='var(--text-black)'
+                        borderRadius='5px 0px 0px 0px'
+                        fontSize='var(--mini-text)'
+                      >
+                       Sector
+                      </Th>
+                      <Th
+                        fontWeight='var(--big-font-weight)'
+                        color='var(--text-black)'
                         borderRadius=''
                         fontSize='var(--mini-text)'
                       >
@@ -557,6 +565,7 @@ const AdminDashboard = () => {
                     >
 
                       <Td>{item?.name}</Td>
+                      <Td>{item?.sname}</Td>
                       <Td>{formatDate(item?.created_at)}</Td>
                       <Td>
                         <Flex

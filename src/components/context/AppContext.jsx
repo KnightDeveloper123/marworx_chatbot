@@ -167,10 +167,10 @@ export const AppProvider = ({ children }) => {
 
     const [employeesQuery, setEmployeeQuery] = useState([]);
 
-    const fetchAllEmployeeQuery = async () => {
+    const fetchAllEmployeeQuery = async (id) => {
         try {
             setLoading(true)
-            const response = await fetch(`${APP_URL}/employee/getAllEmployeeQUery`, {
+            const response = await fetch(`${APP_URL}/employee/getAllEmployeeQUery?admin_id=${id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

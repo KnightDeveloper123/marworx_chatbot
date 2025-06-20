@@ -85,6 +85,7 @@ router.post("/add", middleware, async (req, res) => {
 const db = connection.promise();
 
 async function sendWhatsAppMessage({ phone, message }) {
+  // console.log(message)
   const token = process.env.WHATSAPP_TOKEN;
   const phoneNumberId =  process.env.PHONE_NUMBER_ID;
 
@@ -107,7 +108,7 @@ async function sendWhatsAppMessage({ phone, message }) {
       }
     );
 
-    console.log('Message sent:', response.data);
+    // console.log('Message sent:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to send message:', error.response?.data || error.message);
@@ -120,8 +121,8 @@ async function sendMessageToUser({ campaignIds = [], contactIds = [] }) {
     throw new Error('Please provide both campaignIds and contactIds');
   }
 
-  console.log(campaignIds);
-  console.log(contactIds);
+  // console.log(campaignIds);
+  // console.log(contactIds);
 
   // ✅ use await db.query() instead
   const [campaigns] = await db.query(
@@ -136,16 +137,18 @@ async function sendMessageToUser({ campaignIds = [], contactIds = [] }) {
     [contactIds]
   );
 
-  console.log(campaigns); // should now show an array
+  // console.log(campaigns); // should now show an array
 
   const results = [];
 
   for (const campaign of campaigns) {
     for (const contact of contacts) {
+      // console.log("campaigan"+ campaign )
+      // console.log("body"+ campaign.body )
       try {
        await sendWhatsAppMessage({
           phone: contact.phone,
-          message: campaign.body || campaign.message_content,
+          message: campaign.body 
         });
 
         await db.query(
@@ -155,9 +158,9 @@ async function sendMessageToUser({ campaignIds = [], contactIds = [] }) {
           [campaign.id, contact.id]
         );
 
-        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'sent' });
+        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'Sent' });
       } catch (err) {
-        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'failed' });
+        results.push({ contactId: contact.id, campaignId: campaign.id, status: 'Failed' });
       }
     }
   }
@@ -172,8 +175,8 @@ router.post('/send-campaign', async (req, res) => {
   if (!campaign_ids?.length || !contact_ids?.length) {
     return res.status(400).json({ message: 'Please select campaigns and contacts' });
   }
-console.log("hi"+campaign_ids)
-console.log("hello"+contact_ids)
+// console.log("hi"+campaign_ids)
+// console.log("hello"+contact_ids)
   try {
     const result = await sendMessageToUser({
       campaignIds: campaign_ids,
@@ -298,10 +301,17 @@ router.get('/getAllCampaign', middleware, async (req, res) => {
     const { admin_id } = req.query;
     // console.log("id",admin_id)
 
-    const data = await executeQuery(`select campaign.*, s.name as sname
-        from campaign 
-       left join sector as s on campaign.sector_id=s.id
-      where campaign.status=0 AND campaign.admin_id=${admin_id} order by campaign.id desc`)
+    const data = await executeQuery(`SELECT 
+      c.*, 
+      s.name AS sname,ml.status as ml_status,
+      COUNT(ml.id) AS sent_count
+    FROM campaign c
+    LEFT JOIN sector s ON c.sector_id = s.id
+    LEFT JOIN messages_log ml ON ml.campaign_id = c.id AND ml.status = 'Sent'
+    WHERE c.admin_id = ${admin_id}
+    GROUP BY c.id
+    ORDER BY c.id DESC;
+    `)
     return res.json({ data })
   } catch (error) {
     // console.log(error)

@@ -118,7 +118,11 @@ router.post("/deleteDocument", middleware, async (req, res) => {
 router.get("/getAllDocuments", async (req, res) => {
     try {
         const {admin_id}=req.query;
-        connection.query(`select * from documents where status=0 AND admin_id=${admin_id}`, (err, data) => {
+        connection.query(`select documents.*, sector.name as sname
+             from
+             documents 
+             left join sector on sector.id=documents.sector_id 
+             where documents.status=0 AND documents.admin_id=${admin_id}`, (err, data) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })

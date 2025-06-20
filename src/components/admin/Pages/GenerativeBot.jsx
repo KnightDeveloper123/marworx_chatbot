@@ -49,6 +49,8 @@ const GenerativeBot = () => {
       fetchAllDocuments(admin_id)
     }, [fetchAllDocuments, admin_id])
   
+    console.log(documents)
+
 const [loading, setLoading] = useState(true);
    const [file, setFile] = useState({
       fileName: '',
@@ -174,6 +176,14 @@ const [loading, setLoading] = useState(true);
                          >
                            File Name
                          </Th>
+                          <Th
+                           fontWeight='var(--big-font-weight)'
+                           color='var(--text-black)'
+                           borderRadius='5px 0px 0px 0px'
+                           fontSize='var(--mini-text)'
+                         >
+                           Sector
+                         </Th>
                          <Th
                            fontWeight='var(--big-font-weight)'
                            color='var(--text-black)'
@@ -203,6 +213,7 @@ const [loading, setLoading] = useState(true);
                        >
                          {/* <Td>{item?.id}</Td> */}
                          <Td>{item?.name}</Td>
+                         <Td>{item?.sname}</Td>
                          <Td>{formatDate(item?.created_at)}</Td>
                          <Td>
                            <Flex

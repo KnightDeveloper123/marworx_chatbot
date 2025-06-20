@@ -746,7 +746,7 @@ GROUP BY b.admin_id;
 });
 
 
-router.get('/getActiveUser', middleware,async (req, res) => {
+router.get('/getActiveUser', middleware, async (req, res) => {
   try {
     const [daily, monthly] = await Promise.all([
       executeQuery(`SELECT DATE(last_login) AS day, COUNT(DISTINCT id) AS daily_active_users

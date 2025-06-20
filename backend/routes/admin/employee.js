@@ -168,8 +168,8 @@ router.get('/getAllAssignGenerativeBots', middleware, async (req,res)=>{
 
 router.get('/getAllEmployeeQUery', middleware, async (req, res) => {
     try {
-        
-        const data = await executeQuery(`select * from employee where status=0 `)
+        const { admin_id } =req.query;
+        const data = await executeQuery(`select * from employee where status=0 and admin_id=${admin_id} `)
       
         return res.json({ success: "success", data })
     } catch (error) {

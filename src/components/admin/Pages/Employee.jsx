@@ -19,7 +19,8 @@ const Employee = () => {
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
    const user=localStorage.getItem('user')
-    const admin_id=decrypt(user).id
+   const admin_id=decrypt(user).id
+   const role=decrypt(user).role
   const {
     register,
     handleSubmit, reset, setValue,
@@ -161,6 +162,15 @@ const Employee = () => {
   const filteredData = employees.filter(item =>
     item.name.toLowerCase().includes(filteredSectors.toLowerCase())
   );
+
+  const nextPageClick=(employee)=>{
+    if(role==='Super-Admin'){
+      console.log('no link')
+    }else{
+      navigate(`/home/employee/${employee.id}`)
+    }
+  }
+
   return (
     <Card>
       <Flex
@@ -275,11 +285,11 @@ const Employee = () => {
               {
                 filteredData && filteredData.map((employee, i) => (
                   <Tr key={i+1}>
-                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>E-{employee.id}</Td>
-                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.name}</Td>
-                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.email}</Td>
-                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{employee.mobile_no}</Td>
-                    <Td onClick={() => navigate(`/home/employee/${employee.id}`)} _hover={{ cursor: "pointer" }}>{formatDate(employee.date_of_birth)}</Td>
+                    <Td onClick={() => nextPageClick(employee)} _hover={{ cursor: "pointer" }}>E-{employee.id}</Td>
+                    <Td onClick={() => nextPageClick(employee)} _hover={{ cursor: "pointer" }}>{employee.name}</Td>
+                    <Td onClick={() => nextPageClick(employee)} _hover={{ cursor: "pointer" }}>{employee.email}</Td>
+                    <Td onClick={() => nextPageClick(employee)} _hover={{ cursor: "pointer" }}>{employee.mobile_no}</Td>
+                    <Td onClick={() => nextPageClick(employee)} _hover={{ cursor: "pointer" }}>{formatDate(employee.date_of_birth)}</Td>
                     <Td border="0.5px solid #F2F4F8" color={"#404040"} fontSize="var(--mini-text)">
                       
                       <Flex gap={2}>
@@ -354,7 +364,7 @@ const Employee = () => {
         onClose={onEditClose} >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader fontSize={'18px'}>Update Sector</ModalHeader>
+          <ModalHeader fontSize={'18px'}>Update Employee</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
 

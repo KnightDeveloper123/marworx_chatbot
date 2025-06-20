@@ -26,9 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { AppContext } from "../../context/AppContext";
 import { useContext } from "react";
-import { RxDotsHorizontal } from "react-icons/rx";
 import { MdOutlineModeEdit } from "react-icons/md";
-import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -39,19 +37,18 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { Controller, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import Select from "react-select";
-// import { add_querySchema } from "../validation/query";
 import { useState } from "react";
 import { decrypt } from "../../utils/security";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 function Queries() {
 
-
+  const user=localStorage.getItem('user')
+  const admin_id=decrypt(user).id
   useEffect(() => {
     fetchAllQueries();
-    fetchAllEmployeeQuery();
+    fetchAllEmployeeQuery(admin_id);
   }, []);
   const {
     fetchAllQueries,

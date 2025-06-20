@@ -114,7 +114,7 @@ const Campaign = () => {
   const admin_id = decrypt(user).id
   const sectorid = localStorage.getItem("sectorId");
   //  console.log("sector",sectorid)
-
+// console.log(campaign)
   const steps = [
     {
       title: 'Select Channel',
@@ -216,14 +216,14 @@ const Campaign = () => {
             channel_name: 'Whatsapp',
             campaign_name: campaignData.campaign_name,
             message_content: campaignData.message_content,
-            sector: campaignData.sector,
+            // sector: campaignData.sector_id,
             template_name: campaignData.template_name,
             template_type: campaignData.template_type,
             template_lang: campaignData.template_lang,
             header: campaignData.header,
             body: campaignData.body,
             admin_id: admin_id,
-            sector_id: sectorid,
+            sector_id: campaignData.sector_id ,
             to: campaignData.to
 
             // bot_type: type
@@ -262,12 +262,13 @@ const Campaign = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null)
 
   const editCampaign = data => {
+    console.log(data)
     setSelectedCampaign(data)
     setCampaignData({
       channel_name: data.channel_name || 'WhatsApp',
       campaign_name: data.campaign_name || '',
       // message_content: data.message_content || '',
-      sector: data.sector || '',
+      sector_id: data.sector_id || '',
       template_name: data.template_name || '',
       template_type: data.template_type || '',
       template_lang: data.template_lang || '',
@@ -299,7 +300,7 @@ const Campaign = () => {
 
       if (result.success) {
         showAlert('Campaign updated successfully', 'success')
-        fetchCampaign()
+        fetchCampaign(admin_id)
         onStepClose()
       }
     } catch (error) {
@@ -492,7 +493,7 @@ const Campaign = () => {
     campaign_ids: selectedIds,
     contact_ids: selectedRowIds,
   };
-console.log(payload)
+// console.log(payload)
   try {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/send-campaign`, {
       method: 'POST',
@@ -503,16 +504,9 @@ console.log(payload)
     });
 
     const data = await response.json();
-
     if (response.ok) {
-      console.log(response)
-      // toast({
-      //   title: 'Success',
-      //   description: 'Campaign sent successfully.',
-      //   status: 'success',
-      //   duration: 4000,
-      //   isClosable: true,
-      // });
+         fetchCampaign(admin_id)
+         onModalCloseSendCmp();
     } else {
      console.log("error")
     }
@@ -653,6 +647,14 @@ console.log(payload)
                         borderRadius=''
                         fontSize='var(--mini-text)'
                       >
+                       Sector
+                      </Th>
+                      <Th
+                        fontWeight='var(--big-font-weight)'
+                        color='var(--text-black)'
+                        borderRadius=''
+                        fontSize='var(--mini-text)'
+                      >
                         Start date
                       </Th>
                       <Th
@@ -676,7 +678,10 @@ console.log(payload)
 
                   <Tbody>
                     {filteredData &&
-                      filteredData.map((d, index) => (
+                      filteredData.map((d, index) => {
+                        const isPending = !d.ml_status || d.ml_status === null;
+                        const statusLabel = isPending ? 'Pending' : d.ml_status;
+                        return(
                         <Tr
                           key={index}
                           border='0.5px solid #F2F4F8'
@@ -724,6 +729,14 @@ console.log(payload)
                           >
                             {d.template_type}
                           </Td>
+                           <Td
+                            border='0.5px solid #F2F4F8'
+                            color={'#404040'}
+                            fontSize='var(--mini-text)'
+                            fontWeight='var(--big-font-weight)'
+                          >
+                            {d.sname}
+                          </Td>
                           <Td
                             border='0.5px solid #F2F4F8'
                             color={'#404040'}
@@ -738,16 +751,16 @@ console.log(payload)
                             fontSize='var(--mini-text)'
                             fontWeight='var(--big-font-weight)'
                           >
-                            <Box
-                              bgColor={statusBgColors[d.is_status]}
-                              p={1}
-                              borderRadius={'5px'}
-                              textAlign={'center'}
-                            >
-                              <Text color={statusColors[d.is_status]}>
-                                {d.is_status}
-                              </Text>
-                            </Box>
+                           <Box
+                          bgColor={statusBgColors[statusLabel] }
+                          p={1}
+                          borderRadius='5px'
+                          textAlign='center'
+                        >
+                          <Text color={statusColors[statusLabel] }>
+                            {statusLabel}
+                          </Text>
+                        </Box>
                           </Td>
 
                           <Td
@@ -831,7 +844,7 @@ console.log(payload)
                             </Menu> */}
                           </Td>
                         </Tr>
-                      ))}
+                      )})}
                   </Tbody>
                 </Table>
               </TableContainer>
@@ -1568,12 +1581,13 @@ console.log(payload)
                           A template needs to be submitted for approval to Meta
                           before it can be sent.
                         </Text>
+                        {/* {console.log(sectors)} */}
                         <Box display={'flex'} flexDirection={'column'}>
                           <FormControl mt={7} isRequired>
                             <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Sector</FormLabel>
-                            <Select fontSize="var(--text-12px)" name="sector" placeholder="Select sector" value={campaignData.sector} onChange={handleChange}>
+                            <Select fontSize="var(--text-12px)" name="sector_id" placeholder="Select sector" value={campaignData.sector_id} onChange={handleChange}>
                               {sectors.map((sector) => (
-                                <option value={sector.value} key={sector.value}>{sector.name}</option>
+                                <option value={sector.id} key={sector.id}>{sector.name}</option>
                               ))}
                             </Select>
                           </FormControl>
@@ -1629,7 +1643,7 @@ console.log(payload)
                               w='100%'
                               onClick={() => {
                                 setCampaignData({
-                                  sector: '',
+                                  sector_id: '',
                                   template_name: '',
                                   template_type: '',
                                   template_lang: ''
@@ -2179,7 +2193,7 @@ console.log(payload)
         <Flex flexDirection={'column'} justifyContent={'space-between'} >
             {selectedRowIds.length > 0 && (
             <Box mt={4}>
-              <Heading fontSize="md" mb={2}>Selected Rows:</Heading>
+              <Heading fontSize="md" mb={2}>Selected Contact:</Heading>
               <Table size="sm" variant="simple">
                 <Thead>
                   <Tr>
@@ -2207,7 +2221,7 @@ console.log(payload)
           {selectedIds.length > 0 && (
             <Box mt={4}>
               <Text fontWeight="bold" mb={2}>
-                Selected Rows:
+                Selected Campaign:
               </Text>
               <TableContainer>
                 <Table size="sm">

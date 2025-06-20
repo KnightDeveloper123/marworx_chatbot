@@ -477,13 +477,13 @@ async function sendWhatsAppImage(to, imageUrl, token) {
 // ✅ Facebook Verification
 router.get('/webhook', (req, res) => {
   const verifyToken = process.env.JWT_SECRET;
-  console.log(verifyToken)
+  // console.log(verifyToken)
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
-  console.log(challenge)
-  console.log(token)
-  console.log(mode)
+  // console.log(challenge)
+  // console.log(token)
+  // console.log(mode)
 
   if (mode === 'subscribe' && token === verifyToken) {
     return res.status(200).send(challenge);
@@ -1860,7 +1860,7 @@ router.post('/webhook', async (req, res) => {
 
 async function handleMediaNode(type, node, to, flow_id) {
   try {
-    console.log(`Handling ${type} node`);
+    // console.log(`Handling ${type} node`);
 
     let fileName, urlPath;
 
@@ -1881,7 +1881,7 @@ async function handleMediaNode(type, node, to, flow_id) {
     }
 
     const mediaUrl = `${process.env.NGROK_PUBLIC_URL}/${urlPath}/${encodeURIComponent(fileName)}`;
-    console.log(`Media URL: ${mediaUrl}`);
+    // console.log(`Media URL: ${mediaUrl}`);
 
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
     const payload = {
@@ -1899,7 +1899,7 @@ async function handleMediaNode(type, node, to, flow_id) {
       }
     };
 
-    console.log('Sending media payload:', JSON.stringify(payload, null, 2));
+    // console.log('Sending media payload:', JSON.stringify(payload, null, 2));
     const response = await fetch(`https://graph.facebook.com/v17.0/${phoneNumberId}/messages`, {
       method: 'POST',
       headers: {

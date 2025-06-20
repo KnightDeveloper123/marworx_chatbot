@@ -14,7 +14,7 @@ const Sidebar = () => {
   const adminNavbar = [
     { title: "Dashboard", url: "/home/dashboard", icon: <Icon as={FaTachometerAlt} mr={2} /> },
     { title: "Admin", url: "/home/admin", icon: <Icon as={FaCircleUser} mr={2} /> },
-    // { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
+    { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
     { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Queries", url: "/home/queries", icon: <Icon as={SiGooglebigquery} mr={2} /> },
     { title: "Templates", url: "/home/template", icon: <Icon as={HiOutlineTemplate } mr={2} /> },
