@@ -35,7 +35,6 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
-  DrawerFooter,
   TableContainer,
   Table,
   Thead,
@@ -71,7 +70,6 @@ import { RiDeleteBin6Line } from 'react-icons/ri'
 import Card from '../../../Card'
 import { IoMdAdd } from 'react-icons/io'
 import { AppContext } from '../../context/AppContext'
-import { RxDotsHorizontal } from 'react-icons/rx'
 import { MdOutlineModeEdit, MdOutlineSendToMobile } from 'react-icons/md'
 import { TbFileExport } from 'react-icons/tb'
 import { FcBiohazard } from 'react-icons/fc'
@@ -80,7 +78,6 @@ import { IoCallOutline } from 'react-icons/io5'
 import { HiOutlineArrowSmLeft } from 'react-icons/hi'
 import { useLocation, useParams } from 'react-router-dom'
 import { decrypt } from '../../utils/security'
-import { LuCloudUpload } from 'react-icons/lu'
 import { Link } from '@chakra-ui/react'
 
 const Campaign = () => {
@@ -114,7 +111,7 @@ const Campaign = () => {
   const admin_id = decrypt(user).id
   const sectorid = localStorage.getItem("sectorId");
   //  console.log("sector",sectorid)
-// console.log(campaign)
+  // console.log(campaign)
   const steps = [
     {
       title: 'Select Channel',
@@ -193,76 +190,80 @@ const Campaign = () => {
     body: "",
     admin_id: "",
     sector_id: "",
-    to: ''
+    to: '',
+    banner:"",
+    cta_label: "",
+    cta_link: ""
 
     // bot_type:'campaign'
   })
-
+ 
   const handleChange = e => {
     setCampaignData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const saveCampaign = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/campaign/add`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token
-          },
-          body: JSON.stringify({
-            channel_name: 'Whatsapp',
-            campaign_name: campaignData.campaign_name,
-            message_content: campaignData.message_content,
-            // sector: campaignData.sector_id,
-            template_name: campaignData.template_name,
-            template_type: campaignData.template_type,
-            template_lang: campaignData.template_lang,
-            header: campaignData.header,
-            body: campaignData.body,
-            admin_id: admin_id,
-            sector_id: campaignData.sector_id ,
-            to: campaignData.to
+const saveCampaign = async () => {
+  try {
+    const formData = new FormData();
 
-            // bot_type: type
-          })
-        }
-      )
-      const result = await response.json()
-      if (result.success) {
-        showAlert('Campaign added successfully', 'success')
-        setCampaignData({})
-        fetchCampaign(admin_id)
-        onStepClose()
-      }
-      if (response.ok && result.flowId) {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              campaign_id: result.flowId,
-              user_id: admin_id
+    formData.append('channel_name', 'Whatsapp');
+    formData.append('campaign_name', campaignData.campaign_name || '');
+    formData.append('template_name', campaignData.template_name || '');
+    formData.append('template_type', campaignData.template_type || '');
+    formData.append('template_lang', campaignData.template_lang || '');
+    formData.append('header', campaignData.header || '');
+    formData.append('body', campaignData.body || '');
+    formData.append('admin_id', admin_id);
+    formData.append('sector_id', campaignData.sector_id || '');
+    formData.append('to', campaignData.to || '');
+    formData.append('fileName', campaignData.fileName || 'banner_img'); // used in backend filename
+    formData.append('cta_label', campaignData.cta_label || '');
+    formData.append('cta_link', campaignData.cta_link || '');
 
-            })
-          })
-
-      }
-    } catch (error) {
-      console.log(error)
-      showAlert('Failed to add Campaign', 'error')
+    // append file
+    if (campaignData.bannerFile) {
+      formData.append('file', campaignData.bannerFile);
     }
+
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/campaign/add`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: token, // ❗Do NOT set Content-Type manually
+        },
+        body: formData,
+      }
+    );
+
+    const result = await response.json();
+    if (result.success) {
+      showAlert('Campaign added successfully', 'success');
+      setCampaignData({});
+      fetchCampaign(admin_id);
+      onStepClose();
+    }
+
+    if (response.ok && result.flowId) {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaign_id: result.flowId,
+          user_id: admin_id,
+        }),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    showAlert('Failed to add Campaign', 'error');
   }
+};
 
   const [selectedCampaign, setSelectedCampaign] = useState(null)
 
   const editCampaign = data => {
-    console.log(data)
+    // console.log(data)
     setSelectedCampaign(data)
     setCampaignData({
       channel_name: data.channel_name || 'WhatsApp',
@@ -273,7 +274,10 @@ const Campaign = () => {
       template_type: data.template_type || '',
       template_lang: data.template_lang || '',
       header: data.header || '',
-      body: data.body || ''
+      body: data.body || '',
+      banner:data.banner,
+      cta_label: data.cta_label,
+      cta_link: data.cta_link
     })
     setActiveStep(1)
     setIsStepOpen(true)
@@ -308,17 +312,40 @@ const Campaign = () => {
       showAlert('failed to update campaign', 'error')
     }
   }
-  const [isSwitchOn, setIsSwitchOn] = useState(false)
 
-  const handleSwitchChange = e => {
-    setIsSwitchOn(e.target.checked)
-    campaignData.header = ''
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false)
+  const [isBannerVisible, setIsBannerVisible] = useState(false)
+  const [bannerPreview, setBannerPreview] = useState(null)
+  const [isCTAEnabled, setIsCTAEnabled] = useState(false)
+ const handleBannerUpload = (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setBannerPreview(reader.result);
+      setCampaignData((prev) => ({
+        ...prev,
+        banner: reader.result, // preview
+        bannerFile: file,       // actual file
+        fileName: file.name.split('.')[0], // or custom value
+      }));
+    };
+    reader.readAsDataURL(file);
   }
-  const [isSwitchBtn, setIsSwitchBtn] = useState(false)
+};
 
-  const handleSwitchBtn = e => {
-    setIsSwitchBtn(e.target.checked)
+  const handleToggleCTA = () => {
+    setIsCTAEnabled(!isCTAEnabled)
+    if (!isCTAEnabled) {
+      setCampaignData(prev => ({
+        ...prev,
+        cta_label: '',
+        cta_link: ''
+      }))
+    }
   }
+
+
   const [showData, setShowData] = useState(false);
   const onclickApply = () => {
     setShowData(true);
@@ -489,31 +516,31 @@ const Campaign = () => {
     }
   };
   const handleSendCampaign = async () => {
-  const payload = {
-    campaign_ids: selectedIds,
-    contact_ids: selectedRowIds,
-  };
-// console.log(payload)
-  try {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/send-campaign`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    const payload = {
+      campaign_ids: selectedIds,
+      contact_ids: selectedRowIds,
+    };
+    // console.log(payload)
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/send-campaign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await response.json();
-    if (response.ok) {
-         fetchCampaign(admin_id)
-         onModalCloseSendCmp();
-    } else {
-     console.log("error")
+      const data = await response.json();
+      if (response.ok) {
+        fetchCampaign(admin_id)
+        onModalCloseSendCmp();
+      } else {
+        console.log("error")
+      }
+    } catch (error) {
+      console.log(error)
     }
-  } catch (error) {
-    console.log(error)
-  }
-};
+  };
 
 
   return (
@@ -647,7 +674,7 @@ const Campaign = () => {
                         borderRadius=''
                         fontSize='var(--mini-text)'
                       >
-                       Sector
+                        Sector
                       </Th>
                       <Th
                         fontWeight='var(--big-font-weight)'
@@ -681,132 +708,132 @@ const Campaign = () => {
                       filteredData.map((d, index) => {
                         const isPending = !d.ml_status || d.ml_status === null;
                         const statusLabel = isPending ? 'Pending' : d.ml_status;
-                        return(
-                        <Tr
-                          key={index}
-                          border='0.5px solid #F2F4F8'
-                          h='40px'
-                          textAlign='start'
-                        >
-                          <Td
+                        return (
+                          <Tr
+                            key={index}
                             border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
+                            h='40px'
+                            textAlign='start'
                           >
-                            C-{d.id}
-                          </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              C-{d.id}
+                            </Td>
 
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {d.channel_name}
-                          </Td>
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {d.campaign_name}
-                          </Td>
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {d.template_name}
-                          </Td>
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {d.template_type}
-                          </Td>
-                           <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {d.sname}
-                          </Td>
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                            {formatDate(d.created_at)}
-                          </Td>
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                            fontWeight='var(--big-font-weight)'
-                          >
-                           <Box
-                          bgColor={statusBgColors[statusLabel] }
-                          p={1}
-                          borderRadius='5px'
-                          textAlign='center'
-                        >
-                          <Text color={statusColors[statusLabel] }>
-                            {statusLabel}
-                          </Text>
-                        </Box>
-                          </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.channel_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.campaign_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.template_name}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.template_type}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {d.sname}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              {formatDate(d.created_at)}
+                            </Td>
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                              fontWeight='var(--big-font-weight)'
+                            >
+                              <Box
+                                bgColor={statusBgColors[statusLabel]}
+                                p={1}
+                                borderRadius='5px'
+                                textAlign='center'
+                              >
+                                <Text color={statusColors[statusLabel]}>
+                                  {statusLabel}
+                                </Text>
+                              </Box>
+                            </Td>
 
-                          <Td
-                            border='0.5px solid #F2F4F8'
-                            color={'#404040'}
-                            fontSize='var(--mini-text)'
-                          >
-                            <Flex gap={2}>
-                              <Box
-                                bgColor={'#E7EAFB'}
-                                p={1}
-                                borderRadius={'5px'}
-                                cursor={'pointer'}
-                              >
-                                <MdOutlineModeEdit
-                                  size={20}
-                                  color={'#3550FF'}
-                                  onClick={() => editCampaign(d)}
-                                />
-                              </Box>
-                              <Box
-                                bgColor={'#F7E3E3'}
-                                p={1}
-                                borderRadius={'5px'}
-                                cursor={'pointer'}
-                              >
-                                <RiDeleteBin6Line
-                                  size={20}
-                                  color={'#D50B0B'}
-                                  onClick={() => openDeleteModal(d.id)}
-                                />
-                              </Box>
-                              <Box>
-                                <Link
-                                  href={`http://localhost:2500/campaign/export/campaigns/csv/${d.id}`}
-                                  isExternal
+                            <Td
+                              border='0.5px solid #F2F4F8'
+                              color={'#404040'}
+                              fontSize='var(--mini-text)'
+                            >
+                              <Flex gap={2}>
+                                <Box
+                                  bgColor={'#E7EAFB'}
+                                  p={1}
+                                  borderRadius={'5px'}
+                                  cursor={'pointer'}
                                 >
-                                  {/* <Button colorScheme="blue">Export Campaign</Button> */}
-                                  <TbFileExport fontSize={'25px'} />
-                                </Link>
-                              </Box>
+                                  <MdOutlineModeEdit
+                                    size={20}
+                                    color={'#3550FF'}
+                                    onClick={() => editCampaign(d)}
+                                  />
+                                </Box>
+                                <Box
+                                  bgColor={'#F7E3E3'}
+                                  p={1}
+                                  borderRadius={'5px'}
+                                  cursor={'pointer'}
+                                >
+                                  <RiDeleteBin6Line
+                                    size={20}
+                                    color={'#D50B0B'}
+                                    onClick={() => openDeleteModal(d.id)}
+                                  />
+                                </Box>
+                                <Box>
+                                  <Link
+                                    href={`http://localhost:2500/campaign/export/campaigns/csv/${d.id}`}
+                                    isExternal
+                                  >
+                                    {/* <Button colorScheme="blue">Export Campaign</Button> */}
+                                    <TbFileExport fontSize={'25px'} />
+                                  </Link>
+                                </Box>
 
 
-                            </Flex>
+                              </Flex>
 
-                            {/* <Menu>
+                              {/* <Menu>
                               <MenuButton
                                 bgColor="transparent"
                                 _hover={{ bgColor: "transparent", color: "var(--active-bg)" }}
@@ -842,9 +869,10 @@ const Campaign = () => {
                                 </MenuItem>
                               </MenuList>
                             </Menu> */}
-                          </Td>
-                        </Tr>
-                      )})}
+                            </Td>
+                          </Tr>
+                        )
+                      })}
                   </Tbody>
                 </Table>
               </TableContainer>
@@ -1613,9 +1641,12 @@ const Campaign = () => {
                               value={campaignData.template_type}
                               onChange={handleChange}
                             >
-                              <option value='utility'>Utility</option>
+                              <option value='Campaign_boost_tips	'>Campaign boost tips	</option>
                               <option value='marketing '>Marketting</option>
-                              <option value='alert'>alert </option>
+                              <option value='Schedule_meeting_followup	'>Schedule meeting_followup	 </option>
+                              <option value='Thank_you_interest	'>Thank you interest	 </option>
+                              <option value='Lead_generation_help	'>Lead generation help	 </option>
+                              <option value='Schedule_meeting_followup	'>Schedule meeting followup	 </option>
                             </Select>
                             <FormHelperText>
                               Choose Marketing for promotional communication and
@@ -1734,42 +1765,79 @@ const Campaign = () => {
                           borderRight={'1px solid black'}
                         >
                           <Flex mt={5} mb={5} direction={'column'}>
+                            {/* Banner Section */}
+                            <Box display={'flex'} px={'5px'} mb={3}>
+                              <Box w={'full'}>
+                                <Heading fontSize={'20px'}>Banner</Heading>
+                              </Box>
+                              <Box>
+                                <Switch
+                                  id='banner-toggle'
+                                  isChecked={isBannerVisible}
+                                  onChange={() => setIsBannerVisible(!isBannerVisible)}
+                                />
+                              </Box>
+                            </Box>
+
+                            {isBannerVisible && (
+                              <Box px={5} mb={4}>
+                                <Input
+                                  type='file'
+                                  accept='image/*'
+                                  onChange={handleBannerUpload}
+                                  mb={3}
+                                />
+                                {bannerPreview ? (
+                                  <Image
+                                    src={bannerPreview}
+                                    alt='Banner Preview'
+                                    maxH='200px'
+                                    objectFit='cover'
+                                    borderRadius='md'
+                                    border='1px solid #ccc'
+                                  />
+                                ) : (
+                                  <Text fontSize='sm' color='gray.500'>
+                                    No banner uploaded yet.
+                                  </Text>
+                                )}
+                              </Box>
+                            )}
+                            <Divider />
+
+                            {/* Header Section */}
                             <Box display={'flex'} px={'5px'}>
-                              <Box
-                                alignItems={'center'}
-                                justifyContent={'space-evenly'}
-                                w={'full'}
-                              >
+                              <Box w={'full'}>
                                 <Heading fontSize={'20px'}>Header</Heading>
                               </Box>
                               <Box>
                                 <Switch
-                                  id='header-alerts'
-                                  isChecked={isSwitchOn}
-                                  onChange={handleSwitchChange}
+                                  id='header-toggle'
+                                  isChecked={isHeaderVisible}
+                                  onChange={() => setIsHeaderVisible(!isHeaderVisible)}
                                 />
                               </Box>
                             </Box>
-                            <Flex>
-                              {isSwitchOn && (
+
+                            {isHeaderVisible && (
+                              <Box px={5} mb={4}>
                                 <Input
                                   type='text'
                                   name='header'
                                   value={campaignData.header}
                                   onChange={handleChange}
-                                  mx={'6px'}
-                                  mt={'3'}
+                                  // mx={6}
+                                  mt={3}
                                 />
-                              )}
-                            </Flex>
+                              </Box>
+                            )}
                           </Flex>
-
                           <Divider borderColor={'black'} />
                           <Flex
                             alignItems={'center'}
                             mt={5}
                             mb={5}
-                            px={'5px'}
+                            px={5}
                             flexDirection={'column'}
                           >
                             <Heading alignSelf={'flex-start'} fontSize={'20px'}>
@@ -1784,16 +1852,30 @@ const Campaign = () => {
                             ></Textarea>
                           </Flex>
                           <Divider borderColor={'black'} />
-                          <Flex
-                            justifyContent={'space-between'}
-                            px={'5px'}
-                            alignItems={'center'}
-                            mt={5}
-                            mb={5}
-                          >
-                            <Heading fontSize={'20px'}>Buttons</Heading>
-                            <Switch id='email-alerts' isChecked={isSwitchBtn} onChange={handleSwitchBtn} />
+                          <Flex justifyContent='space-between' px='5px' alignItems='center' mt={5} mb={3}>
+                            <Heading fontSize='20px'> Button</Heading>
+                            <Switch id='cta-toggle' isChecked={isCTAEnabled} onChange={handleToggleCTA} />
                           </Flex>
+
+                          {isCTAEnabled && (
+                            <Box px={5} mb={4}>
+                              <Text fontWeight='semibold' mb={1}> Label</Text>
+                              <Input
+                                placeholder="Enter button name"
+                                name="cta_label"
+                                value={campaignData.cta_label || ''}
+                                onChange={handleChange}
+                                mb={3}
+                              />
+                              <Text fontWeight='semibold' mb={1}> Link</Text>
+                              <Input
+                                placeholder="Enter button link"
+                                name="cta_link"
+                                value={campaignData.cta_link || ''}
+                                onChange={handleChange}
+                              />
+                            </Box>
+                          )}
                           <Flex justifyContent={'space-between'} mt={10}
                             px={'5px'}
                             alignItems={'center'}>
@@ -1852,35 +1934,57 @@ const Campaign = () => {
                             <Flex position="relative" w="100%" h="auto">
                               <Image
                                 w="100%"
-                                h="54%"
+                                h="72%"
                                 objectFit="cover"
                                 src='https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'
                               />
+                             
+
                               {showData && (
                                 <Box
                                   position="absolute"
-                                  top="10%"
-                                  left="25%"
+                                  top={isBannerVisible ? '37%' : '10%'}
+                                  left="50%"
                                   transform="translate(-50%, -50%)"
-                                  fontSize='var(--mini-text)'
-                                  color='var(--text-black)'
+                                  textAlign='justify'
+                                  w="80%"
                                 >
-                                  <Text fontSize='var(--mini-text)'
-                                    color='var(--text-black)' >
-                                    {campaignData.header}
-                                  </Text>
-                                  <Text fontSize='var(--mini-text)'
-                                    color='var(--text-black)' >
-                                    {campaignData.body}
-                                  </Text>
-                                  <Button
-                                    size={'sm'}
-                                    _hover={{ bgColor: 'var(--active-bg)' }}
-                                    bgColor='var(--active-bg)'
-                                    color='#fff'
-                                  >
-                                    Send
-                                  </Button>
+                                 {showData && isBannerVisible && bannerPreview && (
+                                <Image
+                                  w="100%"
+                                  h="200px"
+                                  objectFit="cover"
+                                  src={bannerPreview}
+                                  alt="Banner Preview"
+                                  borderRadius="md"
+                                />
+                              )}
+                                  {/* Show header if enabled */}
+                                  {isHeaderVisible && campaignData.header && (
+                                    <Text fontSize="lg" fontWeight="bold" mb={2}>
+                                      {campaignData.header}
+                                    </Text>
+                                  )}
+
+                                  {/* Body Text */}
+                                  {campaignData.body && (
+                                    <Text fontSize="sm" color="gray.700" mb={3}>
+                                      {campaignData.body}
+                                    </Text>
+                                  )}
+
+                                  {/* CTA Button if enabled */}
+                                  {isCTAEnabled && campaignData.cta_label && (
+                                    <Button
+                                      size="sm"
+                                      colorScheme="blue"
+                                      as="a"
+                                      href={campaignData.cta_link}
+                                      target="_blank"
+                                    >
+                                      {campaignData.cta_label}
+                                    </Button>
+                                  )}
                                 </Box>
                               )}
                             </Flex>
@@ -2190,82 +2294,82 @@ const Campaign = () => {
               </TabPanel>
             </TabPanels>
           </Tabs>
-        <Flex flexDirection={'column'} justifyContent={'space-between'} >
+          <Flex flexDirection={'column'} justifyContent={'space-between'} >
             {selectedRowIds.length > 0 && (
-            <Box mt={4}>
-              <Heading fontSize="md" mb={2}>Selected Contact:</Heading>
-              <Table size="sm" variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>ID</Th>
-                    <Th>Name</Th>
-                    <Th>Phone</Th>
-                    <Th>Email</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {documents
-                    .filter((doc) => selectedRowIds.includes(doc.id))
-                    .map((row) => (
-                      <Tr key={row.id}>
-                        <Td>{row.id}</Td>
-                        <Td>{row.contact_name}</Td>
-                        <Td>{row.phone}</Td>
-                        <Td>{row.email}</Td>
-                      </Tr>
-                    ))}
-                </Tbody>
-              </Table>
-            </Box>
-          )}
-          {selectedIds.length > 0 && (
-            <Box mt={4}>
-              <Text fontWeight="bold" mb={2}>
-                Selected Campaign:
-              </Text>
-              <TableContainer>
-                <Table size="sm">
+              <Box mt={4}>
+                <Heading fontSize="md" mb={2}>Selected Contact:</Heading>
+                <Table size="sm" variant="simple">
                   <Thead>
                     <Tr>
                       <Th>ID</Th>
-                      <Th>Channel</Th>
-                      <Th>Campaign</Th>
-                      <Th>Template</Th>
-                      <Th>Type</Th>
+                      <Th>Name</Th>
+                      <Th>Phone</Th>
+                      <Th>Email</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {filteredData
-                      .filter((d) => selectedIds.includes(d.id))
-                      .map((item) => (
-                        <Tr key={item.id}>
-                          <Td>C-{item.id}</Td>
-                          <Td>{item.channel_name}</Td>
-                          <Td>{item.campaign_name}</Td>
-                          <Td>{item.template_name}</Td>
-                          <Td>{item.template_type}</Td>
+                    {documents
+                      .filter((doc) => selectedRowIds.includes(doc.id))
+                      .map((row) => (
+                        <Tr key={row.id}>
+                          <Td>{row.id}</Td>
+                          <Td>{row.contact_name}</Td>
+                          <Td>{row.phone}</Td>
+                          <Td>{row.email}</Td>
                         </Tr>
                       ))}
                   </Tbody>
                 </Table>
-              </TableContainer>
-            </Box>
-          )}
-        
-        </Flex>
+              </Box>
+            )}
+            {selectedIds.length > 0 && (
+              <Box mt={4}>
+                <Text fontWeight="bold" mb={2}>
+                  Selected Campaign:
+                </Text>
+                <TableContainer>
+                  <Table size="sm">
+                    <Thead>
+                      <Tr>
+                        <Th>ID</Th>
+                        <Th>Channel</Th>
+                        <Th>Campaign</Th>
+                        <Th>Template</Th>
+                        <Th>Type</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {filteredData
+                        .filter((d) => selectedIds.includes(d.id))
+                        .map((item) => (
+                          <Tr key={item.id}>
+                            <Td>C-{item.id}</Td>
+                            <Td>{item.channel_name}</Td>
+                            <Td>{item.campaign_name}</Td>
+                            <Td>{item.template_name}</Td>
+                            <Td>{item.template_type}</Td>
+                          </Tr>
+                        ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            )}
+
+          </Flex>
           <Box textAlign={'center'} p={1}>
-         {selectedIds.length > 0 && selectedRowIds.length > 0 && (
-          <Button
-            mt={4}
-             _hover={{ bgColor: 'var(--active-bg)' }}
-                      bgColor='var(--active-bg)'
-                      color='#fff'
-            onClick={handleSendCampaign}
-          >
-            Send Campaign
-          </Button>
-        )}
-        </Box>
+            {selectedIds.length > 0 && selectedRowIds.length > 0 && (
+              <Button
+                mt={4}
+                _hover={{ bgColor: 'var(--active-bg)' }}
+                bgColor='var(--active-bg)'
+                color='#fff'
+                onClick={handleSendCampaign}
+              >
+                Send Campaign
+              </Button>
+            )}
+          </Box>
         </ModalContent>
       </Modal>
 

@@ -8,27 +8,28 @@ const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const router = express.Router();
 const axios = require('axios');
+const path = require('path');
+const multer = require('multer');
 
-// router.post("/add", middleware, async (req, res) => {
-//     try {
-//         const {  channel_name, campaign_name,template_name, template_type, template_lang, header, body,admin_id ,to,sector_id,bot_type} = req.body;
-//     console.log(req.body)
-//         const insertQuery = 'insert into campaign (channel_name, campaign_name, template_name, template_type, template_lang, header, body, is_status,admin_id,\`to\`,sector_id,bot_type) values (?, ?, ?, ?,  ?, ?, ?, "Sent", ?, ?,?,?);'
-//         connection.execute(insertQuery, [channel_name, campaign_name,   template_name, template_type, template_lang, header, body,admin_id, to,sector_id,bot_type ], (err, data) => {
-//             if (err) {
-//                 console.log(err);
-//                 return res.status(400).json({ error: "Something went wrong" })
-//             }
-//             return res.json({ success: "Campaign Added", data })
-//         })
-//     } catch (error) {
-//         console.log("/add: ", error.message);
-//         return res.status(500).json({ error: "Internal Server Error." });
-//     }
-// });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../../banner'));
+    },
+    filename: (req, file, cb) => {
+        const { fileName } = req.query;
+       
+        cb(null, fileName + path.extname(file.originalname));
+    },
+});
 
-router.post("/add", middleware, async (req, res) => {
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+router.post("/add", middleware, upload.single('file'), async (req, res) => {
   try {
+      const { fileName } = req.body;
     const {
       channel_name,
       campaign_name,
@@ -38,34 +39,38 @@ router.post("/add", middleware, async (req, res) => {
       header,
       body,
       admin_id,
-
       sector_id,
-      to
+      to,
+      banner,
+      cta_label,
+      cta_link
       //   bot_type
     } = req.body;
 
     // console.log(req.body);
 
-    const insertQuery = `
-      INSERT INTO campaign 
-      (channel_name, campaign_name, template_name, template_type, template_lang, header, body, is_status, admin_id, sector_id, \`to\`) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, "Pending", ?, ?, ?);
-    `;
+   const insertQuery = `
+  INSERT INTO campaign 
+  (channel_name, campaign_name, template_name, template_type, template_lang, header, body, is_status, admin_id, sector_id, \`to\`, banner, cta_label, cta_link)
+  VALUES (?, ?, ?, ?, ?, ?, ?, "Pending", ?, ?, ?, ?, ?, ?);
+`;
 
-    const values = [
-      channel_name ?? null,
-      campaign_name ?? null,
-      template_name ?? null,
-      template_type ?? null,
-      template_lang ?? null,
-      header ?? null,
-      body ?? null,
-      admin_id ?? null,
-      sector_id ?? null,
-      to ?? null
+   const values = [
+  channel_name ?? null,
+  campaign_name ?? null,
+  template_name ?? null,
+  template_type ?? null,
+  template_lang ?? null,
+  header ?? null,
+  body ?? null,
+  admin_id ?? null,
+  sector_id ?? null,
+  to ?? null,
+  fileName ?? null,       // this will go to 'banner' column
+  cta_label ?? null,
+  cta_link ?? null
+];
 
-      //   bot_type ?? null
-    ];
 
     connection.execute(insertQuery, values, (err, data) => {
       if (err) {
@@ -87,7 +92,7 @@ const db = connection.promise();
 async function sendWhatsAppMessage({ phone, message }) {
   // console.log(message)
   const token = process.env.WHATSAPP_TOKEN;
-  const phoneNumberId =  process.env.PHONE_NUMBER_ID;
+  const phoneNumberId = process.env.PHONE_NUMBER_ID;
 
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
 
@@ -146,9 +151,9 @@ async function sendMessageToUser({ campaignIds = [], contactIds = [] }) {
       // console.log("campaigan"+ campaign )
       // console.log("body"+ campaign.body )
       try {
-       await sendWhatsAppMessage({
+        await sendWhatsAppMessage({
           phone: contact.phone,
-          message: campaign.body 
+          message: campaign.body
         });
 
         await db.query(
@@ -175,8 +180,8 @@ router.post('/send-campaign', async (req, res) => {
   if (!campaign_ids?.length || !contact_ids?.length) {
     return res.status(400).json({ message: 'Please select campaigns and contacts' });
   }
-// console.log("hi"+campaign_ids)
-// console.log("hello"+contact_ids)
+  // console.log("hi"+campaign_ids)
+  // console.log("hello"+contact_ids)
   try {
     const result = await sendMessageToUser({
       campaignIds: campaign_ids,
