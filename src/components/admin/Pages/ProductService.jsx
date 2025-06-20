@@ -362,28 +362,30 @@ const ProductService = () => {
                                     />
                                 </FormControl>
 
-
-
-
-                                <Box display={'flex'} gap={'6px'} alignItems={'center'}  justifyContent={'center'}>
+                                <Box display={'flex'} gap={'6px'} alignItems={'center'} justifyContent={'center'}>
                                     <Box width={'full'}>
-                                        {showPrice && (
-
+                                        <FormControl>
+                                            <FormLabel fontSize="var(--mini-text)" mb="2px">Price</FormLabel>
+                                            <Input type="text" {...register("price")} placeholder="Enter product price" fontSize="var(--text-12px)" />
+                                        </FormControl>
+                                        {/* {showPrice && (
                                             <FormControl>
                                                 <FormLabel fontSize="var(--mini-text)" mb="2px">Price</FormLabel>
                                                 <Input type="text" {...register("price")} placeholder="Enter product price" fontSize="var(--text-12px)" />
                                             </FormControl>
-
-
-                                        )}
+                                        )} */}
                                     </Box>
+                                    <Checkbox
+                                        isChecked={showPrice}
+                                        onChange={(e) => setShowPrice(e.target.checked)}
 
-                                    <FormLabel fontSize="var(--mini-text)"><input type="checkbox" checked={showPrice} onChange={() => setShowPrice(!showPrice)} />  Price</FormLabel>
-
+                                        size={'md'}
+                                    >
+                                        Price
+                                    </Checkbox>
                                 </Box>
-
-                                <Box>
-                                    {showCTA && (
+                                <Box display={'flex'} gap={'6px'} alignItems={'center'} justifyContent={'center'}>
+                                    <Box width={'full'}>
                                         <FormControl>
                                             <FormLabel fontSize="var(--mini-text)" mb="2px">CTA</FormLabel>
                                             <Textarea
@@ -394,36 +396,90 @@ const ProductService = () => {
                                                 rows={3}
                                             />
                                         </FormControl>
-                                    )}
-                                    <label><input type="checkbox" checked={showCTA} onChange={() => setShowCTA(!showCTA)} /> Include CTA</label>
+                                        {/* {showCTA && (
+                                            <FormControl>
+                                                <FormLabel fontSize="var(--mini-text)" mb="2px">CTA</FormLabel>
+                                                <Textarea
+                                                    {...register("cta")}
+                                                    placeholder="Enter CTA text or link"
+                                                    fontSize="var(--text-12px)"
+                                                    autoComplete="off"
+                                                    rows={3}
+                                                />
+                                            </FormControl>
+
+                                        )} */}
+                                    </Box>
+                                    <Checkbox
+                                        isChecked={showCTA}
+                                        onChange={(e) => setShowCTA(e.target.checked)}
+
+                                        size={'md'}
+                                    >
+                                        CTA
+                                    </Checkbox>
                                 </Box>
 
                                 <Box>
-                                    {showImage && (
-                                        <FormControl isRequired>
-                                            <FormLabel fontSize="var(--mini-text)" mb="2px">Upload Image</FormLabel>
-                                            <Input
-                                                type="file"
-                                                {...register('image')}
-                                                fontSize="var(--text-12px)"
-                                                sx={{
-                                                    "::file-selector-button": {
-                                                        backgroundColor: "#FF5722",
-                                                        color: "white",
-                                                        border: "none",
-                                                        padding: "6px 12px",
-                                                        borderRadius: "6px",
-                                                        cursor: "pointer",
-                                                        fontSize: "var(--text-12px)",
-                                                    },
-                                                    "::file-selector-button:hover": {
-                                                        backgroundColor: "#e64a19",
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                    )}
-                                    <label><input type="checkbox" checked={showImage} onChange={() => setShowImage(!showImage)} />  Image</label>
+                                    <Box display={'flex'} gap={'6px'} alignItems={'center'} justifyContent={'center'}>
+                                        <Box width={'full'}>
+                                            <FormControl >
+                                                <FormLabel fontSize="var(--mini-text)" mb="2px">Upload Image</FormLabel>
+                                                <Input
+                                                    type="file"
+                                                    {...register('image')}
+                                                    fontSize="var(--text-12px)"
+                                                    sx={{
+                                                        "::file-selector-button": {
+                                                            backgroundColor: "#FF5722",
+                                                            color: "white",
+                                                            border: "none",
+                                                            padding: "6px 12px",
+                                                            borderRadius: "6px",
+                                                            cursor: "pointer",
+                                                            fontSize: "var(--text-12px)",
+                                                        },
+                                                        "::file-selector-button:hover": {
+                                                            backgroundColor: "#e64a19",
+                                                        }
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            {/* {showImage && (
+                                                <FormControl >
+                                                    <FormLabel fontSize="var(--mini-text)" mb="2px">Upload Image</FormLabel>
+                                                    <Input
+                                                        type="file"
+                                                        {...register('image')}
+                                                        fontSize="var(--text-12px)"
+                                                        sx={{
+                                                            "::file-selector-button": {
+                                                                backgroundColor: "#FF5722",
+                                                                color: "white",
+                                                                border: "none",
+                                                                padding: "6px 12px",
+                                                                borderRadius: "6px",
+                                                                cursor: "pointer",
+                                                                fontSize: "var(--text-12px)",
+                                                            },
+                                                            "::file-selector-button:hover": {
+                                                                backgroundColor: "#e64a19",
+                                                            }
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                            )} */}
+                                        </Box>
+
+                                        <Checkbox
+                                            isChecked={showImage}
+                                            onChange={(e) => setShowImage(e.target.checked)}
+
+                                            size={'md'}
+                                        >
+                                            img
+                                        </Checkbox>
+                                    </Box>
                                 </Box>
                                 {/* Buttons */}
                                 <Box display="flex" alignItems="center" justifyContent="center" mt="10px" gap="10px">
