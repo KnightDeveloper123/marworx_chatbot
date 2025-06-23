@@ -77,7 +77,8 @@ import { AppContext } from "../../context/AppContext";
 import { RiAiGenerate2 } from "react-icons/ri";
 // Utility for node ID generation
 let id = 1;
-const getId = () => `${++id}`;
+// const getId = () => `${++id}`;
+const getId = () => crypto.randomUUID();
 let selectedBotToLoad = null;
 
 // Node types map
