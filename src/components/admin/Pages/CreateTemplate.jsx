@@ -51,189 +51,63 @@ const getId = () => `${++id}`;
 
 // Node types map
 const nodeTypes = {
-
   Custom: ({ id, data }) => {
-    const [value, setValue] = useState(data.label || null)
-    const { setNodes } = useReactFlow()
+    const [value, setValue] = useState(data.label || null);
+    const { setNodes } = useReactFlow();
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes(nds =>
-          nds.map(node =>
+        setNodes((nds) =>
+          nds.map((node) =>
             node.id === id
               ? { ...node, data: { ...node.data, label: value } }
               : node
           )
-        )
-      }, 500)
+        );
+      }, 500);
 
-      return () => clearTimeout(timer)
-    }, [value, id, setNodes])
+      return () => clearTimeout(timer);
+    }, [value, id, setNodes]);
     return (
-      <Box bg='white' borderRadius={'15px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="right" style={{ background: "#555" }} />
         <Input
           value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder='Enter text...'
-          fontSize='8px'
-          border='none'
-          resize='none'
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter text..."
+          fontSize="8px"
+          border="none"
+          resize="none"
           size="xs"
-          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
-        // px={2} 
+          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+        // px={2}
         // py={1}
         />
 
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
       </Box>
-    )
+    );
   },
+
 
   CustomNode: ({ id, data }) => {
-    const [value, setValue] = useState(data.label || null)
-    const { setNodes } = useReactFlow()
+    const { setNodes, deleteElements } = useReactFlow();
+    const [question, setQuestion] = useState('');
+    const [answer, setAnswer] = useState('');
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes(nds =>
-          nds.map(node =>
-            node.id === id
-              ? { ...node, data: { ...node.data, label: value } }
-              : node
-          )
-        )
-      }, 500)
+    const handleAsk = async () => {
+      if (!question.trim()) return;
 
-      return () => clearTimeout(timer)
-    }, [value, id, setNodes])
+      try {
+        const response = await axios.get(`http://216.10.251.154:5000/get_info?query=${encodeURIComponent(question)}`);
+        const answerText = response.data.answer || response.data;
+        setAnswer(answerText);
 
-    const handleDelete = () => {
-      setNodes(nds => nds.filter(node => node.id !== id))
-    }
-
-    return (
-      <Box bg='white' borderRadius={'15px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>
-              Question
-            </Text>
-            <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='white'
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label='Delete Node'
-            />
-          </Flex>
-        </Box>
-
-        <Textarea
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder='Enter text...'
-          fontSize='8px'
-          border='none'
-          resize='none'
-          size="xs"
-          rows='1'
-          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
-        // px={2} 
-        // py={1}
-        />
-
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
-      </Box>
-    )
-  },
-
-
-  CustomText: ({ id, data }) => {
-    const [value, setValue] = useState(data.label || null)
-    const { setNodes } = useReactFlow()
-
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setNodes(nds =>
-          nds.map(node =>
-            node.id === id
-              ? { ...node, data: { ...node.data, label: value } }
-              : node
-          )
-        )
-      }, 500)
-
-      return () => clearTimeout(timer)
-    }, [value, id, setNodes])
-
-    const handleDelete = () => {
-      setNodes(nds => nds.filter(node => node.id !== id))
-    }
-
-    return (
-      <Box bg='white' borderRadius={'15px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>
-              Message
-            </Text>
-            <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='white'
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label='Delete Node'
-            />
-          </Flex>
-        </Box>
-
-        <Textarea
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder='Enter text...'
-          fontSize='8px'
-          border='none'
-          resize='none'
-          size="sm"
-          rows='2'
-          _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
-        // px={2} 
-        // py={1}
-        />
-
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
-      </Box>
-    )
-  },
-
-  imageNode: ({ id, data }) => {
-    const [image, setImage] = useState(data.image || null);
-    const { setNodes } = useReactFlow(); // ✅ FIXED: access setNodes properly
-    const [fileName, setFileName] = useState(data.fileName || "");
-    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
-
-    const handleImageUpload = (e) => {
-      const file = e.target.files[0];
-      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-        setFileName(file.name);
-        setFileUrl(URL.createObjectURL(file));
-        setImage(URL.createObjectURL(file));
-      } else {
-        alert("Only JPG and PNG files are allowed");
-      }
-    };
-
-    const handleDelete = () => {
-      setNodes((nds) => nds.filter((node) => node.id !== id));
-    };
-
-    useEffect(() => {
-      if (fileUrl) {
+        // Optional: Update node data with last Q&A
         setNodes((nds) =>
           nds.map((node) =>
             node.id === id
@@ -241,259 +115,473 @@ const nodeTypes = {
                 ...node,
                 data: {
                   ...node.data,
+                  lastQuestion: question,
+                  lastAnswer: answerText,
+                },
+              }
+              : node
+          )
+        );
+      } catch (error) {
+        console.error('Error fetching from Python API:', error);
+        setAnswer('❌ Failed to get response from Python API.');
+      }
+    };
+
+    const handleDelete = () => {
+      deleteElements({ nodes: [{ id }] });
+    };
+
+    return (
+      <Box bgColor={'white'} borderRadius={'2px'}>
+        {/* Handles for connecting nodes */}
+        <Handle type="target" position={Position.Top} />
+        <Handle type="source" position={Position.Bottom} />
+
+        {/* Node Title */}
+        <Box bgColor="var(--active-bg)" color="white" borderRadius={'2px'}
+          display={'flex'} justifyContent={'space-between'} padding={'4px'}>
+          <Text fontSize={'10px'}>{data.label}</Text>
+          <IoTrashOutline onClick={handleDelete}></IoTrashOutline>
+        </Box>
+
+        {/* Question Input */}
+        <Input
+          type="text"
+          backgroundColor={'white'}
+          placeholder="ask a question"
+          value={question}
+          fontSize="8px"
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+
+
+
+
+        {/* Show Answer */}
+        {answer && (
+          <div className="mt-3 text-sm bg-gray-100 p-2 rounded">
+            <span className="font-semibold text-gray-700">Answer:</span> {answer}
+          </div>
+        )}
+      </Box>
+    );
+  },
+
+  CustomText: ({ id, data }) => {
+    const [value, setValue] = useState(data.label || null);
+    const { setNodes } = useReactFlow();
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id
+              ? { ...node, data: { ...node.data, label: value } }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [value, id, setNodes]);
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    return (
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
+              Message
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+
+        <Textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter text..."
+          fontSize="8px"
+          border="none"
+          resize="none"
+          size="sm"
+          rows="2"
+          _focusVisible={{ borderColor: "none", boxShadow: "none" }}
+        // px={2}
+        // py={1}
+        />
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
+  },
+
+
+  imageNode: ({ id, data }) => {
+    const [image, setImage] = useState(data.fileUrl || null);
+    const [fileName, setFileName] = useState(data.fileName || "");
+    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
+    const { setNodes } = useReactFlow();
+
+    const handleImageUpload = async (e) => {
+      const file = e.target.files[0];
+
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        // const serverFileName = `${Date.now()}-${file.name}`;
+
+        const cleanName = file.name.replace(/\s+/g, "_");  // ✅ replaces spaces
+        const serverFileName = `${Date.now()}-${cleanName}`;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          // Upload to backend
+          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-image?fileName=${serverFileName}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await res.json();
+          const publicUrl = `${import.meta.env.VITE_BACKEND_URL}/uploads/${result.fileName}`;
+
+          setImage(publicUrl);
+          setFileName(result.fileName);
+          setFileUrl(publicUrl);
+        } catch (err) {
+          console.error("Upload failed", err);
+          alert("Upload failed");
+        }
+      } else {
+        alert("Only JPG and PNG files are allowed");
+      }
+    };
+
+    const handleDelete = () => {
+      setNodes((nodes) => nodes.filter((node) => node.id !== id));
+    };
+
+    useEffect(() => {
+      if (fileUrl && fileName) {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: {
+                  ...node.data,
                   fileName,
                   fileUrl,
+                  caption: data.caption || "", // include caption if needed
                 },
               }
               : node
           )
         );
       }
-    }, [fileUrl]);
+    }, [fileUrl, fileName]);
 
     return (
-      <Box bg='white' borderRadius={'15px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>
-              Image
-            </Text>
+      <Box bg="white" borderRadius="15px" boxShadow="md" w="200px">
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+
+        <Box bgColor="var(--active-bg)" color="white" borderRadius="md">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Image</Text>
             <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='white'
+              size="xs"
+              variant="ghost"
               icon={<IoTrashOutline />}
               onClick={handleDelete}
-              aria-label='Delete Node'
+              aria-label="Delete Node"
+              color="white"
             />
           </Flex>
         </Box>
-        <Divider />
+
+        <Divider my={2} />
+
         <Input
-          fontSize='8px'
-          fontWeight='var(--big-font-weight)'
-          border={'none'}
-          type='file'
-          accept='image/*'
+          type="file"
+          accept="image/jpeg, image/png"
           onChange={handleImageUpload}
-          size='sm'
+          fontSize="10px"
+          size="xs"
+          border="none"
         />
-        <Box position="relative" top='0px'>
-          {image && <Image
-            src={image}
-            alt="node drawing"
-            width="189px"
-            height="auto"
-          />
-          }
-        </Box>
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+
+        {image && (
+          <Box mt={2}>
+            <Image
+              src={image}
+              alt="Uploaded"
+              width="100%"
+              borderRadius="md"
+              objectFit="contain"
+            />
+          </Box>
+        )}
+
+        <Handle type="source" position="bottom" style={{ background: "#555" }} />
       </Box>
-
-      // <Box
-      //   bg="white"
-      //   border="1px solid #ccc"
-      //   borderRadius="md"
-      //   position="relative"
-      // >
-      //   <Handle
-      //     type="target"
-      //     position={Position.Top}
-      //     style={{ background: "#555" }}
-      //   />
-      //   <Flex justifyContent={"space-between"} alignItems={"center"} p="1px">
-      //     <Text fontSize="10px" fontWeight="var(--big-font-weight)">
-      //       Image
-      //     </Text>
-      //     <button
-      //       onClick={handleDelete}
-      //       style={{
-      //         color: "red",
-      //         border: "none",
-      //         background: "none",
-      //         cursor: "pointer",
-      //         fontSize: "20px",
-      //       }}
-      //     >
-      //       <IoTrashOutline fontSize={"10px"} />
-      //     </button>
-      //   </Flex>
-      //   <Divider />
-
-      //   <Input
-      //     fontSize="var( --text-12px)"
-      //     fontWeight="var(--big-font-weight)"
-      //     border={"none"}
-      //     type="file"
-      //     accept="image/*"
-      //     onChange={handleImageUpload}
-      //     size="sm"
-      //   />
-      //   {image && <Image src={image} alt="Uploaded" mt={2} maxH="100px" />}
-
-      //   <Handle
-      //     type="source"
-      //     position={Position.Bottom}
-      //     style={{ background: "#555" }}
-      //   />
-      // </Box>
     );
   },
 
   VideoNode: ({ id, data }) => {
-    const { setNodes } = useReactFlow()
-    const [fileName, setFileName] = useState(data.fileName || '')
-    const [fileUrl, setFileUrl] = useState(data.fileUrl || '')
+    const { setNodes } = useReactFlow();
+    const [fileName, setFileName] = useState(data.fileName || "");
+    const [fileUrl, setFileUrl] = useState(data.fileUrl || "");
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes(nodes =>
-          nodes.map(node =>
+        setNodes((nodes) =>
+          nodes.map((node) =>
             node.id === id
               ? { ...node, data: { ...node.data, fileName, fileUrl } }
               : node
           )
-        )
-      }, 500)
+        );
+      }, 500);
 
-      return () => clearTimeout(timer)
-    }, [fileName, fileUrl, id, setNodes])
+      return () => clearTimeout(timer);
+    }, [fileName, fileUrl, id, setNodes]);
+
     const handleDelete = () => {
-      setNodes(nds => nds.filter(node => node.id !== id))
-    }
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
 
-    const handleFileChange = async e => {
-      const file = e.target.files[0]
-      if (file && file.type === 'video/mp4') {
-        // Step 1: Set local preview
-        setFileName(file.name)
-        setFileUrl(URL.createObjectURL(file))
+    const handleFileChange = async (e) => {
+      const file = e.target.files[0];
 
-        // Step 2: Upload to server (example)
-        const formData = new FormData()
-        formData.append('video', file)
-        const res = await fetch('/upload', { method: 'POST', body: formData })
-        const data = await res.json()
-
-        // data.url should contain the uploaded video URL
-        setFileUrl(data.url)
-      } else {
-        alert('Please upload a valid .mp4 video file.')
+      if (!file || file.type !== "video/mp4") {
+        alert("Please upload a valid .mp4 video file.");
+        return;
       }
-    }
+
+      const baseName = file.name.split(".")[0];
+      const formData = new FormData();
+      formData.append("video", file); // ✅ Field name matches multer.single('video')
+
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Video upload failed");
+        }
+
+        setFileName(data.fileName);
+        setFileUrl(`${import.meta.env.VITE_BACKEND_URL}/videoFiles/${data.fileName}`);
+      } catch (error) {
+        console.error("❌ Video upload failed:", error.message);
+        alert("Upload failed: " + error.message);
+      }
+    };
 
     return (
-      <Box bg='white' borderRadius={'15px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>
-              Video
-            </Text>
+      <Box bg="white" borderRadius={"15px"}>
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)" // Or use a fallback if CSS var isn't defined
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Video</Text>
             <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='white'
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
               icon={<IoTrashOutline />}
               onClick={handleDelete}
-              aria-label='Delete Node'
+              aria-label="Delete Node"
             />
           </Flex>
         </Box>
         <Divider />
+
         <Input
-          fontSize='8px'
-          fontWeight='var(--big-font-weight)'
-          type='file'
-          accept='video/mp4'
+          fontSize="8px"
+          fontWeight="var(--big-font-weight)"
+          type="file"
+          accept="video/mp4"
           onChange={handleFileChange}
           style={{ marginTop: 4 }}
-          size={'sm'}
+          size="sm"
         />
+
         {fileUrl && (
           <video
             src={fileUrl}
             controls
-            style={{ width: '189px', height: 'auto' }}
+            style={{ width: "189px", height: "auto" }}
           />
         )}
-        {/* {fileName && (
-            <p style={{ fontSize: 12, marginTop: 3, color: '#eb2f96' }}>
-              {fileName}
-            </p>
-          )} */}
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+
+        <Handle type="source" position="bottom" style={{ background: "#555" }} />
       </Box>
-
-
-    )
-  },
+    );
+  }
+  ,
 
   GoogleSheetsNode: ({ id, data }) => {
-    const [file, setFile] = useState(data.file || null)
-    const { setNodes } = useReactFlow()
+    const [file, setFile] = useState(data.file || null);
+    const [caption, setCaption] = useState(data.caption || '');
+    const { setNodes } = useReactFlow();
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes(nds =>
-          nds.map(node =>
-            node.id === id ? { ...node, data: { ...node.data, file } } : node
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === id ? { ...node, data: { ...node.data, file, caption } } : node
           )
-        )
-      }, 500)
+        );
+      }, 500);
 
-      return () => clearTimeout(timer)
-    }, [file, id, setNodes])
+      return () => clearTimeout(timer);
+    }, [file, caption, id, setNodes]);
 
-    const handleFileChange = e => {
-      const uploadedFile = e.target.files[0]
+    const handleFileChange = (e) => {
+      const uploadedFile = e.target.files[0];
       if (uploadedFile) {
-        setFile(uploadedFile.name)
+        const baseName = uploadedFile.name.split('.')[0]; // get name without extension
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setFile(data.fileName); // Store the uploaded file name
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === id ? { ...node, data: { ...node.data, file: data.fileName } } : node
+              )
+            );
+          })
+          .catch(console.error);
       }
-    }
+    };
+
+
+    const handleCaptionChange = (e) => {
+      setCaption(e.target.value);
+    };
+
+    const handleDeleteFile = () => {
+      setFile(null);
+      setCaption(''); // Clear caption when file is deleted
+      // Optionally: call backend to delete uploaded file
+    };
     const handleDelete = () => {
-      setNodes(nds => nds.filter(node => node.id !== id))
-    }
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
     return (
-      <Box bg='white' borderRadius={'4px'}>
-        <Handle type='target' position='top' style={{ background: '#555' }} />
-        <Box bg='blue.500' color='white' p={0.5} borderRadius={'5px'} bgColor='var(--active-bg)'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>
-              GoogleSheet
-            </Text>
-            <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='white'
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label='Delete Node'
-            />
+      <Box bg="white" borderRadius={"4px"} width={'250px'} >
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box color="white" p={0.5} borderRadius={"5px"} bgColor="var(--active-bg)">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>Google Sheet</Text>
+            <IconButton size="xs" variant="ghost" colorScheme="white" icon={<IoTrashOutline />} onClick={handleDelete} aria-label="Delete Node" />
           </Flex>
         </Box>
         <Divider />
-        <Input
-          type='file'
-          accept='.xlsx,.xls,.csv'
-          onChange={handleFileChange}
-          fontSize='var( --text-12px)'
-          fontWeight='var(--big-font-weight)'
-          size='sm'
-        />
-        {file && <p>📄 {file}</p>}
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
+
+        <Box display={'flex'} flexDirection={'column'} padding={'5px'} gap={'3px'}>
+          <Input
+            placeholder="Enter the name"
+            value={caption}
+            onChange={handleCaptionChange}
+            fontSize="10px"
+            // fontWeight="var(--big-font-weight)"
+            size="xs"
+          // Add some padding
+          />
+          <Input
+            type="file"
+            accept=".xlsx,.xls,.csv.pdf,.txt"
+            onChange={handleFileChange}
+            fontSize="10px"
+            // fontWeight="var(--big-font-weight)"
+            size="xs"
+          />
+
+
+
+          {/* {file &&
+
+          <p>📄 {file}</p>} */}
+
+          {file && (
+            <Box mt={2} fontSize="xs" color="gray.700" > {/* Added padding here */}
+
+              <Flex justifyContent="space-between" alignItems="center">
+                <a
+                  href={`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${file}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "underline", color: "#3182ce" }}
+                >
+                  📄 {file}
+                </a>
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  icon={<IoTrashOutline />}
+                  onClick={handleDeleteFile}
+                  aria-label="Delete File"
+                />
+              </Flex>
+            </Box>
+          )}
+
+
+          <Handle type="source" position="bottom" style={{ background: "#555" }} />
+        </Box>
       </Box>
-    )
+    );
   },
 
-  ReplyButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || "");
+
+  ListButton: ({ id, data }) => {
+    const navigate = useNavigate();                //*** */
+    const { setNodes, getEdges, setEdges } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "List Button");
     const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
-    // Sync data back to nodes
+    // Sync node data with React Flow state
     useEffect(() => {
       const timer = setTimeout(() => {
         setNodes((nds) =>
@@ -511,6 +599,7 @@ const nodeTypes = {
           )
         );
       }, 300);
+
       return () => clearTimeout(timer);
     }, [question, targetValues, id, setNodes]);
 
@@ -522,95 +611,459 @@ const nodeTypes = {
       setTargetValues((prev) => [...prev, ""]);
     };
 
-    const updateTargetValue = (index, newValue) => {
-      setTargetValues((prev) =>
-        prev.map((val, i) => (i === index ? newValue : val))
+    // const updateTargetValue = (index, newValue) => {
+    //   setTargetValues((prev) =>
+    //     prev.map((val, i) => (i === index ? newValue : val))
+    //   );
+    // };
+
+    const user = localStorage.getItem("user");
+    const admin_id = decrypt(user).id;
+    const [bots, setBots] = useState([]);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const currentIdxRef = useRef(null);
+    const updateTargetValue = async (index, option) => {
+      currentIdxRef.current = index;
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL
+          }/bots/getAll?admin_id=${admin_id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const result = await response.json();
+        setBots(result?.data || []);
+        onOpen();
+      } catch (error) {
+        console.error("Error fetching Date & Time bot:", error);
+      }
+    };
+    const { id: bot_id } = useParams();
+
+
+    const handleBotSelect = (bot) => {
+
+      if (!bot?.nodes || !bot?.edges) return;
+
+      const parsedNodes =
+        typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+      const parsedEdges =
+        typeof bot.edges === "string" ? JSON.parse(bot.edges) : bot.edges;
+      const filteredNodes = parsedNodes.filter(
+        (node) =>
+          node &&
+          node.id &&
+          node.type &&
+          node.data &&
+          typeof node.data === "object" &&
+          node.type !== "Custom"
+      );
+      const uniqueId = () => Math.random().toString(36).substr(2, 9);
+      const nodeIdMap = {};
+
+      const newNodes = filteredNodes.map((node) => {
+        const newId = uniqueId();
+        nodeIdMap[node.id] = newId;
+
+        return {
+          ...node,
+          id: newId,
+          position: {
+            x: (node.position?.x || 0) + 150, // avoid overlap
+            y: (node.position?.y || 0) + 150,
+          },
+        };
+      });
+
+      const newEdges = parsedEdges
+        .filter(
+          (edge) =>
+            edge &&
+            edge.source &&
+            edge.target &&
+            nodeIdMap[edge.source] &&
+            nodeIdMap[edge.target]
+        )
+        .map((edge) => ({
+          ...edge,
+          id: uniqueId(),
+          source: nodeIdMap[edge.source],
+          target: nodeIdMap[edge.target],
+        }));
+      const entryNode = newNodes[0];
+      if (entryNode) {
+        newEdges.push({
+          id: uniqueId(),
+          source: id, // this is the ListButton node ID
+          sourceHandle: `option_${currentIdxRef.current}`,
+          target: entryNode.id,
+          type: "smoothstep",
+          expanded: true
+        });
+      }
+
+      if (newNodes.length > 0) {
+        setNodes((nds) => [...nds, ...newNodes]);
+        setEdges((eds) => [...eds, ...newEdges]);
+      } else {
+        console.warn("No valid nodes to import from selected bot");
+      }
+      onClose(); // close modal
+    };
+
+    const gatherDescendants = (startIds, allEdges) => {
+      const queue = [...startIds];
+      const result = new Set(startIds);
+
+      while (queue.length) {
+        const parentId = queue.shift();
+        // find edges whose source is parentId
+        allEdges
+          .filter((e) => e.source === parentId)
+          .forEach((e) => {
+            if (!result.has(e.target)) {
+              result.add(e.target);
+              queue.push(e.target);
+            }
+          });
+      }
+
+      return Array.from(result);
+    };
+
+    const handleExpandOne = () => {
+      const allEdges = getEdges();
+      const immediateChildren = allEdges
+        .filter((e) => e.source === id)
+        .map((e) => e.target);
+
+      // If you want to toggle *all* descendants:
+      const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
+      );
+    };
+
+    useEffect(() => {
+      handleExpand();
+    }, [targetValues]);
+
+    const handleExpand = (idx) => {
+      const allEdges = getEdges();
+
+      // Find the edge for this specific option
+      const matchingEdge = allEdges.find(
+        (e) => e.source === id && e.sourceHandle === `option_${idx}`
+      );
+
+      if (!matchingEdge) {
+        console.log("No matching edge found for option", idx);
+        return;
+      }
+
+      const targetId = matchingEdge.target;
+      const allDescendants = gatherDescendants([targetId], allEdges);
+
+      // Toggle visibility of nodes (including the direct target)
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (node.id === targetId || allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+
+      // Toggle visibility of edges (including the direct edge)
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            edge.id === matchingEdge.id ||
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
       );
     };
 
     return (
-      <Box bg="white" borderRadius="5px" w="150px">
+      <Box bg="white" borderRadius="md" w="170px" boxShadow="md">
         <Handle type="target" position="left" style={{ background: "#555" }} />
 
-        {/* Header */}
-        <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p="1px">
+
+
+        <Box
+          bg="blue.500"
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+        >
+
+
+          <Flex justifyContent="space-between" alignItems="center"    >
+            <Text fontSize="10px" fontWeight="bold" pl={'8px'}>
+              List Button
+            </Text>
+            <Flex alignItems={'flex-end'}>
+              <IconButton
+                size="xs"
+
+                colorScheme="white"
+                icon={<IoTrashOutline />}
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
+
+              <IconButton
+                size="xs"
+                aria-label="Expand"
+                icon={<MdExpandMore fontSize={'20px'} />} // import from react-icons/md
+                onClick={handleExpandOne}
+                background={'none'}
+              />
+            </Flex>
+          </Flex>
+        </Box>
+        <Box px={2} py={1}>
+          <Input
+            placeholder="List title"
+            size="xs"
+            fontSize="10px"
+            mb={2}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+
+          {targetValues.map((val, idx) => (
+            <Flex
+              key={idx}
+              position="relative"
+              borderRadius="md"
+              px={2}
+              py={1}
+              mb={1}
+              fontSize="10px"
+              alignItems="center"
+            >
+              <Input
+                size="xs"
+                fontSize="10px"
+                value={val}
+                onChange={(e) => {
+                  const updated = [...targetValues];
+                  updated[idx] = e.target.value;
+                  setTargetValues(updated);
+                }}
+              // onChange={(e) => updateTargetValue(idx, e.target.value)}
+              // placeholder={`Option ${idx + 1}`}
+              // value={val}
+              // onChange={(e) => {
+              //   const updated = [...targetValues];
+              //   updated[idx] = e.target.value;
+              //   setTargetValues(updated);
+              // }}
+              />
+
+              <IconButton
+                size="10px"
+                aria-label="Open Bot Options"
+                icon={<MdExpandMore />}
+                onClick={() => handleExpand(idx)}
+                ml={1}
+              />
+
+              <IconButton
+                size="10px"
+                aria-label="Select Bot"
+                icon={<MdOutlineLibraryAdd />}
+                onClick={(e) => {
+                  currentIdxRef.current = idx;
+                  updateTargetValue(idx, val);
+                }}
+                ml={1}
+              />
+
+              <Handle
+                type="source"
+                position="right"
+                id={`option_${idx}`}
+                style={{ background: "#555" }}
+              />
+            </Flex>
+          ))}
+
+
+          <Button
+            onClick={addTargetValue}
+            size="xs"
+            fontSize="10px"
+            width="100%"
+            mt={1}
+            variant="outline"
+            colorScheme="blue"
+          >
+            + Add Option
+          </Button>
+
+
+        </Box>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Select a Bot</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Stack spacing={2}>
+                {bots.map((bot) => (
+                  <Button
+                    key={bot.id}
+                    size="sm"
+                    // onClick={()=>navigate(`/view/${bot.id}`)}
+                    onClick={() => handleBotSelect(bot)}
+                  >
+
+                    {/* {console.log(bot.id)} */}
+                    {/* {`/view/${bot.id}`} */}
+                    {bot?.nodes?.[0]?.data?.label || null}
+                  </Button>
+                ))}
+              </Stack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </Box>
+    );
+  },
+
+
+  LinkNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+
+
+    const [linkText, setLinkText] = useState(data.linkText || '');
+    const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: { ...node.data, linkText, linkUrl },
+              }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [linkText, linkUrl]);
+
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+    return (
+
+      <Box bgColor={'white'} width={'200px'}  >
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+          padding={'4px'}
+        >
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
-              Reply Button
+              Link Node
             </Text>
             <IconButton
               size="xs"
               variant="ghost"
-              colorScheme="whiteAlpha"
+              colorScheme="white"
               icon={<IoTrashOutline />}
               onClick={handleDelete}
               aria-label="Delete Node"
             />
           </Flex>
         </Box>
-        {/* Target values */}
+        <Box paddingX={'6px'}>
+          <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
+            value={linkText}
+            onChange={(e) => setLinkText(e.target.value)}
+            placeholder="e.g. View Report"
+            mb={1}
 
-        {targetValues.map((val, idx) => (
-          <Flex
-            key={idx}
-            position="relative"
-            borderRadius="md"
-            px={2}
-            py={1}
-            fontSize="10px"
-            alignItems="center"
-          >
-            <Input
-              key={idx}
-              value={val}
-              onChange={(e) => updateTargetValue(idx, e.target.value)}
-              placeholder={`button`}
-              size="xs"
-              fontSize="10px"
-            // mb={1}
-            />
+          />
 
-            <Handle
-              type="source"
-              position="right"
-              id={`option-${idx}`}
-              style={{ background: "#555" }}
-            />
-          </Flex>
-        ))}
+          <Text fontSize={'9px'}>Link URL</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
 
-        <Button
-          onClick={addTargetValue}
-          size="xs"
-          fontSize="10px"
-          width="100%"
-          mt={1}
-          variant="outline"
-          colorScheme="blue"
-        >
-          + Add Option
-        </Button>
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="e.g. https://example.com"
+            mb={1}
+          />
+        </Box>
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
       </Box>
     );
   },
-  ListButton: ({ id, data }) => {
-    const { setNodes } = useReactFlow();
-    const [question, setQuestion] = useState(data.label || '');
-    const [targetValues, setTargetValues] = useState(data.targetValues || []);
 
-    // Sync data back to nodes
+  ReplyButton: ({ id, data }) => {
+    const { setNodes, getEdges, setEdges } = useReactFlow();
+    const [question, setQuestion] = useState(data.label || "Reply with Yes or No");
+    const [targetValues, setTargetValues] = useState(data.targetValues || ["Yes", "No"]);
+
     useEffect(() => {
       const timer = setTimeout(() => {
-        setNodes(nds =>
-          nds.map(node =>
+        setNodes((nds) =>
+          nds.map((node) =>
             node.id === id
               ? {
                 ...node,
                 data: {
                   ...node.data,
                   label: question,
-                  targetValues: targetValues
-                }
+                  targetValues,
+                },
               }
               : node
           )
@@ -619,72 +1072,169 @@ const nodeTypes = {
       return () => clearTimeout(timer);
     }, [question, targetValues, id, setNodes]);
 
-    const handleDelete = () => {
-      setNodes(nds => nds.filter(node => node.id !== id));
-    };
-
-    const addTargetValue = () => {
-      setTargetValues(prev => [...prev, '']);
-    };
-
     const updateTargetValue = (index, newValue) => {
-      setTargetValues(prev =>
-        prev.map((val, i) => (i === index ? newValue : val))
+      const updated = [...targetValues];
+      updated[index] = newValue;
+      setTargetValues(updated);
+    };
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
+    const gatherDescendants = (startIds, allEdges) => {
+      const queue = [...startIds];
+      const result = new Set(startIds);
+
+      while (queue.length) {
+        const parentId = queue.shift();
+        allEdges
+          .filter((e) => e.source === parentId)
+          .forEach((e) => {
+            if (!result.has(e.target)) {
+              result.add(e.target);
+              queue.push(e.target);
+            }
+          });
+      }
+
+      return Array.from(result);
+    };
+
+    const handleExpand = () => {
+      const allEdges = getEdges();
+      const immediateChildren = allEdges
+        .filter((e) => e.source === id)
+        .map((e) => e.target);
+
+      const allDescendants = gatherDescendants(immediateChildren, allEdges);
+
+      setNodes((prev) =>
+        prev.map((node) => {
+          if (allDescendants.includes(node.id)) {
+            return { ...node, hidden: !node.hidden };
+          }
+          return node;
+        })
+      );
+      setEdges((prev) =>
+        prev.map((edge) => {
+          if (
+            allDescendants.includes(edge.source) ||
+            allDescendants.includes(edge.target)
+          ) {
+            return { ...edge, hidden: !edge.hidden };
+          }
+          return edge;
+        })
       );
     };
 
     return (
-      <Box bg='white' borderRadius='5px' w="150px">
-        <Handle type='target' position='top' style={{ background: '#555' }} />
+      <Box bg="white" borderRadius="md" w="200px" boxShadow="md" fontSize="xs" position="relative">
+        <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
 
-        {/* Header */}
-        <Box bgColor='var(--active-bg)' color='white' borderRadius='md' p='1px'>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text fontSize='10px' fontWeight='bold'>List Button</Text>
-            <IconButton
-              size='xs'
-              variant='ghost'
-              colorScheme='whiteAlpha'
-              icon={<IoTrashOutline />}
-              onClick={handleDelete}
-              aria-label='Delete Node'
-            />
+        <Box bgColor="var(--active-bg)" color="white" px={2} py={1} borderTopRadius="md">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+            Reply Button
+            </Text>
+            <Flex gap={1}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="white"
+                icon={<MdExpandMore />}
+                aria-label="Expand"
+                onClick={handleExpand}
+              />
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorScheme="white"
+                icon={<IoTrashOutline />}
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
+            </Flex>
           </Flex>
         </Box>
-        {/* Target values */}
-        <Box mt={2}>
+
+        <Box px={2} py={2}>
+          <Input
+            placeholder="Enter question"
+            size="xs"
+            fontSize="10px"
+            mb={2}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+
+          {/* {targetValues.map((val, idx) => (
+            <Flex key={idx} alignItems="center" mb={1} position="relative">
+              <Input
+                value={val}
+                onChange={(e) => updateTargetValue(idx, e.target.value)}
+                placeholder={`Option ${idx + 1}`}
+                size="xs"
+                fontSize="10px"
+                pr="20px"
+              />
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={`option_${idx}`}
+                style={{
+                  background: '#555',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  right: 4,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
+              />
+            </Flex>
+          ))} */}
+
           {targetValues.map((val, idx) => (
-            <Input
-              key={idx}
-              value={val}
-              onChange={e => updateTargetValue(idx, e.target.value)}
-              placeholder={`Option ${idx + 1}`}
-              size='xs'
-              fontSize='10px'
-              mb={1}
-            />
+            <Flex key={idx} alignItems="center" mb={1} position="relative">
+              {/* Handle on the left border */}
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={`option_${idx}`}
+                style={{
+                  background: '#555',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  right: -10, // Moves the dot to the left of the box
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
+              />
+              {/* Input box */}
+              <Input
+                value={val}
+                onChange={(e) => updateTargetValue(idx, e.target.value)}
+                placeholder={`Option ${idx + 1}`}
+                size="xs"
+                fontSize="10px"
+                pl="20px" // Padding left to avoid overlap with Handle
+              />
+            </Flex>
           ))}
 
-          {/* Add Button */}
-          <Button
-            onClick={addTargetValue}
-            size='xs'
-            fontSize='10px'
-            width='100%'
-            mt={1}
-            variant='outline'
-            colorScheme='blue'
-          >
-            + Add Option
-          </Button>
         </Box>
-
-        <Handle type='source' position='bottom' style={{ background: '#555' }} />
       </Box>
     );
   }
 
-  
+
+
 };
 
 const blockStyle = {
@@ -701,38 +1251,40 @@ const blockStyle = {
 const SidePanel = () => {
   const { isOpen: isBoxOpen, onToggle } = useDisclosure();
 
-
   const messages = [
     {
-      label: 'Message',
-      type: 'CustomText',
-      icon: <Icon as={AiOutlineMessage} mr={2} />
+      label: "Message",
+      type: "CustomText",
+      icon: <Icon as={AiOutlineMessage} mr={2} />,
     },
-    { label: 'Image', type: 'imageNode', icon: <Icon as={FaImage} mr={2} /> }
-  ]
+    { label: "Image", type: "imageNode", icon: <Icon as={FaImage} mr={2} /> },
+  ];
 
- const QuestionsBlock = [
+  const QuestionsBlock = [
     {
-      label: 'What is your name?',
-      type: 'CustomNode',
-      icon: <Icon as={FcBusinessman} mr={2} />
+      label: "What is your name?",
+      type: "CustomNode",
+      icon: <Icon as={FcBusinessman} mr={2} />,
     },
     {
-      label: 'Ask a Question?',
-      type: 'CustomNode',
-      icon: <Icon as={GoQuestion} mr={2} />
+      label: "Ask a Question?",
+      type: "CustomNode",
+      icon: <Icon as={GoQuestion} mr={2} />,
     },
     {
-      label: 'Ask for an email?',
-      type: 'CustomNode',
-      icon: <Icon as={TfiEmail} mr={2} />
+      label: "Ask for an email?",
+      type: "CustomNode",
+      icon: <Icon as={TfiEmail} mr={2} />,
     },
     {
-      label: 'Ask for Phone number?',
-      type: 'CustomNode',
-      icon: <Icon as={FcPhoneAndroid} mr={2} />
-    }
-  ]
+      label: "Ask for Phone number?",
+      type: "CustomNode",
+      icon: <Icon as={FcPhoneAndroid} mr={2} />,
+    },
+
+  ];
+
+
 
   const WhatsAppEssential = [
     {
@@ -747,6 +1299,7 @@ const SidePanel = () => {
     },
   ];
 
+
   const integrations = [
     {
       label: "Google Sheets",
@@ -758,7 +1311,14 @@ const SidePanel = () => {
       type: "VideoNode",
       icon: <Icon as={FaRegFileVideo} mr={2} />,
     },
+    {
+      label: "Link",
+      type: "LinkNode",
+      icon: <Icon as={FcPhoneAndroid} mr={2} />,
+    },
   ];
+
+
 
   const handleDragStart = (e, block) => {
     const payload = JSON.stringify({ label: block.label, type: block.type });
@@ -773,9 +1333,12 @@ const SidePanel = () => {
           as={IconButton}
           aria-label="Options"
           icon={<LuPlus fontSize={"27px"} />}
-          bgColor={"#4fccc2"}
-          _hover={{ bgColor: "#4fccc2" }}
+          bgColor="var(--active-bg)"
+          _hover={{ bgColor: "var(--active-bg)" }}
+          _focus={{ bgColor: "var(--active-bg)" }}
+          _active={{ bgColor: "var(--active-bg)" }}
           variant="outline"
+          color={"white"}
           borderRadius="40px"
         ></MenuButton>
         <MenuList px={4} py={2}>
@@ -848,6 +1411,25 @@ const SidePanel = () => {
             ))}
           </Box>
 
+          {/* Logic */}
+          {/* <Box mt={3}>
+            <Text fontSize='15px' fontWeight='bold'>
+              Logic
+            </Text>
+            {logicBlocks.map(block => (
+              <Box
+                fontSize='15px'
+                fontWeight='500'
+                key={block.label}
+                style={blockStyle}
+                draggable
+                onDragStart={e => handleDragStart(e, block)}
+              >
+                {block.icon} {block.label}
+              </Box>
+            ))}
+          </Box> */}
+
           {/* Integrations */}
           <Box mt={3}>
             <Text fontSize="15px" fontWeight="bold">
@@ -878,14 +1460,14 @@ const FlowCanvas = () => {
   const token = localStorage.getItem('token')
   const template_id = useParams();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: '1',
-      type: 'Custom',
-      data: { label: 'Starting point' },
-      position: { x: 100, y: 150 }
-    }
-  ])
+   const [nodes, setNodes, onNodesChange] = useNodesState([
+      {
+        id: "1",
+        type: "Custom",
+        data: { label: "Starting point" },
+        position: { x: 100, y: 150 },
+      },
+    ]);
 
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
