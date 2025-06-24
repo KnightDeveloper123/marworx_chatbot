@@ -1459,10 +1459,96 @@ const nodeTypes = {
         </Box>
       </Box>
     );
+  },
+
+
+
+  LinkNode: ({ id, data }) => {
+    const { setNodes } = useReactFlow();
+
+
+    const [linkText, setLinkText] = useState(data.linkText || '');
+    const [linkUrl, setLinkUrl] = useState(data.linkUrl || '');
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === id
+              ? {
+                ...node,
+                data: { ...node.data, linkText, linkUrl },
+              }
+              : node
+          )
+        );
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }, [linkText, linkUrl]);
+
+
+    const handleDelete = () => {
+      setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+    return (
+
+      <Box bgColor={'white'} width={'200px'}  >
+        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Box
+
+          color="white"
+          p={0.5}
+          borderRadius={"5px"}
+          bgColor="var(--active-bg)"
+          padding={'4px'}
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="10px" fontWeight="bold">
+              Link Node
+            </Text>
+            <IconButton
+              size="xs"
+              variant="ghost"
+              colorScheme="white"
+              icon={<IoTrashOutline />}
+              onClick={handleDelete}
+              aria-label="Delete Node"
+            />
+          </Flex>
+        </Box>
+        <Box paddingX={'6px'}>
+          <Text fontSize={'9px'} paddingTop={'5px'} >Link Text</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
+            value={linkText}
+            onChange={(e) => setLinkText(e.target.value)}
+            placeholder="e.g. View Report"
+            mb={1}
+
+          />
+
+          <Text fontSize={'9px'}>Link URL</Text>
+          <Input
+            size="xs"
+            fontSize="8px"
+
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="e.g. https://example.com"
+            mb={1}
+          />
+        </Box>
+
+        <Handle
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </Box>
+    );
   }
-
-
-
 
 
 };
@@ -1537,6 +1623,11 @@ const SidePanel = () => {
     {
       label: "Video",
       type: "VideoNode",
+      icon: <Icon as={FaRegFileVideo} mr={2} />,
+    },
+      {
+      label: "Link",
+      type: "LinkNode",
       icon: <Icon as={FaRegFileVideo} mr={2} />,
     },
   ];
