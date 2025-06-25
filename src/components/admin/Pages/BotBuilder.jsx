@@ -25,6 +25,8 @@ import {
   Text,
   Textarea,
   useDisclosure,
+  VStack,
+  Select,
 } from "@chakra-ui/react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaImage, FaRegFileVideo } from "react-icons/fa";
@@ -1248,9 +1250,307 @@ const nodeTypes = {
         </Box>
       </Box>
     );
-  }
-
-
+  },
+   MultiContentNode: ({ id, data }) => {
+      const { setNodes } = useReactFlow();
+      const [sections, setSections] = useState(data.sections || []);
+      const [newType, setNewType] = useState("");
+  
+      // Update node data on change
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setNodes((nodes) =>
+            nodes.map((node) =>
+              node.id === id ? { ...node, data: { ...node.data, sections } } : node
+            )
+          );
+        }, 300);
+        return () => clearTimeout(timer);
+      }, [sections]);
+  
+      const addSection = () => {
+        if (!newType) return;
+        const emptyValue =
+          newType === "link"
+            ? { text: "", url: "" }
+            : newType === "price"
+              ? "₹0"
+              : "";
+        setSections([...sections, { type: newType, value: emptyValue }]);
+        setNewType("");
+      };
+  
+      const updateSection = (index, newValue) => {
+        const updated = [...sections];
+        updated[index].value = newValue;
+        setSections(updated);
+      };
+  
+      const removeSection = (index) => {
+        const updated = [...sections];
+        updated.splice(index, 1);
+        setSections(updated);
+      };
+  
+      const handleDelete = () => {
+        setNodes((nodes) => nodes.filter((n) => n.id !== id));
+      };
+  
+      return (
+        <Box bg="white" borderRadius="md" p={2} w="250px" boxShadow="md">
+          <Handle type="target" position="top" style={{ background: "#555" }} />
+  
+          <Box bgColor="var(--active-bg)" color="white" borderRadius="md" p={1}>
+            <Flex justifyContent="space-between">
+              <Text fontSize="sm" fontWeight="bold">Multi-Content Node</Text>
+              <IconButton
+                icon={<IoTrashOutline />}
+                size="xs"
+                variant="ghost"
+                colorScheme="white"
+                onClick={handleDelete}
+                aria-label="Delete Node"
+              />
+            </Flex>
+          </Box>
+  
+          {/* Section Renderer */}
+          <VStack align="start" spacing={3} mt={2}>
+            {sections.map((section, idx) => (
+              <Box key={idx} width="100%">
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text fontSize="xs" fontWeight="bold">{section.type.toUpperCase()}</Text>
+                  <IconButton
+                    icon={<IoTrashOutline />}
+                    size="xs"
+                    onClick={() => removeSection(idx)}
+                    aria-label="Delete Section"
+                  />
+                </Flex>
+  
+                {section.type === "text" && (
+                  <Textarea
+                    value={section.value}
+                    onChange={(e) => updateSection(idx, e.target.value)}
+                    placeholder="Enter description"
+                    size="xs"
+                    fontSize="10px"
+                  />
+                )}
+  
+                {section.type === "image" && (
+                  <>
+                    <Input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      size="xs"
+                      fontSize="10px"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file || !file.type.startsWith("image/")) {
+                          alert("Only JPG/PNG images are allowed");
+                          return;
+                        }
+  
+                        const formData = new FormData();
+                        const fileName = Date.now();
+  
+                        try {
+                          const res = await fetch(
+                            `${import.meta.env.VITE_BACKEND_URL}/bots/upload-image?fileName=${fileName}`,
+                            {
+                              method: "POST",
+                              body: (() => {
+                                formData.append("file", file);
+                                return formData;
+                              })()
+                            }
+                          );
+  
+                          const result = await res.json();
+                          const uploadedUrl = `${import.meta.env.VITE_BACKEND_URL}/uploads/${result.fileName}`;
+                          updateSection(idx, uploadedUrl);
+                        } catch (err) {
+                          alert("❌ Image upload failed");
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    {section.value && (
+                      <Image src={section.value} alt="Uploaded" w="100%" borderRadius="md" />
+                    )}
+                  </>
+                )}
+  
+  
+                {section.type === "video" && (
+                  <>
+                    <Input
+                      type="file"
+                      accept="video/mp4"
+                      size="xs"
+                      fontSize="10px"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file || file.type !== "video/mp4") {
+                          alert("Only MP4 videos are allowed");
+                          return;
+                        }
+  
+                        const formData = new FormData();
+                        const fileName = Date.now(); // Unique filename
+  
+                        // Note: Use fileName as query param (your backend expects it)
+                        try {
+                          const res = await fetch(
+                            `${import.meta.env.VITE_BACKEND_URL}/bots/upload-video?fileName=${fileName}`,
+                            {
+                              method: "POST",
+                              body: (() => {
+                                formData.append("video", file);
+                                return formData;
+                              })()
+                            }
+                          );
+  
+                          const result = await res.json();
+                          const uploadedUrl = `${import.meta.env.VITE_BACKEND_URL}/videoFiles/${result.fileName}`;
+                          updateSection(idx, uploadedUrl);
+                        } catch (err) {
+                          alert("❌ Video upload failed");
+                          console.error(err);
+                        }
+                      }}
+                    />
+  
+                    {section.value && (
+                      <video src={section.value} controls width="100%" />
+                    )}
+                  </>
+                )}
+  
+  
+                {section.type === "file" && (
+                  <>
+                    <Input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                      size="xs"
+                      fontSize="10px"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+  
+                        const formData = new FormData();
+                        const fileName = Date.now();
+  
+                        try {
+                          const res = await fetch(
+                            `${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${fileName}`,
+                            {
+                              method: "POST",
+                              body: (() => {
+                                formData.append("file", file);
+                                return formData;
+                              })()
+                            }
+                          );
+  
+                          const result = await res.json();
+                          const uploadedUrl = `${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${result.fileName}`;
+                          updateSection(idx, uploadedUrl);
+                        } catch (err) {
+                          alert("❌ File upload failed");
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    {section.value && (
+                      <a
+                        href={section.value}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: "10px", color: "blue" }}
+                      >
+                        📎 Download File
+                      </a>
+                    )}
+                  </>
+                )}
+  
+                {section.type === "price" && (
+                  <Input
+                    size="xs"
+                    fontSize="10px"
+                    placeholder="Price"
+                    value={section.value}
+                    onChange={(e) => updateSection(idx, e.target.value)}
+                  />
+                )}
+  
+                {section.type === "link" && (
+                  <>
+                    <Input
+                      size="xs"
+                      fontSize="10px"
+                      placeholder="Link Text"
+                      value={section.value.text}
+                      onChange={(e) =>
+                        updateSection(idx, { ...section.value, text: e.target.value })
+                      }
+                      mb={1}
+                    />
+                    <Input
+                      size="xs"
+                      fontSize="10px"
+                      placeholder="Link URL"
+                      value={section.value.url}
+                      onChange={(e) =>
+                        updateSection(idx, { ...section.value, url: e.target.value })
+                      }
+                    />
+                    {section.value.url && (
+                      <a
+                        href={section.value.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: "10px", color: "#3182ce", textDecoration: "underline" }}
+                      >
+                        🔗 {section.value.text || "Visit Link"}
+                      </a>
+                    )}
+                  </>
+                )}
+              </Box>
+            ))}
+          </VStack>
+  
+          {/* Add New Content Section */}
+          <Divider my={3} />
+          <Flex gap={2}>
+            <Select
+              size="xs"
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              placeholder="Add content"
+              fontSize="10px"
+            >
+              <option value="text">Text</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+              <option value="link">Link</option>
+              <option value="file">File</option>
+              <option value="price">Price</option>
+            </Select>
+            <Button size="xs" fontSize="10px" onClick={addSection}>
+              Add
+            </Button>
+          </Flex>
+  
+          <Handle type="source" position="bottom" style={{ background: "#555" }} />
+        </Box>
+      );
+    }
 
 };
 
@@ -1331,6 +1631,11 @@ const SidePanel = () => {
     {
       label: "Link",
       type: "LinkNode",
+      icon: <Icon as={FcPhoneAndroid} mr={2} />,
+    },
+     {
+      label: "Multicontent",
+      type: "MultiContentNode",
       icon: <Icon as={FcPhoneAndroid} mr={2} />,
     },
   ];
