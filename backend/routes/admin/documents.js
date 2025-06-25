@@ -71,13 +71,13 @@ router.post("/deleteDocument", middleware, async (req, res) => {
             return res.status(400).json({ error: "Query is required" })
         }
         const [document] = await executeQuery(`SELECT name FROM documents WHERE id = ${document_id} and status=0`);
-
+    console.log(" document"+ document)
         if (!document) {
             return res.status(404).json({ error: "Document not found" });
         }
         const fileName = document.name;
         const filePath = path.join(__dirname, '../../documents', fileName);
-        console.log([path.basename(filePath)])
+        // console.log([path.basename(filePath)])
      
 
         try {
@@ -91,19 +91,22 @@ router.post("/deleteDocument", middleware, async (req, res) => {
                     const pythonApiRes = await axios.post(`${Url}/remove_by_paths`, {
                         paths: [path.basename(filePath)],
                     });
-
+                   console.log("pythonApiRes" + pythonApiRes)
+                   console.log("data"+data)
                     return res.json({
                         success: "File deleted successfully.",
                         pythonService: pythonApiRes.data,
                         data,
                     });
                 } catch (apiErr) {
+                    console.error("Python API Error:", apiErr);
                     console.error("Python API Error:", apiErr.message);
                     return res.status(500).json({ error: "File deleted locally but failed to notify Python service." });
                 }
                 // return res.json({ success: "File deleted successfully.", data });
             })
         } catch (unlinkError) {
+            console.log(unlinkError)
             if (unlinkError.code === 'ENOENT') {
                 return res.status(404).json({ error: "File not found" });
             }
