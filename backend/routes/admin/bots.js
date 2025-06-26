@@ -144,9 +144,9 @@ router.post('/upload-video', (req, res) => {
   });
 });
 
-// router.post('/upload-video', uploadVideo.single('video'), (req, res) => {
-//   res.json({ fileName: req.file.filename });
-// });
+router.post('/upload-video', uploadVideo.single('video'), (req, res) => {
+  res.json({ fileName: req.file.filename });
+});
 
 router.post('/add', async (req, res) => {
   const { flowName, nodes, edges, sector_id, bot_type, admin_id } = req.body;
@@ -159,10 +159,24 @@ router.post('/add', async (req, res) => {
     if (err) {
       console.error('Error saving flow:', err);
       return res.status(500).json({ message: 'Database error' });
+    } 
+    else {
+      const botId = result.insertId;
+      const insertquery = `INSERT INTO interactions_log ( bot_id, campaign_id, interaction_type) values(?,?,?)`;
+      connection.query(insertquery, [botId, null, "click"], (err, result) => {
+        if (err) {
+          console.error('Error saving flow:', err);
+          return res.status(500).json({ message: 'Database error' });
+        } else {
+
+          res.status(200).json({ message: 'Bot saved successfully.', flowId: result.insertId });
+        }
+      });
+      // res.status(200).json({ message: 'Bot saved successfully.', flowId: result.insertId });
     }
-    res.status(200).json({ message: 'Bot saved successfully.', flowId: result.insertId });
   });
 });
+
 
 router.get('/getAll', async (req, res) => {
   try {

@@ -202,27 +202,34 @@ const AdminDashboard = () => {
 
 
 
+// const [data,setData]=useState([]);
 
-  // const [engagement, setEngagement] = useState({ clickThroughRate: 0, completionRate: 0 });
-  // const fetchUserEnagement = async () => {
-  //   try {
-  //     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/user-engagement`, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': token
-  //       }
-  //     })
-  //     const response = await res.json();
-  //     console.log("res", response.data)
-  //     setEngagement(response.data)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
+//   const fetchEngagementData = async () => {
+//     try {
+//       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/botcampaigns-by-clicks`, {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: token,
+//         },
+//       });
 
-  // useEffect(() => {
-  //   fetchUserEnagement();
-  // }, [])
+//       const response = await res.json();
+//       console.log("response", response)
+//       if (response.success && response.data) {
+//         setData(response.data.map((item, index) => ({
+//           name: `Bot ${index + 1}`,
+//           clickThroughRate: item.click_through_rate,
+//           completionRate: item.completion_rate,
+//         })));
+//       }
+//     } catch (err) {
+//       console.error('Error fetching chart data:', err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchEngagementData();
+//   }, [])
 
   // const [topBots, setTopBots] = useState([]);
   // const fetchTopPerformer = async () => {
@@ -534,7 +541,7 @@ const AdminDashboard = () => {
                         borderRadius='5px 0px 0px 0px'
                         fontSize='var(--mini-text)'
                       >
-                       Sector
+                        Sector
                       </Th>
                       <Th
                         fontWeight='var(--big-font-weight)'

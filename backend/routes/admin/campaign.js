@@ -12,24 +12,24 @@ const path = require('path');
 const multer = require('multer');
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../../banner'));
-    },
-    filename: (req, file, cb) => {
-        const { fileName } = req.query;
-       
-        cb(null, fileName + path.extname(file.originalname));
-    },
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../banner'));
+  },
+  filename: (req, file, cb) => {
+    const { fileName } = req.query;
+
+    cb(null, fileName + path.extname(file.originalname));
+  },
 });
 
 const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 router.post("/add", middleware, upload.single('file'), async (req, res) => {
   try {
-      const { fileName } = req.body;
+    const { fileName } = req.body;
     const {
       channel_name,
       campaign_name,
@@ -49,27 +49,27 @@ router.post("/add", middleware, upload.single('file'), async (req, res) => {
 
     // console.log(req.body);
 
-   const insertQuery = `
+    const insertQuery = `
   INSERT INTO campaign 
   (channel_name, campaign_name, template_name, template_type, template_lang, header, body, is_status, admin_id, sector_id, \`to\`, banner, cta_label, cta_link)
   VALUES (?, ?, ?, ?, ?, ?, ?, "Pending", ?, ?, ?, ?, ?, ?);
 `;
 
-   const values = [
-  channel_name ?? null,
-  campaign_name ?? null,
-  template_name ?? null,
-  template_type ?? null,
-  template_lang ?? null,
-  header ?? null,
-  body ?? null,
-  admin_id ?? null,
-  sector_id ?? null,
-  to ?? null,
-  fileName ?? null,       // this will go to 'banner' column
-  cta_label ?? null,
-  cta_link ?? null
-];
+    const values = [
+      channel_name ?? null,
+      campaign_name ?? null,
+      template_name ?? null,
+      template_type ?? null,
+      template_lang ?? null,
+      header ?? null,
+      body ?? null,
+      admin_id ?? null,
+      sector_id ?? null,
+      to ?? null,
+      fileName ?? null,       // this will go to 'banner' column
+      cta_label ?? null,
+      cta_link ?? null
+    ];
 
 
     connection.execute(insertQuery, values, (err, data) => {
@@ -77,10 +77,23 @@ router.post("/add", middleware, upload.single('file'), async (req, res) => {
         console.log(err);
         return res.status(400).json({ error: "Something went wrong" });
       }
-      const flowId = data.insertId;
-      // console.log("campaign id", flowId)
-      return res.json({ success: "Campaign Added", data, flowId });
-    });
+      else {
+        const flowId = data.insertId;
+
+        const insertquery = `INSERT INTO interactions_log ( bot_id, campaign_id, interaction_type) values(?,?,?)`;
+        connection.query(insertquery, [null, flowId, "click"], (err, result) => {
+          if (err) {
+            console.error('Error saving flow:', err);
+            return res.status(500).json({ message: 'Database error' });
+          } else {
+
+            return res.json({ success: "Campaign and interaction  Added successfully", data, flowId });
+          }
+        });
+
+      }
+    })
+
   } catch (error) {
     console.log("/add: ", error.message);
     return res.status(500).json({ error: "Internal Server Error." });
