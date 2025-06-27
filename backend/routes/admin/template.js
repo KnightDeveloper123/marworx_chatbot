@@ -21,7 +21,7 @@ router.post('/add', middleware, (req, res) => {
 
 router.get('/get_all_template', middleware, async (req, res) => {
     try {
-        const data = await executeQuery(`select * from  template  order by id desc`)
+        const data = await executeQuery(`select * from  template where status=0  order by id desc`)
         return res.json({ data })
     } catch (error) {
         console.log(error);
