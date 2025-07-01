@@ -1812,27 +1812,130 @@ const FlowCanvas = () => {
     fetchData();
   }, [id]);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'bot', text: 'Hi! How can I assist you today?' },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const sendMessage = () => {
-    if (input.trim() === '') return;
+  useEffect(() => {
 
-    const newMsg = { id: Date.now(), sender: 'user', text: input };
-    setMessages((prev) => [...prev, newMsg]);
+    if (isOpen && id) {
+      console.log('id', id)
+      sendMessageToBot('hi', true); // send 'hi' as first message
+    }
+  }, [isOpen, id]);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now() + 1, sender: 'bot', text: 'Thanks! I will look into it.' },
-      ]);
-    }, 1000);
+  const sendMessageToBot = async (messageText = input, isInit = false) => {
+    if (!messageText.trim()) return;
 
-    setInput('');
+    if (!isInit) {
+
+      setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: messageText }]);
+    }
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        object: 'whatsapp_business_account',
+        entry: [{
+          changes: [{
+            value: {
+              flow_id: id,
+              is_template: true,
+              messages: [{
+                from: "user123",
+                type: "text",
+                text: { body: messageText }
+              }]
+            }
+          }]
+        }]
+      }),
+    });
+
+    const data = await response.json();
+
+    const botMessages = data?.messages || [];
+    setMessages(prev => [
+      ...prev,
+      ...botMessages.map((msg, index) => ({
+        id: Date.now() + index + 1,
+        sender: 'bot',
+        text:
+          msg.type === 'text'
+            ? msg.content
+            : msg.type === 'list'
+              ? `${msg.label}\n${msg.options.join('\n')}`
+              : msg.type === 'buttons'
+                ? `${msg.label}\n${msg.options.join(' | ')}`
+                : msg.type === 'link'
+                  ? `${msg.label}: ${msg.url}`
+                  : msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
+                    ? `${msg.caption || 'Media'}: ${msg.url}`
+                    : '...'
+      }))
+    ]);
+
+    if (!isInit) setInput('');
   };
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  // const [messages, setMessages] = useState([]);
+  // const [input, setInput] = useState('');
+
+  // const sendMessageToBot = async () => {
+  //   if (!input.trim()) return;
+
+  //   // Add user message to local chat first
+  //   setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: input }]);
+
+  //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/webhook`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({
+  //       object: 'whatsapp_business_account',
+  //       entry: [{
+  //         changes: [{
+  //           value: {
+  //             messages: [{
+  //               from: "user123",
+  //               type: "text",
+  //               text: { body: input }
+  //             }]
+  //           }
+  //         }]
+  //       }]
+  //     }),
+  //   });
+
+  //   const data = await response.json();
+
+  //   // Add bot responses to chat
+  //   const botMessages = data?.messages || [];
+  //   setMessages(prev => [
+  //     ...prev,
+  //     ...botMessages.map((msg, index) => ({
+  //       id: Date.now() + index + 1,
+  //       sender: 'bot',
+  //       text:
+  //         msg.type === 'text'
+  //           ? msg.content
+  //           : msg.type === 'list'
+  //             ? `${msg.label}\n${msg.options.join('\n')}`
+  //             : msg.type === 'buttons'
+  //               ? `${msg.label}\n${msg.options.join(' | ')}`
+  //               : msg.type === 'link'
+  //                 ? `${msg.label}: ${msg.url}`
+  //                 : msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
+  //                   ? `${msg.caption || 'Media'}: ${msg.url}`
+  //                   : '...'
+  //     }))
+  //   ]);
+
+  //   setInput('');
+  // };
+
+
+
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
 
@@ -1910,19 +2013,15 @@ const FlowCanvas = () => {
         </ReactFlow>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Chat Assistant</ModalHeader>
+          <ModalHeader>Test Chat with Template</ModalHeader>
           <ModalCloseButton />
-
           <ModalBody>
             <VStack spacing={3} align="stretch" maxH="400px" overflowY="auto">
               {messages.map((msg) => (
-                <Flex
-                  key={msg.id}
-                  justify={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
-                >
+                <Flex key={msg.id} justify={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
                   <Box
                     bg={msg.sender === 'user' ? 'blue.500' : 'gray.200'}
                     color={msg.sender === 'user' ? 'white' : 'black'}
@@ -1937,16 +2036,15 @@ const FlowCanvas = () => {
               ))}
             </VStack>
           </ModalBody>
-
           <ModalFooter>
             <HStack w="100%">
               <Input
                 placeholder="Type a message..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessageToBot()}
               />
-              <Button colorScheme="blue" onClick={sendMessage}>
+              <Button colorScheme="blue" onClick={() => sendMessageToBot()}>
                 Send
               </Button>
             </HStack>

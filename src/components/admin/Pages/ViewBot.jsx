@@ -15,6 +15,7 @@ import {
   DrawerOverlay,
   Flex,
   Heading,
+  HStack,
   Icon,
   IconButton,
   Image,
@@ -2290,6 +2291,67 @@ const FlowCanvas = () => {
     setDeleteProduct(updatedProducts);
   };
 
+
+
+
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isbotOpen, onOpen: onbotOpen, onClose: onbotClose } = useDisclosure()
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+
+  const sendMessageToBot = async () => {
+    if (!input.trim()) return;
+
+    // Add user message to local chat first
+    setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: input }]);
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        object: 'whatsapp_business_account',
+        entry: [{
+          changes: [{
+            value: {
+              messages: [{
+                from: "user123",
+                type: "text",
+                text: { body: input }
+              }]
+            }
+          }]
+        }]
+      }),
+    });
+
+    const data = await response.json();
+
+    // Add bot responses to chat
+    const botMessages = data?.messages || [];
+    setMessages(prev => [
+      ...prev,
+      ...botMessages.map((msg, index) => ({
+        id: Date.now() + index + 1,
+        sender: 'bot',
+        text:
+          msg.type === 'text'
+            ? msg.content
+            : msg.type === 'list'
+              ? `${msg.label}\n${msg.options.join('\n')}`
+              : msg.type === 'buttons'
+                ? `${msg.label}\n${msg.options.join(' | ')}`
+                : msg.type === 'link'
+                  ? `${msg.label}: ${msg.url}`
+                  : msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
+                    ? `${msg.caption || 'Media'}: ${msg.url}`
+                    : '...'
+      }))
+    ]);
+
+    setInput('');
+  };
+
+
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
       <Box
@@ -2312,6 +2374,19 @@ const FlowCanvas = () => {
             _hover={{ bgColor: "white" }}
           >
             Back
+          </Button>
+
+          <Button
+            borderRadius="var(--radius)"
+            _hover={{ bgColor: "var(--active-bg)" }}
+            bgColor="var(--active-bg)"
+            color="#fff"
+            h={"35px"}
+            fontSize="var(--mini-text)"
+            fontWeight="var(--big-font-weight)"
+            onClick={onbotOpen}
+          >
+            Test bot
           </Button>
           <Button
             borderRadius="var(--radius)"
@@ -2582,6 +2657,65 @@ const FlowCanvas = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+
+
+
+      <Modal isOpen={isbotOpen} onClose={onbotClose} size="full" scrollBehavior="inside">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Chat Assistant1</ModalHeader>
+          <ModalCloseButton />
+
+          <ModalBody p={0}>
+            <Flex h="80vh">
+              {/* Sidebar */}
+              <Box w="250px" bg="gray.100" p={4} borderRight="1px solid #ccc">
+                <VStack align="stretch" spacing={4}>
+                  <Text fontWeight="bold">Sectors</Text>
+                  <Button variant="ghost">Healthcare</Button>
+                  <Button variant="ghost">Education</Button>
+                  <Button variant="ghost">Retail</Button>
+                  {/* Add more sections as needed */}
+                </VStack>
+              </Box>
+
+              {/* Main Chat Area */}
+              <Flex flex="1" direction="column" p={4}>
+                <VStack spacing={3} align="stretch" flex="1" overflowY="auto">
+                  {messages.map((msg) => (
+                    <Flex key={msg.id} justify={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
+                      <Box
+                        bg={msg.sender === 'user' ? 'blue.500' : 'gray.200'}
+                        color={msg.sender === 'user' ? 'white' : 'black'}
+                        px={4}
+                        py={2}
+                        borderRadius="xl"
+                        maxW="70%"
+                      >
+                        <Text fontSize="sm">{msg.text}</Text>
+                      </Box>
+                    </Flex>
+                  ))}
+                </VStack>
+
+                <HStack mt={4}>
+                  <Input
+                    placeholder="Type a message..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && sendMessageToBot()}
+                  />
+                  <Button colorScheme="blue" onClick={sendMessageToBot}>
+                    Send
+                  </Button>
+                </HStack>
+              </Flex>
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
     </Box>
   );
 };
