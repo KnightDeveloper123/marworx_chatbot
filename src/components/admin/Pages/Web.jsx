@@ -199,10 +199,10 @@ const Web = () => {
 //         getsidebardata(id);
 
 //     }, [id]);
-
+console.log(template)
     return (
 
-        <Flex zIndex={1} h="100vh" bgColor="#1A202C" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
+        <Flex zIndex={1} h="100vh" bgColor="white" flexDir="column" justifyContent="space-between" alignItems={'center'} gap={4} >
             {/* <Flex bg={'#171923'} h={'90px'} w={'100%'} >
                 <Flex bg={'#171923'} w={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
                     <Menu >
@@ -212,7 +212,7 @@ const Web = () => {
                             icon={<FaUser />}
                             variant='outline'
                             mr={'10px'}
-                            bgColor={"#1A202C"}
+                            bgColor={"white"}
                             color="white"
                             border={'none'}
                             _hover={"none"}
@@ -275,11 +275,11 @@ const Web = () => {
             {/* <Button
                 zIndex={1}
                 onClick={() => { navigate(`/${userid}`); }}
-                alignSelf={'flex-start'} colorScheme='#1A202C'><AddIcon mr={'7px'} /> New Chat
+                alignSelf={'flex-start'} colorScheme='white'><AddIcon mr={'7px'} /> New Chat
             </Button> */}
 
             <Flex
-                bg={"#1A202C"}
+                bg={"white"}
                 h={"100%"}
                 flexDir={"column"}
                 overflowY={"auto"}
@@ -306,7 +306,8 @@ const Web = () => {
 
                 {template.map((chat, index) => (
                     <>
-                    {console.log(chat)}                        <Box
+                   
+                    <Box
                             key={index}
                             // alignSelf={chat.sender === "user" ? "flex-end" : "flex-start"}
                             // bg={chat.sender === "user" ? "#4A90E2" : "#171923"}
@@ -315,11 +316,10 @@ const Web = () => {
                             p="10px"
                             maxW="60%"
                             my="8px"
-                            boxShadow="md"
-
-                        >
-
-                            { index === template.length - 1 ? (
+                            boxShadow="md">
+                                 {console.log(chat.industry)}
+{chat.industry}
+                            {/* { index === template.length - 1 ? (
                                 <Box>
                                     {chat.message
                                         .split('\n\n')
@@ -397,13 +397,13 @@ const Web = () => {
                                             })}
                                     </Box>
                                 </Box>
-                            )}
+                            )} */}
 
 
 
                         </Box>
 
-                        {chat.sender === "bot" && (
+                        {/* {chat.sender === "bot" && (
                             <HStack spacing={1}>
                                 <IconButton
                                     size="sm"
@@ -439,14 +439,14 @@ const Web = () => {
                                 />
                             </HStack>
                         )
-                        }
+                        } */}
                     </>
                 )
                 )}
 
 
 
-
+{/* 
                 {loading && (
                     <Box
                         alignSelf="flex-start"
@@ -461,7 +461,7 @@ const Web = () => {
                     >
                         <Box className="loader"></Box>
                     </Box>
-                )}
+                )} */}
 
                 <div ref={bottomRef}></div>
             </Flex>
@@ -469,7 +469,7 @@ const Web = () => {
 
 
             <Flex bg={'#2D3748'} color={'white'} h={'150px'} w={{ md: '70%', base: '90%' }} borderRadius="20px" mb="15px" zIndex="20" flexDirection="column-reverse" >
-                <Flex justifyContent="flex-end">
+                {/* <Flex justifyContent="flex-end">
                     {value.length > 0 ? <Button w="40px" h="40px" color={"white"} bg="#171923" borderRadius="100%" m="5px"
                         _hover={{ bg: "#4A90E2" }}
                         onClick={handleSubmit}>
@@ -478,7 +478,7 @@ const Web = () => {
 
                     </Button> : " "}
 
-                </Flex>
+                </Flex> */}
                 <Textarea
                     placeholder="Ask Anything"
                     size="sm"
@@ -487,16 +487,16 @@ const Web = () => {
                     borderRadius="20px"
                     _focus={{ outline: "none", boxShadow: "none", borderColor: "transparent" }}
                     overflowY="auto"
-                    onChange={(e) => setValue(e.target.value)}
-                    value={value}
-                    onKeyDown={(event) => {
-                        if (event.key === "Enter" && !event.shiftKey) {
-                            event.preventDefault();
-                            if (value.trim() !== "") {
-                                handleSubmit(event);
-                            }
-                        }
-                    }}
+                    // onChange={(e) => setValue(e.target.value)}
+                    // value={value}
+                    // onKeyDown={(event) => {
+                    //     if (event.key === "Enter" && !event.shiftKey) {
+                    //         event.preventDefault();
+                    //         if (value.trim() !== "") {
+                    //             handleSubmit(event);
+                    //         }
+                    //     }
+                    // }}
                     sx={{
                         "&::-webkit-scrollbar": {
                             display: "none",
