@@ -42,6 +42,7 @@ const Campaign = lazy(() => import('./components/admin/Pages/Campaign'));
 const ProductService = lazy(() => import('./components/admin/Pages/ProductService'));
 const RecycleBin = lazy(() => import('./components/admin/Pages/RecycleBin'));
 const Web = lazy(() => import('./components/admin/Pages/Web'));
+const UserTemplate = lazy(() => import('./components/user/Template'));
 
 
 
@@ -95,6 +96,7 @@ return (
           <Route path="/*" element={<Layout />}>
             <Route path=":userid" element={<MainPage />} />
             <Route path=":userid/:id" element={<MainPage />} />
+            <Route path="template/:id" element={<UserTemplate />} />
           </Route>
         </Routes>
       </Router>
