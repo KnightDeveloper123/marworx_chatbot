@@ -747,25 +747,25 @@ GROUP BY b.admin_id;
 
 
 router.get('/getActiveUser', middleware, async (req, res) => {
-  try {
-    const [daily, monthly] = await Promise.all([
-      executeQuery(`SELECT DATE(last_login) AS day, COUNT(DISTINCT id) AS daily_active_users
+    try {
+        const [daily, monthly] = await Promise.all([
+            executeQuery(`SELECT DATE(last_login) AS day, COUNT(DISTINCT id) AS daily_active_users
                     FROM admin
                     WHERE last_login >= CURDATE() - INTERVAL 30 DAY
                     GROUP BY day ORDER BY day;`),
 
-      executeQuery(`SELECT DATE_FORMAT(last_login, '%Y-%m') AS month, COUNT(DISTINCT id) AS monthly_active_users
+            executeQuery(`SELECT DATE_FORMAT(last_login, '%Y-%m') AS month, COUNT(DISTINCT id) AS monthly_active_users
                     FROM admin
                     WHERE last_login >= CURDATE() - INTERVAL 12 MONTH
                     GROUP BY month ORDER BY month;`)
-    ]);
-// console.log(daily)
-// console.log(monthly)
-    res.json({ success: true, daily, monthly });
-  } catch (err) {
-    console.error('Error fetching active users:', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
+        ]);
+        // console.log(daily)
+        // console.log(monthly)
+        res.json({ success: true, daily, monthly });
+    } catch (err) {
+        console.error('Error fetching active users:', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
 
 

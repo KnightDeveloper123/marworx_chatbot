@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState,useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -6,6 +6,7 @@ import {
   Collapse,
   Divider,
   Flex,
+  HStack,
   Icon,
   IconButton,
   Image,
@@ -13,9 +14,17 @@ import {
   Menu,
   MenuButton,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaImage, FaRegFileVideo } from "react-icons/fa";
@@ -1364,7 +1373,7 @@ const nodeTypes = {
         <Box bgColor="var(--active-bg)" color="white" px={2} py={1} borderTopRadius="md">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize="10px" fontWeight="bold">
-            Reply Button
+              Reply Button
             </Text>
             <Flex gap={1}>
               <IconButton
@@ -1591,7 +1600,7 @@ const SidePanel = () => {
       type: "VideoNode",
       icon: <Icon as={FaRegFileVideo} mr={2} />,
     },
-      {
+    {
       label: "Link",
       type: "LinkNode",
       icon: <Icon as={FaRegFileVideo} mr={2} />,
@@ -1713,7 +1722,7 @@ const SidePanel = () => {
 // Flow Canvas
 const FlowCanvas = () => {
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const { id } = useParams();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -1784,17 +1793,17 @@ const FlowCanvas = () => {
       node: JSON.stringify(nodes),
       edges: JSON.stringify(edges),
     };
-    try{
-    const response=  await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/update`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-     const result = await response.json();
-     if(result.success){
-      navigate('/home/template')
-     }
-    }catch (error) {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.success) {
+        navigate('/home/template')
+      }
+    } catch (error) {
       console.log(error)
     }
   };
@@ -1803,8 +1812,31 @@ const FlowCanvas = () => {
     fetchData();
   }, [id]);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'bot', text: 'Hi! How can I assist you today?' },
+  ]);
+  const [input, setInput] = useState('');
+
+  const sendMessage = () => {
+    if (input.trim() === '') return;
+
+    const newMsg = { id: Date.now(), sender: 'user', text: input };
+    setMessages((prev) => [...prev, newMsg]);
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: 'bot', text: 'Thanks! I will look into it.' },
+      ]);
+    }, 1000);
+
+    setInput('');
+  };
   return (
     <Box flex={1} height="100vh" display="flex" flexDirection="column" p="5px">
+
+
       <Box
         display="flex"
         justifyContent="space-between"
@@ -1839,6 +1871,18 @@ const FlowCanvas = () => {
           >
             Update
           </Button>
+          <Button
+            borderRadius="var(--radius)"
+            _hover={{ bgColor: "var(--active-bg)" }}
+            bgColor="var(--active-bg)"
+            color="#fff"
+            h={"35px"}
+            fontSize="var(--mini-text)"
+            fontWeight="var(--big-font-weight)"
+            onClick={onOpen}
+          >
+            Test bot
+          </Button>
         </Flex>
       </Box>
 
@@ -1858,16 +1902,62 @@ const FlowCanvas = () => {
           onDrop={onDrop}
           onDragOver={onDragOver}
           nodeTypes={nodeTypes}
-          
+
           fitView
-           >
+        >
           <Background />
           <Controls />
         </ReactFlow>
       </Box>
+
+      <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Chat Assistant</ModalHeader>
+          <ModalCloseButton />
+
+          <ModalBody>
+            <VStack spacing={3} align="stretch" maxH="400px" overflowY="auto">
+              {messages.map((msg) => (
+                <Flex
+                  key={msg.id}
+                  justify={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
+                >
+                  <Box
+                    bg={msg.sender === 'user' ? 'blue.500' : 'gray.200'}
+                    color={msg.sender === 'user' ? 'white' : 'black'}
+                    px={4}
+                    py={2}
+                    borderRadius="xl"
+                    maxW="70%"
+                  >
+                    <Text fontSize="sm">{msg.text}</Text>
+                  </Box>
+                </Flex>
+              ))}
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <HStack w="100%">
+              <Input
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              />
+              <Button colorScheme="blue" onClick={sendMessage}>
+                Send
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
+
+
 
 // Main Component
 export default function BotBuilder() {
