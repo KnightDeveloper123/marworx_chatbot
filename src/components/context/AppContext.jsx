@@ -299,9 +299,9 @@ export const AppProvider = ({ children }) => {
 
     const [template, setTemplate] = useState([])
 
-    const fetchTemplate = async () => {
+    const fetchTemplate = async (id) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/get_all_template`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/get_all_template?admin_id=${id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": 'application/json',

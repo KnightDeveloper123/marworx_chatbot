@@ -2,19 +2,31 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Collapse,
   Divider,
   Flex,
+  Heading,
   Icon,
   IconButton,
   Image,
   Input,
   Menu,
+  Stack,
   MenuButton,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   useDisclosure,
+  VStack,
+  Select,
 } from "@chakra-ui/react";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaImage, FaRegFileVideo } from "react-icons/fa";
@@ -27,8 +39,11 @@ import { IoIosListBox } from "react-icons/io";
 import { SiGooglesheets } from "react-icons/si";
 import { LuPlus } from "react-icons/lu";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import { useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import React, { useCallback, useEffect, useState } from "react";
+import { LiaTrashAlt } from "react-icons/lia";
+import { FaWhatsapp } from "react-icons/fa";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -40,9 +55,12 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { IoTrashOutline } from "react-icons/io5";
+import { IoSettingsOutline, IoTrashOutline } from "react-icons/io5";
+import { MdExpandMore, MdOutlineLibraryAdd } from "react-icons/md";
 import "reactflow/dist/style.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
+import { decrypt } from "../../utils/security";
 
 
 // Utility for node ID generation
@@ -1459,6 +1477,8 @@ const FlowCanvas = () => {
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
   const template_id = useParams();
+  const user = localStorage.getItem('user')
+  const admin_id = decrypt(user).id
 
    const [nodes, setNodes, onNodesChange] = useNodesState([
       {
@@ -1520,7 +1540,8 @@ const FlowCanvas = () => {
           body: JSON.stringify({
             node: nodes,
             edges,
-            template_id: template_id.id
+            template_id: template_id.id,
+            admin_id:admin_id
           }),
         }
       );

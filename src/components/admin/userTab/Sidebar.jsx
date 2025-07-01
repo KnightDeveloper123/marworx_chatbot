@@ -1,7 +1,7 @@
 import React from "react";
 // Sidebar.jsx
 import { Box, VStack, Text, Icon } from "@chakra-ui/react";
-import { FaTachometerAlt, } from "react-icons/fa";
+import { FaTachometerAlt, FaUser, } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { RiTelegram2Line } from "react-icons/ri";
 import { MdProductionQuantityLimits } from "react-icons/md";
@@ -9,6 +9,7 @@ import { LuBot } from "react-icons/lu";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { LuSection } from "react-icons/lu";
 import { PiBagSimpleFill, PiRecycleFill } from "react-icons/pi";
+import { HiOutlineTemplate } from "react-icons/hi";
 
 const Sidebar = () => {
 
@@ -19,12 +20,13 @@ const Sidebar = () => {
     { title: "Employee", url: "/home/employee", icon: <Icon as={PiBagSimpleFill} mr={2} /> },
     // { title: "Employee", url: "/home/employee", icon: <Icon as={FaCircleUser} mr={2} /> },
     { title: "Sector", url: "/home/sector", icon: <Icon as={LuSection} mr={2} /> },
-    // { title: "Users", url: "/home/user", icon: <Icon as={FaUser} mr={2} /> },
     { title: "Product Services ", url: "/home/product", icon: <Icon as={MdProductionQuantityLimits } mr={2} /> },
     { title: "Bot Builder", url: "/home/bot", icon: <Icon as={LuBot } mr={2} /> },
     { title: "Campaign", url: "/home/campaign", icon: <Icon as={RiTelegram2Line} mr={2} /> },
     { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
     { title: "Recycle bin", url: "/home/recycle_bin", icon: <Icon as={PiRecycleFill} mr={2} /> },
+    { title: "Templates", url: "/home/template", icon: <Icon as={HiOutlineTemplate } mr={2} /> },
+    { title: "Chat", url: "/home/chat", icon: <Icon as={FaUser} mr={2} /> },
   ];
   return (
     <Box w="240px"  p={5} height="100vh" bg="#fff5f3" boxShadow='base'>

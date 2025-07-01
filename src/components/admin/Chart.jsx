@@ -17,13 +17,13 @@ const chartData = {
       {
         label: "Bots",
         data: botData,
-        backgroundColor: "rgb(124, 208, 214)",
+        backgroundColor: "rgb(14, 103, 109)",
         borderRadius: 7
       },
       {
         label: "Campaigns",
         data: campaignData,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        backgroundColor: "rgba(8, 243, 243, 0.6)",
         borderRadius: 7
       }
     ]
@@ -77,12 +77,12 @@ export const PieSectorWiseBots = ({ data }) => {
                 label: "",
                 data: total,
                 backgroundColor: [
-                    "#f9b0db",
-                    "#8ccefb",
-                    "#FFCE56",
+                    "#be0e75",
+                    "#0888dd",
+                    "#996e00",
                     "#FF6384",
-                    "#4BC0C0",
-                    "#9966FF",
+                    "#990021",
+                    "#3b00b3",
                 ],
                 borderColor: "#fff",
                 borderWidth: 2,
@@ -199,13 +199,13 @@ const labels = adminMetrics.map(item => `Admin ${item.admin_id}`);
       {
         label: 'Click-Through Rate (%)',
         data: adminMetrics.map(item => item.click_through_rate || 0),
-        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+        backgroundColor: 'rgba(10, 82, 82, 0.7)',
         borderRadius: 6,
       },
       {
         label: 'Completion Rate (%)',
         data: adminMetrics.map(item => item.completion_rate || 0),
-        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+        backgroundColor: 'rgba(34, 10, 82, 0.7)',
         borderRadius: 6,
       },
     ],
@@ -263,16 +263,16 @@ export const MonthlyActiveUser = ({ data ,formatDate}) => {
       {
         label: 'Daily Active Users',
         data: dailyDataset,
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        borderColor: 'rgb(8, 94, 151)',
+        backgroundColor: 'rgba(31, 92, 133, 0.3)',
         tension: 0.4,
         fill: false,
       },
       {
         label: 'Monthly Active Users',
         data: monthlyDataset,
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+        borderColor: 'rgb(143, 15, 42)',
+        backgroundColor: 'rgba(53, 8, 18, 0.3)',
         tension: 0.4,
         fill: false,
       }

@@ -15,6 +15,8 @@ const GenerativeBot = () => {
     const [selectedFile, setSelectedFile] = useState(null)
     const location = useLocation()
     const user = localStorage.getItem('user')
+    const sectorId=localStorage.getItem('sectorId')
+    // console.log(sectorId);
     const admin_id = decrypt(user).id
     const user_role = decrypt(user).role
    const fetchAllDocuments = useCallback(
@@ -49,8 +51,6 @@ const GenerativeBot = () => {
       fetchAllDocuments(admin_id)
     }, [fetchAllDocuments, admin_id])
   
-    console.log(documents)
-
 const [loading, setLoading] = useState(true);
    const [file, setFile] = useState({
       fileName: '',
@@ -66,7 +66,7 @@ const [loading, setLoading] = useState(true);
       formData.append('admin_id', admin_id)
       formData.append('file', file.file)
       formData.append('fileName', file.fileName)
-      formData.append('sector_id', 1)
+      formData.append('sector_id', sectorId)
       formData.append('bot_type', 'Genarative ai')
       try {
         const response = await fetch(
@@ -114,8 +114,8 @@ const [loading, setLoading] = useState(true);
   
         const result = await response.json()
         if (result.success) {
-          showAlert(result.success, 'success')
           fetchAllDocuments(admin_id)
+          showAlert(result.success, 'success')
         } else {
           showAlert(result.error, 'error')
         }

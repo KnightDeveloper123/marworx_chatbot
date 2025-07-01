@@ -49,11 +49,12 @@ const Template = () => {
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const { register, handleSubmit, reset, setValue, formState: { errors }, } = useForm();
   const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user");
   const navigate = useNavigate();
+   const user = localStorage.getItem('user')
+  const admin_id = decrypt(user).id
 
   useEffect(() => {
-    fetchTemplate();
+    fetchTemplate(admin_id);
   }, []);
 
   const onSubmit = async (data) => {

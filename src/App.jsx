@@ -6,6 +6,7 @@ import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
 import Guest from './components/user/Guest';
+// import Web from './components/admin/Pages/Web';
 // import Sector from './components/admin/Pages/Sector';
 // import ProductService from './components/admin/Pages/ProductService';
 // import BotBuilder from './components/admin/Pages/BotBuilder';
@@ -15,7 +16,6 @@ import Guest from './components/user/Guest';
 // import Employee from './components/admin/Pages/Employee';
 // import ProductDetails from './components/admin/Pages/ProductDetails';
 // import UserProfile from './components/admin/UserProfile';
-
 
 const MainPage = lazy(() => import('./components/user/MainPage'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
@@ -41,6 +41,7 @@ const GenerativeBot = lazy(() => import('./components/admin/Pages/GenerativeBot'
 const Campaign = lazy(() => import('./components/admin/Pages/Campaign'));
 const ProductService = lazy(() => import('./components/admin/Pages/ProductService'));
 const RecycleBin = lazy(() => import('./components/admin/Pages/RecycleBin'));
+const Web = lazy(() => import('./components/admin/Pages/Web'));
 
 
 
@@ -83,6 +84,7 @@ return (
             <Route path="admin/:id" element={<AdminProfile />} />
             <Route path="template" element={ <Template /> } />
             <Route path="recycle_bin" element={ <RecycleBin /> } />
+            <Route path="chat" element={ <Web /> } />
             
           </Route>
 
