@@ -21,6 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   Textarea,
   useDisclosure,
@@ -1812,83 +1813,30 @@ const FlowCanvas = () => {
     fetchData();
   }, [id]);
 
-  const [messages, setMessages] = useState([]);
+
   const [input, setInput] = useState('');
+  const [userInput, setUserInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (isOpen && id) {
-      console.log('id', id)
-      sendMessageToBot('hi', true); // send 'hi' as first message
-    }
-  }, [isOpen, id]);
+  //   if (isOpen && id) {
+  //     console.log('id', id)
+  //     sendMessageToBot('hi', true); // send 'hi' as first message
+  //   }
+  // }, [isOpen, id]);
 
-  const sendMessageToBot = async (messageText = input, isInit = false) => {
-    if (!messageText.trim()) return;
+  // const sendMessageToBot = async (messageText = input, isInit = false) => {
+  //   if (!messageText.trim()) return;
 
-    if (!isInit) {
+  //   if (!isInit) {
 
-      setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: messageText }]);
-    }
+  //     setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: messageText }]);
+  //   }
 
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/webhook`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        object: 'whatsapp_business_account',
-        entry: [{
-          changes: [{
-            value: {
-              flow_id: id,
-              is_template: true,
-              messages: [{
-                from: "user123",
-                type: "text",
-                text: { body: messageText }
-              }]
-            }
-          }]
-        }]
-      }),
-    });
-
-    const data = await response.json();
-
-    const botMessages = data?.messages || [];
-    setMessages(prev => [
-      ...prev,
-      ...botMessages.map((msg, index) => ({
-        id: Date.now() + index + 1,
-        sender: 'bot',
-        text:
-          msg.type === 'text'
-            ? msg.content
-            : msg.type === 'list'
-              ? `${msg.label}\n${msg.options.join('\n')}`
-              : msg.type === 'buttons'
-                ? `${msg.label}\n${msg.options.join(' | ')}`
-                : msg.type === 'link'
-                  ? `${msg.label}: ${msg.url}`
-                  : msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
-                    ? `${msg.caption || 'Media'}: ${msg.url}`
-                    : '...'
-      }))
-    ]);
-
-    if (!isInit) setInput('');
-  };
-  // const { isOpen, onOpen, onClose } = useDisclosure();
-  // const [messages, setMessages] = useState([]);
-  // const [input, setInput] = useState('');
-
-  // const sendMessageToBot = async () => {
-  //   if (!input.trim()) return;
-
-  //   // Add user message to local chat first
-  //   setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: input }]);
-
-  //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/webhook`, {
+  //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/webhook`, {
   //     method: 'POST',
   //     headers: { 'Content-Type': 'application/json' },
   //     body: JSON.stringify({
@@ -1896,10 +1844,12 @@ const FlowCanvas = () => {
   //       entry: [{
   //         changes: [{
   //           value: {
+  //             flow_id: id,
+  //             is_template: true,
   //             messages: [{
   //               from: "user123",
   //               type: "text",
-  //               text: { body: input }
+  //               text: { body: messageText }
   //             }]
   //           }
   //         }]
@@ -1909,30 +1859,141 @@ const FlowCanvas = () => {
 
   //   const data = await response.json();
 
-  //   // Add bot responses to chat
   //   const botMessages = data?.messages || [];
   //   setMessages(prev => [
   //     ...prev,
   //     ...botMessages.map((msg, index) => ({
   //       id: Date.now() + index + 1,
   //       sender: 'bot',
+  //       type: msg.type,
+  //       label: msg.label,
+  //       options: msg.options,
   //       text:
-  //         msg.type === 'text'
-  //           ? msg.content
-  //           : msg.type === 'list'
-  //             ? `${msg.label}\n${msg.options.join('\n')}`
-  //             : msg.type === 'buttons'
-  //               ? `${msg.label}\n${msg.options.join(' | ')}`
-  //               : msg.type === 'link'
-  //                 ? `${msg.label}: ${msg.url}`
-  //                 : msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
-  //                   ? `${msg.caption || 'Media'}: ${msg.url}`
-  //                   : '...'
+  //         msg.type === 'text' ? msg.content :
+  //           msg.type === 'link' ? `${msg.label}: ${msg.url}` :
+  //             msg.type === 'image' || msg.type === 'video' || msg.type === 'document'
+  //               ? `${msg.caption || 'Media'}: ${msg.url}` :
+  //               msg.type === 'list' || msg.type === 'buttons' ? msg.label : '...'
   //     }))
+
   //   ]);
 
-  //   setInput('');
+  //   if (!isInit) setInput('');
   // };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/getbyid?id=${id}`);
+      const result = await res.json();
+      const nodeList = typeof result.data.node === "string" ? JSON.parse(result.data.node) : result.data.node;
+      setNodes(nodeList);
+    };
+    fetchData();
+  }, [id]);
+
+  const handleAnswer = (optionKey, label) => {
+    const currentNode = nodes[currentIndex];
+    console.log(nodes);
+    // console.log(currentNode);
+
+    const question = currentNode?.data?.label || "";
+
+    setMessages((prev) => [
+      ...prev,
+      { type: "question", text: question },
+      { type: "answer", text: label }
+    ]);
+
+    // Send to backend (you can enhance this)
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/webhook`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ from: "frontend", message: optionKey, flow_id: id })
+    });
+
+    setUserInput("");
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  const renderNode = () => {
+    if (!nodes.length || currentIndex >= nodes.length) {
+      return (
+        <Box>
+          {/* <Heading size="md">✅ Chat Complete</Heading> */}
+          {/* <Code mt={2} whiteSpace="pre-wrap">{JSON.stringify(messages, null, 2)}</Code> */}
+        </Box>
+      );
+    }
+
+    const node = nodes[currentIndex];
+    const { type, data } = node;
+    console.log(type);
+
+    return (
+      <Box
+        p={4}
+        width="800px"
+        // maxH="300px"
+        // overflowY="auto"
+        borderWidth="1px"
+        borderRadius="md"
+        boxShadow="md"
+        bg="gray.50"
+      >
+        <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
+        {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
+          <VStack align="stretch" spacing={3}>
+            {/* {data.targetValues.map((label, index) => ( */}
+            <Button
+              // key={index}
+              colorScheme="teal"
+              variant="outline"
+              onClick={() => handleAnswer(data.targetValues[0], data.targetValues[0])}
+            >
+              {data.targetValues[0]}
+            </Button>
+            {/* ))}  */}
+          </VStack>
+        ) : (
+          <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
+            <Input
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="Type your answer..."
+              bg="white"
+            />
+            <Button
+              colorScheme="teal"
+              onClick={() => handleAnswer(userInput, userInput)}
+              isDisabled={!userInput}
+            >
+              Submit
+            </Button>
+          </Stack>
+        )}
+      </Box>
+    );
+  };
+
+  const renderChatHistory = () => (
+    <VStack spacing={3} align="stretch" width={'800px'} height={'100%'}  overflowY={'scroll'}>
+      {messages.map((msg, index) => (
+        <Box
+          key={index}
+          alignSelf={msg.type === "answer" ? "flex-end" : "flex-start"}
+          bg={msg.type === "answer" ? "teal.100" : "gray.200"}
+          px={4}
+          py={2}
+          borderRadius="lg"
+          maxW="80%"
+
+        >
+          <Text>{msg.text}</Text>
+        </Box>
+      ))}
+    </VStack>
+  );
 
 
 
@@ -2013,44 +2074,73 @@ const FlowCanvas = () => {
         </ReactFlow>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
+<Modal isOpen={isOpen} onClose={onClose} size="5xl">
+  <ModalOverlay />
+  <ModalContent height="90vh" display="flex" flexDirection="column">
+    
+    <Box padding="10px">
+      <Box fontWeight="bold">Test Chat with Template</Box>
+      <ModalCloseButton />
+    </Box>
+
+    
+    <ModalBody flex="1" overflow="hidden" p={0}>
+      <VStack spacing={0} align="stretch" height="100%">
+      
+        <Box
+          flex="1"
+          overflowY="auto"
+          
+          px={4}
+          py={2}
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#888',
+              borderRadius: '8px',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              background: '#555',
+            },
+          }}
+        >
+          {renderChatHistory()}
+        </Box>
+
+   
+        <Box p={4} borderTop="1px solid #e2e8f0" bg="gray.50">
+          {renderNode()}
+        </Box>
+      </VStack>
+    </ModalBody>
+  </ModalContent>
+</Modal>
+
+      {/* <Modal isOpen={isOpen} onClose={onClose} size="5xl" >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Test Chat with Template</ModalHeader>
-          <ModalCloseButton />
+        <ModalContent  height="90vh">
+          <Box padding={'10px'}>
+            <Box>Test Chat with Template</Box>
+            <ModalCloseButton />
+          </Box>
+
+
           <ModalBody>
-            <VStack spacing={3} align="stretch" maxH="400px" overflowY="auto">
-              {messages.map((msg) => (
-                <Flex key={msg.id} justify={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
-                  <Box
-                    bg={msg.sender === 'user' ? 'blue.500' : 'gray.200'}
-                    color={msg.sender === 'user' ? 'white' : 'black'}
-                    px={4}
-                    py={2}
-                    borderRadius="xl"
-                    maxW="70%"
-                  >
-                    <Text fontSize="sm">{msg.text}</Text>
-                  </Box>
-                </Flex>
-              ))}
+            <VStack spacing={3} align="stretch" >
+              <Box p={4}  >
+                <VStack spacing={4} align="stretch">
+                  {renderChatHistory()}
+                  {renderNode()}
+                </VStack>
+              </Box>
+
             </VStack>
           </ModalBody>
-          <ModalFooter>
-            <HStack w="100%">
-              <Input
-                placeholder="Type a message..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessageToBot()}
-              />
-              <Button colorScheme="blue" onClick={() => sendMessageToBot()}>
-                Send
-              </Button>
-            </HStack>
-          </ModalFooter>
+
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </Box>
   );
 };
