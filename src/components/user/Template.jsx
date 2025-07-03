@@ -51,18 +51,14 @@ const Template = () => {
 
   const handleAnswer = (optionKey, label) => {
     const currentNode = nodes[currentIndex];
-    console.log(nodes);
-    // console.log(currentNode);
-
     const question = currentNode?.data?.label || "";
-
     setMessages((prev) => [
       ...prev,
       { type: "question", text: question },
       { type: "answer", text: label }
     ]);
 
-    // Send to backend (you can enhance this)
+
     fetch(`${import.meta.env.VITE_BACKEND_URL}/webhook`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -85,12 +81,14 @@ const Template = () => {
 
     const node = nodes[currentIndex];
     const { type, data } = node;
-    console.log(type);
+    // console.log(type);
 
     return (
+
       <Box
         p={4}
-        width="600px"
+        w="100%"
+        maxW={{ base: "100%", md: "500px" }}
         maxH="300px"
         overflowY="auto"
         borderWidth="1px"
@@ -98,6 +96,7 @@ const Template = () => {
         boxShadow="md"
         bg="gray.50"
       >
+
         <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
         {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
           <VStack align="stretch" spacing={3}>
@@ -152,11 +151,11 @@ const Template = () => {
     </VStack>
   );
 
- return (
+  return (
     <Box
       minHeight="100vh"
       overflowY="auto"
-      bgColor="blue.800"
+      bgColor=" #1A202C"
       display="flex"
       flexDirection={'column'}
       justifyContent={'space-between'}
@@ -213,13 +212,13 @@ const Template = () => {
         </Menu>
       </Box>
 
-      {/* Chat container */}
-      <Box p={4} maxW="600px" mx="auto" >
-        <VStack spacing={4} align="stretch">
+      <Box px={{ base: 4, md: 6 }} py={4} w="100%" maxW="100%" mx="auto">
+        <VStack spacing={4} align="stretch" w={{ base: "100%", md: "80%", lg: "60%" }} mx="auto">
           {renderChatHistory()}
           {renderNode()}
         </VStack>
       </Box>
+
     </Box>
   )
 };
