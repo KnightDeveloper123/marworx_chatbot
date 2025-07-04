@@ -44,7 +44,7 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
     const file_name = req.file.filename;
 
     const sql = `INSERT INTO sector (name, category, description, icon,admin_id,employee_id) VALUES (?, ?, ?, ?,?, ?)`;
-    const values = [name, category, description, file_name, admin_id,employee_id];
+    const values = [name, category, description, file_name, admin_id, employee_id];
 
     connection.query(sql, values, (err, result) => {
       if (err) {
@@ -64,8 +64,8 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
       //     return res.status(400).json({ error: "Error assigning products to sector" });
       //   }
 
-        return res.send({ success: "Sector created" });
-      });
+      return res.send({ success: "Sector created" });
+    });
     // });
 
   } catch (error) {
@@ -74,15 +74,12 @@ router.post('/add', middleware, upload.single('icon'), async (req, res) => {
   }
 });
 
-
-
-
 router.post('/update', middleware, upload.single('icon'), async (req, res) => {
   try {
 
     //   console.log(req.body);
 
-    let { name, category, description, products, sector_id, employee_id} = req.body;
+    let { name, category, description, products, sector_id, employee_id } = req.body;
 
     // if (typeof products === 'string') {
     //   try {
@@ -141,18 +138,18 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
       //     return res.status(400).json({ error: "Error clearing old product-sector mappings" });
       //   }
 
-        // Insert new product_sector relations
-        // const insertSql = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
-        // const productValues = products.map(p => [sector_id, p.product_id || p]);
+      // Insert new product_sector relations
+      // const insertSql = `INSERT INTO product_sector (sector_id, product_id) VALUES ?`;
+      // const productValues = products.map(p => [sector_id, p.product_id || p]);
 
-        // connection.query(insertSql, [productValues], (insertErr) => {
-        //   if (insertErr) {
-        //     console.error(insertErr);
-        //     return res.status(400).json({ error: "Error updating products in sector" });
-        //   }
+      // connection.query(insertSql, [productValues], (insertErr) => {
+      //   if (insertErr) {
+      //     console.error(insertErr);
+      //     return res.status(400).json({ error: "Error updating products in sector" });
+      //   }
 
-        // });
-        return res.send({ success: "Sector updated successfully" });
+      // });
+      return res.send({ success: "Sector updated successfully" });
       // });
     });
   } catch (error) {
@@ -160,9 +157,6 @@ router.post('/update', middleware, upload.single('icon'), async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
-
 
 router.post('/delete', middleware, (req, res) => {
   try {
@@ -181,6 +175,41 @@ router.post('/delete', middleware, (req, res) => {
   }
 })
 
+
+// add category
+
+
+router.post('/addCategory', async (req, res) => {
+  try {
+    let { name } = req.body;
+    const sql = `INSERT INTO category (name) VALUES (?)`;
+    const values = [name];
+
+    connection.query(sql, values, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(400).json({ error: "Something went wrong" });
+      }
+      return res.send({ success: "Category added", result });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/get_all_category', async (req, res) => {
+
+  try {
+
+    let result = await executeQuery(`select * from category where status=0`)
+    res.json({ result })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal server error!" })
+  }
+})
+
 // GET BY PRODUCT
 
 router.get('/sectort_by_id', middleware, async (req, res) => {
@@ -196,9 +225,9 @@ router.get('/sectort_by_id', middleware, async (req, res) => {
 
 // GET ALL PRODUCT
 router.get('/get_all_sector', middleware, async (req, res) => {
-    try {
-      const { admin_id } = req.query
-        const data = await executeQuery(` SELECT
+  try {
+    const { admin_id } = req.query
+    const data = await executeQuery(` SELECT
         sector.id,
         sector.name,
         sector.status,
@@ -227,15 +256,16 @@ router.get('/get_all_sector', middleware, async (req, res) => {
         employee.id
       ORDER BY sector.id DESC;`)
 
-             const formattedData = data.map(sector => ({
-                ...sector,
-                product_ids: sector.psId ? sector.psId.split(',').map(Number) : []
-              }));
-        return res.json({ formattedData })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Internal server error!" })
-    }
+    const formattedData = data.map(sector => ({
+      ...sector,
+      product_ids: sector.psId ? sector.psId.split(',').map(Number) : []
+    }));
+    // console.log('data', formattedData)
+    return res.json({ formattedData })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal server error!" })
+  }
 })
 
 

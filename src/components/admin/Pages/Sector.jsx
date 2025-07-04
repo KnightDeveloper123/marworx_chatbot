@@ -17,12 +17,13 @@ import Generative from "../../../assets/Generative.png"
 
 const Sector = () => {
   const token = localStorage.getItem('token')
-  const { showAlert, sectors, fetchSector, template, fetchTemplate,fetchAllEmployees, employees } = useContext(AppContext)
+  const { showAlert, sectors, fetchSector, template, fetchTemplate, fetchAllEmployees, employees } = useContext(AppContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isBotOpen, onOpen: onBotOpen, onClose: onBotClose } = useDisclosure()
   const { isOpen: isAlgOpen, onOpen: onAlgOpen, onClose: onAlgClose } = useDisclosure()
+  const { isOpen: isCategoryOpen, onOpen: onCategoryOpen, onClose: onCategoryClose } = useDisclosure()
   const { isOpen: isTemplateOpen, onOpen: onTemplateOpen, onClose: onTemplateClose } = useDisclosure()
   const [filteredSectors, setFilteredSectors] = useState("");
   const user = localStorage.getItem('user')
@@ -47,33 +48,33 @@ const Sector = () => {
 
   }, [admin_id])
 
-  const allCategory = [{
-    value: "energy",
-    label: "Energy"
-  },
-  {
-    value: "industrial",
-    label: "Industrial"
-  },
-  {
-    value: "manufacturing",
-    label: "Manufacturing"
-  },
-  {
-    value: "chemicals",
-    label: "Chemicals"
-  },
-  ]
+  // const allCategory = [{
+  //   value: "energy",
+  //   label: "Energy"
+  // },
+  // {
+  //   value: "industrial",
+  //   label: "Industrial"
+  // },
+  // {
+  //   value: "manufacturing",
+  //   label: "Manufacturing"
+  // },
+  // {
+  //   value: "chemicals",
+  //   label: "Chemicals"
+  // },
+  // ]
 
-   const allEmployee = employees.map(emp => ({
-        value: emp.id,
-        label: emp.name,
-        customLabel: (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span>{emp.name}</span>
-            </div>
-        )
-    }));
+  const allEmployee = employees.map(emp => ({
+    value: emp.id,
+    label: emp.name,
+    customLabel: (
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span>{emp.name}</span>
+      </div>
+    )
+  }));
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -156,6 +157,67 @@ const Sector = () => {
 
   }
 
+
+  const [category, setCategory] = useState([])
+
+  const fetchCategory = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_all_category`, {
+        method: "GET",
+        headers: {
+          "Content-Type": 'application/json',
+          // Authorization: token
+        },
+
+      })
+      const data = await response.json();
+      console.log("result", data)
+      const formatted = data.result.map(cat => ({
+        value: cat.name,  // 👈 category name will be sent
+        label: cat.name
+      }));
+
+      setCategory(formatted);
+      // setCategory(data.result)
+
+    } catch (error) {
+      console.log(error)
+      showAlert('Internal server error', 'error')
+    }
+  }
+
+  useEffect(() => {
+    fetchCategory();
+  }, [])
+
+  const onCategorySubmit = async (data) => {
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/addCategory`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+          // Authorization: token
+        },
+        body: JSON.stringify({
+          name: data.name
+        })
+      })
+      const result = await response.json();
+
+      if (result.success) {
+        showAlert("Category added successfully", 'success')
+        fetchCategory();
+        reset();
+        onCategoryClose();
+      }
+    } catch (error) {
+      showAlert("Failed to add category ", 'error')
+      console.log(error)
+    }
+  }
+
+
   const [sectorid, setSectorid] = useState(null)
   const openDeleteModal = (id) => {
     onDeleteOpen()
@@ -220,9 +282,9 @@ const Sector = () => {
   };
 
   const botTypes = [
-    { label: "Algorithmic", type: "algorithmic",image:Algorithmic, admin_id: admin_id },
-    { label: "Campaign", type: "campaign",image:Campaign, path: "/home/campaign" },
-    { label: "Generative", type: "generative",image:Generative, path: "/home/gen_bot" }
+    { label: "Algorithmic", type: "algorithmic", image: Algorithmic, admin_id: admin_id },
+    { label: "Campaign", type: "campaign", image: Campaign, path: "/home/campaign" },
+    { label: "Generative", type: "generative", image: Generative, path: "/home/gen_bot" }
   ];
 
 
@@ -278,10 +340,26 @@ const Sector = () => {
                 Add Sector
               </Button>
 
+              <Button
+                borderRadius="var(--radius)"
+                leftIcon={<IoMdAdd fontSize={"20px"} />}
+                _hover={{ bgColor: "var(--active-bg)" }}
+                bgColor="var(--active-bg)"
+                color="#fff"
+
+                h={"35px"}
+                fontSize="var(--mini-text)"
+                fontWeight="var(--big-font-weight)"
+                onClick={() => onCategoryOpen()}
+              >
+                Add Category
+              </Button>
             </Flex>
           </Flex>
 
         </Flex>
+
+
 
         <TableContainer
           mt="20px"
@@ -338,14 +416,14 @@ const Sector = () => {
                   Description
                 </Th>
 
-                 <Th
+                <Th
                   fontWeight="var(--big-font-weight)"
                   color="var(--text-black)"
                   borderRadius=""
                   fontSize="var(--mini-text)"
 
                 >
-                 Bot count
+                  Bot count
                 </Th>
                 <Th
                   fontWeight="var(--big-font-weight)"
@@ -366,7 +444,7 @@ const Sector = () => {
                 >
                   Actions
                 </Th>
-              
+
               </Tr>
             </Thead >
 
@@ -406,8 +484,8 @@ const Sector = () => {
                         </Box> */}
                       </Flex>
 
-{/* // sector */}
-                    
+                      {/* // sector */}
+
 
                       <Modal isOpen={isBotOpen} onClose={onBotClose} size={'xl'}>
                         <ModalOverlay />
@@ -418,53 +496,53 @@ const Sector = () => {
                           </Box>
                           <ModalCloseButton />
                           <ModalBody mt={'20px'}>
-                             <Grid display={'grid'} templateColumns='repeat(3, 1fr)' >
+                            <Grid display={'grid'} templateColumns='repeat(3, 1fr)' >
                               {botTypes.map((bot) => (
                                 <GridItem key={bot.type}>
 
-                                    <Box
-                                      _hover={{ bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
-                                      onClick={() => {
-                                        setSelectedBotType(bot.type)
-                                        localStorage.setItem("botType", bot.type);
-                                        localStorage.setItem("sectorId", selectedSectorId);
-                                        if (bot.type === "algorithmic") {
+                                  <Box
+                                    _hover={{ bg: "#FF5F35", color: "white", transitionDuration: "0.5s" }}
+                                    onClick={() => {
+                                      setSelectedBotType(bot.type)
+                                      localStorage.setItem("botType", bot.type);
+                                      localStorage.setItem("sectorId", selectedSectorId);
+                                      if (bot.type === "algorithmic") {
 
-                                          onAlgOpen(); // Open second modal
-                                          // onBotClose();
+                                        onAlgOpen(); // Open second modal
+                                        // onBotClose();
 
 
-                                        } else {
-                                          navigate(bot.path, {
-                                            state: { type: bot.type, sectorId: selectedSectorId }
-                                          });
-                                          onBotClose();
-                                        }
-                                      }}
-                                      display={'flex'}
-                                      justifyContent={'center'}
-                                      alignItems={'center'}
-                                      width={'90%'}
-                                      height={'140px'}
-                                      borderRadius={'7px'}
-                                      backgroundColor={'#FF5F3526'}
-                                      color={'black'}
-                                      cursor={'pointer'}
-                                    >
-                                      <Box>
-                                        <Image src={bot.image} alt={bot.type} />
-                                      </Box>
+                                      } else {
+                                        navigate(bot.path, {
+                                          state: { type: bot.type, sectorId: selectedSectorId }
+                                        });
+                                        onBotClose();
+                                      }
+                                    }}
+                                    display={'flex'}
+                                    justifyContent={'center'}
+                                    alignItems={'center'}
+                                    width={'90%'}
+                                    height={'140px'}
+                                    borderRadius={'7px'}
+                                    backgroundColor={'#FF5F3526'}
+                                    color={'black'}
+                                    cursor={'pointer'}
+                                  >
+                                    <Box>
+                                      <Image src={bot.image} alt={bot.type} />
                                     </Box>
-                                    <Text textAlign={'center'} mt={'10px'}>
-                                      {bot.label}
-                                    </Text>
+                                  </Box>
+                                  <Text textAlign={'center'} mt={'10px'}>
+                                    {bot.label}
+                                  </Text>
                                 </GridItem>
                               ))}
                             </Grid>
                           </ModalBody>
                         </ModalContent>
                       </Modal>
-                     
+
                       <Modal isOpen={isAlgOpen} onClose={onAlgClose} size={'2xl'} >
                         <ModalOverlay />
                         <ModalContent>
@@ -614,7 +692,7 @@ const Sector = () => {
       </Flex>
 
       {/* add Sector*/}
-      
+
       <Modal isOpen={isOpen}
         onClose={onClose}>
         <ModalOverlay />
@@ -630,7 +708,7 @@ const Sector = () => {
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl isRequired>
+              {/* <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Category</FormLabel>
                 <Controller
                   name="category"
@@ -656,8 +734,38 @@ const Sector = () => {
                     </>
                   )}
                 />
+              </FormControl> */}
+              <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Category</FormLabel>
+
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: "Please select a category" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={category} // 🔁 category = [{ value: 'Health', label: 'Health' }, ...]
+                        placeholder="Select Category"
+                        value={category.find(option => option.value === field.value) || null}
+                        onChange={selectedOption => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
               </FormControl>
-               <FormControl isRequired>
+
+
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Assignee</FormLabel>
                 <Controller
                   name="employee_id"
@@ -686,7 +794,7 @@ const Sector = () => {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Description</FormLabel>
-                <Textarea type='text' {...register('description')} 
+                <Textarea type='text' {...register('description')}
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off' />
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
@@ -717,7 +825,7 @@ const Sector = () => {
                 />
               </FormControl>
 
-           
+
               <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mt={'10px'}>
 
                 <Button w={'100%'} onClick={onClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
@@ -731,6 +839,7 @@ const Sector = () => {
         </ModalContent>
 
       </Modal>
+
 
 
       <Modal isOpen={isEditOpen}
@@ -748,7 +857,7 @@ const Sector = () => {
                   fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.name && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.name.message}</Text>}
               </FormControl>
-              <FormControl isRequired>
+              {/* <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'2px'} >Category</FormLabel>
                 <Controller
                   name="category"
@@ -774,8 +883,36 @@ const Sector = () => {
                     </>
                   )}
                 />
+              </FormControl> */}
+              <FormControl isRequired>
+                <FormLabel fontSize="var(--mini-text)" mb={'2px'}>Category</FormLabel>
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: "Please select a category" }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <Select
+                        {...field}
+                        options={category} // ✅ using category here
+                        placeholder="Select Category"
+                        value={category.find(option => option.value === field.value) || null}
+                        onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                        styles={{
+                          control: (provided) => ({ ...provided, fontSize: "12px" }),
+                          option: (provided) => ({ ...provided, fontSize: "12px" }),
+                          singleValue: (provided) => ({ ...provided, fontSize: "12px" }),
+                          menu: (provided) => ({ ...provided, fontSize: "12px" }),
+                          placeholder: (provided) => ({ ...provided, fontSize: "12px" }),
+                        }}
+                      />
+                      {error && <p style={{ color: "red", fontSize: "12px" }}>{error.message}</p>}
+                    </>
+                  )}
+                />
               </FormControl>
-                <FormControl isRequired>
+
+              <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Assignee</FormLabel>
                 <Controller
                   name="employee_id"
@@ -808,7 +945,7 @@ const Sector = () => {
                   placeholder='Enter description' fontSize="var(--text-12px)" autoComplete='off'></Input>
                 {errors.description && <Text fontSize='var(--text-12px)' textColor={'#FF3D3D'}>{errors.description.message}</Text>}
               </FormControl>
-             
+
               <FormControl isRequired>
                 <FormLabel fontSize="var(--mini-text)" mb="2px">
                   Upload Icon
@@ -865,6 +1002,33 @@ const Sector = () => {
               Cancel
             </Button>
           </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isCategoryOpen} onClose={onCategoryClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add category</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box>
+              <Box as='form' onSubmit={handleSubmit(onCategorySubmit)} display={'flex'} flexDirection={'column'} gap={'8px'}>
+                <FormControl>
+                  <FormLabel fontSize="var(--mini-text)" mb={'0px'}>Category</FormLabel>
+                  <Input type='text' {...register('name', { required: 'Name is required' })}
+                    fontSize="var(--text-12px)" autoComplete='off'></Input>
+                </FormControl>
+
+
+                <Box w={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} gap={'6px'} mt={'10px'}>
+                  <Button w={'100%'} onClick={onCategoryClose} type="button" size={'sm'} fontSize={'13px'} border={'1px solid #FF5722 '}
+                    textColor={'#FF5722'} bgColor={'white'} mr={3} _hover={''}>Cancel</Button>
+                  <Button w={'100%'} type='submit' fontSize={'13px'} bgColor={'#FF5722'} _hover={''} textColor={'white'} size={'sm'}>
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </Card>

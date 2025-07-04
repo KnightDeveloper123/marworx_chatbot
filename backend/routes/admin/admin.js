@@ -410,6 +410,7 @@ router.get("/getAllEmployee", middleware, async (req, res) => {
                 console.log(err);
                 return res.status(400).json({ error: "Something went wrong" })
             }
+            console.log("result", result)
             return res.json({ success: "success", data: result })
         })
     } catch (error) {

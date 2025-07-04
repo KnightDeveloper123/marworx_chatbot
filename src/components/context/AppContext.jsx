@@ -351,7 +351,7 @@ export const AppProvider = ({ children }) => {
                     headers: { Authorization: `${token}` },
                 }
             );
-
+          
             setProducts(response.data.data);
         } catch (err) {
             console.error("Failed to fetch sector data", err);
@@ -372,7 +372,7 @@ export const AppProvider = ({ children }) => {
                 headers: { Authorization: `${token}` },
             });
             setSector(response.data.data);
-            // console.log(response.data.data);
+            
         } catch (err) {
             console.error("Failed to fetch sector data");
         }
@@ -653,7 +653,7 @@ export const AppProvider = ({ children }) => {
         }
     }
 
-     const [activeUser, setActiveUser] = useState({ daily: [], monthly: [] })
+    const [activeUser, setActiveUser] = useState({ daily: [], monthly: [] })
     const getActiveUser = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/getActiveUser`, {
@@ -672,13 +672,13 @@ export const AppProvider = ({ children }) => {
             showAlert('Internal server error', 'error')
         }
     }
-    
+
 
     return (
         <AppContext.Provider
             value={{
-                getbotcampaigns,botcampaigns,getActiveUser,activeUser,
-                fetchMetrics, metrics,months,botData,campaignData,fetchMonthlyMetrics,
+                getbotcampaigns, botcampaigns, getActiveUser, activeUser,
+                fetchMetrics, metrics, months, botData, campaignData, fetchMonthlyMetrics,
                 deleteProduct, getAllDeleteProduct, setDeleteProduct, fetchSectorBots, sectorBots, sectorGenAi,
                 getEmployeeId, employeeId, botSector, getAllinSector, botDeletebot, getAlldeletebot,
                 getGenBotforEmployee, genBotforEmployee, getAlgBotforEmployee, algBotforEmployee,

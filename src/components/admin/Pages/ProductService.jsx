@@ -55,7 +55,7 @@ const ProductService = () => {
                 onClose();
             }
         } catch (error) {
-            showAlert("Failed to add product service", 'error')
+            showAlert(result.error, 'error')
             console.log(error)
         }
     }
