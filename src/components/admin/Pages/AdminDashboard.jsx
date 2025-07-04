@@ -202,34 +202,34 @@ const AdminDashboard = () => {
 
 
 
-// const [data,setData]=useState([]);
+  // const [data,setData]=useState([]);
 
-//   const fetchEngagementData = async () => {
-//     try {
-//       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/botcampaigns-by-clicks`, {
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: token,
-//         },
-//       });
+  //   const fetchEngagementData = async () => {
+  //     try {
+  //       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/botcampaigns-by-clicks`, {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: token,
+  //         },
+  //       });
 
-//       const response = await res.json();
-//       console.log("response", response)
-//       if (response.success && response.data) {
-//         setData(response.data.map((item, index) => ({
-//           name: `Bot ${index + 1}`,
-//           clickThroughRate: item.click_through_rate,
-//           completionRate: item.completion_rate,
-//         })));
-//       }
-//     } catch (err) {
-//       console.error('Error fetching chart data:', err);
-//     }
-//   };
+  //       const response = await res.json();
+  //       console.log("response", response)
+  //       if (response.success && response.data) {
+  //         setData(response.data.map((item, index) => ({
+  //           name: `Bot ${index + 1}`,
+  //           clickThroughRate: item.click_through_rate,
+  //           completionRate: item.completion_rate,
+  //         })));
+  //       }
+  //     } catch (err) {
+  //       console.error('Error fetching chart data:', err);
+  //     }
+  //   };
 
-//   useEffect(() => {
-//     fetchEngagementData();
-//   }, [])
+  //   useEffect(() => {
+  //     fetchEngagementData();
+  //   }, [])
 
   // const [topBots, setTopBots] = useState([]);
   // const fetchTopPerformer = async () => {
@@ -488,18 +488,58 @@ const AdminDashboard = () => {
         )}
       </SimpleGrid>
       {user_role === 'Admin' && (<>
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
-          <GridItem w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+        {/* <Box display={'flex'} gap={4} mt={5} width={'100%'}>
+          <Box  w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
             <Text fontSize="var(--text-12px)" textAlign={'center'} mb={2}>Number Of Chatbot Sector Wise</Text>
             <PieSectorWiseBots data={sectorBots} />
-          </GridItem>
-          <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
+          </Box>
+          <Box  w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
             <Text textAlign={'center'} mb={2}>Monthly metrics (bots and campaigns)</Text>
             <BarChartTopBotAndCampaigan months={months}
               botData={botData}
               campaignData={campaignData} />
-          </GridItem>
-        </SimpleGrid>
+          </Box>
+        </Box> */}
+        <Box
+          display={{ base: "block", md: "flex" }}
+          gap={4}
+          mt={5}
+          width="100%"
+        >
+          {/* Pie Chart Section */}
+          <Box
+            w={{ base: "100%", md: "50%" }}
+            py={2}
+            px={{ base: "20px", md: "40px" }}
+            border="1px solid #f3ebeb"
+            borderRadius="15px"
+            mb={{ base: 4, md: 0 }} // adds spacing between stacked items on small screens
+          >
+            <Text fontSize="sm" textAlign="center" mb={2}>
+              Number Of Chatbot Sector Wise
+            </Text>
+            <PieSectorWiseBots data={sectorBots} />
+          </Box>
+
+          {/* Bar Chart Section */}
+          <Box
+            w={{ base: "100%", md: "50%" }}
+            py={2}
+            px={{ base: "20px", md: "40px" }}
+            border="1px solid #f3ebeb"
+            borderRadius="15px"
+          >
+            <Text textAlign="center" mb={2}>
+              Monthly metrics (bots and campaigns)
+            </Text>
+            <BarChartTopBotAndCampaigan
+              months={months}
+              botData={botData}
+              campaignData={campaignData}
+            />
+          </Box>
+        </Box>
+
 
         <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mt={5}>
           <GridItem colSpan={2} w={'100%'} py={2} px={'40px'} border={'1px solid #f3ebeb'} borderRadius={'15px'}>
