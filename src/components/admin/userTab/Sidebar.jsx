@@ -26,7 +26,7 @@ const Sidebar = () => {
     { title: "Genarative Bot", url: "/home/gen_bot", icon: <Icon as={RiAiGenerate2} mr={2} /> },
     { title: "Recycle bin", url: "/home/recycle_bin", icon: <Icon as={PiRecycleFill} mr={2} /> },
     { title: "Templates", url: "/home/template", icon: <Icon as={HiOutlineTemplate } mr={2} /> },
-    { title: "Chat", url: "/home/chat", icon: <Icon as={FaUser} mr={2} /> },
+    // { title: "Chat", url: "/home/chat", icon: <Icon as={FaUser} mr={2} /> },
   ];
   return (
     <Box w="240px"  p={5} height="100vh" bg="#fff5f3" boxShadow='base'>

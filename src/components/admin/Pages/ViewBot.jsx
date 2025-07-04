@@ -2376,7 +2376,7 @@ const FlowCanvas = () => {
             Back
           </Button>
 
-          <Button
+          {/* <Button
             borderRadius="var(--radius)"
             _hover={{ bgColor: "var(--active-bg)" }}
             bgColor="var(--active-bg)"
@@ -2387,7 +2387,7 @@ const FlowCanvas = () => {
             onClick={onbotOpen}
           >
             Test bot
-          </Button>
+          </Button> */}
           <Button
             borderRadius="var(--radius)"
             border={"1px solid orange "}
@@ -2661,7 +2661,7 @@ const FlowCanvas = () => {
 
 
 
-      <Modal isOpen={isbotOpen} onClose={onbotClose} size="full" scrollBehavior="inside">
+      {/* <Modal isOpen={isbotOpen} onClose={onbotClose} size="full" scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Chat Assistant1</ModalHeader>
@@ -2669,18 +2669,18 @@ const FlowCanvas = () => {
 
           <ModalBody p={0}>
             <Flex h="80vh">
-              {/* Sidebar */}
+     
               <Box w="250px" bg="gray.100" p={4} borderRight="1px solid #ccc">
                 <VStack align="stretch" spacing={4}>
                   <Text fontWeight="bold">Sectors</Text>
                   <Button variant="ghost">Healthcare</Button>
                   <Button variant="ghost">Education</Button>
                   <Button variant="ghost">Retail</Button>
-                  {/* Add more sections as needed */}
+              
                 </VStack>
               </Box>
 
-              {/* Main Chat Area */}
+             
               <Flex flex="1" direction="column" p={4}>
                 <VStack spacing={3} align="stretch" flex="1" overflowY="auto">
                   {messages.map((msg) => (
@@ -2714,7 +2714,7 @@ const FlowCanvas = () => {
             </Flex>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal> */}
 
     </Box>
   );
