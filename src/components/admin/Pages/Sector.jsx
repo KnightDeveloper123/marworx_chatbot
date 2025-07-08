@@ -171,7 +171,7 @@ const Sector = () => {
 
       })
       const data = await response.json();
-      console.log("result", data)
+      // console.log("result", data)
       const formatted = data.result.map(cat => ({
         value: cat.name,  // 👈 category name will be sent
         label: cat.name

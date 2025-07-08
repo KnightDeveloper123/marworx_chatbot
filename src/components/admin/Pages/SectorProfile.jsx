@@ -37,8 +37,8 @@ const SectorProfile = () => {
     const [sector, setSector] = useState({});
     const [products, setProducts] = useState([]);
 
-    const navigate=useNavigate();
-    const token=localStorage.getItem("token")
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token")
 
     const sectorData = async () => {
         try {
@@ -58,27 +58,29 @@ const SectorProfile = () => {
         }
     };
 
-    const queryData = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("No token found");
-                return;
-            }
-            // console.log("Token being sent:", token);
+    // const queryData = async () => {
+    //     try {
+    //         const token = localStorage.getItem("token");
+    //         if (!token) {
+    //             console.error("No token found");
+    //             return;
+    //         }
+    //         // console.log("Token being sent:");
 
-            const response = await axios.get(
-                `${APP_URL}/support/getAllproductsBysector?sector_id=${id}`,
-                {
-                    headers: { Authorization: `${token}` },
-                }
-            );
-            setProducts(response.data.data);
-        } catch (err) {
-            console.error("Failed to fetch sector data", err);
-        }
-    };
-    
+    //         const response = await axios.get(
+                
+    //             `${APP_URL}/support/getAllproductsBysector?sector_id=${id}`,
+    //             {
+    //                 headers: { Authorization: `${token}` },
+    //             }
+    //         );
+    //         setProducts(response.data.data);
+    //         // console.log("product", response.data.data)
+    //     } catch (err) {
+    //         console.error("Failed to fetch sector data", err);
+    //     }
+    // };
+
     const getProducts = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -93,7 +95,7 @@ const SectorProfile = () => {
                     headers: { Authorization: `${token}` },
                 }
             );
-          
+            // console.log(response.data.data)
             setProducts(response.data.data);
         } catch (err) {
             console.error("Failed to fetch sector data", err);
@@ -108,12 +110,14 @@ const SectorProfile = () => {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization:token
+                    Authorization: token
                 }
 
             })
             const result = await data.json();
-           setLinkedBots(result?.data?.bots);
+            setLinkedBots(result?.data?.bots);
+            //    console.log("bots",result?.data?.bots)
+
         } catch (error) {
             console.log(error)
         }
@@ -126,7 +130,7 @@ const SectorProfile = () => {
 
     useEffect(() => {
         sectorData();
-        queryData();
+        // queryData();
         getProducts();
         // getAllChat();
     }, [id]);
@@ -247,17 +251,17 @@ const SectorProfile = () => {
 
                                 </TabPanel>
                                 <TabPanel>
-                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'   _hover={{cursor:'pointer'}}>
+                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
                                         {linkedBots.map((bot, index) => (
                                             <Card key={index}>
-                                                <Image src={TemViw}  onClick={()=>navigate(`/view/${bot.id}`)}/>
+                                                <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
 
                                                 <Text textAlign="center" mt={2} >{bot.name}</Text>
                                             </Card>
                                         ))}
                                     </SimpleGrid>
 
-                                    
+
                                 </TabPanel>
 
                                 <TabPanel>

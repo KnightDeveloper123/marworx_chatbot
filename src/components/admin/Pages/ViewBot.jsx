@@ -1968,6 +1968,7 @@ const FlowCanvas = () => {
   const navigate = useNavigate();
 
   const { id } = useParams();
+  // console.log("id",id)
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isNumOpen,
@@ -2057,6 +2058,7 @@ const FlowCanvas = () => {
       // showAlert("Internal server error", "error");
     }
   };
+
 
   const updateTemplate = async () => {
     const payload = {

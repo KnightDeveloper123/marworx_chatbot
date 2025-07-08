@@ -210,8 +210,10 @@ router.get('/getAll', async (req, res) => {
 router.get('/getbyid', async (req, res) => {
   try {
     const { id } = req.query;
+    //  console.log("id",id)
     const data = await executeQuery(`SELECT * FROM bots where id=${id}`)
     res.json({ data: data[0] });
+    // console.log("data",data)
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: "Internal Server Error" })

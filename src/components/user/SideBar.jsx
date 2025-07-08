@@ -11,12 +11,13 @@ const APP_URL = import.meta.env.VITE_BACKEND_URL
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [sideData, setSideData] = useState([]);
- const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const { clearChat } = useContext(AppContext);
 
   const { id } = useParams();
+  console.log("id",id)
   const { userid } = useParams();
-
+console.log("userid",userid)
   const navigate = useNavigate();
 
   const getData = async () => {
@@ -38,32 +39,32 @@ const SideBar = () => {
     }
   };
 
- const [template, setTemplate] = useState([])
+  const [template, setTemplate] = useState([])
 
-    const fetchTemplate = async () => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/get_all_templates`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": 'application/json',
-                    Authorization: token
-                },
-            })
-            const result = await response.json();
-
-            setTemplate(result?.data || [])
-        } catch (error) {
-            console.log(error)
-            setTemplate([])
-            // showAlert('Internal server error', 'error')
-        }
+  const fetchTemplate = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/template/get_all_templates`, {
+        method: "GET",
+        headers: {
+          "Content-Type": 'application/json',
+          Authorization: token
+        },
+      })
+      const result = await response.json();
+      console.log("temp",result.data)
+      setTemplate(result?.data || [])
+    } catch (error) {
+      console.log(error)
+      setTemplate([])
+      // showAlert('Internal server error', 'error')
     }
+  }
 
   const partData = async (value) => {
     navigate(`/${userid}/${value}`)
   }
 
-   const templateData = async (value) => {
+  const templateData = async (value) => {
     navigate(`/template/${value}`)
   }
   const handleDelete = async (deleteId) => {
@@ -146,7 +147,9 @@ const SideBar = () => {
               </Flex>
 
               <Stack ml="10px" mt="15px" >
-                <Text fontSize="md">Today</Text>
+
+                {/* sidebar chat history  */}
+                {/* <Text fontSize="md">Today</Text>
                 <Stack whiteSpace='nowrap' textOverflow='ellipsis' overflow='hidden' >
                   {sideData.map((data) =>
                     <Text onClick={() => {
@@ -158,9 +161,9 @@ const SideBar = () => {
 
                       justifyContent={"space-between"}
                       key={data.id}>{data.title}
-                      {/* <DeleteIcon onClick={() => handleDelete(data.id)} cursor="pointer" color={"#FF0000"} /> */}
-                     
-                      <Popover  closeOnBlur={true}>
+                   
+
+                      <Popover closeOnBlur={true}>
                         <PopoverTrigger>
                           <DeleteIcon cursor="pointer" color="#FF0000" />
                         </PopoverTrigger>
@@ -169,12 +172,12 @@ const SideBar = () => {
                             w="250px"
                             h="120px"
                             bg="#171923"
-                            zIndex={1000} 
+                            zIndex={1000}
                             color="white"
                             border="none"
                             boxShadow="lg"
                             borderRadius="md"
-                         >
+                          >
                             <PopoverArrow bgColor="#171923" />
                             <PopoverHeader bgColor="#171923" border="none" />
                             <PopoverCloseButton color="white" />
@@ -194,36 +197,42 @@ const SideBar = () => {
 
 
                     </Text>
-
                   )}
-                  
-                </Stack>
-                <Text fontSize="sm">Template</Text>
-                 <Stack whiteSpace='nowrap' textOverflow='ellipsis' overflow='hidden' >
-                  {template.map((data) =>{
-                    let label = null;
-                  try {
-                    const parsedNodes =
-                      typeof data.node === "string" ? JSON.parse(data.node) : data.node;
-                    label = parsedNodes?.[0]?.data?.label || null;
-                  } catch (error) {
-                    console.error("Invalid bot.nodes JSON", error);
-                  }
-                  // console.log(data)
-                  return(
-                    <Text
-                     onClick={() => {
-                      templateData(data.id);
-                    }}
-                      cursor="pointer"
-                      key={data.id}
-                      fontSize="xs"
-                      display={"flex"}
 
-                      justifyContent={"space-between"}
+
+                </Stack> */}
+
+                
+                <Text fontSize="sm">Templates</Text>
+                <Stack whiteSpace='nowrap' textOverflow='ellipsis' overflow='hidden' >
+                 
+                  {
+                  template.slice(0,2).map((data) => {
+                    let label = null;
+                    try {
+                      const parsedNodes =
+                        typeof data.node === "string" ? JSON.parse(data.node) : data.node;
+                      label = parsedNodes?.[0]?.data?.label || null;
+                    } catch (error) {
+                      console.error("Invalid bot.nodes JSON", error);
+                    }
+                    // console.log(data)
+                    return (
+                      <Text
+                        onClick={() => {
+                          templateData(data.id);
+                        }}
+                        cursor="pointer"
+                        key={data.id}
+                        fontSize="xs"
+                        display={"flex"}
+
+                        justifyContent={"space-between"}
                       >{label}
-                    </Text>
-                  )})}
+                      </Text>
+                    )
+                  })}
+
                 </Stack>
               </Stack>
             </Box>

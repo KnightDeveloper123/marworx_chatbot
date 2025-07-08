@@ -244,7 +244,7 @@ export const AppProvider = ({ children }) => {
 
             })
             const result = await response.json();
-
+            // console.log("result ", result.formattedData)
             setSectors(result.formattedData)
 
         } catch (error) {
@@ -351,7 +351,7 @@ export const AppProvider = ({ children }) => {
                     headers: { Authorization: `${token}` },
                 }
             );
-          
+
             setProducts(response.data.data);
         } catch (err) {
             console.error("Failed to fetch sector data", err);
@@ -372,7 +372,7 @@ export const AppProvider = ({ children }) => {
                 headers: { Authorization: `${token}` },
             });
             setSector(response.data.data);
-            
+
         } catch (err) {
             console.error("Failed to fetch sector data");
         }

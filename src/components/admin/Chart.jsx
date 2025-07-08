@@ -2,7 +2,7 @@ import React from 'react';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { Title } from 'chart.js';
 import { BarElement } from 'chart.js';
 
@@ -10,8 +10,8 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels, CategoryScale, Li
 
 
 
-export const BarChartTopBotAndCampaigan = ({  months,botData, campaignData }) => {
-const chartData = {
+export const BarChartTopBotAndCampaigan = ({ months, botData, campaignData }) => {
+  const chartData = {
     labels: months,
     datasets: [
       {
@@ -63,7 +63,7 @@ const chartData = {
   };
 
 
-    return <Bar data={chartData} options={options} />;
+  return <Bar data={chartData} options={options} />;
 
 };
 
@@ -128,70 +128,71 @@ export const PieSectorWiseBots = ({ data }) => {
     return <Pie data={chartData} options={options} />;
 };
 
+
 export const PieSectorWisesectorGenAi = ({ data }) => {
-    const label = data?.map(item => item.sector_name);
-    const total = data?.map(item => item.bot_count);
-    const chartData = {
-        labels: label,
-        datasets: [
-            {
-                label: "",
-                data: total,
-                backgroundColor: [
-                    "#9966FF",
-                    "#4BC0C0",
-                    "#FF6384",
-                    "#FFCE56",
-                    "#8ccefb",
-                    "#f9b0db",
-                ],
-                borderColor: "#fff",
-                borderWidth: 2,
-            },
+  const label = data?.map(item => item.sector_name);
+  const total = data?.map(item => item.bot_count);
+  const chartData = {
+    labels: label,
+    datasets: [
+      {
+        label: "",
+        data: total,
+        backgroundColor: [
+          "#9966FF",
+          "#4BC0C0",
+          "#FF6384",
+          "#FFCE56",
+          "#8ccefb",
+          "#f9b0db",
         ],
-    };
+        borderColor: "#fff",
+        borderWidth: 2,
+      },
+    ],
+  };
 
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: "bottom",
-                labels: {
-                    boxWidth: 20,
-                    padding: 15,
-                },
-            },
-            datalabels: {
-                color: "#fff",
-                font: {
-                    weight: "bold",
-                    size: 14,
-                },
-                formatter: (value, context) => {
-                    const total = context.chart._metasets[0].total || 1;
-                    const percentage = ((value / total) * 100).toFixed(1);
-                    return `${percentage}%`;
-                },
-            },
-            tooltip: {
-                callbacks: {
-                    label: (tooltipItem) => {
-                        const label = chartData.labels[tooltipItem.dataIndex] || "";
-                        const value = chartData.datasets[0].data[tooltipItem.dataIndex];
-                        return `${label}: ${value}`;
-                    },
-                },
-            },
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          boxWidth: 20,
+          padding: 15,
         },
-    };
+      },
+      datalabels: {
+        color: "#fff",
+        font: {
+          weight: "bold",
+          size: 14,
+        },
+        formatter: (value, context) => {
+          const total = context.chart._metasets[0].total || 1;
+          const percentage = ((value / total) * 100).toFixed(1);
+          return `${percentage}%`;
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => {
+            const label = chartData.labels[tooltipItem.dataIndex] || "";
+            const value = chartData.datasets[0].data[tooltipItem.dataIndex];
+            return `${label}: ${value}`;
+          },
+        },
+      },
+    },
+  };
 
 
-    return <Pie data={chartData} options={options} />;
+  return <Pie data={chartData} options={options} />;
 };
 
 
 export const EngagementBarChart = ({ adminMetrics }) => {
-const labels = adminMetrics.map(item => `Admin ${item.admin_id}`);
+  const labels = adminMetrics.map(item => `Admin ${item.admin_id}`);
 
   const data = {
     labels,
@@ -238,18 +239,18 @@ const labels = adminMetrics.map(item => `Admin ${item.admin_id}`);
       },
     },
   };
-    return <Bar data={data} options={options} />;
+  return <Bar data={data} options={options} />;
 
 };
 
-export const MonthlyActiveUser = ({ data ,formatDate}) => {
+export const MonthlyActiveUser = ({ data, formatDate }) => {
 
 
   const allLabelsSet = new Set([
     ...data.daily.map(d => d.day),
-    ...data.monthly.map(m => m.month + '-01') 
+    ...data.monthly.map(m => m.month + '-01')
   ]);
-  const allLabels = Array.from(allLabelsSet).sort(); 
+  const allLabels = Array.from(allLabelsSet).sort();
 
   const dailyDataMap = new Map(data.daily.map(d => [d.day, d.daily_active_users]));
   const monthlyDataMap = new Map(data.monthly.map(m => [m.month + '-01', m.monthly_active_users]));
@@ -304,7 +305,7 @@ export const MonthlyActiveUser = ({ data ,formatDate}) => {
       }
     }
   };
-    return <Box  height='400px'><Line data={chartData} options={options} /></Box>;
+  return <Box height='400px'><Line data={chartData} options={options} /></Box>;
 };
 // Performance analtytics
 

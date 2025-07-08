@@ -235,6 +235,7 @@ router.get('/get_all_sector', middleware, async (req, res) => {
         sector.category,
         sector.description,
         sector.icon,
+        sector.status,
         employee.name as emp_name,
         employee.id as employee_id,
         COUNT(bots.id) AS bot_count,
@@ -244,6 +245,7 @@ router.get('/get_all_sector', middleware, async (req, res) => {
       LEFT JOIN product_service ON product_service.sector_id = sector.id
       LEFT JOIN employee ON sector.employee_id = employee.id
       WHERE sector.status = 0 AND sector.admin_id = ${admin_id}
+      
       GROUP BY
         sector.id,
         sector.name,
@@ -252,6 +254,7 @@ router.get('/get_all_sector', middleware, async (req, res) => {
         sector.category,
         sector.description,
         sector.icon,
+        sector.status,
         employee.name,
         employee.id
       ORDER BY sector.id DESC;`)
@@ -287,6 +290,8 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
     return res.status(500).json({ error: "Internal server error!" })
   }
 })
+
+
 
 router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
