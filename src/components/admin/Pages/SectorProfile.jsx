@@ -266,6 +266,8 @@ const SectorProfile = () => {
                                     {/* <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
                                         {linkedBots.map((bot, index) => (
                                             <Card key={index}>
+                                                {console.log(bot)}
+                                                {console.log(navigate(`/view/${bot.id}`))}
                                                 <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
 
                                                 <Text textAlign="center" mt={2} >{bot.name}</Text>
