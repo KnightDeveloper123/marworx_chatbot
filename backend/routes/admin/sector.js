@@ -293,43 +293,63 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
 
 
 
+// router.get('/get_linked_bot', middleware, async (req, res) => {
+//   const { sector_id } = req.query;
+
+//   try {
+//     const result = await executeQuery(
+
+
+//       `SELECT 
+//   sector.*, 
+//   JSON_ARRAYAGG(
+//     JSON_OBJECT('id', bots.id, 'name', bots.name)
+//   ) AS bots
+// FROM sector
+// LEFT JOIN bots ON bots.sector_id = sector.id
+// WHERE sector.id = ?
+// AND bots.id IS NOT NULL
+// GROUP BY sector.id;`
+
+
+//     );
+
+//     if (result.length === 0) {
+//       return res.json({ data: { bots: [] } });
+//     }
+
+//     return res.json({ data: result[0] });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res.status(500).json({ error: "Internal server error!" });
+//   }
+// });
+
 router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
 
   try {
     const result = await executeQuery(
       `SELECT 
-  sector.*, 
-  JSON_ARRAYAGG(
-    CASE 
-      WHEN bots.id IS NOT NULL THEN
-        JSON_OBJECT(
-          'id', bots.id,
-          'name', bots.name
-        )
-    END
-  ) AS bots
-FROM sector
-LEFT JOIN bots ON bots.sector_id = sector.id
-WHERE sector.id = ${sector_id}
-GROUP BY sector.id;
-`
-      // SELECT 
-      //   sector.*, 
-      //   JSON_ARRAYAGG(
-      //     JSON_OBJECT(
-      //       'id', bots.id,
-      //       'name', bots.name
-      //     )
-      //   ) AS bots
-      // FROM sector
-      // LEFT JOIN bots ON bots.sector_id = sector.id
-      // WHERE sector.id = ${sector_id}
-      // GROUP BY sector.id
+        sector.*, 
+        JSON_ARRAYAGG(
+          JSON_OBJECT('id', bots.id, 'name', bots.name)
+        ) AS bots
+      FROM sector
+      LEFT JOIN bots ON bots.sector_id = sector.id
+      WHERE sector.id = ?
+        AND bots.id IS NOT NULL
+      GROUP BY sector.id;`,
+      [sector_id] 
     );
 
     if (result.length === 0) {
       return res.json({ data: { bots: [] } });
+    }
+
+    // Optional: ensure bots is always an array (not null)
+    if (!Array.isArray(result[0].bots)) {
+      result[0].bots = [];
     }
 
     return res.json({ data: result[0] });
@@ -342,5 +362,4 @@ GROUP BY sector.id;
 
 
 
-
-module.exports=router;
+module.exports = router;

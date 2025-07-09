@@ -106,29 +106,22 @@ const SectorProfile = () => {
 
     const fetchLinkedBots = async () => {
         try {
-            console.log("bot id dsfg", id)
             const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: token
                 }
-
             })
             const result = await data.json();
-            console.log("result", result.data)
-
-            // const botsData = result?.data?.bots;
+            const BotNames = result?.data?.bots;
+            console.log("botnames", BotNames)
             let botsData = result?.data?.bots || [];
             if (!Array.isArray(botsData)) {
                 botsData = [botsData];
             }
             setLinkedBots(botsData);
-
-
             // setLinkedBots(result?.data?.bots);
-
-
         } catch (error) {
             console.log(error)
         }
@@ -136,8 +129,11 @@ const SectorProfile = () => {
     console.log("linkedBots", linkedBots)
 
     useEffect(() => {
-        fetchLinkedBots()
-    }, [])
+        if (id) {
+            fetchLinkedBots()
+        }
+
+    }, [id])
 
 
     useEffect(() => {
@@ -259,8 +255,6 @@ const SectorProfile = () => {
                                             </Card>
                                         ))}
                                     </SimpleGrid>
-
-
                                 </TabPanel>
                                 <TabPanel>
                                     {/* <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
@@ -275,29 +269,40 @@ const SectorProfile = () => {
                                         ))}
                                     </SimpleGrid> */}
 
-                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
-                                        {linkedBots
-                                            .filter(bot => bot && bot.id && bot.name)
-                                            .map((bot, index) => (
-                                                <Card key={index}>
-                                                    <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
-                                                    <Text textAlign="center" mt={2}>{bot.name}</Text>
+                                    {linkedBots && linkedBots.length > 0 ? (
+                                        <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
+                                            {linkedBots.map((bot, index) => (
+                                                <Card key={index} _hover={{ cursor: "pointer" }}>
+                                                    <Image
+                                                        src={TemViw}
+                                                        alt={bot.name}
+                                                        onClick={() => navigate(`/view/${bot.id}`)}
+                                                    />
+                                                    <Text textAlign="center" mt={2}>
+                                                        {bot.name}
+                                                    </Text>
                                                 </Card>
                                             ))}
-                                    </SimpleGrid>
+                                        </SimpleGrid>
+                                    ) : (
+                                        <Text textAlign="center" mt={4} color="gray.600">
+                                            No linked bots available.
+                                        </Text>
+                                    )}
 
+                                   
+
+                                    <pre>{JSON.stringify(linkedBots, null, 2)}</pre>
 
 
                                 </TabPanel>
-
                                 <TabPanel>
-
                                 </TabPanel>
                             </TabPanels>
                         </Box>
                     </Tabs>
-                </Box>
-            </Card>
+                </Box >
+            </Card >
         </>
     );
 };
