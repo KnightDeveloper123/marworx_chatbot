@@ -297,20 +297,36 @@ router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
 
   try {
-    const result = await executeQuery(`
-      SELECT 
-        sector.*, 
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', bots.id,
-            'name', bots.name
-          )
-        ) AS bots
-      FROM sector
-      LEFT JOIN bots ON bots.sector_id = sector.id
-      WHERE sector.id = ${sector_id}
-      GROUP BY sector.id
-    `);
+    const result = await executeQuery(
+      `SELECT 
+  sector.*, 
+  JSON_ARRAYAGG(
+    CASE 
+      WHEN bots.id IS NOT NULL THEN
+        JSON_OBJECT(
+          'id', bots.id,
+          'name', bots.name
+        )
+    END
+  ) AS bots
+FROM sector
+LEFT JOIN bots ON bots.sector_id = sector.id
+WHERE sector.id = ${sector_id}
+GROUP BY sector.id;
+`
+      // SELECT 
+      //   sector.*, 
+      //   JSON_ARRAYAGG(
+      //     JSON_OBJECT(
+      //       'id', bots.id,
+      //       'name', bots.name
+      //     )
+      //   ) AS bots
+      // FROM sector
+      // LEFT JOIN bots ON bots.sector_id = sector.id
+      // WHERE sector.id = ${sector_id}
+      // GROUP BY sector.id
+    );
 
     if (result.length === 0) {
       return res.json({ data: { bots: [] } });

@@ -191,74 +191,74 @@ const Campaign = () => {
     admin_id: "",
     sector_id: "",
     to: '',
-    banner:"",
+    banner: "",
     cta_label: "",
     cta_link: ""
 
     // bot_type:'campaign'
   })
- 
+
   const handleChange = e => {
     setCampaignData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-const saveCampaign = async () => {
-  try {
-    const formData = new FormData();
+  const saveCampaign = async () => {
+    try {
+      const formData = new FormData();
 
-    formData.append('channel_name', 'Whatsapp');
-    formData.append('campaign_name', campaignData.campaign_name || '');
-    formData.append('template_name', campaignData.template_name || '');
-    formData.append('template_type', campaignData.template_type || '');
-    formData.append('template_lang', campaignData.template_lang || '');
-    formData.append('header', campaignData.header || '');
-    formData.append('body', campaignData.body || '');
-    formData.append('admin_id', admin_id);
-    formData.append('sector_id', campaignData.sector_id || '');
-    formData.append('to', campaignData.to || '');
-    formData.append('fileName', campaignData.fileName || 'banner_img'); // used in backend filename
-    formData.append('cta_label', campaignData.cta_label || '');
-    formData.append('cta_link', campaignData.cta_link || '');
+      formData.append('channel_name', 'Whatsapp');
+      formData.append('campaign_name', campaignData.campaign_name || '');
+      formData.append('template_name', campaignData.template_name || '');
+      formData.append('template_type', campaignData.template_type || '');
+      formData.append('template_lang', campaignData.template_lang || '');
+      formData.append('header', campaignData.header || '');
+      formData.append('body', campaignData.body || '');
+      formData.append('admin_id', admin_id);
+      formData.append('sector_id', campaignData.sector_id || '');
+      formData.append('to', campaignData.to || '');
+      formData.append('fileName', campaignData.fileName || 'banner_img'); // used in backend filename
+      formData.append('cta_label', campaignData.cta_label || '');
+      formData.append('cta_link', campaignData.cta_link || '');
 
-    // append file
-    if (campaignData.bannerFile) {
-      formData.append('file', campaignData.bannerFile);
-    }
-
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/campaign/add`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: token, // ❗Do NOT set Content-Type manually
-        },
-        body: formData,
+      // append file
+      if (campaignData.bannerFile) {
+        formData.append('file', campaignData.bannerFile);
       }
-    );
 
-    const result = await response.json();
-    if (result.success) {
-      showAlert('Campaign added successfully', 'success');
-      setCampaignData({});
-      fetchCampaign(admin_id);
-      onStepClose();
-    }
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/campaign/add`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: token, // ❗Do NOT set Content-Type manually
+          },
+          body: formData,
+        }
+      );
 
-    if (response.ok && result.flowId) {
-      await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          campaign_id: result.flowId,
-          user_id: admin_id,
-        }),
-      });
+      const result = await response.json();
+      if (result.success) {
+        showAlert('Campaign added successfully', 'success');
+        setCampaignData({});
+        fetchCampaign(admin_id);
+        onStepClose();
+      }
+
+      if (response.ok && result.flowId) {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/campaign/track-user-campaign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            campaign_id: result.flowId,
+            user_id: admin_id,
+          }),
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      showAlert('Failed to add Campaign', 'error');
     }
-  } catch (error) {
-    console.error(error);
-    showAlert('Failed to add Campaign', 'error');
-  }
-};
+  };
 
   const [selectedCampaign, setSelectedCampaign] = useState(null)
 
@@ -275,7 +275,7 @@ const saveCampaign = async () => {
       template_lang: data.template_lang || '',
       header: data.header || '',
       body: data.body || '',
-      banner:data.banner,
+      banner: data.banner,
       cta_label: data.cta_label,
       cta_link: data.cta_link
     })
@@ -317,22 +317,22 @@ const saveCampaign = async () => {
   const [isBannerVisible, setIsBannerVisible] = useState(false)
   const [bannerPreview, setBannerPreview] = useState(null)
   const [isCTAEnabled, setIsCTAEnabled] = useState(false)
- const handleBannerUpload = (e) => {
-  const file = e.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setBannerPreview(reader.result);
-      setCampaignData((prev) => ({
-        ...prev,
-        banner: reader.result, // preview
-        bannerFile: file,       // actual file
-        fileName: file.name.split('.')[0], // or custom value
-      }));
-    };
-    reader.readAsDataURL(file);
-  }
-};
+  const handleBannerUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerPreview(reader.result);
+        setCampaignData((prev) => ({
+          ...prev,
+          banner: reader.result, // preview
+          bannerFile: file,       // actual file
+          fileName: file.name.split('.')[0], // or custom value
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleToggleCTA = () => {
     setIsCTAEnabled(!isCTAEnabled)
@@ -563,60 +563,69 @@ const saveCampaign = async () => {
 
           <TabPanels>
             <TabPanel>
+          
               <Flex
-                w='100%'
-                alignItems={'center'}
-                justifyContent='space-between'
-                gap='10px'
+                w="100%"
+                alignItems="flex-start"
+                justifyContent="space-between"
+                flexDirection={{ base: "column", sm: "row" }}
+                gap="10px"
               >
                 <Text
-                  fontWeight='var(--big-font-weight)'
-                  fontSize='var(--semi-big)'
+                  fontWeight="var(--big-font-weight)"
+                  fontSize="var(--semi-big)"
                 >
                   Campaign
                 </Text>
-                <Flex gap={2}>
-                  <Flex gap='5px' alignItems={'center'}>
-                    <Input
-                      h={'35px'}
-                      htmlSize={20}
-                      width='auto'
-                      fontSize='var(--mini-text)'
-                      fontWeight='var(--big-font-weight)'
-                      placeholder='Search type'
-                      value={filteredSectors}
-                      onChange={e => setFilteredSectors(e.target.value)}
-                    />
-                    <Button
-                      borderRadius='var(--radius)'
-                      leftIcon={<IoMdAdd fontSize={'20px'} />}
-                      _hover={{ bgColor: 'var(--active-bg)' }}
-                      bgColor='var(--active-bg)'
-                      color='#fff'
-                      h={'35px'}
-                      fontSize='var(--mini-text)'
-                      fontWeight='var(--big-font-weight)'
-                      onClick={onOpen}
-                    >
-                      Create Campaign
-                    </Button>
-                    <Button
-                      borderRadius='var(--radius)'
-                      leftIcon={<MdOutlineSendToMobile fontSize={'20px'} />}
-                      _hover={{ bgColor: 'var(--active-bg)' }}
-                      bgColor='var(--active-bg)'
-                      color='#fff'
-                      h={'35px'}
-                      fontSize='var(--mini-text)'
-                      fontWeight='var(--big-font-weight)'
-                      onClick={onModalOpenSendCmp}
-                    >
-                      Send Campaign
-                    </Button>
-                  </Flex>
 
+                <Flex
+                  flexDirection={{ base: "column", sm: "row" }}
+                  gap={{ base: 3, sm: 2 }}
+                  w={{ base: "70%", sm: "auto" }}
+                  alignItems={{ base: "stretch", sm: "center" }}
+                >
+                  <Input
+                    h={{ base: "40px", sm: "35px" }}
+                    w={{ base: "100%", sm: "auto" }}
+                    fontSize={{ base: "14px", sm: "var(--mini-text)" }}
+                    fontWeight="var(--big-font-weight)"
+                    placeholder="Search type"
+                    value={filteredSectors}
+                    onChange={e => setFilteredSectors(e.target.value)}
+                  />
+
+                  <Button
+                    w={{ base: "100%", sm: "auto" }}
+                    borderRadius="var(--radius)"
+                    leftIcon={<IoMdAdd fontSize="20px" />}
+                    _hover={{ bgColor: "var(--active-bg)" }}
+                    bgColor="var(--active-bg)"
+                    color="#fff"
+                    h={{ base: "40px", sm: "35px" }}
+                    fontSize={{ base: "14px", sm: "var(--mini-text)" }}
+                    fontWeight="var(--big-font-weight)"
+                    onClick={onOpen}
+                  >
+                    Create Campaign
+                  </Button>
+
+                  <Button
+                    w={{ base: "100%", sm: "auto" }}
+                    borderRadius="var(--radius)"
+                    leftIcon={<MdOutlineSendToMobile fontSize="20px" />}
+                    _hover={{ bgColor: "var(--active-bg)" }}
+                    bgColor="var(--active-bg)"
+                    color="#fff"
+                    h={{ base: "40px", sm: "35px" }}
+                    fontSize={{ base: "14px", sm: "var(--mini-text)" }}
+                    fontWeight="var(--big-font-weight)"
+                    onClick={onModalOpenSendCmp}
+                  >
+                    Send Campaign
+                  </Button>
                 </Flex>
               </Flex>
+
 
               <TableContainer
                 mt='20px'
@@ -1938,7 +1947,7 @@ const saveCampaign = async () => {
                                 objectFit="cover"
                                 src='https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'
                               />
-                             
+
 
                               {showData && (
                                 <Box
@@ -1949,16 +1958,16 @@ const saveCampaign = async () => {
                                   textAlign='justify'
                                   w="80%"
                                 >
-                                 {showData && isBannerVisible && bannerPreview && (
-                                <Image
-                                  w="100%"
-                                  h="200px"
-                                  objectFit="cover"
-                                  src={bannerPreview}
-                                  alt="Banner Preview"
-                                  borderRadius="md"
-                                />
-                              )}
+                                  {showData && isBannerVisible && bannerPreview && (
+                                    <Image
+                                      w="100%"
+                                      h="200px"
+                                      objectFit="cover"
+                                      src={bannerPreview}
+                                      alt="Banner Preview"
+                                      borderRadius="md"
+                                    />
+                                  )}
                                   {/* Show header if enabled */}
                                   {isHeaderVisible && campaignData.header && (
                                     <Text fontSize="lg" fontWeight="bold" mb={2}>

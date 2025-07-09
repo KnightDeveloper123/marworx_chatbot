@@ -45,9 +45,9 @@ const Template = () => {
       const result = await res.json();
       const nodeList = typeof result.data.node === "string" ? JSON.parse(result.data.node) : result.data.node;
       setNodes(nodeList);
-       setCurrentIndex(0);      
-      setMessages([]);          
-      setUserInput("");   
+      setCurrentIndex(0);
+      setMessages([]);
+      setUserInput("");
     };
     fetchData();
   }, [id]);
@@ -92,8 +92,8 @@ const Template = () => {
         w="100%"
         maxW={{ base: "100%", md: "90%" }}
         mx="auto"
-        maxH={type === "ReplyButton" || type === "ListButton" ? "150px" : "auto"} 
-        overflowY={type === "ReplyButton" || type === "ListButton" ? "auto" : "visible"} 
+        maxH={type === "ReplyButton" || type === "ListButton" ? "150px" : "auto"}
+        overflowY={type === "ReplyButton" || type === "ListButton" ? "auto" : "visible"}
         borderWidth="1px"
         borderRadius="md"
         boxShadow="md"
@@ -115,10 +115,17 @@ const Template = () => {
             ))}
           </VStack>
         ) : (
+         
+
           <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
             <Input
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && userInput.trim()) {
+                  handleAnswer(userInput, userInput);
+                }
+              }}
               placeholder="Type your answer..."
               bg="white"
             />
@@ -130,6 +137,7 @@ const Template = () => {
               Submit
             </Button>
           </Stack>
+
         )}
       </Box>
     );
