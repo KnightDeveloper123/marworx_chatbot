@@ -39,7 +39,7 @@ const SectorProfile = () => {
 
     const navigate = useNavigate();
     const token = localStorage.getItem("token")
-
+    console.log("bot id", id)
     const sectorData = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -106,6 +106,7 @@ const SectorProfile = () => {
 
     const fetchLinkedBots = async () => {
         try {
+            console.log("bot id dsfg", id)
             const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
                 method: "GET",
                 headers: {

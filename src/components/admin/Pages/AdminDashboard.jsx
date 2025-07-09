@@ -508,7 +508,7 @@ const AdminDashboard = () => {
         >
           {/* Pie Chart Section */}
           <Box
-            w={{ base: "100%", md: "50%" }}
+            w={{ base: "90%", md: "45%" }}
             py={2}
             px={{ base: "20px", md: "40px" }}
             border="1px solid #f3ebeb"
@@ -523,7 +523,7 @@ const AdminDashboard = () => {
 
           {/* Bar Chart Section */}
           <Box
-            w={{ base: "100%", md: "50%" }}
+            w={{ base: "90%", md: "55%" }}
             py={2}
             display={'flex'}
             flexDirection={'column'}

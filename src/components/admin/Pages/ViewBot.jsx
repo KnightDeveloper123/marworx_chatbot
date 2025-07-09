@@ -960,7 +960,7 @@ const nodeTypes = {
       setTargetValues((prev) => [...prev, ""]);
     };
 
-      const deleteTargetValue = (index) => {
+    const deleteTargetValue = (index) => {
       setTargetValues((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -2044,6 +2044,7 @@ const FlowCanvas = () => {
 
   const fetchBot = async () => {
     try {
+      console.log("view id", id)
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=${id}`,
         {
@@ -2056,6 +2057,11 @@ const FlowCanvas = () => {
       );
       const result = await response.json();
       // console.log(result.data)
+
+    if (!result?.data) {
+      console.warn("No bot data returned");
+      return;
+    }
       const { nodes, edges } = result.data;
       // console.log(result.data)
 
@@ -2070,6 +2076,14 @@ const FlowCanvas = () => {
     }
   };
 
+
+  useEffect(() => {
+    if (id) {
+      fetchBot();
+    } else {
+      console.warn("No ID in URL");
+    }
+  }, [id]);
 
   const updateTemplate = async () => {
     const payload = {
@@ -2097,7 +2111,7 @@ const FlowCanvas = () => {
     }
   };
   useEffect(() => {
-    fetchBot();
+
     getAllNumbers();
     getAllDeleteProduct();
   }, []);
