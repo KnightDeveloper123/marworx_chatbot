@@ -78,7 +78,7 @@ import { LiaTrashAlt } from "react-icons/lia";
 import { AppContext } from "../../context/AppContext";
 import { RiAiGenerate2 } from "react-icons/ri";
 // Utility for node ID generation
-let id = 1;
+// let id = 1;
 // const getId = () => `${++id}`;
 const getId = () => crypto.randomUUID();
 let selectedBotToLoad = null;
@@ -1778,8 +1778,6 @@ const nodeTypes = {
 };
 
 
-
-
 const blockStyle = {
   padding: "3px 5px",
   margin: "0px 0",
@@ -1979,7 +1977,7 @@ const FlowCanvas = () => {
   const navigate = useNavigate();
 
   const { id } = useParams();
-  // console.log("id",id)
+  console.log("id",id)
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isNumOpen,
@@ -2042,9 +2040,9 @@ const FlowCanvas = () => {
   );
 
 
+  console.log("view id", id)
   const fetchBot = async () => {
     try {
-      console.log("view id", id)
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/bots/getbyid?id=${id}`,
         {
