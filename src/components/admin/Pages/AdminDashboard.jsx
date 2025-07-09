@@ -525,6 +525,11 @@ const AdminDashboard = () => {
           <Box
             w={{ base: "100%", md: "50%" }}
             py={2}
+            display={'flex'}
+            flexDirection={'column'}
+          
+            // justifyContent={'center'}
+            justifyContent="end"
             px={{ base: "20px", md: "40px" }}
             border="1px solid #f3ebeb"
             borderRadius="15px"
@@ -536,6 +541,7 @@ const AdminDashboard = () => {
               months={months}
               botData={botData}
               campaignData={campaignData}
+          
             />
           </Box>
         </Box>

@@ -3545,7 +3545,7 @@ const FlowCanvas = () => {
 
     const node = nodes[currentIndex];
     const { type, data } = node;
-    console.log(type);
+    // console.log(type);
 
     return (
       <Box
@@ -3561,16 +3561,25 @@ const FlowCanvas = () => {
         <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
         {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
           <VStack align="stretch" spacing={3}>
-            {/* {data.targetValues.map((label, index) => ( */}
+            {data.targetValues.map((label, index) => (
             <Button
+              key={index}
+              colorScheme="teal"
+              variant="outline"
+              onClick={() => handleAnswer(label,index)}
+            >
+             {data.label}
+            </Button>
+            ))}  
+
+             {/* <Button
               // key={index}
               colorScheme="teal"
               variant="outline"
               onClick={() => handleAnswer(data.targetValues[0], data.targetValues[0])}
             >
               {data.targetValues[0]}
-            </Button>
-            {/* ))}  */}
+            </Button> */}
           </VStack>
         ) : (
           <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
@@ -3591,6 +3600,8 @@ const FlowCanvas = () => {
         )}
       </Box>
     );
+ 
+
   };
 
   const renderChatHistory = () => (

@@ -67,6 +67,7 @@ console.log("userid",userid)
   const templateData = async (value) => {
     navigate(`/template/${value}`)
   }
+  
   const handleDelete = async (deleteId) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -203,7 +204,7 @@ console.log("userid",userid)
                 </Stack> */}
 
                 
-                <Text fontSize="sm">Templates</Text>
+                <Text fontSize="sm">Template</Text>
                 <Stack whiteSpace='nowrap' textOverflow='ellipsis' overflow='hidden' >
                  
                   {

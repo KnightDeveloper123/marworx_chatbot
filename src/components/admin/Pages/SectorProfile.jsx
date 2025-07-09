@@ -68,7 +68,7 @@ const SectorProfile = () => {
     //         // console.log("Token being sent:");
 
     //         const response = await axios.get(
-                
+
     //             `${APP_URL}/support/getAllproductsBysector?sector_id=${id}`,
     //             {
     //                 headers: { Authorization: `${token}` },
@@ -115,8 +115,17 @@ const SectorProfile = () => {
 
             })
             const result = await data.json();
-            setLinkedBots(result?.data?.bots);
-            //    console.log("bots",result?.data?.bots)
+
+            const botsData = result?.data?.bots;
+            const normalizedBots = Array.isArray(botsData)
+                ? botsData
+                : botsData
+                    ? [botsData]
+                    : [];
+
+            setLinkedBots(normalizedBots);
+            // setLinkedBots(result?.data?.bots);
+
 
         } catch (error) {
             console.log(error)
@@ -260,6 +269,8 @@ const SectorProfile = () => {
                                             </Card>
                                         ))}
                                     </SimpleGrid>
+
+
 
 
                                 </TabPanel>

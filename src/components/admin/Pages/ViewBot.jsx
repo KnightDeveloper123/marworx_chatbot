@@ -960,6 +960,10 @@ const nodeTypes = {
       setTargetValues((prev) => [...prev, ""]);
     };
 
+      const deleteTargetValue = (index) => {
+      setTargetValues((prev) => prev.filter((_, i) => i !== index));
+    };
+
     // const updateTargetValue = (index, newValue) => {
     //   setTargetValues((prev) =>
     //     prev.map((val, i) => (i === index ? newValue : val))
@@ -1250,6 +1254,13 @@ const nodeTypes = {
                 }}
                 ml={1}
               />
+              <IconButton
+                size="25px"
+                aria-label="Delete Option"
+                icon={<IoTrashOutline />}
+                onClick={() => deleteTargetValue(idx)}
+                ml={1}
+              />
 
               <Handle
                 type="source"
@@ -1463,7 +1474,7 @@ const nodeTypes = {
     );
   },
 
-MultiContentNode: ({ id, data }) => {
+  MultiContentNode: ({ id, data }) => {
     const { setNodes } = useReactFlow();
     const [sections, setSections] = useState(data.sections || []);
     const [newType, setNewType] = useState("");

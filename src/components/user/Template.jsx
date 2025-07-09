@@ -45,6 +45,9 @@ const Template = () => {
       const result = await res.json();
       const nodeList = typeof result.data.node === "string" ? JSON.parse(result.data.node) : result.data.node;
       setNodes(nodeList);
+       setCurrentIndex(0);      
+      setMessages([]);          
+      setUserInput("");   
     };
     fetchData();
   }, [id]);
@@ -81,35 +84,35 @@ const Template = () => {
 
     const node = nodes[currentIndex];
     const { type, data } = node;
-    // console.log(type);
+    // console.log(node);
 
     return (
-
       <Box
         p={4}
         w="100%"
-        maxW={{ base: "100%", md: "500px" }}
-        maxH="300px"
-        overflowY="auto"
+        maxW={{ base: "100%", md: "90%" }}
+        mx="auto"
+        maxH={type === "ReplyButton" || type === "ListButton" ? "150px" : "auto"} 
+        overflowY={type === "ReplyButton" || type === "ListButton" ? "auto" : "visible"} 
         borderWidth="1px"
         borderRadius="md"
         boxShadow="md"
         bg="gray.50"
       >
-
         <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
+
         {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
           <VStack align="stretch" spacing={3}>
-            {/* {data.targetValues.map((label, index) => ( */}
-            <Button
-              // key={index}
-              colorScheme="teal"
-              variant="outline"
-              onClick={() => handleAnswer(data.targetValues[0], data.targetValues[0])}
-            >
-              {data.targetValues[0]}
-            </Button>
-            {/* ))}  */}
+            {data.targetValues.map((label, index) => (
+              <Button
+                key={index}
+                colorScheme="teal"
+                variant="outline"
+                onClick={() => handleAnswer(label, label)}
+              >
+                {label}
+              </Button>
+            ))}
           </VStack>
         ) : (
           <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
@@ -130,10 +133,78 @@ const Template = () => {
         )}
       </Box>
     );
+
+    // return (
+
+    //   <Box
+    //     p={4}
+    //     w="100%"
+    //     maxW={{ base: "100%", md: "90%" }}
+    //     mx={'auto'}
+
+    //     maxH="100px"
+    //     overflowY="auto"
+    //     borderWidth="1px"
+    //     borderRadius="md"
+    //     boxShadow="md"
+    //     bg="gray.50"
+    //   >
+
+    //     <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
+    //     {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
+    //       <VStack align="stretch" spacing={3}>
+    //         {data.targetValues.map((label, index) => (
+    //           <Button
+    //             key={index}
+    //             colorScheme="teal"
+    //             variant="outline"
+    //             onClick={() => handleAnswer(label, label)}
+    //           >
+    //             {label}
+    //           </Button>
+    //         ))}
+    //       </VStack>
+    //     ) : (
+    //       <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4} >
+    //         <Input
+
+    //           value={userInput}
+    //           onChange={(e) => setUserInput(e.target.value)}
+    //           placeholder="Type your answer..."
+    //           bg="white"
+    //         />
+    //         <Button
+    //           colorScheme="teal"
+    //           onClick={() => handleAnswer(userInput, userInput)}
+    //           isDisabled={!userInput}
+    //         >
+    //           Submit
+    //         </Button>
+    //       </Stack>
+    //     )}
+    //   </Box>
+    // );
   };
 
   const renderChatHistory = () => (
-    <VStack spacing={3} align="stretch" height={'100%'} maxHeight={'calc(100vh - 244px)'} overflowY={'scroll'}>
+    <VStack
+      spacing={3}
+      align="stretch"
+      height="100%"
+      maxHeight="calc(100vh - 244px)"
+      overflowY="scroll"
+      w="100%"
+      maxW={{ base: "100%", md: "90%" }}
+      mx="auto"
+      sx={{
+        /* Hide scrollbar but allow scroll */
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+      }}
+    >
       {messages.map((msg, index) => (
         <Box
           key={index}
@@ -143,7 +214,6 @@ const Template = () => {
           py={2}
           borderRadius="lg"
           maxW="80%"
-
         >
           <Text>{msg.text}</Text>
         </Box>
@@ -212,8 +282,8 @@ const Template = () => {
         </Menu>
       </Box>
 
-      <Box px={{ base: 4, md: 6 }} py={4} w="100%" maxW="100%" mx="auto">
-        <VStack spacing={4} align="stretch" w={{ base: "100%", md: "80%", lg: "60%" }} mx="auto">
+      <Box px={{ base: 4, md: 6 }} py={4} >
+        <VStack spacing={4} align="stretch" >
           {renderChatHistory()}
           {renderNode()}
         </VStack>
