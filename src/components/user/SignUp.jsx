@@ -1,5 +1,5 @@
-import { 
-    Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Text, useToast 
+import {
+    Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Text, useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -10,24 +10,24 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
 const SignUp = () => {
-    const { 
-        register, 
-        handleSubmit, 
+    const {
+        register,
+        handleSubmit,
         watch,
-        formState: { errors } 
+        formState: { errors }
     } = useForm();
 
     const toast = useToast();
     const navigate = useNavigate();
-    const password = watch("password"); 
+    const password = watch("password");
 
     const onSubmit = async (data) => {
         try {
             const { confirmPassword, ...payload } = data;
-            
+
             const response = await axios.post(`${APP_URL}/user/signUp`, payload);
             // console.log(response);
-            
+
 
             if (response.status === 200) {
                 toast({
@@ -38,7 +38,7 @@ const SignUp = () => {
                     position: "top",
                     isClosable: true,
                 });
-                navigate("/login");
+                navigate("/");
             }
         } catch (err) {
             console.error(err);
@@ -57,11 +57,11 @@ const SignUp = () => {
         <Box h="100vh" bg="#1A202C">
             <Flex h="100vh" justifyContent="center" alignItems="center">
                 <Flex top={"40px"} left="40px" position="absolute">
-                <Button colorScheme='blue' onClick={() => navigate("/")}><ArrowBackIcon fontSize={"20px"}/></Button>
+                    <Button colorScheme='blue' onClick={() => navigate("/")}><ArrowBackIcon fontSize={"20px"} /></Button>
                 </Flex>
-                <Flex 
-                    h="600px" w="500px" bg="#171923" color="white" 
-                    justifyContent="center" alignItems="center" 
+                <Flex
+                    h="600px" w="500px" bg="#171923" color="white"
+                    justifyContent="center" alignItems="center"
                     borderRadius="20px" flexDirection="column"
                 >
                     <Heading mb="20px" fontSize="30px">Sign Up</Heading>
@@ -69,7 +69,7 @@ const SignUp = () => {
                     <form onSubmit={handleSubmit(onSubmit)} style={{ width: "60%" }}>
                         <FormControl isInvalid={errors.name}>
                             <FormLabel>Username</FormLabel>
-                            <Input 
+                            <Input
                                 placeholder="Username"
                                 {...register("name", { required: "Username is required" })}
                             />
@@ -78,9 +78,9 @@ const SignUp = () => {
 
                         <FormControl mt="4" isInvalid={errors.email}>
                             <FormLabel>Email</FormLabel>
-                            <Input 
+                            <Input
                                 placeholder="Email"
-                                {...register("email", { 
+                                {...register("email", {
                                     required: "Email is required",
                                     pattern: {
                                         value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -93,7 +93,7 @@ const SignUp = () => {
 
                         <FormControl mt="4" isInvalid={errors.password}>
                             <FormLabel>Password</FormLabel>
-                            <Input 
+                            <Input
                                 type="password" placeholder="Password"
                                 {...register("password", { required: "Password is required" })}
                             />
@@ -102,9 +102,9 @@ const SignUp = () => {
 
                         <FormControl mt="4" isInvalid={errors.confirmPassword}>
                             <FormLabel>Confirm Password</FormLabel>
-                            <Input 
+                            <Input
                                 type="password" placeholder="Confirm Password"
-                                {...register("confirmPassword", { 
+                                {...register("confirmPassword", {
                                     required: "Confirm Password is required",
                                     validate: (value) => value === password || "Passwords do not match"
                                 })}
