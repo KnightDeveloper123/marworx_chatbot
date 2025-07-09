@@ -3607,7 +3607,6 @@ const FlowCanvas = () => {
 
    
   };
-
   const renderChatHistory = () => (
     <VStack
       spacing={3}
