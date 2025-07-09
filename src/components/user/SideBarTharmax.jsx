@@ -102,7 +102,7 @@ const SideBarTharmax = () => {
     <>
       <Box
         bg="white"
-        w="260px"
+        w="270px"
         p={4}
         borderRight="1px solid #E2E8F0"
         boxShadow="sm"

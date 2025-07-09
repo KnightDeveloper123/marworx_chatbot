@@ -26,6 +26,22 @@ const Layout = () => {
             bg="white"
             h='calc(100vh - 50px)'
             overflowY='auto'
+            sx={{
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "#BABABA",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#BABABA",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "#BABABA",
+              },
+            }}
           >
             <SideBarTharmax />
           </Box>

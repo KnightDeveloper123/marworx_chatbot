@@ -564,7 +564,7 @@ const MainPageTharmax = () => {
                             <>
                                 <PopoverTrigger>
 
-                                    <Box bgColor="#171923" w="60px" h="60px"
+                                    <Box bgColor="#ED3438" w="60px" h="60px"
                                         boxShadow='dark-lg'
                                         cursor={"pointer"}
                                         _hover={{ boxShadow: "inner" }}
@@ -576,11 +576,11 @@ const MainPageTharmax = () => {
                                 </PopoverTrigger>
                                 <Portal >
                                     <PopoverContent border={"none"} color="white" >
-                                        <PopoverHeader
-                                            bgColor="#2D3748" border={"none"}
+                                        <PopoverHeader color={"black"}
+                                            bgColor="#F5F5F5" border={"none"}
                                         >Report an issue</PopoverHeader>
                                         <PopoverCloseButton />
-                                        <PopoverBody bgColor="#2D3748">
+                                        <PopoverBody bgColor="#F5F5F5">
                                             <Box>
                                                 <Textarea placeholder='Describe the issue'
                                                     value={reportData} onChange={(e) => setReportData(e.target.value)}

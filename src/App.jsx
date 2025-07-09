@@ -90,8 +90,8 @@ function App() {
           </Route>
 
           {/* User Routes */}
-          <Route path="/" element={<Guest />} />
-          <Route path="/login" element={<UserLogin />} />
+          {/* <Route path="/" element={<Guest />} /> */}
+          <Route path="/" element={<UserLogin />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/*" element={<Layout />}>
             <Route path=":userid" element={<MainPageTharmax />} />
