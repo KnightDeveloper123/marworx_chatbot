@@ -2,6 +2,7 @@ import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { decrypt, encrypt } from "../utils/security";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const AppContext = createContext();
 
@@ -673,6 +674,12 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    const startNewChat = (navigate, userId) => {
+        navigate(`/${userId}`);
+        // console.log("this is clicking");
+
+    };
+
 
     return (
         <AppContext.Provider
@@ -688,7 +695,8 @@ export const AppProvider = ({ children }) => {
                 fetchAllQueries, queries, formatDate, fetchAllUser, users, all_employees, APP_URL,
                 clearChat, setClearChat, username, setUsername, logout, productService
                 , fetchProductService, sectors, fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, bots, fetchBot,
-                fetchTemplate, template, getAllNumbers, phoneNumbers
+                fetchTemplate, template, getAllNumbers, phoneNumbers,
+                startNewChat
             }}
         >
             {children}

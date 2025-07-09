@@ -17,7 +17,7 @@ import Guest from './components/user/Guest';
 // import ProductDetails from './components/admin/Pages/ProductDetails';
 // import UserProfile from './components/admin/UserProfile';
 
-const MainPage = lazy(() => import('./components/user/MainPage'));
+const MainPageTharmax = lazy(() => import('./components/user/MainPageTharmax'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/Pages/AdminDashboard'));
 const Admin = lazy(() => import('./components/admin/Pages/Admin'));
@@ -28,11 +28,11 @@ const UserProfile = lazy(() => import('./components/admin/Pages/UserProfile'));
 const AdminProfile = lazy(() => import('./components/admin/Pages/AdminProfile'));
 const Sector = lazy(() => import('./components/admin/Pages/Sector'));
 const BotBuilder = lazy(() => import('./components/admin/Pages/BotBuilder'));
-const Bot =lazy(()=>import ('./components/admin/Pages/Bot'))
+const Bot = lazy(() => import('./components/admin/Pages/Bot'))
 const ViewBot = lazy(() => import('./components/admin/Pages/ViewBot'));
-const Template = lazy(()=>import ('./components/admin/Pages/Template'));
-const CreateTemplate = lazy(()=> import('./components/admin/Pages/CreateTemplate'))
-const ViewTemplate = lazy(()=> import('./components/admin/Pages/ViewTemplate'))
+const Template = lazy(() => import('./components/admin/Pages/Template'));
+const CreateTemplate = lazy(() => import('./components/admin/Pages/CreateTemplate'))
+const ViewTemplate = lazy(() => import('./components/admin/Pages/ViewTemplate'))
 const EmployeeProfile = lazy(() => import('./components/admin/Pages/EmployeeProfile'));
 const Employee = lazy(() => import('./components/admin/Pages/Employee'));
 const ProductDetails = lazy(() => import('./components/admin/Pages/ProductDetails'));
@@ -48,7 +48,7 @@ const UserTemplate = lazy(() => import('./components/user/Template'));
 
 function App() {
 
-return (
+  return (
 
     <Suspense
       fallback={
@@ -56,17 +56,17 @@ return (
           <Spinner thickness="4px" speed=".9s" emptyColor="gray.200" color="gray.800" size="xl" />
         </Flex>
       }
-      >
-     
+    >
+
       <Router>
         <Routes>
           {/* Admin Routes */}
           <Route exact path="/home" element={<Login />} />
-          <Route path='bot_builder' element={<BotBuilder />} /> 
+          <Route path='bot_builder' element={<BotBuilder />} />
           <Route path="view/:id" element={<ViewBot />} />
-          <Route path="create_template/:id" element={ <CreateTemplate /> } />
-          <Route path="view_template/:id" element={ <ViewTemplate /> } />
-          
+          <Route path="create_template/:id" element={<CreateTemplate />} />
+          <Route path="view_template/:id" element={<ViewTemplate />} />
+
           <Route path="/home/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="admin" element={<Admin />} />
@@ -83,10 +83,10 @@ return (
             <Route path="user" element={<User />} />
             <Route path="user/:id" element={<UserProfile />} />
             <Route path="admin/:id" element={<AdminProfile />} />
-            <Route path="template" element={ <Template /> } />
-            <Route path="recycle_bin" element={ <RecycleBin /> } />
-            <Route path="chat" element={ <Web /> } />
-            
+            <Route path="template" element={<Template />} />
+            <Route path="recycle_bin" element={<RecycleBin />} />
+            <Route path="chat" element={<Web />} />
+
           </Route>
 
           {/* User Routes */}
@@ -94,14 +94,14 @@ return (
           <Route path="/login" element={<UserLogin />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/*" element={<Layout />}>
-            <Route path=":userid" element={<MainPage />} />
-            <Route path=":userid/:id" element={<MainPage />} />
+            <Route path=":userid" element={<MainPageTharmax />} />
+            <Route path=":userid/:id" element={<MainPageTharmax />} />
             <Route path="template/:id" element={<UserTemplate />} />
           </Route>
         </Routes>
       </Router>
     </Suspense>
-      
+
   )
 }
 
