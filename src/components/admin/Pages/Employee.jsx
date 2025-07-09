@@ -191,29 +191,42 @@ const Employee = () => {
           </Text>
           <Flex gap={2}>
 
-            <Flex gap={3}
-            // display={location.pathname === "/admin/dashboard" ? "none" : "Flex"}
+            <Flex
+              gap={3}
+              flexWrap="wrap" 
+              direction={{ base: "column", sm: "row" }} 
+              align="start"
             >
-              {/* {userDetails.type === "admin" || userDetails.active === 1 ? ( */}
-              <Input h={"35px"} htmlSize={20} width='auto' fontSize="var(--mini-text)"
+              <Input
+                h={{ base: "10px", sm: "35px" }}
+                w={{ base: "100%", sm: "auto" }}
+                flex="1"
+                padding={'5px'}
+                fontSize={{ base: "14px", sm: "var(--mini-text)" }}
                 fontWeight="var(--big-font-weight)"
                 placeholder="Search Name"
-                value={filteredSectors} onChange={(e) => setFilteredSectors(e.target.value)} />
+                value={filteredSectors}
+                onChange={(e) => setFilteredSectors(e.target.value)}
+              />
+
               <Button
+                w={{ base: "100%", sm: "auto" }}
                 borderRadius="var(--radius)"
-                leftIcon={<IoMdAdd fontSize={"20px"} />}
+                leftIcon={<IoMdAdd fontSize="20px" />}
                 _hover={{ bgColor: "var(--active-bg)" }}
+                size={{base:"sm",sm:'md'}}
                 bgColor="var(--active-bg)"
                 color="#fff"
-                h={"35px"}
-                fontSize="var(--mini-text)"
+                h={{ base: "40px", sm: "35px" }}
+                fontSize={{ base: "14px", sm: "var(--mini-text)" }}
                 fontWeight="var(--big-font-weight)"
-                onClick={() => onOpen()}
+                onClick={onOpen}
               >
                 Add Employee
               </Button>
-
             </Flex>
+
+
           </Flex>
         </Flex>
         <TableContainer

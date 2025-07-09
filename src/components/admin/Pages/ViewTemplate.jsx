@@ -3533,6 +3533,7 @@ const FlowCanvas = () => {
     setCurrentIndex((prev) => prev + 1);
   };
 
+
   const renderNode = () => {
     if (!nodes.length || currentIndex >= nodes.length) {
       return (
@@ -3545,47 +3546,49 @@ const FlowCanvas = () => {
 
     const node = nodes[currentIndex];
     const { type, data } = node;
-    // console.log(type);
+    // console.log(node);
 
     return (
       <Box
         p={4}
-        width="800px"
-        // maxH="300px"
-        // overflowY="auto"
+        w="100%"
+        maxW={{ base: "100%", md: "90%" }}
+        mx="auto"
+        maxH={type === "ReplyButton" || type === "ListButton" ? "150px" : "auto"}
+        overflowY={type === "ReplyButton" || type === "ListButton" ? "auto" : "visible"}
         borderWidth="1px"
         borderRadius="md"
         boxShadow="md"
+        
         bg="gray.50"
       >
         <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
+
         {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
           <VStack align="stretch" spacing={3}>
             {data.targetValues.map((label, index) => (
-            <Button
-              key={index}
-              colorScheme="teal"
-              variant="outline"
-              onClick={() => handleAnswer(label,index)}
-            >
-             {data.label}
-            </Button>
-            ))}  
-
-             {/* <Button
-              // key={index}
-              colorScheme="teal"
-              variant="outline"
-              onClick={() => handleAnswer(data.targetValues[0], data.targetValues[0])}
-            >
-              {data.targetValues[0]}
-            </Button> */}
+              <Button
+                key={index}
+                colorScheme="teal"
+                variant="outline"
+                onClick={() => handleAnswer(label, label)}
+              >
+                {label}
+              </Button>
+            ))}
           </VStack>
         ) : (
-          <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
+
+
+          <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4} >
             <Input
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && userInput.trim()) {
+                  handleAnswer(userInput, userInput);
+                }
+              }}
               placeholder="Type your answer..."
               bg="white"
             />
@@ -3597,15 +3600,32 @@ const FlowCanvas = () => {
               Submit
             </Button>
           </Stack>
+
         )}
       </Box>
     );
- 
 
+   
   };
-
   const renderChatHistory = () => (
-    <VStack spacing={3} align="stretch" width={'800px'} height={'100%'} overflowY={'scroll'}>
+    <VStack
+      spacing={3}
+      align="stretch"
+      height="100%"
+      maxHeight="calc(100vh - 244px)"
+      overflowY="scroll"
+      w="100%"
+      maxW={{ base: "100%", md: "90%" }}
+      mx="auto"
+      sx={{
+        /* Hide scrollbar but allow scroll */
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+      }}
+    >
       {messages.map((msg, index) => (
         <Box
           key={index}
@@ -3615,14 +3635,13 @@ const FlowCanvas = () => {
           py={2}
           borderRadius="lg"
           maxW="80%"
-
         >
           <Text>{msg.text}</Text>
         </Box>
       ))}
     </VStack>
   );
-
+  
 
 
   return (
@@ -3738,7 +3757,7 @@ const FlowCanvas = () => {
               </Box>
 
 
-              <Box p={4} borderTop="1px solid #e2e8f0" bg="gray.50">
+              <Box p={4} borderTop="1px solid #e2e8f0" >
                 {renderNode()}
               </Box>
             </VStack>

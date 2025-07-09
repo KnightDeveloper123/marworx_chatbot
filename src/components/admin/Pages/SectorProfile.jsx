@@ -116,15 +116,16 @@ const SectorProfile = () => {
 
             })
             const result = await data.json();
+            console.log("result", result.data)
 
-            const botsData = result?.data?.bots;
-            const normalizedBots = Array.isArray(botsData)
-                ? botsData
-                : botsData
-                    ? [botsData]
-                    : [];
+            // const botsData = result?.data?.bots;
+            let botsData = result?.data?.bots || [];
+            if (!Array.isArray(botsData)) {
+                botsData = [botsData];
+            }
+            setLinkedBots(botsData);
 
-            setLinkedBots(normalizedBots);
+
             // setLinkedBots(result?.data?.bots);
 
 
@@ -132,6 +133,7 @@ const SectorProfile = () => {
             console.log(error)
         }
     }
+    console.log("linkedBots", linkedBots)
 
     useEffect(() => {
         fetchLinkedBots()
@@ -261,16 +263,28 @@ const SectorProfile = () => {
 
                                 </TabPanel>
                                 <TabPanel>
-                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
+                                    {/* <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
                                         {linkedBots.map((bot, index) => (
                                             <Card key={index}>
+                                                {console.log(bot)}
+                                                {console.log(navigate(`/view/${bot.id}`))}
                                                 <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
 
                                                 <Text textAlign="center" mt={2} >{bot.name}</Text>
                                             </Card>
                                         ))}
-                                    </SimpleGrid>
+                                    </SimpleGrid> */}
 
+                                    <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
+                                        {linkedBots
+                                            .filter(bot => bot && bot.id && bot.name)
+                                            .map((bot, index) => (
+                                                <Card key={index}>
+                                                    <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
+                                                    <Text textAlign="center" mt={2}>{bot.name}</Text>
+                                                </Card>
+                                            ))}
+                                    </SimpleGrid>
 
 
 
