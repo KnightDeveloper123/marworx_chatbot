@@ -301,8 +301,8 @@ const SectorProfile = () => {
                             </TabPanels>
                         </Box>
                     </Tabs>
-                </Box >
-            </Card >
+                </Box>
+            </Card>
         </>
     );
 };

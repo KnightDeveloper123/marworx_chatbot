@@ -327,7 +327,6 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
 
 router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
-
   try {
     const result = await executeQuery(
       `SELECT 
