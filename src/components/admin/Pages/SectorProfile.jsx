@@ -118,12 +118,13 @@ const SectorProfile = () => {
             let botsData = result?.data?.bots || [];
 
             console.log("bot type", typeof botsData, botsData.length)
-            // Handle: bots = ['[{"id":26,"name":"Hello 1"}]']
+
             if (botsData.length === 1 && typeof botsData[0] === "string") {
                 botsData = JSON.parse(botsData[0]);
-            }
 
-            // Handle: bots = [[{ id: 26, name: "Hello 1" }]]
+            }
+            console.log("bot type after", typeof botsData, botsData.length)
+
             if (Array.isArray(botsData[0])) {
                 botsData = botsData[0];
             }
@@ -135,6 +136,31 @@ const SectorProfile = () => {
             console.error("Failed to fetch bots:", error);
         }
     };
+
+    // const fetchLinkedBots = async () => {
+    //     try {
+    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+    //             method: "GET",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: token
+    //             }
+    //         });
+
+    //         const result = await res.json();
+    //         let botsData = result?.data?.bots || [];
+    //         console.log("type of bot", typeof botsData)
+    //         // ✅ Only needed if backend is still sending stringified JSON
+    //         if (typeof botsData === "string") {
+    //             botsData = JSON.parse(botsData);
+    //         }
+    //         console.log("type of bot after", botsData)
+
+    //         setLinkedBots(Array.isArray(botsData) ? botsData : []);
+    //     } catch (error) {
+    //         console.error("Failed to fetch bots:", error);
+    //     }
+    // };
 
 
 
@@ -282,7 +308,7 @@ const SectorProfile = () => {
                                     </SimpleGrid> */}
 
                                     <Box>
-                                        {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
+                                        {/* {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                             <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                                 {linkedBots.map((bot, index) => {
                                                     if (typeof bot !== "object" || bot === null) return null;
@@ -308,9 +334,9 @@ const SectorProfile = () => {
                                                                         />
                                                                     </Box>
                                                                     <Box>
-                                                                        <Text fontWeight="semibold">{label || "Untitled Bot"}</Text>
+                                                                        
                                                                         <Text fontSize="10px" color="gray.500">
-                                                                            {bot.createdAt ? timeAgo(bot.createdAt) : "Unknown date"}
+                                                                            {bot.name}
                                                                         </Text>
                                                                     </Box>
                                                                 </Flex>
@@ -323,7 +349,51 @@ const SectorProfile = () => {
                                             <Text textAlign="center" mt={4} color="gray.600">
                                                 No linked bots available.
                                             </Text>
-                                        )}
+                                        )} */}
+
+
+                                        <Box>
+                                            {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
+                                                <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
+                                                    {linkedBots.map((bot, index) => {
+                                                        if (typeof bot !== "object" || bot === null) return null;
+
+                                                        let label = null;
+                                                        try {
+                                                            const parsedNodes =
+                                                                typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+                                                            label = parsedNodes?.[0]?.data?.label || null;
+                                                        } catch (error) {
+                                                            console.error("Invalid bot.nodes JSON", error);
+                                                        }
+
+                                                        return (
+                                                            <Card key={index} p={3} _hover={{ cursor: "pointer" }}>
+                                                                <Flex justify="space-between" align="center" gap="15px">
+                                                                    <Flex gap={3}>
+                                                                        <Box>
+                                                                            <Avatar
+                                                                                src={TemViw}
+                                                                                onClick={() => navigate(`/view/${bot.id}`)}
+                                                                                name={label || "Bot"}
+                                                                            />
+                                                                        </Box>
+                                                                        <Box>
+                                                                            <Text fontSize="10px" color="gray.500">{bot.name}</Text>
+                                                                        </Box>
+                                                                    </Flex>
+                                                                </Flex>
+                                                            </Card>
+                                                        );
+                                                    })}
+                                                </SimpleGrid>
+                                            ) : (
+                                                <Text textAlign="center" mt={4} color="gray.600">
+                                                    No linked bots available.
+                                                </Text>
+                                            )}
+                                        </Box>
+
 
                                         {/* {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                             <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">

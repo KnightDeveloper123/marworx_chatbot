@@ -293,23 +293,58 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
 
 
 
+// router.get('/get_linked_bot', middleware, async (req, res) => {
+//   const { sector_id } = req.query;
+
+//   try {
+//     const result = await executeQuery(
+//       `SELECT 
+//   sector.*, 
+//   JSON_ARRAYAGG(
+//     JSON_OBJECT('id', bots.id, 'name', bots.name)
+//   ) AS bots
+// FROM sector
+// LEFT JOIN bots ON bots.sector_id = sector.id AND bots.status=0
+// WHERE sector.id = ${sector_id}
+// AND bots.id IS NOT NULL
+// GROUP BY sector.id;`
+
+//     );
+//     if (result.length === 0) {
+//       return res.json({ data: { bots: [] } });
+//     }
+
+//     return res.json({ data: result[0] });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res.status(500).json({ error: "Internal server error!" });
+//   }
+// });
+
+
+
 router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
 
   try {
     const result = await executeQuery(
-      `SELECT 
-  sector.*, 
-  JSON_ARRAYAGG(
-    JSON_OBJECT('id', bots.id, 'name', bots.name)
-  ) AS bots
-FROM sector
-LEFT JOIN bots ON bots.sector_id = sector.id AND bots.status=0
-WHERE sector.id = ${sector_id}
-AND bots.id IS NOT NULL
-GROUP BY sector.id;`
-
+      `
+      SELECT 
+        sector.*, 
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT('id', bots.id, 'name', bots.name, 'nodes', bots.nodes, 'createdAt', bots.createdAt)
+          )
+          FROM bots
+          WHERE bots.sector_id = sector.id AND bots.status = 0
+        ) AS bots
+      FROM sector
+      WHERE sector.id = ?
+      GROUP BY sector.id
+      `,
+      [sector_id]
     );
+
     if (result.length === 0) {
       return res.json({ data: { bots: [] } });
     }
@@ -320,8 +355,6 @@ GROUP BY sector.id;`
     return res.status(500).json({ error: "Internal server error!" });
   }
 });
-
-
 
 
 
