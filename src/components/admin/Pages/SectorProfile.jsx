@@ -120,7 +120,7 @@ const SectorProfile = () => {
                     ? [result.data.bots]
                     : [];
 
-            console.log("Bots received:", botsData);
+            // console.log("Bots received:", botsData);
 
             setLinkedBots(botsData);
             // const result = await data.json();
@@ -136,7 +136,7 @@ const SectorProfile = () => {
             console.log(error)
         }
     }
-    console.log("linkedBots", linkedBots)
+    // console.log("linkedBots", linkedBots)
 
     useEffect(() => {
         if (id) {
@@ -283,6 +283,7 @@ const SectorProfile = () => {
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                             {(Array.isArray(linkedBots[0]) ? linkedBots[0] : linkedBots).map((bot, index) => (
                                                 <Card key={index} _hover={{ cursor: "pointer" }}>
+                                                    {console.log("data" + bot)}
                                                     <Image
                                                         src={TemViw}
                                                         alt={bot?.name}
