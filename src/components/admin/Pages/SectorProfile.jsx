@@ -114,15 +114,22 @@ const SectorProfile = () => {
                 }
             })
             const result = await response.json();
-            const botsData = Array.isArray(result?.data?.bots)
-                ? result.data.bots
-                : result.data?.bots
-                    ? [result.data.bots]
-                    : [];
+            let botsData = result?.data?.bots || [];
 
-            // console.log("Bots received:", botsData);
+            if (Array.isArray(botsData) && botsData.length === 1 && Array.isArray(botsData[0])) {
+            botsData = botsData[0]; // Extract the actual array of bots
+            }
 
             setLinkedBots(botsData);
+            // const botsData = Array.isArray(result?.data?.bots)
+            //     ? result.data.bots
+            //     : result.data?.bots
+            //         ? [result.data.bots]
+            //         : [];
+
+            // // console.log("Bots received:", botsData);
+
+            // setLinkedBots(botsData);
             // const result = await data.json();
             // const BotNames = result?.data?.bots;
             // console.log("botnames", BotNames)
