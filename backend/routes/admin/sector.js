@@ -313,7 +313,7 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
 //     if (result.length === 0) {
 //       return res.json({ data: { bots: [] } });
 //     }
-
+// console.log(result[0])
 //     return res.json({ data: result[0] });
 //   } catch (error) {
 //     console.error("Error:", error);
@@ -333,7 +333,7 @@ router.get('/get_linked_bot', middleware, async (req, res) => {
         sector.*, 
         (
           SELECT JSON_ARRAYAGG(
-            JSON_OBJECT('id', bots.id, 'name', bots.name, 'nodes', bots.nodes)
+            JSON_OBJECT('id', bots.id, 'name', bots.name)
           )
           FROM bots
           WHERE bots.sector_id = sector.id AND bots.status = 0
@@ -348,7 +348,7 @@ router.get('/get_linked_bot', middleware, async (req, res) => {
     if (result.length === 0) {
       return res.json({ data: { bots: [] } });
     }
-
+console.log(result[0])
     return res.json({ data: result[0] });
   } catch (error) {
     console.error("Error:", error);
