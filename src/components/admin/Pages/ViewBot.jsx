@@ -2040,7 +2040,7 @@ const FlowCanvas = () => {
   );
 
 
-  console.log("view id", id)
+
   const fetchBot = async () => {
     try {
       const response = await fetch(

@@ -320,7 +320,7 @@ const SectorProfile = () => {
                                     {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                             {linkedBots?.map((bot, index) => {
-                                                console.log("bot:", bot);
+                                                // console.log("bot:", bot);
                                                 if (typeof bot !== "object" || bot === null) return null;
 
                                                 return (
@@ -342,11 +342,6 @@ const SectorProfile = () => {
                                             No linked bots available.
                                         </Text>
                                     )}
-
-
-
-                                    {/* <pre>{JSON.stringify(linkedBots, null, 2)}</pre> */}
-
 
                                 </TabPanel>
                                 <TabPanel>
