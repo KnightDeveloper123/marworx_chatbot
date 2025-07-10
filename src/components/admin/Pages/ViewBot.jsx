@@ -2387,17 +2387,17 @@ const FlowCanvas = () => {
               <DrawerContent>
                 <DrawerHeader borderBottomWidth='1px'>Delete Product</DrawerHeader>
                 <DrawerBody p='-0.5'>
-                  {deleteProduct.map((item, i) => {
+                  {deleteProduct?.map((item, i) => {
                     return (
                       <Box>
                         <Flex justifyContent='start' alignItems={'center'} gap={'1px'}>
                           <Box p='5px'>
-                            <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/products/${item.image}`} />
+                            <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/products/${item?.image}`} />
                           </Box>
                           <Box p={2}>
                             <Text fontSize="var(--mini-text)"
-                              fontWeight="var(--big-font-weight)">{item.name}</Text>
-                            <Text fontSize="var(--mini-text)">{item.description}</Text>
+                              fontWeight="var(--big-font-weight)">{item?.name}</Text>
+                            <Text fontSize="var(--mini-text)">{item?.description}</Text>
                           </Box>
                         </Flex>
                         <Divider />
