@@ -320,8 +320,8 @@ const SectorProfile = () => {
                                     {linkedBots && linkedBots.length > 0 ? (
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                             {
-                                                (Array.isArray(linkedBots[0]) ? linkedBots[0] : linkedBots).map((bot, index) => {
-                                                    console.log("bot:", bot); // This will help debug
+                                                (Array.isArray(linkedBots[0]) ? linkedBots[0] : linkedBots)?.map((bot, index) => {
+                                                    // console.log("bot:", bot); // This will help debug
 
                                                     // Safety check in case bot is still a string or invalid
                                                     if (typeof bot !== 'object' || bot === null) return null;
