@@ -102,79 +102,76 @@ const SectorProfile = () => {
         }
     };
 
-    const [linkedBots, setLinkedBots] = useState([])
-    const fetchLinkedBots = async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: token
-                }
-            });
-
-            const result = await res.json();
-
-            let botsData = result?.data?.bots || [];
-
-            // Handle: bots = ['[{"id":26,"name":"Hello 1"}]']
-            if (botsData.length === 1 && typeof botsData[0] === "string") {
-                botsData = JSON.parse(botsData[0]);
-            }
-
-            // Handle: bots = [[{ id: 26, name: "Hello 1" }]]
-            if (Array.isArray(botsData[0])) {
-                botsData = botsData[0];
-            }
-
-            console.log("Final parsed bots:", botsData);
-
-            setLinkedBots(botsData);
-        } catch (error) {
-            console.error("Failed to fetch bots:", error);
-        }
-    };
-
+    // const [linkedBots, setLinkedBots] = useState([])
     // const fetchLinkedBots = async () => {
     //     try {
-    //         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
     //             method: "GET",
     //             headers: {
     //                 "Content-Type": "application/json",
     //                 Authorization: token
     //             }
-    //         })
-    //         const result = await response.json();
+    //         });
+
+    //         const result = await res.json();
+
     //         let botsData = result?.data?.bots || [];
 
-    //         if (Array.isArray(botsData) && botsData.length === 1 && Array.isArray(botsData[0])) {
-    //         botsData = botsData[0]; // Extract the actual array of bots
+    //         console.log("bot type",typeof botsData,botsData.length)
+    //         // Handle: bots = ['[{"id":26,"name":"Hello 1"}]']
+    //         if (botsData.length === 1 && typeof botsData[0] === "string") {
+    //             botsData = JSON.parse(botsData[0]);
     //         }
 
+    //         // Handle: bots = [[{ id: 26, name: "Hello 1" }]]
+    //         if (Array.isArray(botsData[0])) {
+    //             botsData = botsData[0];
+    //         }
+
+    //         console.log("Final parsed bots:", botsData);
+
     //         setLinkedBots(botsData);
-    //         // const botsData = Array.isArray(result?.data?.bots)
-    //         //     ? result.data.bots
-    //         //     : result.data?.bots
-    //         //         ? [result.data.bots]
-    //         //         : [];
-
-    //         // // console.log("Bots received:", botsData);
-
-    //         // setLinkedBots(botsData);
-    //         // const result = await data.json();
-    //         // const BotNames = result?.data?.bots;
-    //         // console.log("botnames", BotNames)
-    //         // let botsData = result?.data?.bots || [];
-    //         // if (!Array.isArray(botsData)) {
-    //         //     botsData = [botsData];
-    //         // }
-    //         // setLinkedBots(botsData);
-    //         // setLinkedBots(result?.data?.bots);
     //     } catch (error) {
-    //         console.log(error)
+    //         console.error("Failed to fetch bots:", error);
     //     }
-    // }
-    // console.log("linkedBots", linkedBots)
+    // };
+    const [linkedBots, setLinkedBots] = useState([]);
+
+    const fetchLinkedBots = async () => {
+        try {
+            const res = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: token,
+                    },
+                }
+            );
+
+            const result = await res.json();
+            let botsData = result?.data?.bots;
+
+            // ✅ Fallback if somehow not array
+            if (!Array.isArray(botsData)) {
+                botsData = [];
+            }
+
+            // ✅ Final check to make sure each item is an object with id and name
+            botsData = botsData.filter(
+                (bot) => typeof bot === "object" && bot !== null && bot.id && bot.name
+            );
+
+            console.log("✅ Final parsed bots:", botsData);
+            setLinkedBots(botsData);
+        } catch (error) {
+            console.error("❌ Failed to fetch bots:", error);
+        }
+    };
+
+
+
 
     useEffect(() => {
         if (id) {
@@ -316,7 +313,7 @@ const SectorProfile = () => {
                                             </Card>
                                         ))}
                                     </SimpleGrid> */}
-
+                                    {/* 
                                     {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                             {linkedBots?.map((bot, index) => {
@@ -341,7 +338,32 @@ const SectorProfile = () => {
                                         <Text textAlign="center" mt={4} color="gray.600">
                                             No linked bots available.
                                         </Text>
-                                    )}
+                                    )} */}
+
+
+                                    <Box>
+                                        {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
+                                            <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
+                                                {linkedBots.map((bot, index) => (
+                                                    <Card key={index} _hover={{ cursor: "pointer" }}>
+                                                        <Image
+                                                            src={TemViw}
+                                                            alt={bot?.name || "Bot"}
+                                                            onClick={() => navigate(`/view/${bot?.id}`)}
+                                                        />
+                                                        <Text textAlign="center" mt={2}>
+                                                            {bot?.name}
+                                                        </Text>
+                                                    </Card>
+                                                ))}
+                                            </SimpleGrid>
+                                        ) : (
+                                            <Text textAlign="center" mt={4} color="gray.600">
+                                                No linked bots available.
+                                            </Text>
+                                        )}
+
+                                    </Box>
 
                                 </TabPanel>
                                 <TabPanel>
