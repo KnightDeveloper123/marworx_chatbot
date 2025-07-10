@@ -463,43 +463,7 @@ const MainPageTharmax = () => {
                         </Box>
 
                         {chat.sender === "bot" && (
-                            //imp                     // <HStack spacing={1}>
-                            //     <IconButton
-                            //         size="sm"
-                            //         bg="transparent"
-                            //         icon={
-                            //             feedbackMap[chat.id] === 0 ? (
-                            //                 <FaThumbsUp color="#3182CE" />
-                            //             ) : (
-                            //                 <FaRegThumbsUp color="gray" />
-                            //             )
-                            //         }
-                            //         variant="ghost"
-                            //         aria-label="Like"
-                            //         _hover={{ bg: "transparent" }}
-                            //         _active={{ bg: "transparent" }}
-                            //         onClick={() => handleLike(chat.id)}
-                            //     />
-                            //     <IconButton
-                            //         size="sm"
-                            //         bg="transparent"
-                            //         icon={
-                            //             feedbackMap[chat.id] === 1 ? (
-                            //                 <FaThumbsDown color="#E53E3E" />
-                            //             ) : (
-                            //                 <FaRegThumbsDown color="gray" />
-                            //             )
-                            //         }
-                            //         variant="ghost"
-                            //         aria-label="Dislike"
-                            //         _hover={{ bg: "transparent" }}
-                            //         _active={{ bg: "transparent" }}
-                            //         onClick={() => handleDislike(chat.id)}
-                            //     />
-                            // </HStack>
-
                             <HStack spacing={1}>
-                                {/* Like Button */}
                                 <IconButton
                                     size="sm"
                                     bg="transparent"
@@ -514,10 +478,8 @@ const MainPageTharmax = () => {
                                     aria-label="Like"
                                     _hover={{ bg: "transparent" }}
                                     _active={{ bg: "transparent" }}
-                                    onClick={() => handleFeedback(chat.id, 0)}
+                                    onClick={() => handleLike(chat.id)}
                                 />
-
-                                {/* Dislike Button */}
                                 <IconButton
                                     size="sm"
                                     bg="transparent"
@@ -532,9 +494,10 @@ const MainPageTharmax = () => {
                                     aria-label="Dislike"
                                     _hover={{ bg: "transparent" }}
                                     _active={{ bg: "transparent" }}
-                                    onClick={() => handleFeedback(chat.id, 1)}
+                                    onClick={() => handleDislike(chat.id)}
                                 />
                             </HStack>
+
                         )
                         }
                     </>
@@ -660,7 +623,7 @@ const MainPageTharmax = () => {
 
                 </Box>
             </Tooltip>
-        </Flex>
+        </Flex >
 
     );
 };
