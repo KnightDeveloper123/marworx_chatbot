@@ -292,7 +292,7 @@ const SectorProfile = () => {
 
                                    
 
-                                    <pre>{JSON.stringify(linkedBots, null, 2)}</pre>
+                                    {/* <pre>{JSON.stringify(linkedBots, null, 2)}</pre> */}
 
 
                                 </TabPanel>
