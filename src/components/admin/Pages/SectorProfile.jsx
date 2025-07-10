@@ -317,29 +317,25 @@ const SectorProfile = () => {
                                         ))}
                                     </SimpleGrid> */}
 
-                                    {linkedBots && linkedBots.length > 0 ? (
+                                    {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
-                                            {
-                                                (Array.isArray(linkedBots[0]) ? linkedBots[0] : linkedBots)?.map((bot, index) => {
-                                                    // console.log("bot:", bot); // This will help debug
+                                            {linkedBots?.map((bot, index) => {
+                                                console.log("bot:", bot);
+                                                if (typeof bot !== "object" || bot === null) return null;
 
-                                                    // Safety check in case bot is still a string or invalid
-                                                    if (typeof bot !== 'object' || bot === null) return null;
-
-                                                    return (
-                                                        <Card key={index} _hover={{ cursor: "pointer" }}>
-                                                            <Image
-                                                                src={TemViw}
-                                                                alt={bot?.name || 'Bot'}
-                                                                onClick={() => navigate(`/view/${bot?.id}`)}
-                                                            />
-                                                            <Text textAlign="center" mt={2}>
-                                                                {bot?.name}
-                                                            </Text>
-                                                        </Card>
-                                                    );
-                                                })
-                                            }
+                                                return (
+                                                    <Card key={index} _hover={{ cursor: "pointer" }}>
+                                                        <Image
+                                                            src={TemViw}
+                                                            alt={bot?.name || "Bot"}
+                                                            onClick={() => navigate(`/view/${bot?.id}`)}
+                                                        />
+                                                        <Text textAlign="center" mt={2}>
+                                                            {bot?.name}
+                                                        </Text>
+                                                    </Card>
+                                                );
+                                            })}
                                         </SimpleGrid>
                                     ) : (
                                         <Text textAlign="center" mt={4} color="gray.600">
