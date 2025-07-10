@@ -5,7 +5,7 @@ import { FaPlus, FaRobot } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
 const SideBarTharmax = () => {
@@ -98,95 +98,111 @@ const SideBarTharmax = () => {
 
   }, [id, clearChat]);
 
+
+
+
   return (
     <>
-      <Box
-        bg="white"
-        w="270px"
-        p={4}
-        borderRight="1px solid #E2E8F0"
-        boxShadow="sm"
-      >
-        <VStack align="start" spacing={4} border={"2px solid #E9E9E9"} borderRadius={"xl"} p={5}>
-          {/* Header */}
-          <Box display="flex" alignItems="center" gap={3} >
-            <Box
-              bg="orange.100"
-              borderRadius="full"
-              p={2}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <FaRobot color="orangered" />
+      <IconButton
+        icon={<HamburgerIcon boxSize={6} />}
+        colorScheme="black"
+        variant="ghost"
+        onClick={() => setIsOpen(!isOpen)}
+      />
+      {isOpen && (
+
+
+        <Box
+          bg="white"
+          width={{ base: "100%", md: "300px" }}
+          p={4}
+          borderRight="1px solid #E2E8F0"
+          boxShadow="sm"
+        >
+
+
+
+          <VStack align="start" spacing={4} border={"2px solid #E9E9E9"} borderRadius={"xl"} p={5}>
+            {/* Header */}
+            <Box display="flex" alignItems="center" gap={3} >
+              <Box
+                bg="orange.100"
+                borderRadius="full"
+                p={2}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <FaRobot color="orangered" />
+              </Box>
+              <Heading fontSize="md" fontWeight="bold">
+                AI Chatbot
+              </Heading>
             </Box>
-            <Heading fontSize="md" fontWeight="bold">
-              AI Chatbot
-            </Heading>
-          </Box>
 
-          {/* New Chat Button */}
-          <Button
-            leftIcon={<FaPlus />}
-            colorScheme="red"
-            size="sm"
-            borderRadius="md"
-            width="100%"
-            onClick={() => startNewChat(navigate, userid)}
-          >
-            New Chat
-          </Button>
+            {/* New Chat Button */}
+            <Button
+              leftIcon={<FaPlus />}
+              colorScheme="red"
+              size="sm"
+              borderRadius="md"
+              width="100%"
+              onClick={() => startNewChat(navigate, userid)}
+            >
+              New Chat
+            </Button>
 
-          {/* Sub Prompt */}
-          <Box
-            bg="red.50"
-            color="red.600"
-            fontSize="xs"
-            p={2}
-            borderRadius="md"
-            width="100%"
-            textAlign="center"
-          >
-            Ask me anything about heating systems!
-          </Box>
+            {/* Sub Prompt */}
+            <Box
+              bg="red.50"
+              color="red.600"
+              fontSize="xs"
+              p={2}
+              borderRadius="md"
+              width="100%"
+              textAlign="center"
+            >
+              Ask me anything about heating systems!
+            </Box>
 
-          {/* Recent Searches */}
-          <Box width="100%">
-            <Text fontWeight="semibold" fontSize="sm" mb={2}>
-              Recent Searches
-            </Text>
-            <VStack align="start" spacing={1} fontSize="sm" color="gray.700">
-              <Text>Boiler efficiency optimization</Text>
-              <Text>Heat Exchanger maintenance</Text>
-              <Text>Thermax steam systems</Text>
-              <Text>Energy recovery units</Text>
-            </VStack>
-          </Box>
+            {/* Recent Searches */}
+            <Box width="100%">
+              <Text fontWeight="semibold" fontSize="sm" mb={2}>
+                Recent Searches
+              </Text>
+              <VStack align="start" spacing={1} fontSize="sm" color="gray.700">
+                <Text>Boiler efficiency optimization</Text>
+                <Text>Heat Exchanger maintenance</Text>
+                <Text>Thermax steam systems</Text>
+                <Text>Energy recovery units</Text>
+              </VStack>
+            </Box>
 
-          <Divider />
+            <Divider />
 
-          {/* Popular Topics */}
-          <Box width="100%">
-            <Text fontWeight="semibold" fontSize="sm" mb={2}>
-              Popular Topics
-            </Text>
-            <VStack align="start" spacing={2} flexWrap="wrap">
-              <Tag size="sm" borderRadius="full" bg="purple.100" color="purple.700">
-                <TagLabel>Boilers</TagLabel>
-              </Tag>
-              <Tag size="sm" borderRadius="full" bg="green.100" color="green.700">
-                <TagLabel>Heat recovery</TagLabel>
-              </Tag>
-              <Tag size="sm" borderRadius="full" bg="gray.100" color="gray.700">
-                <TagLabel>Steam Systems</TagLabel>
-              </Tag>
-              <Tag size="sm" borderRadius="full" bg="blue.100" color="blue.700">
-                <TagLabel>Efficiency</TagLabel>
-              </Tag>
-            </VStack>
-          </Box>
-        </VStack>
-      </Box>
+            {/* Popular Topics */}
+            <Box width="100%">
+              <Text fontWeight="semibold" fontSize="sm" mb={2}>
+                Popular Topics
+              </Text>
+              <VStack align="start" spacing={2} flexWrap="wrap">
+                <Tag size="sm" borderRadius="full" bg="purple.100" color="purple.700">
+                  <TagLabel>Boilers</TagLabel>
+                </Tag>
+                <Tag size="sm" borderRadius="full" bg="green.100" color="green.700">
+                  <TagLabel>Heat recovery</TagLabel>
+                </Tag>
+                <Tag size="sm" borderRadius="full" bg="gray.100" color="gray.700">
+                  <TagLabel>Steam Systems</TagLabel>
+                </Tag>
+                <Tag size="sm" borderRadius="full" bg="blue.100" color="blue.700">
+                  <TagLabel>Efficiency</TagLabel>
+                </Tag>
+              </VStack>
+            </Box>
+          </VStack>
+        </Box>
+      )}
     </>
   );
 };

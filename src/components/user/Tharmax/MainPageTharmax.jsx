@@ -3,7 +3,7 @@ import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, Al
 import React, { use, useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaRegThumbsDown, FaRegThumbsUp, FaThumbsDown, FaThumbsUp, FaUser } from "react-icons/fa";
@@ -21,6 +21,7 @@ const MainPageTharmax = () => {
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState("");
     const [withDocumentation, setWithDocumentation] = useState(false);
+    const [feedback, setFeedback] = useState(null);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
@@ -291,6 +292,13 @@ const MainPageTharmax = () => {
 
     }, [id]);
 
+    const handleFeedback = (id, type) => {
+        setFeedbackMap((prev) => ({
+            ...prev,
+            [id]: prev[id] === type ? null : type, // Toggle if already selected
+        }));
+    };
+
     return (
 
         <Flex
@@ -455,7 +463,43 @@ const MainPageTharmax = () => {
                         </Box>
 
                         {chat.sender === "bot" && (
+                            //imp                     // <HStack spacing={1}>
+                            //     <IconButton
+                            //         size="sm"
+                            //         bg="transparent"
+                            //         icon={
+                            //             feedbackMap[chat.id] === 0 ? (
+                            //                 <FaThumbsUp color="#3182CE" />
+                            //             ) : (
+                            //                 <FaRegThumbsUp color="gray" />
+                            //             )
+                            //         }
+                            //         variant="ghost"
+                            //         aria-label="Like"
+                            //         _hover={{ bg: "transparent" }}
+                            //         _active={{ bg: "transparent" }}
+                            //         onClick={() => handleLike(chat.id)}
+                            //     />
+                            //     <IconButton
+                            //         size="sm"
+                            //         bg="transparent"
+                            //         icon={
+                            //             feedbackMap[chat.id] === 1 ? (
+                            //                 <FaThumbsDown color="#E53E3E" />
+                            //             ) : (
+                            //                 <FaRegThumbsDown color="gray" />
+                            //             )
+                            //         }
+                            //         variant="ghost"
+                            //         aria-label="Dislike"
+                            //         _hover={{ bg: "transparent" }}
+                            //         _active={{ bg: "transparent" }}
+                            //         onClick={() => handleDislike(chat.id)}
+                            //     />
+                            // </HStack>
+
                             <HStack spacing={1}>
+                                {/* Like Button */}
                                 <IconButton
                                     size="sm"
                                     bg="transparent"
@@ -470,8 +514,10 @@ const MainPageTharmax = () => {
                                     aria-label="Like"
                                     _hover={{ bg: "transparent" }}
                                     _active={{ bg: "transparent" }}
-                                    onClick={() => handleLike(chat.id)}
+                                    onClick={() => handleFeedback(chat.id, 0)}
                                 />
+
+                                {/* Dislike Button */}
                                 <IconButton
                                     size="sm"
                                     bg="transparent"
@@ -486,7 +532,7 @@ const MainPageTharmax = () => {
                                     aria-label="Dislike"
                                     _hover={{ bg: "transparent" }}
                                     _active={{ bg: "transparent" }}
-                                    onClick={() => handleDislike(chat.id)}
+                                    onClick={() => handleFeedback(chat.id, 1)}
                                 />
                             </HStack>
                         )

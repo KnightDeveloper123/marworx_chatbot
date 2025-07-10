@@ -17,7 +17,7 @@ import Guest from './components/user/Guest';
 // import ProductDetails from './components/admin/Pages/ProductDetails';
 // import UserProfile from './components/admin/UserProfile';
 
-const MainPageTharmax = lazy(() => import('./components/user/MainPageTharmax'));
+const MainPageTharmax = lazy(() => import('./components/user/Tharmax/MainPageTharmax'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/Pages/AdminDashboard'));
 const Admin = lazy(() => import('./components/admin/Pages/Admin'));

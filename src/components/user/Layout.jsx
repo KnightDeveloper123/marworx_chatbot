@@ -1,9 +1,9 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
-import SideBarTharmax from "./SideBarTharmax";
+import SideBarTharmax from "./Tharmax/SideBarTharmax";
 import React from "react";
-import NavbarTharmax from "./NavbarTharmax";
-import NewsTharmax from "./NewsTharmax";
+import NavbarTharmax from "./Tharmax/NavbarTharmax";
+import NewsTharmax from "./Tharmax/NewsTharmax";
 
 const Layout = () => {
 
@@ -60,12 +60,9 @@ const Layout = () => {
 
           {/* Right Panel */}
           <Box
-            width="300px"
             position="relative"
             borderLeft="1px solid #E2E8F0"
             bg="white"
-            px={4}
-            py={6}
             overflowY="auto"
           >
             <NewsTharmax />
