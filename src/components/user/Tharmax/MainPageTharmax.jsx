@@ -462,7 +462,7 @@ const MainPageTharmax = () => {
 
                         </Box>
 
-                        {chat.sender === "bot" && (
+                        {chat.sender === "bot" && index === allchats.length - 1 && (
                             <HStack spacing={1}>
                                 <IconButton
                                     size="sm"
