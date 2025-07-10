@@ -113,16 +113,16 @@ const SectorProfile = () => {
                     Authorization: token
                 }
             })
-             const result = await response.json();
-        const botsData = Array.isArray(result?.data?.bots)
-            ? result.data.bots
-            : result.data?.bots
-                ? [result.data.bots]
-                : [];
+            const result = await response.json();
+            const botsData = Array.isArray(result?.data?.bots)
+                ? result.data.bots
+                : result.data?.bots
+                    ? [result.data.bots]
+                    : [];
 
-        console.log("Bots received:", botsData);
-        
-        setLinkedBots(botsData);
+            console.log("Bots received:", botsData);
+
+            setLinkedBots(botsData);
             // const result = await data.json();
             // const BotNames = result?.data?.bots;
             // console.log("botnames", BotNames)
@@ -281,9 +281,8 @@ const SectorProfile = () => {
 
                                     {linkedBots && linkedBots.length > 0 ? (
                                         <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
-                                            {linkedBots?.map((bot, index) => (
+                                            {(Array.isArray(linkedBots[0]) ? linkedBots[0] : linkedBots).map((bot, index) => (
                                                 <Card key={index} _hover={{ cursor: "pointer" }}>
-                                                   { console.log("bot"+bot)}
                                                     <Image
                                                         src={TemViw}
                                                         alt={bot?.name}
@@ -301,7 +300,7 @@ const SectorProfile = () => {
                                         </Text>
                                     )}
 
-                                   
+
 
                                     {/* <pre>{JSON.stringify(linkedBots, null, 2)}</pre> */}
 
