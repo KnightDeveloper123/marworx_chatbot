@@ -284,12 +284,56 @@ const SectorProfile = () => {
                                     <Box>
                                         {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                             <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
+                                                {linkedBots.map((bot, index) => {
+                                                    if (typeof bot !== "object" || bot === null) return null;
+
+                                                    let label = null;
+                                                    try {
+                                                        const parsedNodes =
+                                                            typeof bot.nodes === "string" ? JSON.parse(bot.nodes) : bot.nodes;
+                                                        label = parsedNodes?.[0]?.data?.label || null;
+                                                    } catch (error) {
+                                                        console.error("Invalid bot.nodes JSON", error);
+                                                    }
+
+                                                    return (
+                                                        <Card key={index} p={3} _hover={{ cursor: "pointer" }}>
+                                                            <Flex justify="space-between" align="center" gap="15px">
+                                                                <Flex gap={3}>
+                                                                    <Box>
+                                                                        <Avatar
+                                                                            src={TemViw}
+                                                                            onClick={() => navigate(`/view/${bot.id}`)}
+                                                                            name={label || "Bot"}
+                                                                        />
+                                                                    </Box>
+                                                                    <Box>
+                                                                        <Text fontWeight="semibold">{label || "Untitled Bot"}</Text>
+                                                                        <Text fontSize="10px" color="gray.500">
+                                                                            {bot.createdAt ? timeAgo(bot.createdAt) : "Unknown date"}
+                                                                        </Text>
+                                                                    </Box>
+                                                                </Flex>
+                                                            </Flex>
+                                                        </Card>
+                                                    );
+                                                })}
+                                            </SimpleGrid>
+                                        ) : (
+                                            <Text textAlign="center" mt={4} color="gray.600">
+                                                No linked bots available.
+                                            </Text>
+                                        )}
+
+                                        {/* {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
+                                            <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                                 {linkedBots?.map((bot, index) => {
                                                     console.log("bot:", bot.id, bot.name);
                                                     if (typeof bot !== "object" || bot === null) return null;
 
                                                     return (
                                                         <Card key={index} _hover={{ cursor: "pointer" }}>
+                                                            <Text>Hi</Text>
                                                             <Image
                                                                 src={TemViw}
                                                                 alt={bot?.name || "Bot"}
@@ -306,7 +350,7 @@ const SectorProfile = () => {
                                             <Text textAlign="center" mt={4} color="gray.600">
                                                 No linked bots available.
                                             </Text>
-                                        )}
+                                        )} */}
 
                                     </Box>
 
