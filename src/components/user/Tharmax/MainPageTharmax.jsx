@@ -3,7 +3,7 @@ import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, Al
 import React, { use, useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { VscSend } from "react-icons/vsc";
 import { useToast } from "@chakra-ui/react";
 import { FaRegThumbsDown, FaRegThumbsUp, FaThumbsDown, FaThumbsUp, FaUser } from "react-icons/fa";
@@ -21,6 +21,7 @@ const MainPageTharmax = () => {
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState("");
     const [withDocumentation, setWithDocumentation] = useState(false);
+    const [feedback, setFeedback] = useState(null);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
@@ -291,6 +292,13 @@ const MainPageTharmax = () => {
 
     }, [id]);
 
+    const handleFeedback = (id, type) => {
+        setFeedbackMap((prev) => ({
+            ...prev,
+            [id]: prev[id] === type ? null : type, // Toggle if already selected
+        }));
+    };
+
     return (
 
         <Flex
@@ -489,6 +497,7 @@ const MainPageTharmax = () => {
                                     onClick={() => handleDislike(chat.id)}
                                 />
                             </HStack>
+
                         )
                         }
                     </>
@@ -614,7 +623,7 @@ const MainPageTharmax = () => {
 
                 </Box>
             </Tooltip>
-        </Flex>
+        </Flex >
 
     );
 };

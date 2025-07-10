@@ -1,22 +1,32 @@
-import { Avatar, Button, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, Text } from "@chakra-ui/react";
+import { Avatar, Button, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, Text, useDisclosure } from "@chakra-ui/react";
 import React from "react";
-import Logo from "../../assets/TharmaxLogo.png"
+import Logo from "../../../assets/TharmaxLogo.png"
 import { AiFillBell } from "react-icons/ai";
-import { FiMessageSquare, FiBell } from "react-icons/fi";
+import { FiMessageSquare, FiBell, FiMenu } from "react-icons/fi";
 import { Search2Icon, SearchIcon } from "@chakra-ui/icons";
 import { CiSearch } from "react-icons/ci";
 
 const NavbarTharmax = () => {
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     return (
         <>
             <Flex bg={'#fff'} h={'50px'} w={'100%'} >
-                <Flex flex={1} gap={10} alignItems={"center"}>
+                <Flex flex={1} gap={10} alignItems={"center"} display={{ base: "none", sm: "none", md: "flex" }}>
                     <Image ml={"50px"} boxSize={"40px"} src={Logo} />
                     <Text>Home</Text>
                     <Text>Community</Text>
                     <Text>Leaderboard</Text>
+
+
+                    <IconButton
+                        display={{ base: "flex", md: "none" }}
+                        aria-label="Menu"
+                        icon={<FiMenu />}
+                        variant="ghost"
+                        onClick={onOpen}
+                    />
 
                 </Flex>
                 <Flex align="center" gap={4}>
@@ -32,7 +42,7 @@ const NavbarTharmax = () => {
                             children={<CiSearch color="gray.400" />}
                         />
                         <Input
-                            type="text"
+                            type="text" git ag
                             placeholder="Search"
                             border="none"
                             _focus={{ boxShadow: "none" }}
