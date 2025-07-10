@@ -106,21 +106,31 @@ const SectorProfile = () => {
 
     const fetchLinkedBots = async () => {
         try {
-            const data = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: token
                 }
             })
-            const result = await data.json();
-            const BotNames = result?.data?.bots;
-            console.log("botnames", BotNames)
-            let botsData = result?.data?.bots || [];
-            if (!Array.isArray(botsData)) {
-                botsData = [botsData];
-            }
-            setLinkedBots(botsData);
+             const result = await response.json();
+        const botsData = Array.isArray(result?.data?.bots)
+            ? result.data.bots
+            : result.data?.bots
+                ? [result.data.bots]
+                : [];
+
+        console.log("Bots received:", botsData);
+        
+        setLinkedBots(botsData);
+            // const result = await data.json();
+            // const BotNames = result?.data?.bots;
+            // console.log("botnames", BotNames)
+            // let botsData = result?.data?.bots || [];
+            // if (!Array.isArray(botsData)) {
+            //     botsData = [botsData];
+            // }
+            // setLinkedBots(botsData);
             // setLinkedBots(result?.data?.bots);
         } catch (error) {
             console.log(error)
@@ -292,7 +302,7 @@ const SectorProfile = () => {
 
                                    
 
-                                    <pre>{JSON.stringify(linkedBots, null, 2)}</pre>
+                                    {/* <pre>{JSON.stringify(linkedBots, null, 2)}</pre> */}
 
 
                                 </TabPanel>
