@@ -333,7 +333,7 @@ router.get('/get_linked_bot', middleware, async (req, res) => {
         sector.*, 
         (
           SELECT JSON_ARRAYAGG(
-            JSON_OBJECT('id', bots.id, 'name', bots.name, 'nodes', bots.nodes, 'createdAt', bots.createdAt)
+            JSON_OBJECT('id', bots.id, 'name', bots.name, 'nodes', bots.nodes)
           )
           FROM bots
           WHERE bots.sector_id = sector.id AND bots.status = 0
