@@ -5,7 +5,8 @@ const executeQuery = require('../../utils/executeQuery');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 const multer = require('multer')
-const path = require('path')
+const path = require('path');
+const { data } = require('react-router-dom');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -326,35 +327,114 @@ router.get('/get_all_product_sector', middleware, async (req, res) => {
 router.get('/get_linked_bot', middleware, async (req, res) => {
   const { sector_id } = req.query;
 
+  if (!sector_id) {
+    return res.status(400).json({ error: "sector_id is required" });
+  }
+
   try {
     const result = await executeQuery(
       `
       SELECT 
-        sector.*, 
+        s.*, 
         (
           SELECT JSON_ARRAYAGG(
-            JSON_OBJECT('id', bots.id, 'name', bots.name)
+            JSON_OBJECT(
+              'id', b.id, 
+              'name', b.name
+            )
           )
-          FROM bots
-          WHERE bots.sector_id = sector.id AND bots.status = 0
+          FROM bots b
+          WHERE b.sector_id = s.id AND b.status = 0
         ) AS bots
-      FROM sector
-      WHERE sector.id = ?
-      GROUP BY sector.id
-      `,
-      [sector_id]
+      FROM sector s
+      WHERE s.id = ${sector_id}
+      GROUP BY s.id
+      `
     );
 
+    console.log("✅ Raw SQL result:", result);
+
     if (result.length === 0) {
+      console.log("⚠️ No sector found with the given sector_id.");
       return res.json({ data: { bots: [] } });
     }
-console.log(result[0])
-    return res.json({ data: result[0] });
+
+    const botsField = result[0].bots;
+
+    if (typeof botsField === 'string') {
+      console.log("🔍 bots field is a string. Attempting to parse.");
+    } else {
+      console.log("✅ bots field is already parsed.");
+    }
+
+    const parsedBots = typeof botsField === 'string' ? JSON.parse(botsField) : botsField;
+
+    console.log("✅ Parsed bots array:", parsedBots);
+ 
+
+    return res.json({
+      data: {
+        ...result[0],
+        bots: parsedBots
+      }
+    });
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "Internal server error!" });
+    console.error("❌ Error fetching linked bots:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
+
+// router.get('/get_linked_bot', middleware, async (req, res) => {
+//   const { sector_id } = req.query;
+
+//   if (!sector_id) {
+//     return res.status(400).json({ error: "sector_id is required" });
+//   }
+
+
+
+//   try {
+//     const result = await executeQuery(
+//       `
+//     SELECT 
+//       s.*, 
+//       (
+//         SELECT JSON_ARRAYAGG(
+//           JSON_OBJECT(
+//             'id', b.id, 
+//             'name', b.name
+//           )
+//         )
+//         FROM bots b
+//         WHERE b.sector_id = s.id AND b.status = 0
+//       ) AS bots
+//     FROM sector s
+//    WHERE s.id = ${sector_id}
+//       GROUP BY s.id`
+//     );
+
+//     if (result.length === 0) {
+//       return res.json({ data: { bots: [] } });
+//     }
+
+  
+//     return res.json({
+//       data: {
+//         ...result[0],
+//         bots: typeof result[0].bots === 'string' ? JSON.parse(result[0].bots) : result[0].bots
+//       }
+//     });
+//   } catch (error) {
+//     console.error("❌ Error fetching linked bots:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+
+// });
+
+
 
 
 

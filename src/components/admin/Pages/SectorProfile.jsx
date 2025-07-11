@@ -152,27 +152,59 @@ const SectorProfile = () => {
             });
 
             const result = await res.json();
-            console.log("Raw response data:", result.data);
-
-            let botsData = result?.data?.bots || [];
-
-
-            // ✅ Parse bots if it's a JSON string
-            if (typeof botsData === "string") {
+            let botsData = result?.data?.bots;
+            console.log("botsData", botsData)
+            // ✅ Handle case where bots is a string (server case)
+            if (typeof botsData === 'string') {
                 try {
                     botsData = JSON.parse(botsData);
+                    console.log("parsed data", botsData)
                 } catch (err) {
-                    console.error("❌ Failed to parse bots JSON string:", err);
+                    console.error("Failed to parse bots string:", err);
                     botsData = [];
                 }
             }
 
-            console.log("✅ Parsed bots:", botsData);
-            setLinkedBots(botsData); // ✅ Store as array, not string
+            setLinkedBots(botsData || []);
         } catch (error) {
-            console.error("Failed to fetch bots:", error);
+            console.error("❌ Failed to fetch bots:", error);
         }
     };
+
+    // const [linkedBots, setLinkedBots] = useState([]);
+
+    // const fetchLinkedBots = async () => {
+    //     try {
+    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
+    //             method: "GET",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: token
+    //             }
+    //         });
+
+    //         const result = await res.json();
+    //         console.log("Raw response data:", result.data);
+
+    //         let botsData = result?.data?.bots || [];
+
+
+    //         // ✅ Parse bots if it's a JSON string
+    //         if (typeof botsData === "string") {
+    //             try {
+    //                 botsData = JSON.parse(botsData);
+    //             } catch (err) {
+    //                 console.error("❌ Failed to parse bots JSON string:", err);
+    //                 botsData = [];
+    //             }
+    //         }
+
+    //         console.log("✅ Parsed bots:", botsData);
+    //         setLinkedBots(botsData); // ✅ Store as array, not string
+    //     } catch (error) {
+    //         console.error("Failed to fetch bots:", error);
+    //     }
+    // };
 
 
 
@@ -349,39 +381,39 @@ const SectorProfile = () => {
                                     </SimpleGrid> */}
 
                                     <Box>
-                                       
 
-                                   
-                                            {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
-                                                <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
-                                                    {linkedBots.map((bot, index) => {
-                                                        console.log("bot",bot.id)
-                                                        return (
-                                                            <Card key={index} p={3} _hover={{ cursor: "pointer" }}>
-                                                                <Flex justify="space-between" align="center" gap="15px">
-                                                                    <Flex gap={3}>
-                                                                        <Box>
-                                                                            <Avatar
-                                                                                src={TemViw}
-                                                                                onClick={() => navigate(`/view/${bot.id}`)}
-                                                                                name={bot.name || "Bot"}
-                                                                            />
-                                                                        </Box>
-                                                                        <Box>
-                                                                            <Text fontSize="10px" color="gray.500">{bot.name}</Text>
-                                                                        </Box>
-                                                                    </Flex>
+
+
+                                        {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
+                                            <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
+                                                {linkedBots.map((bot, index) => {
+                                                    console.log("bot", bot)
+                                                    return (
+                                                        <Card key={index} p={3} _hover={{ cursor: "pointer" }}>
+                                                            <Flex justify="space-between" align="center" gap="15px">
+                                                                <Flex gap={3}>
+                                                                    <Box>
+                                                                        <Avatar
+                                                                            src={TemViw}
+                                                                            onClick={() => navigate(`/view/${bot.id}`)}
+                                                                            name={bot.name || "Bot"}
+                                                                        />
+                                                                    </Box>
+                                                                    <Box>
+                                                                        <Text fontSize="10px" color="gray.500">{bot.name}</Text>
+                                                                    </Box>
                                                                 </Flex>
-                                                            </Card>
-                                                        );
-                                                    })}
-                                                </SimpleGrid>
-                                            ) : (
-                                                <Text textAlign="center" mt={4} color="gray.600">
-                                                    No linked bots available.
-                                                </Text>
-                                            )}
-                                
+                                                            </Flex>
+                                                        </Card>
+                                                    );
+                                                })}
+                                            </SimpleGrid>
+                                        ) : (
+                                            <Text textAlign="center" mt={4} color="gray.600">
+                                                No linked bots available.
+                                            </Text>
+                                        )}
+
 
 
                                     </Box>
