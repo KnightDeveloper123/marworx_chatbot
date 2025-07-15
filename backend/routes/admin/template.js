@@ -5,6 +5,50 @@ const executeQuery = require('../../utils/executeQuery');
 const fs = require('fs');
 const { middleware } = require('../../middleware/middleware');
 
+const multer = require('multer');
+const path = require('path');
+
+
+const sheetStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const sheetPath = path.join(__dirname, '../../uploadFiles');
+        if (!fs.existsSync(sheetPath)) {
+            fs.mkdirSync(sheetPath, { recursive: true });
+        }
+        cb(null, sheetPath);
+    },
+    filename: (req, file, cb) => {
+        const { fileName } = req.query;
+        if (!fileName) return cb(new Error('fileName is required'), null);
+        cb(null, fileName + path.extname(file.originalname));
+    }
+});
+const uploadSheet = multer({ storage: sheetStorage });
+
+
+router.post('/upload-sheet', uploadSheet.single('file'), (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+        const originalName = req.query.fileName;
+        const baseName = path.basename(originalName, path.extname(originalName));
+        const extension = path.extname(req.file.originalname);
+        const fileName = `${Date.now()}-${baseName}${extension}`;
+
+        const finalPath = path.join(__dirname, "../../uploadFiles", fileName);
+
+        fs.rename(req.file.path, finalPath, (err) => {
+            if (err) return res.status(500).json({ error: "File rename failed" });
+            return res.json({ success: true, fileName });
+        });
+
+    } catch (error) {
+        console.error("GoogleSheet upload error:", error);
+        res.status(500).json({ error: "Server Error" });
+    }
+});
+
+
 router.post('/add', middleware, (req, res) => {
     const { industry, category, description } = req.body;
     // console.log(req.body)

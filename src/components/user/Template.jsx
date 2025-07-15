@@ -101,7 +101,31 @@ const Template = () => {
       >
         <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
 
-        {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
+        {type === "GoogleSheetsNode" && data.file && (
+          <Box display={'flex'} flexDirection={'column'}>
+
+            <Text mb={2}>{data.caption || "Study material is available for download."}</Text>
+            <Box display={'flex'} alignItems={'center'} gap={'10px'}>
+              <Button
+                colorScheme="blue"
+                onClick={() =>
+                  window.open(`${import.meta.env.VITE_BACKEND_URL}/uploadFiles/${data.file}`, "_blank")
+                }
+              >
+                Download Sheet
+              </Button>
+              <Button
+
+                onClick={() => setCurrentIndex((prev) => prev + 1)}
+                colorScheme="teal"
+              >
+                Next
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length && (
           <VStack align="stretch" spacing={3}>
             {data.targetValues.map((label, index) => (
               <Button
@@ -114,9 +138,9 @@ const Template = () => {
               </Button>
             ))}
           </VStack>
-        ) : (
-         
+        )}
 
+        {type !== "ReplyButton" && type !== "ListButton" && type !== "GoogleSheetsNode" && (
           <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
             <Input
               value={userInput}
@@ -137,28 +161,24 @@ const Template = () => {
               Submit
             </Button>
           </Stack>
-
         )}
       </Box>
     );
-
     // return (
-
     //   <Box
     //     p={4}
     //     w="100%"
     //     maxW={{ base: "100%", md: "90%" }}
-    //     mx={'auto'}
-
-    //     maxH="100px"
-    //     overflowY="auto"
+    //     mx="auto"
+    //     maxH={type === "ReplyButton" || type === "ListButton" ? "150px" : "auto"}
+    //     overflowY={type === "ReplyButton" || type === "ListButton" ? "auto" : "visible"}
     //     borderWidth="1px"
     //     borderRadius="md"
     //     boxShadow="md"
     //     bg="gray.50"
     //   >
-
     //     <Text fontWeight="bold" mb={4}>🤖 {data.label}</Text>
+
     //     {(type === "ReplyButton" || type === "ListButton") && data.targetValues?.length ? (
     //       <VStack align="stretch" spacing={3}>
     //         {data.targetValues.map((label, index) => (
@@ -173,11 +193,17 @@ const Template = () => {
     //         ))}
     //       </VStack>
     //     ) : (
-    //       <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4} >
-    //         <Input
 
+
+    //       <Stack direction={{ base: "column", sm: "row" }} spacing={4} mt={4}>
+    //         <Input
     //           value={userInput}
     //           onChange={(e) => setUserInput(e.target.value)}
+    //           onKeyDown={(e) => {
+    //             if (e.key === "Enter" && userInput.trim()) {
+    //               handleAnswer(userInput, userInput);
+    //             }
+    //           }}
     //           placeholder="Type your answer..."
     //           bg="white"
     //         />
@@ -189,9 +215,12 @@ const Template = () => {
     //           Submit
     //         </Button>
     //       </Stack>
+
     //     )}
     //   </Box>
     // );
+
+
   };
 
   const renderChatHistory = () => (
@@ -301,4 +330,4 @@ const Template = () => {
   )
 };
 
- export default Template;
+export default Template;

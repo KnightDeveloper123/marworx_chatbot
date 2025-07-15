@@ -494,7 +494,7 @@ const nodeTypes = {
         const formData = new FormData();
         formData.append("file", uploadedFile);
 
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/bots/upload-sheet?fileName=${baseName}`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/template/upload-sheet?fileName=${baseName}`, {
           method: "POST",
           body: formData,
         })

@@ -102,45 +102,9 @@ const SectorProfile = () => {
         }
     };
 
-    // const [linkedBots, setLinkedBots] = useState([])
-    // const fetchLinkedBots = async () => {
-    //     try {
-    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 Authorization: token
-    //             }
-    //         })
-
-    //         const result = await res.json();
-    //         console.log(result.data)
-    //         let botsData = result?.data?.bots || [];
-
-    //         console.log("bot type", typeof botsData, botsData.length)
-
-    //         // if (botsData.length === 1 && typeof botsData[0] === "string") {
-    //         //     botsData = JSON.parse(botsData[0]);
-
-    //         // }
-    //         console.log("bot type after", typeof botsData, botsData.length)
-
-    //         if (Array.isArray(botsData[0])) {
-    //             botsData = botsData[0];
-    //         }
-
-    //         console.log("Final parsed bots:", botsData);
-
-    //         setLinkedBots(botsData);
-    //     } catch (error) {
-    //         console.error("Failed to fetch bots:", error);
-    //     }
-    // };
-
-
+   
 
     const [linkedBots, setLinkedBots] = useState([]);
-
     const fetchLinkedBots = async () => {
         try {
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
@@ -153,90 +117,22 @@ const SectorProfile = () => {
 
             const result = await res.json();
             let botsData = result?.data?.bots;
-            console.log("botsData", botsData)
-            // ✅ Handle case where bots is a string (server case)
+            // console.log("botsData", botsData)
+
             if (typeof botsData === 'string') {
                 try {
                     botsData = JSON.parse(botsData);
-                    console.log("parsed data", botsData)
+                    // console.log("parsed data", botsData)
                 } catch (err) {
                     console.error("Failed to parse bots string:", err);
                     botsData = [];
                 }
             }
-
             setLinkedBots(botsData || []);
         } catch (error) {
             console.error("❌ Failed to fetch bots:", error);
         }
     };
-
-    // const [linkedBots, setLinkedBots] = useState([]);
-
-    // const fetchLinkedBots = async () => {
-    //     try {
-    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 Authorization: token
-    //             }
-    //         });
-
-    //         const result = await res.json();
-    //         console.log("Raw response data:", result.data);
-
-    //         let botsData = result?.data?.bots || [];
-
-
-    //         // ✅ Parse bots if it's a JSON string
-    //         if (typeof botsData === "string") {
-    //             try {
-    //                 botsData = JSON.parse(botsData);
-    //             } catch (err) {
-    //                 console.error("❌ Failed to parse bots JSON string:", err);
-    //                 botsData = [];
-    //             }
-    //         }
-
-    //         console.log("✅ Parsed bots:", botsData);
-    //         setLinkedBots(botsData); // ✅ Store as array, not string
-    //     } catch (error) {
-    //         console.error("Failed to fetch bots:", error);
-    //     }
-    // };
-
-
-
-
-
-    // const fetchLinkedBots = async () => {
-    //     try {
-    //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sector/get_linked_bot?sector_id=${id}`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 Authorization: token
-    //             }
-    //         });
-
-    //         const result = await res.json();
-    //         let botsData = result?.data?.bots || [];
-    //         console.log("type of bot", typeof botsData)
-    //         // ✅ Only needed if backend is still sending stringified JSON
-    //         if (typeof botsData === "string") {
-    //             botsData = JSON.parse(botsData);
-    //         }
-    //         console.log("type of bot after", botsData)
-
-    //         setLinkedBots(Array.isArray(botsData) ? botsData : []);
-    //     } catch (error) {
-    //         console.error("Failed to fetch bots:", error);
-    //     }
-    // };
-
-
-
 
     useEffect(() => {
         fetchLinkedBots();
@@ -368,22 +264,7 @@ const SectorProfile = () => {
                                     </SimpleGrid>
                                 </TabPanel>
                                 <TabPanel>
-                                    {/* <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))' _hover={{ cursor: 'pointer' }}>
-                                        {linkedBots.map((bot, index) => (
-                                            <Card key={index}>
-                                                {console.log(bot)}
-                                                {console.log(navigate(`/view/${bot.id}`))}
-                                                <Image src={TemViw} onClick={() => navigate(`/view/${bot.id}`)} />
-
-                                                <Text textAlign="center" mt={2} >{bot.name}</Text>
-                                            </Card>
-                                        ))}
-                                    </SimpleGrid> */}
-
                                     <Box>
-
-
-
                                         {Array.isArray(linkedBots) && linkedBots.length > 0 ? (
                                             <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(200px, 1fr))">
                                                 {linkedBots.map((bot, index) => {
@@ -414,12 +295,7 @@ const SectorProfile = () => {
                                             </Text>
                                         )}
 
-
-
                                     </Box>
-
-
-
                                 </TabPanel>
                                 <TabPanel>
                                 </TabPanel>
