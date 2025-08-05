@@ -9,14 +9,14 @@ const Layout = () => {
 
   return (
     <>
-      <Box height="100vh" display="flex" flexDirection="column" overflow="hidden">
+      <Box height="100vh" display="flex" flexDirection="column" overflow="hidden" bgColor={'#fff'}>
         {/* Navbar */}
         <Box zIndex={100} position="relative">
           <NavbarTharmax />
         </Box>
 
         {/* Main Body: Sidebar + Chat + Right Panel */}
-        <Flex h='calc(100vh - 50px)' overflowY='auto'>
+        <Flex h='calc(100vh - 70px)' overflowY='auto'>
           {/* Left Sidebar */}
           <Box
             // width="260px"
@@ -24,7 +24,7 @@ const Layout = () => {
             zIndex={90}
             borderRight="1px solid #E2E8F0"
             bg="white"
-            h='calc(100vh - 50px)'
+            // h='calc(100vh - 70px)'
             overflowY='auto'
             sx={{
               "&::-webkit-scrollbar": {
@@ -51,8 +51,7 @@ const Layout = () => {
             flex="1"
             position="relative"
             zIndex={1}
-            overflowY="hidden" // prevent internal scroll
-            bg="gray.50"
+            overflowY="auto" // prevent internal scroll
             p={0}
           >
             <Outlet />

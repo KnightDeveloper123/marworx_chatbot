@@ -55,6 +55,7 @@ const UserLogin = () => {
         });
         localStorage.setItem("token", response.data.auth_token);
         localStorage.setItem("chatLimitReached", "false");
+        localStorage.setItem("user", JSON.stringify(response.data.data));
         navigate(`/${userid}`);
       }
     } catch (err) {

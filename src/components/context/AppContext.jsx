@@ -1,5 +1,5 @@
 import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { decrypt, encrypt } from "../utils/security";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,13 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem("username", username);
     }, [username]);
+
+    const user = useMemo(() => {
+        const users = localStorage?.getItem('user');
+        if (users) {
+            return JSON.parse(users)
+        }
+    }, [])
 
     const logout = () => {
         setUsername("");  // Clear username from state
@@ -43,25 +50,54 @@ export const AppProvider = ({ children }) => {
         })
     }, [])
 
-    function formatDate(dateInput) {
+    function formatDate(dateInput, isFriendly = false) {
         const date = new Date(dateInput);
-
         if (isNaN(date.getTime())) {
-            // console.error('Invalid date input');
             return null;
         }
-        const months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
 
+        if (isFriendly) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
 
-        const day = date.getUTCDate().toString().padStart(2, '0');
-        const month = months[date.getUTCMonth()];
-        const year = date.getUTCFullYear();
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds}s ago`;
+            }
 
-        return `${day} ${month} ${year}`;
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return diffInMinutes === 1 ? '1m ago' : `${diffInMinutes}m ago`;
+            }
+
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return diffInHours === 1 ? '1 hour ago' : `${diffInHours} hours ago`;
+            }
+
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return diffInDays === 1 ? '1 day ago' : `${diffInDays} days ago`;
+            }
+
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return diffInMonths === 1 ? '1 month ago' : `${diffInMonths} months ago`;
+            }
+
+            const diffInYears = Math.floor(diffInMonths / 12);
+            return diffInYears === 1 ? '1 year ago' : `${diffInYears} years ago`;
+        } else {
+            const months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            const day = date.getUTCDate().toString().padStart(2, '0');
+            const month = months[date.getUTCMonth()];
+            const year = date.getUTCFullYear();
+            return `${day} ${month} ${year}`;
+        }
     }
+
 
 
     const [loading, setLoading] = useState(false)
@@ -680,11 +716,34 @@ export const AppProvider = ({ children }) => {
 
     };
 
+    const [allQuestions, setAllQuestions] = useState([])
+    const fetchAllQuestions = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch(`${APP_URL}/community/get-all-question`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                }
+            })
+            const result = await response.json();
+            if (result.success) {
+                setAllQuestions(result.data)
+            } else {
+                showAlert(result.error, "error")
+            }
+        } catch (error) {
+            console.log(error);
+            showAlert("Internal Server Error!", "error")
+        }
+    }
+
 
     return (
         <AppContext.Provider
             value={{
-                getbotcampaigns, botcampaigns, getActiveUser, activeUser,
+                getbotcampaigns, botcampaigns, getActiveUser, activeUser, user,
                 fetchMetrics, metrics, months, botData, campaignData, fetchMonthlyMetrics,
                 deleteProduct, getAllDeleteProduct, setDeleteProduct, fetchSectorBots, sectorBots, sectorGenAi,
                 getEmployeeId, employeeId, botSector, getAllinSector, botDeletebot, getAlldeletebot,
@@ -696,7 +755,8 @@ export const AppProvider = ({ children }) => {
                 clearChat, setClearChat, username, setUsername, logout, productService
                 , fetchProductService, sectors, fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, bots, fetchBot,
                 fetchTemplate, template, getAllNumbers, phoneNumbers,
-                startNewChat
+                startNewChat,
+                fetchAllQuestions, allQuestions
             }}
         >
             {children}

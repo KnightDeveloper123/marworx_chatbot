@@ -1,23 +1,32 @@
 import { Avatar, Button, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, Text, useDisclosure } from "@chakra-ui/react";
-import React from "react";
+import React, { useContext } from "react";
 import Logo from "../../../assets/TharmaxLogo.png"
 import { AiFillBell } from "react-icons/ai";
 import { FiMessageSquare, FiBell, FiMenu } from "react-icons/fi";
 import { Search2Icon, SearchIcon } from "@chakra-ui/icons";
 import { CiSearch } from "react-icons/ci";
+import { Link } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
 
 const NavbarTharmax = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { user } = useContext(AppContext)
 
     return (
         <>
-            <Flex bg={'#fff'} h={'50px'} w={'100%'} >
+            <Flex bg={'#fff'} h={'70px'} w={'100%'} px={6} boxShadow='0px 0px 10px 0px #00000040'>
                 <Flex flex={1} gap={10} alignItems={"center"} display={{ base: "none", sm: "none", md: "flex" }}>
-                    <Image ml={"50px"} boxSize={"40px"} src={Logo} />
-                    <Text>Home</Text>
-                    <Text>Community</Text>
-                    <Text>Leaderboard</Text>
+                    <Image boxSize={"40px"} src={Logo} />
+                    <Link>
+                        <Text>Home</Text>
+                    </Link>
+                    <Link to={'/community'}>
+                        <Text>Community</Text>
+                    </Link>
+                    <Link>
+                        <Text>Leaderboard</Text>
+                    </Link>
 
 
                     <IconButton
@@ -70,7 +79,7 @@ const NavbarTharmax = () => {
                     />
 
 
-                    <Avatar size="sm" name="User" src="https://i.pravatar.cc/40" />
+                    <Avatar size="sm" name={user?.name} />
 
 
                     <Button

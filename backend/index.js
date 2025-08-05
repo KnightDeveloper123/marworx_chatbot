@@ -29,6 +29,7 @@ app.use("/products", express.static(path.join(__dirname, "products/")));
 app.use("/sectors", express.static(path.join(__dirname, "sectors/")));
 app.use("/profile", express.static(path.join(__dirname, "profile/")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads/")));
+app.use("/uploads/community", express.static(path.join(__dirname, "uploads/community")));
 
 app.use('/uploadFiles', express.static(path.join(__dirname, 'uploadFiles/')));
 app.use('/videoFiles', express.static(path.join(__dirname, 'videoFiles/')));
@@ -51,6 +52,8 @@ app.use('/template', require("./routes/admin/template"))
 app.use('/',require('./routes/admin/webhook'))
 
 app.use('/user', require("./routes/users/user"))
+app.use('/community', require("./routes/users/community"))
+
 app.use('/chatbot', require("./routes/users/chatbot"))
 // app.use('/webhook', require('./routes/admin/bots'));
 

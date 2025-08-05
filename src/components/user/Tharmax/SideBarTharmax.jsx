@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Box, Button, Divider, Flex, Heading, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Stack, Tag, TagLabel, Text, VStack } from "@chakra-ui/react";
 import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { FaPlus, FaRobot } from "react-icons/fa";
@@ -12,11 +12,12 @@ const SideBarTharmax = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [sideData, setSideData] = useState([]);
   const token = localStorage.getItem("token");
-  const { clearChat, startNewChat } = useContext(AppContext);
+  const { clearChat, startNewChat, user } = useContext(AppContext);
 
   const { id } = useParams();
   console.log("id", id)
-  const { userid } = useParams();
+  // const { userid } = useParams();
+  const userid = useMemo(() => user?.id, [user])
   const navigate = useNavigate();
   console.log("userid", userid)
 

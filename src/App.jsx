@@ -2,10 +2,8 @@ import { Flex, Spinner } from '@chakra-ui/react'
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import React, { lazy, Suspense } from 'react';
 import './App.css'
-import Layout from './components/user/Layout';
 import SignUp from './components/user/SignUp';
 import AdminLayout from './components/admin/Layout';
-import Guest from './components/user/Guest';
 // import Web from './components/admin/Pages/Web';
 // import Sector from './components/admin/Pages/Sector';
 // import ProductService from './components/admin/Pages/ProductService';
@@ -17,6 +15,7 @@ import Guest from './components/user/Guest';
 // import ProductDetails from './components/admin/Pages/ProductDetails';
 // import UserProfile from './components/admin/UserProfile';
 
+const Layout = lazy(() => import('./components/user/Layout'));
 const MainPageTharmax = lazy(() => import('./components/user/Tharmax/MainPageTharmax'));
 const UserLogin = lazy(() => import('./components/user/UserLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/Pages/AdminDashboard'));
@@ -43,6 +42,7 @@ const ProductService = lazy(() => import('./components/admin/Pages/ProductServic
 const RecycleBin = lazy(() => import('./components/admin/Pages/RecycleBin'));
 const Web = lazy(() => import('./components/admin/Pages/Web'));
 const UserTemplate = lazy(() => import('./components/user/Template'));
+const CommunityThermax = lazy(() => import('./components/user/Tharmax/CommunityTharmax'));
 
 
 
@@ -97,6 +97,7 @@ function App() {
             <Route path=":userid" element={<MainPageTharmax />} />
             <Route path=":userid/:id" element={<MainPageTharmax />} />
             <Route path="template/:id" element={<UserTemplate />} />
+            <Route path="community" element={<CommunityThermax />} />
           </Route>
         </Routes>
       </Router>

@@ -1,6 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Switch, Text, Textarea, Tooltip, useDisclosure } from "@chakra-ui/react";
-import React, { use, useContext, useEffect, useRef, useState } from "react";
+import React, { use, useContext, useEffect, useMemo, useRef, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
@@ -27,13 +27,16 @@ const MainPageTharmax = () => {
     const cancelRef = useRef()
     const bottomRef = useRef(null);
     const initRef = React.useRef();
-    const { username, logout, startNewChat } = useContext(AppContext);
+    const { username, logout, startNewChat, user } = useContext(AppContext);
 
     const navigate = useNavigate();
     const MotionBox = motion(Box);
 
     let { id } = useParams();
-    const { userid } = useParams();
+    // const { userid } = useParams();
+
+    const userid = useMemo(() => user?.id, [user])
+    
 
     const toast = useToast();
 
