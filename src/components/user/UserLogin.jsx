@@ -14,7 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { useToast } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -74,72 +74,72 @@ const UserLogin = () => {
 
 
   return (
-    <Box h="100vh" bg="#fff">
+    <Box bg="#fff">
       <Flex h="100vh" justifyContent="center" alignItems="center">
-        <Flex top={"40px"} left="40px" position="absolute">
-          <Image ml={"50px"} boxSize={"40px"} src={Logo} />
+        <Flex top={"20px"} left="30px" position="absolute">
+          <Image boxSize={"40px"} src={Logo} />
         </Flex>
         <Flex
-          h="500px"
-          w="500px"
+          maxW="400px"
+          w={'100%'}
           // bg="#171923"
           color="black"
           justifyContent="center"
           alignItems="center"
-          borderRadius="20px"
+          borderRadius="10px"
           flexDirection="column"
-          border={"2px solid grey"}
+          border={"1px solid #cbcbcb"}
+          boxShadow={'0 0 4px #cbcbcb94, 0 0 8px #cbcbcb3b'}
+          py={'4%'}
+          px={'2%'}
         >
           <Heading mb="20px" fontSize="30px">
             Login
           </Heading>
 
-          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "60%" }}>
+          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
             {/* Email Field */}
             <FormControl isInvalid={errors.email}>
 
-              <FormLabel>Email</FormLabel>
+              <FormLabel fontSize={'13px'} mb={1}>Email</FormLabel>
               <Input
+                fontSize={'14px'}
                 type="text"
-                placeholder="Enter your email"
+                placeholder="eg: john@example.com"
                 {...register("email", { required: "Email is required", pattern: { value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: "Invalid email format" } })}
               />
-              {errors.email ? (
+              {errors.email && (
                 <FormErrorMessage>{errors.email.message}</FormErrorMessage>
-              ) : (
-                <FormHelperText>Enter the email.</FormHelperText>
               )}
             </FormControl>
 
             {/* Password Field */}
-            <FormControl isInvalid={errors.password} mt="20px">
-              <FormLabel>Password</FormLabel>
+            <FormControl isInvalid={errors.password} mt="10px">
+              <FormLabel fontSize={'13px'} mb={1}>Password</FormLabel>
               <Input
+                fontSize={'14px'}
                 type="password"
                 placeholder="Enter your password"
                 {...register("password", { required: "Password is required" })}
               />
-              {errors.password ? (
+              {errors.password && (
                 <FormErrorMessage>{errors.password.message}</FormErrorMessage>
-              ) : (
-                <FormHelperText>Enter the Password.</FormHelperText>
               )}
             </FormControl>
 
-            <Button type="submit" color={"white"} bgColor={"#ED3438"} mt="40px" width="100%">
+            <Button type="submit" color={"white"} bgColor={"#ED3438"} mt={4} width="100%">
               Login
             </Button>
           </form>
 
           <Text
             alignSelf="flex-start"
-            ml="20px"
-            mt="20px"
+            fontSize={'12px'}
+            mt={1}
             color="gray"
             cursor="pointer"
-            onClick={() => navigate("/signup")}
           >
-            Don&apos;t have an account?
+            Don&apos;t have an account <Link to={'/signup'} style={{ color: '#0082ff'}}>SignUp?</Link>
           </Text>
         </Flex>
       </Flex>

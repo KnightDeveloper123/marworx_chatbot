@@ -1,11 +1,12 @@
 import {
-    Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Text, useToast
+    Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Heading, Image, Input, Text, useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React from "react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import Logo from "../../assets/TharmaxLogo.png"
 
 const APP_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -54,32 +55,43 @@ const SignUp = () => {
     };
 
     return (
-        <Box h="100vh" bg="#1A202C">
+        <Box h="100vh">
             <Flex h="100vh" justifyContent="center" alignItems="center">
-                <Flex top={"40px"} left="40px" position="absolute">
-                    <Button colorScheme='blue' onClick={() => navigate("/")}><ArrowBackIcon fontSize={"20px"} /></Button>
+                <Flex top={"20px"} left="30px" position="absolute">
+                    <Image boxSize={"40px"} src={Logo} />
                 </Flex>
                 <Flex
-                    h="600px" w="500px" bg="#171923" color="white"
-                    justifyContent="center" alignItems="center"
-                    borderRadius="20px" flexDirection="column"
+                    maxW="400px"
+                    w={'100%'}
+                    // bg="#171923"
+                    color="black"
+                    justifyContent="center"
+                    alignItems="center"
+                    borderRadius="10px"
+                    flexDirection="column"
+                    border={"1px solid #cbcbcb"}
+                    boxShadow={'0 0 4px #cbcbcb94, 0 0 8px #cbcbcb3b'}
+                    py={'4%'}
+                    px={'2%'}
                 >
                     <Heading mb="20px" fontSize="30px">Sign Up</Heading>
 
-                    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "60%" }}>
+                    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
                         <FormControl isInvalid={errors.name}>
-                            <FormLabel>Username</FormLabel>
+                            <FormLabel fontSize={'13px'} mb={1}>Name</FormLabel>
                             <Input
-                                placeholder="Username"
+                                fontSize={'14px'}
+                                placeholder="eg: John Doe"
                                 {...register("name", { required: "Username is required" })}
                             />
                             <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl mt="4" isInvalid={errors.email}>
-                            <FormLabel>Email</FormLabel>
+                        <FormControl mt="10px" isInvalid={errors.email}>
+                            <FormLabel fontSize={'13px'} mb={1}>Email</FormLabel>
                             <Input
-                                placeholder="Email"
+                                fontSize={'14px'}
+                                placeholder="eg: john@example.com"
                                 {...register("email", {
                                     required: "Email is required",
                                     pattern: {
@@ -91,18 +103,20 @@ const SignUp = () => {
                             <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl mt="4" isInvalid={errors.password}>
-                            <FormLabel>Password</FormLabel>
+                        <FormControl mt="10px" isInvalid={errors.password}>
+                            <FormLabel fontSize={'13px'} mb={1}>Password</FormLabel>
                             <Input
+                                fontSize={'14px'}
                                 type="password" placeholder="Password"
                                 {...register("password", { required: "Password is required" })}
                             />
                             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl mt="4" isInvalid={errors.confirmPassword}>
-                            <FormLabel>Confirm Password</FormLabel>
+                        <FormControl mt="10px" isInvalid={errors.confirmPassword}>
+                            <FormLabel fontSize={'13px'} mb={1}>Confirm Password</FormLabel>
                             <Input
+                                fontSize={'14px'}
                                 type="password" placeholder="Confirm Password"
                                 {...register("confirmPassword", {
                                     required: "Confirm Password is required",
@@ -112,13 +126,19 @@ const SignUp = () => {
                             <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <Button type="submit" colorScheme="blue" mt="6" width="100%">
+                        <Button type="submit" color={"white"} bgColor={"#ED3438"} mt={4} width="100%">
                             Sign Up
                         </Button>
                     </form>
 
-                    <Text mt="4" color="gray" cursor="pointer" onClick={() => navigate("/login")}>
-                        Already have an account? Log in
+                    <Text
+                        alignSelf="flex-start"
+                        fontSize={'12px'}
+                        mt={1}
+                        color="gray"
+                        cursor="pointer"
+                    >
+                        Already have an account <Link to={'/'} style={{ color: '#0082ff' }}>Login?</Link>
                     </Text>
                 </Flex>
             </Flex>
