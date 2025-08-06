@@ -38,7 +38,7 @@ router.post('/uploadDocument', middleware, upload.single('file'), async (req, re
 
         const fileExtension = path.extname(req.file.originalname);
         const file_name = fileName + fileExtension;
-        const [checkDocument] = await executeQuery(`select * from documents where name='${file_name}'`)
+        const [checkDocument] = await executeQuery(`select * from documents where name='${file_name}' and status='0'`)
 
         if (checkDocument) {
             return res.status(400).json({ error: "File with this name and extension already exists" })
