@@ -1,4 +1,4 @@
-import { Avatar, Flex, Text, useToast } from "@chakra-ui/react";
+import { Avatar, Flex, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { decrypt, encrypt } from "../utils/security";
 import axios from "axios";
@@ -739,6 +739,8 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    const { isOpen: isQuestionOpen, onClose: onQuestionClose, onOpen: onQuestionOpen } = useDisclosure();
+
 
     return (
         <AppContext.Provider
@@ -756,7 +758,8 @@ export const AppProvider = ({ children }) => {
                 , fetchProductService, sectors, fetchSector, fetchCampaign, campaign, fetchAllEmployeeQuery, bots, fetchBot,
                 fetchTemplate, template, getAllNumbers, phoneNumbers,
                 startNewChat,
-                fetchAllQuestions, allQuestions
+                fetchAllQuestions, allQuestions,
+                isQuestionOpen, onQuestionClose, onQuestionOpen
             }}
         >
             {children}

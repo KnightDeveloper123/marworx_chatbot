@@ -346,7 +346,7 @@ const MainPageTharmax = () => {
                 }}
             >
 
-                {allchats.map((chat, index) => (
+                {allchats?.length > 0 ? allchats?.map((chat, index) => (
                     <>
                         <Box
                             key={index}
@@ -505,6 +505,10 @@ const MainPageTharmax = () => {
                         }
                     </>
                 )
+                ): (
+                    <Flex h={'-webkit-fill-available'} alignItems={'center'} justifyContent={'center'}>
+                        <Text fontSize={'20px'}>What are you going to ask?</Text>
+                    </Flex>
                 )}
 
 

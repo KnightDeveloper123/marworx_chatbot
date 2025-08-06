@@ -2,16 +2,19 @@ import { Avatar, Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, In
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import CommunityPost from '../Component/CommunityPost'
 import { AppContext } from '../../context/AppContext'
-import { AddAnswer } from '../Dialogs/Community'
+import { AddAnswer, AddQuestion, DeleteQuestion, EditQuestion } from '../Dialogs/Community'
 import { useForm } from 'react-hook-form'
 
 const CommunityThermax = () => {
-    const { fetchAllQuestions, allQuestions, showAlert, user, APP_URL } = useContext(AppContext)
+    const { fetchAllQuestions, allQuestions, showAlert, user, APP_URL, isQuestionOpen, onQuestionClose, onQuestionOpen } = useContext(AppContext)
 
     const { isOpen: isAddAnswerOpen, onClose: onAddAnswerClose, onOpen: onAddAnswerOpen } = useDisclosure();
-    const [loading, setLoading] = useState(false)
+    const { isOpen: isUpdateQuestionOpen, onClose: onUpdateQuestionClose, onOpen: onUpdateQuestionOpen } = useDisclosure();
+    const { isOpen: isDeleteQuestionOpen, onClose: onDeleteQuestionClose, onOpen: onDeleteQuestionOpen } = useDisclosure();
 
     const [selectQuestion, setSelectQuestion] = useState(null);
+    const [editQuestion, setEditQuestion] = useState(null)
+
     useEffect(() => {
         fetchAllQuestions();
 
@@ -28,38 +31,15 @@ const CommunityThermax = () => {
         formState: { errors },
     } = useForm();
 
-    const onSubmit = useCallback(async (values) => {
+    const handleOpenEditQuestion = (data) => {
+        setEditQuestion(data);
+        onUpdateQuestionOpen();
+    }
 
-        try {
-            setLoading(true)
-
-            const response = await fetch(`${APP_URL}/community/add-question`, {
-                method: "POST",
-                headers: {
-                    Authorization: localStorage.getItem('token'),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ question: values?.question, user_id: user?.id })
-            })
-
-            const json = await response.json();
-
-            if (json.success) {
-                showAlert(json.success, 'success');
-                fetchAllQuestions();
-                setLoading(false)
-            } else {
-                console.log(json);
-
-            }
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-            showAlert("Internal error", 'error')
-        } finally {
-            setLoading(false)
-        }
-    }, [user]);
+    const handleOpenDeleteQuestion = (data) => {
+        setEditQuestion(data);
+        onDeleteQuestionOpen()
+    }
 
 
     return (
@@ -70,6 +50,7 @@ const CommunityThermax = () => {
                     <Avatar size="md" name={user?.name} />
                     <FormControl isInvalid={errors.question}>
                         <Input
+                            onClick={() => { onQuestionOpen(); console.log("Hello") }}
                             {...register('question', { required: "Field is required" })}
                             borderRadius='full'
                             bgColor={'#D9D9D91A'}
@@ -86,6 +67,10 @@ const CommunityThermax = () => {
                                 borderColor: '#c5303085',
                                 boxShadow: '0 0 0 1px #c5303085'
                             }}
+
+                            readOnly
+                            _hover={{ opacity: 0.8 }}
+                            cursor={'pointer'}
                         />
                         {/* {errors.question && (
                             <FormErrorMessage fontSize="12px">
@@ -93,7 +78,7 @@ const CommunityThermax = () => {
                             </FormErrorMessage>
                         )} */}
                     </FormControl>
-                    <Button
+                    {/* <Button
                         size='md'
                         fontSize={'14px'}
                         bgColor={'#e53e3e'}
@@ -106,12 +91,12 @@ const CommunityThermax = () => {
                         isLoading={loading}
                     >
                         Send
-                    </Button>
+                    </Button> */}
                 </Flex>
             </Box>
 
             <Box mt={3}>
-                {allQuestions?.length > 0 ? allQuestions?.map((element, index) => <CommunityPost data={element} key={index} handleSelectQuestion={handleSelectQuestion} />) : (
+                {allQuestions?.length > 0 ? allQuestions?.map((element, index) => <CommunityPost data={element} key={index} handleSelectQuestion={handleSelectQuestion} handleOpenEditQuestion={handleOpenEditQuestion} handleOpenDeleteQuestion={handleOpenDeleteQuestion} />) : (
                     <Text>No Questions/Answer Posted</Text>
                 )}
             </Box>
@@ -120,6 +105,23 @@ const CommunityThermax = () => {
                 onClose={onAddAnswerClose}
                 data={selectQuestion}
                 showAlert={showAlert}
+            />
+
+            <AddQuestion
+                isOpen={isQuestionOpen}
+                onClose={onQuestionClose}
+            />
+
+            <EditQuestion
+                isOpen={isUpdateQuestionOpen}
+                onClose={onUpdateQuestionClose}
+                data={editQuestion}
+            />
+
+            <DeleteQuestion
+                isOpen={isDeleteQuestionOpen}
+                onClose={onDeleteQuestionClose}
+                data={editQuestion}
             />
         </Box>
     )

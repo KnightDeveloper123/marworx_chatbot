@@ -1,17 +1,23 @@
-import { Avatar, Button, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, Text, useDisclosure } from "@chakra-ui/react";
+import { Avatar, Box, Button, Divider, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Portal, Text, useDisclosure } from "@chakra-ui/react";
 import React, { useContext } from "react";
 import Logo from "../../../assets/TharmaxLogo.png"
 import { AiFillBell } from "react-icons/ai";
 import { FiMessageSquare, FiBell, FiMenu } from "react-icons/fi";
 import { Search2Icon, SearchIcon } from "@chakra-ui/icons";
 import { CiSearch } from "react-icons/ci";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 
 const NavbarTharmax = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { user } = useContext(AppContext)
+    const { user, onQuestionOpen } = useContext(AppContext)
+    const navigate = useNavigate();
+
+    const handleLogout = () =>{
+        localStorage.clear();
+        navigate('/')
+    }
 
     return (
         <>
@@ -79,11 +85,53 @@ const NavbarTharmax = () => {
                     />
 
 
-                    <Avatar size="sm" name={user?.name} />
+
+                    {/* <Popover>
+                        <PopoverTrigger>
+                            <IconButton bgColor={'transparent'} _hover={{ bgColor: 'transparent' }}>
+                                <Avatar size="sm" name={user?.name} />
+                            </IconButton>
+                        </PopoverTrigger>
+                        <Portal>
+                            <PopoverContent>
+                                <PopoverBody>
+                                    <Flex flexDir={'column'} alignItems={'center'}>
+                                        <Flex flexDir={'column'} gap={2} alignItems={'center'}>
+                                            <Avatar size="md" name={user?.name} />
+                                            <Text>{user?.name}</Text>
+                                        </Flex>
+                                        <Divider my={2} />
+
+                                    </Flex>
+                                </PopoverBody>
+                            </PopoverContent>
+                        </Portal>
+                    </Popover> */}
+
+                    <Menu>
+                        <MenuButton bgColor={'transparent'} _hover={{ bgColor: 'transparent' }}>
+                            <Avatar size="sm" name={user?.name} />
+                        </MenuButton>
+                        <MenuList w={'100%'}>
+                            {/* <MenuItem w={'100%'} isDisabled> */}
+                                <Flex flexDir={'column'} alignItems={'center'}>
+                                    <Flex flexDir={'column'} gap={2} alignItems={'center'}>
+                                        <Avatar size="md" name={user?.name} />
+                                        <Text>{user?.name}</Text>
+                                    </Flex>
+                                    <Divider my={3} />
+                                </Flex>
+                            {/* </MenuItem> */}
+                            <MenuItem onClick={handleLogout}>
+                                <Text fontSize={'14px'}>Logout</Text>
+                            </MenuItem>
+                        </MenuList>
+                    </Menu>
 
 
                     <Button
                         bg="red.500"
+                        onClick={onQuestionOpen}
                         color="white"
                         _hover={{ bg: "red.600" }}
                         borderRadius="full"
