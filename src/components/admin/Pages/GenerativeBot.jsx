@@ -66,7 +66,6 @@ const [loading, setLoading] = useState(true);
       formData.append('admin_id', admin_id)
       formData.append('file', file.file)
       formData.append('fileName', file.fileName)
-      formData.append('sector_id', sectorId)
       formData.append('bot_type', 'Genarative ai')
       try {
         const response = await fetch(

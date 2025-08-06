@@ -19,6 +19,7 @@ import { AppContext } from "../context/AppContext";
 import { useToast } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import Logo from "../../assets/TharmaxLogo.png"
+import { encrypt } from "../utils/security";
 
 const UserLogin = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -55,11 +56,12 @@ const UserLogin = () => {
         });
         localStorage.setItem("token", response.data.auth_token);
         localStorage.setItem("chatLimitReached", "false");
-        localStorage.setItem("user", JSON.stringify(response.data.data));
+        const encryptedData = await encrypt(response.data.data);
+        localStorage.setItem("user", encryptedData);
         navigate(`/${userid}`);
       }
     } catch (err) {
-      // console.log(err);
+      console.log(err);
       toast({
         title: "Login Failed!",
         description: err.response.data.error,

@@ -22,9 +22,13 @@ export const AppProvider = ({ children }) => {
     const user = useMemo(() => {
         const users = localStorage?.getItem('user');
         if (users) {
-            return JSON.parse(users)
+            const data = decrypt(users)
+            
+            return data
         }
     }, [])
+    console.log(user);
+    
 
     const logout = () => {
         setUsername("");  // Clear username from state
