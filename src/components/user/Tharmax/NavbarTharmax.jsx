@@ -5,16 +5,19 @@ import { AiFillBell } from "react-icons/ai";
 import { FiMessageSquare, FiBell, FiMenu } from "react-icons/fi";
 import { Search2Icon, SearchIcon } from "@chakra-ui/icons";
 import { CiSearch } from "react-icons/ci";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import { LuMessageSquareText } from "react-icons/lu";
+import { BiSolidMessageDetail } from "react-icons/bi";
 
 const NavbarTharmax = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { user, onQuestionOpen } = useContext(AppContext)
     const navigate = useNavigate();
+    const location = useLocation()?.pathname;
 
-    const handleLogout = () =>{
+    const handleLogout = () => {
         localStorage.clear();
         navigate('/')
     }
@@ -30,7 +33,7 @@ const NavbarTharmax = () => {
                     <Link to={'/community'}>
                         <Text>Community</Text>
                     </Link>
-                    <Link>
+                    <Link to={'/leaderboards'}>
                         <Text>Leaderboard</Text>
                     </Link>
 
@@ -67,13 +70,15 @@ const NavbarTharmax = () => {
                     </InputGroup>
 
                     {/* Chat Icon */}
-                    <IconButton
-                        aria-label="Chat"
-                        icon={<FiMessageSquare />}
-                        variant="ghost"
-                        color="gray.600"
-                        fontSize="20px"
-                    />
+                    <Link to={'/chat'}>
+                        <IconButton
+                            aria-label="Chat"
+                            icon={location?.split('/')?.includes('chat') ? <BiSolidMessageDetail color="#ED3438" /> : <LuMessageSquareText />}
+                            variant="ghost"
+                            color="gray.600"
+                            fontSize="20px"
+                        />
+                    </Link>
 
                     {/* Notification Icon */}
                     <IconButton
@@ -114,13 +119,13 @@ const NavbarTharmax = () => {
                         </MenuButton>
                         <MenuList w={'100%'}>
                             {/* <MenuItem w={'100%'} isDisabled> */}
-                                <Flex flexDir={'column'} alignItems={'center'}>
-                                    <Flex flexDir={'column'} gap={2} alignItems={'center'}>
-                                        <Avatar size="md" name={user?.name} />
-                                        <Text>{user?.name}</Text>
-                                    </Flex>
-                                    <Divider my={3} />
+                            <Flex flexDir={'column'} alignItems={'center'}>
+                                <Flex flexDir={'column'} gap={2} alignItems={'center'}>
+                                    <Avatar size="md" name={user?.name} />
+                                    <Text>{user?.name}</Text>
                                 </Flex>
+                                <Divider my={3} />
+                            </Flex>
                             {/* </MenuItem> */}
                             <MenuItem onClick={handleLogout}>
                                 <Text fontSize={'14px'}>Logout</Text>

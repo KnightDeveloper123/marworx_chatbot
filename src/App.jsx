@@ -43,6 +43,9 @@ const RecycleBin = lazy(() => import('./components/admin/Pages/RecycleBin'));
 const Web = lazy(() => import('./components/admin/Pages/Web'));
 const UserTemplate = lazy(() => import('./components/user/Template'));
 const CommunityThermax = lazy(() => import('./components/user/Tharmax/CommunityTharmax'));
+const Leaderboards = lazy(() => import('./components/user/Tharmax/Leaderboards'));
+const ChatBody = lazy(() => import('./components/user/Pages/ChatBody'));
+const ChatLayout = lazy(() => import('./components/user/Pages/ChatLayout'));
 
 
 
@@ -98,7 +101,11 @@ function App() {
             <Route path=":userid/:id" element={<MainPageTharmax />} />
             <Route path="template/:id" element={<UserTemplate />} />
             <Route path="community" element={<CommunityThermax />} />
+            <Route path="leaderboards" element={<Leaderboards />} />
           </Route>
+            <Route path="/chat/*" element={<ChatLayout />}>
+              <Route path=":id" element={<ChatBody />} />
+            </Route>
         </Routes>
       </Router>
     </Suspense>
