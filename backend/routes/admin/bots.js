@@ -334,8 +334,8 @@ LIMIT 15;
 router.post('/send-whatsapp', async (req, res) => {
   const { to } = req.body;
   const PhoneNumber = '671909416004124'
-  const url = `https://graph.facebook.com/v17.0/${PhoneNumber}/messages`;
-  const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
+  // const url = `https://graph.facebook.com/v17.0/${PhoneNumber}/messages`;
+  // const token = 'EAAR5zlpRIpcBOxhknJ8aQuSM82mX3u6wJjdBd3EzLNBZA1xxT4gJpdAarRYFMflTKV43e9klzNqdsAarJtEjYyZBDixp36XyK3iZClGDvgmTgb7Uw79A1QXEuf08YcFS22gQ6fEvxZCtj4zpJFNV53KzhRmFtdnwsk9HPRb26wgWZA5U9UmbrUijEWCN5lyKYqA2tdrKZC2BPrd04QSTX35u9RZBvMx6Y1UVO83DrlucBsZD'; // Use .env in production
 
   const body = {
     messaging_product: 'whatsapp',
@@ -446,7 +446,7 @@ const token = process.env.WHATSAPP_TOKEN
 
 
 async function sendWhatsAppText(to, text,) {
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  // const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   const body = {
     messaging_product: 'whatsapp',
     to,
@@ -473,7 +473,7 @@ async function sendWhatsAppText(to, text,) {
 }
 
 async function sendWhatsAppImage(to, imageUrl, token) {
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  // const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   const body = {
     messaging_product: 'whatsapp',
     to,
@@ -535,7 +535,7 @@ async function sendWhatsAppList(to, question, options) {
 
   if (!phoneNumberId) throw new Error("Missing phoneNumberId");
 
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  // const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
 
   const body = {
     messaging_product: 'whatsapp',
@@ -585,7 +585,7 @@ async function sendWhatsAppReplyButtons(to, question, options = []) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "671909416004124";
   const token = process.env.WHATSAPP_TOKEN;
 
-  const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+  // const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
 
   const body = {
     messaging_product: "whatsapp",
