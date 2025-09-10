@@ -6,7 +6,7 @@ const connection = require('../../database/db');
 router.post("/addChat", middleware, (req, res) => {
     const { message, sender, title_id } = req.body;
     // console.log(message,"addChat");
-    
+
     const query = 'INSERT INTO chats (title_id,message,sender) VALUES (?,?,?)'
     const values = [title_id, message, sender]
 
@@ -23,7 +23,7 @@ router.post("/newChat", middleware, async (req, res) => {
 
     const { chats, user_id } = req.body;
     // console.log(chats.chats,"chats");
-    
+
 
     const message = `New Chat ${new Date().toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' })}`;
     const query = 'INSERT INTO chat_titles (title, user_id) VALUES (?,?)'
@@ -85,7 +85,7 @@ router.get("/getChatTitle", middleware, (req, res) => {
     });
 })
 
-router.get("/getAllChats", middleware, (req, res) => {
+router.get("/getAllChats", (req, res) => {
     const { title_id } = req.query;
     connection.query(`select * from chats where title_id=? `, [title_id], (err, data) => {
         if (err) {
@@ -98,19 +98,19 @@ router.get("/getAllChats", middleware, (req, res) => {
 })
 
 router.post("/likeChat", middleware, (req, res) => {
-    
-    const {chat_id,user_id,feedback} = req.body;
-    console.log(chat_id,user_id,feedback);
-    
 
-    connection.query(`INSERT INTO chat_feedback (chat_id,user_id,feedback) VALUES (?,?,?)`, [chat_id,user_id,feedback],
-         (err, data) => {
-        if (err) {
-            console.error("Error fetching sidebar data:", err);
-            return res.status(500).json({ error: "Database query failed" });
-        }
-        res.json({ success: "success", data });
-    });
+    const { chat_id, user_id, feedback } = req.body;
+    console.log(chat_id, user_id, feedback);
+
+
+    connection.query(`INSERT INTO chat_feedback (chat_id,user_id,feedback) VALUES (?,?,?)`, [chat_id, user_id, feedback],
+        (err, data) => {
+            if (err) {
+                console.error("Error fetching sidebar data:", err);
+                return res.status(500).json({ error: "Database query failed" });
+            }
+            res.json({ success: "success", data });
+        });
 
 })
 
