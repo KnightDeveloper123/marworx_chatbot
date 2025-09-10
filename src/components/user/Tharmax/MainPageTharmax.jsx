@@ -36,7 +36,7 @@ const MainPageTharmax = () => {
     // const { userid } = useParams();
 
     const userid = useMemo(() => user?.id, [user])
-    
+
 
     const toast = useToast();
 
@@ -68,7 +68,7 @@ const MainPageTharmax = () => {
         // console.log(value)
         // console.log('ENV TEST:', process.env.REACT_APP_API_URL);
         try {
-            const res = await axios.get(`${BOT_URL}/get_info?query=${value}`, {
+            const res = await axios.get(`${BOT_URL}/get_info?query=${value}&title_id=${title_id}`, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -505,7 +505,7 @@ const MainPageTharmax = () => {
                         }
                     </>
                 )
-                ): (
+                ) : (
                     <Flex h={'-webkit-fill-available'} alignItems={'center'} justifyContent={'center'}>
                         <Text fontSize={'20px'}>What are you going to ask?</Text>
                     </Flex>
