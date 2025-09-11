@@ -68,7 +68,7 @@ const MainPageTharmax = () => {
         // console.log(value)
         // console.log('ENV TEST:', process.env.REACT_APP_API_URL);
         try {
-            const res = await axios.get(`${BOT_URL}/get_info?query=${value}&title_id=${title_id}`, {
+            const res = await axios.get(`${BOT_URL}/get_info?query=${value}&title_id=${id}`, {
                 headers: {
                     "Content-Type": "application/json"
                 }
